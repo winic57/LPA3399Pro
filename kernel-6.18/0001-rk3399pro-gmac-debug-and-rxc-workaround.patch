@@ -1,0 +1,180 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: OpenAI Codex <codex@openai.com>
+Date: Thu, 18 Jun 2026 13:00:00 +0800
+Subject: [PATCH] net: stmmac: dwmac-rk: add rk3399 debug and YT8521 RXC workaround
+
+RK3399Pro on LPA3399Pro is able to probe the Rockchip GMAC, attach the
+YT8521 PHY and create eth0, but interface open still fails with:
+
+  Failed to reset the dma
+  stmmac_hw_setup: DMA engine initialization failed
+
+Field testing on this board showed:
+
+  - vendor-style vcc_phy / phy-supply does not fix the issue
+  - explicit phy-handle + mdio/ethernet-phy@0 does not fix the issue
+  - a consistent clock_in_out=output test does not fix the issue
+  - ethtool register dumps show DMA registers almost unchanged before/after
+    `ip link set eth0 up`
+
+This strongly suggests an RK3399-specific bring-up ordering issue where
+MAC-side initialization reaches stmmac open but the hardware never gets
+into a state where the DMA reset can complete.
+
+Add a *test patch* with two goals:
+
+  1. Improve observability of Rockchip GMAC bring-up on RK3399.
+  2. Force a conservative RX clock / reset sequencing workaround aimed at
+     boards using an external YT8521 in RGMII mode.
+
+The workaround intentionally stays small and reversible:
+
+  - print the resolved clock_in_out state, phy mode and delays
+  - dump GRF SOC_CON5/SOC_CON6 after set_to_rgmii on RK3399
+  - when using external RGMII on RK3399, force clock_input=true before
+    clock enabling so the MAC keeps expecting RXC from PHY
+  - toggle the external PHY reset line once more *after* clocks + GRF have
+    been configured and PHY power has been enabled
+  - add settle delays before returning to stmmac
+
+This is not claimed to be the final fix; it is a board-directed draft
+patch intended for on-device validation.
+
+Signed-off-by: OpenAI Codex <codex@openai.com>
+---
+ drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c | 90 +++++++++++++++++++++++++
+ 1 file changed, 90 insertions(+)
+
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+index 111111111111..222222222222 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -791,12 +791,30 @@ static void rk3399_set_to_rgmii(struct rk_priv_data *bsp_priv,
+ 				int tx_delay, int rx_delay)
+ {
++	unsigned int con5 = 0, con6 = 0;
++
+ 	regmap_write(bsp_priv->grf, RK3399_GRF_SOC_CON5,
+ 		     RK3399_GMAC_PHY_INTF_SEL_RGMII |
+ 		     RK3399_GMAC_RMII_MODE_CLR);
+ 	regmap_write(bsp_priv->grf, RK3399_GRF_SOC_CON6,
+ 		     DELAY_ENABLE(RK3399, tx_delay, rx_delay) |
+ 		     RK3399_GMAC_CLK_RX_DL_CFG(rx_delay) |
+ 		     RK3399_GMAC_CLK_TX_DL_CFG(tx_delay));
++
++	if (!regmap_read(bsp_priv->grf, RK3399_GRF_SOC_CON5, &con5) &&
++	    !regmap_read(bsp_priv->grf, RK3399_GRF_SOC_CON6, &con6))
++		dev_info(bsp_priv->dev,
++			 "rk3399 rgmii applied: GRF_SOC_CON5=0x%08x GRF_SOC_CON6=0x%08x tx=0x%x rx=0x%x\n",
++			 con5, con6, tx_delay, rx_delay);
++	else
++		dev_info(bsp_priv->dev,
++			 "rk3399 rgmii applied: tx=0x%x rx=0x%x (grf readback unavailable)\n",
++			 tx_delay, rx_delay);
+ }
+@@ -1457,6 +1475,25 @@ static int phy_power_on(struct rk_priv_data *bsp_priv, bool enable)
+ 	return 0;
+ }
++
++static void rk_gmac_external_phy_reset(struct rk_priv_data *bsp_priv,
++					       const char *reason)
++{
++	if (!bsp_priv->phy_reset)
++		return;
++
++	dev_info(bsp_priv->dev, "external PHY reset (%s) begin\n", reason);
++	reset_control_assert(bsp_priv->phy_reset);
++	usleep_range(10000, 12000);
++	reset_control_deassert(bsp_priv->phy_reset);
++	usleep_range(50000, 60000);
++	dev_info(bsp_priv->dev, "external PHY reset (%s) end\n", reason);
++}
+ 
+ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
+ 					  struct plat_stmmacenet_data *plat,
+@@ -1572,6 +1609,28 @@ static int rk_gmac_check_ops(struct rk_priv_data *bsp_priv)
+ 	return 0;
+ }
+ 
++static void rk3399pro_test_prepare(struct rk_priv_data *bsp_priv)
++{
++	if (!bsp_priv->dev || !bsp_priv->ops)
++		return;
++
++	if (bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII &&
++	    bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII_ID &&
++	    bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII_RXID &&
++	    bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII_TXID)
++		return;
++
++	if (bsp_priv->integrated_phy)
++		return;
++
++	/*
++	 * LPA3399Pro uses an external YT8521. Keep the MAC expecting RXC from PHY
++	 * during early bring-up even if DT experiments switch clock_in_out.
++	 */
++	bsp_priv->clock_input = true;
++	dev_info(bsp_priv->dev,
++		 "rk3399pro test workaround: forcing clock_input=true for external RGMII PHY\n");
++}
++
+ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
+ {
+ 	struct device *dev = bsp_priv->dev;
+@@ -1581,6 +1640,17 @@ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
+ 	if (ret)
+ 		return ret;
+ 
++	rk3399pro_test_prepare(bsp_priv);
++
++	dev_info(dev,
++		 "powerup start: phy_iface=%d clock_input=%d integrated_phy=%d tx=0x%x rx=0x%x\n",
++		 bsp_priv->phy_iface, bsp_priv->clock_input,
++		 bsp_priv->integrated_phy, bsp_priv->tx_delay,
++		 bsp_priv->rx_delay);
++
+ 	ret = gmac_clk_enable(bsp_priv, true);
+ 	if (ret)
+ 		return ret;
+@@ -1611,6 +1681,20 @@ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
+ 		return ret;
+ 	}
+ 
++	/*
++	 * For RK3399Pro + external YT8521, try a second reset after clocks, GRF
++	 * mode and regulator are all settled. This mirrors the class of sequencing
++	 * often found in vendor BSP trees without changing stmmac core logic.
++	 */
++	if (!bsp_priv->integrated_phy &&
++	    (bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII ||
++	     bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII_ID ||
++	     bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII_RXID ||
++	     bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII_TXID))
++		rk_gmac_external_phy_reset(bsp_priv, "post-grf-post-power");
++
++	usleep_range(20000, 30000);
++
+ 	pm_runtime_get_sync(dev);
+ 
+ 	if (bsp_priv->integrated_phy && bsp_priv->ops->integrated_phy_powerup)
+@@ -1618,6 +1702,12 @@ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
++
++	dev_info(dev,
++		 "powerup done: phy_iface=%d clock_input=%d integrated_phy=%d\n",
++		 bsp_priv->phy_iface, bsp_priv->clock_input,
++		 bsp_priv->integrated_phy);
++
+ 	return 0;
+ }
+@@ -1768,6 +1858,6 @@ static int rk_gmac_probe(struct platform_device *pdev)
+ 	ret = rk_gmac_powerup(plat_dat->bsp_priv);
+ 	if (ret)
+ 		return ret;
+-
++
+ 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
+ 	if (ret)
+ 		goto err_gmac_powerdown;
+-- 
+2.43.0
