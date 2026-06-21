@@ -37,8 +37,8 @@ jobs:
             -w /workspace \
             ubuntu:22.04 \
             bash -c "
-              chmod +x /workspace/build/kernel6.18-build-on-ubuntu22.04.sh ;
-              /workspace/build/kernel6.18-build-on-ubuntu22.04.sh
+              chmod +x /workspace/kdevbuild/ophub_6.18.y_kernel.sh ;
+              /workspace/kdevbuild/ophub_6.18.y_kernel.sh
             "
 
       - name: List build output
