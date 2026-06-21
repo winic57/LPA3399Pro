@@ -46,18 +46,27 @@ PATCH_DIR="${BUILDER_DIR}/kernel-6.18"
 if ls "${PATCH_DIR}"/*.patch >/dev/null 2>&1; then
   for patch_file in "${PATCH_DIR}"/*.patch; do
     echo "--- Applying: $(basename "${patch_file}") ---"
-    # Try git apply first (handles renames and mode changes)
+    # Strip git mailbox header (From/Date/Subject) for patch command
+    body_file="$(mktemp)"
+    sed -n '/^diff --git/,$p' "${patch_file}" > "${body_file}"
+    # Try git apply first (cleanest, no fuzz)
     if git apply --check "${patch_file}" 2>/dev/null; then
       git apply "${patch_file}"
-      echo "  Applied via git apply"
-    # Fallback: patch command with fuzz
-    elif patch -p1 --fuzz=3 --no-backup-if-mismatch < "${patch_file}"; then
-      echo "  Applied via patch -p1 (with fuzz)"
+      echo "  Applied via git apply (clean)"
+    # Fallback: patch -p1 with fuzz, no force
+    elif patch -p1 --fuzz=3 --no-backup-if-mismatch < "${body_file}" 2>&1; then
+      echo "  Applied via patch -p1 (with fuzz=3)"
     else
-      echo "  WARNING: Patch $(basename "${patch_file}") failed to apply cleanly"
-      echo "  Attempting forced apply (may produce .rej files)..."
-      patch -p1 --fuzz=3 --force < "${patch_file}" || true
-      echo "  Check .rej files for rejected hunks"
+      echo "  WARNING: Patch $(basename "${patch_file}") could NOT be applied"
+      echo "  Skipping patch and continuing with clean kernel source"
+      echo "  (The GMAC workaround is not critical for kernel compilation,"
+      echo "   it is only needed for eth0 link-up on the physical board)"
+    fi
+    rm -f "${body_file}"
+    # Report any .rej files
+    if find . -name "*.rej" -print -quit 2>/dev/null | grep -q .; then
+      echo "  Rejected hunks found:"
+      find . -name "*.rej" -exec echo "    {}" \;
     fi
   done
 else
@@ -77,10 +86,18 @@ echo "=== olddefconfig ==="
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
 
 echo "=== Building Image ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image || {
+  echo "=== Image build failed, retrying with -j1 for error details ==="
+  make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j1 Image
+  exit 1
+}
 
 echo "=== Building modules ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules || {
+  echo "=== Modules build failed, retrying with -j1 for error details ==="
+  make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j1 modules
+  exit 1
+}
 
 echo "=== Building dtbs ==="
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) dtbs
