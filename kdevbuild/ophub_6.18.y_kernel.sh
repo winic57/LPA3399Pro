@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -eo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -32,46 +32,71 @@ OUTPUT_DIR="${BUILDER_DIR}/output"
 mkdir -p "$OUTPUT_DIR"
 
 cd "${BUILDER_DIR}"
-echo "=== Cloning repositories ==="
-git clone --progress https://github.com/ophub/linux-6.18.y.git linux-6.18.y.git
-# git clone --progress https://github.com/rockchip-toybrick/u-boot.git u-boot.git
-# git clone --progress https://github.com/rockchip-toybrick/rkbin.git rkbin
-# git clone --progress https://github.com/rockchip-toybrick/linux-x86.git linux-x86
-# mkdir -p prebuilts/gcc/
-# mv linux-x86 prebuilts/gcc/
-
-#cd "${BUILDER_DIR}"
-#echo "=== Building U-Boot ==="
-#cd u-boot.git
-#./make.sh rk3399pro
-#cp *.img "$OUTPUT_DIR/"
-
-cd "${BUILDER_DIR}"
-echo "=== Building Kernel ==="
-cd linux-6.18.y.git
-# apply patch
-if ls "${BUILDER_DIR}/kernel-6.18/"*.patch >/dev/null 2>&1; then
-  git config --global user.name yifengyou
-  git config --global user.email 842056007@qq.com
-  git am ${BUILDER_DIR}/kernel-6.18/*.patch
+echo "=== Cloning kernel source ==="
+if [ ! -d linux-6.18.y.git ]; then
+  git clone --progress https://github.com/ophub/linux-6.18.y.git linux-6.18.y.git
 fi
-# config kernel
-if [ -f ${BUILDER_DIR}/kernel-6.18/config-6.18 ];then
-  cp -a ${BUILDER_DIR}/kernel-6.18/config-6.18 .config
+
+cd "${BUILDER_DIR}/linux-6.18.y.git"
+echo "=== Kernel version ==="
+head -5 Makefile
+
+echo "=== Applying patches ==="
+PATCH_DIR="${BUILDER_DIR}/kernel-6.18"
+if ls "${PATCH_DIR}"/*.patch >/dev/null 2>&1; then
+  for patch_file in "${PATCH_DIR}"/*.patch; do
+    echo "--- Applying: $(basename "${patch_file}") ---"
+    # Try git apply first (handles renames and mode changes)
+    if git apply --check "${patch_file}" 2>/dev/null; then
+      git apply "${patch_file}"
+      echo "  Applied via git apply"
+    # Fallback: patch command with fuzz
+    elif patch -p1 --fuzz=3 --no-backup-if-mismatch < "${patch_file}"; then
+      echo "  Applied via patch -p1 (with fuzz)"
+    else
+      echo "  WARNING: Patch $(basename "${patch_file}") failed to apply cleanly"
+      echo "  Attempting forced apply (may produce .rej files)..."
+      patch -p1 --fuzz=3 --force < "${patch_file}" || true
+      echo "  Check .rej files for rejected hunks"
+    fi
+  done
+else
+  echo "No patches found in ${PATCH_DIR}"
 fi
+
+echo "=== Configuring kernel ==="
+if [ -f "${BUILDER_DIR}/kernel-6.18/config-6.18" ]; then
+  cp -a "${BUILDER_DIR}/kernel-6.18/config-6.18" .config
+  echo "Using config-6.18 from repo"
+else
+  echo "WARNING: config-6.18 not found, using defconfig"
+  make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+fi
+
+echo "=== olddefconfig ==="
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+
+echo "=== Building Image ==="
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image
+
+echo "=== Building modules ==="
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules
+
+echo "=== Building dtbs ==="
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) dtbs
-cp arch/arm64/boot/Image $OUTPUT_DIR/
+
+echo "=== Collecting output ==="
+cp arch/arm64/boot/Image "$OUTPUT_DIR/"
+
 mkdir -p dtbs
-find . -name "rk3399*.dtb" | xargs -i cp {} dtbs/
-tar -zcvf $OUTPUT_DIR/dtbs.tar.gz dtbs
+find . -name "rk3399*.dtb" -exec cp {} dtbs/ \;
+tar -zcvf "$OUTPUT_DIR/dtbs.tar.gz" dtbs
+
 mkdir -p kos
-find . -name "*.ko" | xargs -i cp {} kos/
-tar -zcvf $OUTPUT_DIR/kos.tar.gz kos
+find . -name "*.ko" -exec cp {} kos/ \;
+tar -zcvf "$OUTPUT_DIR/kos.tar.gz" kos
 
 echo "=== Output ==="
 ls -alh "$OUTPUT_DIR/"
 
-echo "Build completed successfully!"
+echo "=== Build completed successfully! ==="
