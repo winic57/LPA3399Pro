@@ -34,7 +34,7 @@ mkdir -p "$OUTPUT_DIR"
 cd "${BUILDER_DIR}"
 echo "=== Cloning kernel source ==="
 if [ ! -d linux-6.18.y.git ]; then
-  git clone --progress https://github.com/ophub/linux-6.18.y.git linux-6.18.y.git
+  git clone --depth=1 https://github.com/ophub/linux-6.18.y.git linux-6.18.y.git
 fi
 
 cd "${BUILDER_DIR}/linux-6.18.y.git"
