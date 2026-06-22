@@ -33,11 +33,22 @@ mkdir -p "$OUTPUT_DIR"
 
 cd "${BUILDER_DIR}"
 echo "=== Cloning kernel source ==="
-if [ ! -d linux-6.18.y.git ]; then
-  git clone --depth=1 https://github.com/ophub/linux-6.18.y.git linux-6.18.y.git
+# Use official kernel.org v6.18.33 tag — matches our config-6.18 exactly.
+# ophub/linux-6.18.y.git is v6.18.35 which has API breakage in several
+# non-Rockchip drivers (i.MX clk, Freescale FEC) that our multiplatform
+# config enables.
+KERNEL_TARBALL="linux-6.18.33.tar.xz"
+KERNEL_URL="https://cdn.kernel.org/pub/linux/kernel/v6.x/${KERNEL_TARBALL}"
+
+if [ ! -d linux-6.18.33 ]; then
+  echo "Downloading kernel ${KERNEL_TARBALL}..."
+  wget -q --show-progress "${KERNEL_URL}" -O "/tmp/${KERNEL_TARBALL}"
+  echo "Extracting..."
+  tar xf "/tmp/${KERNEL_TARBALL}" -C "${BUILDER_DIR}"
+  rm -f "/tmp/${KERNEL_TARBALL}"
 fi
 
-cd "${BUILDER_DIR}/linux-6.18.y.git"
+cd "${BUILDER_DIR}/linux-6.18.33"
 echo "=== Kernel version ==="
 head -5 Makefile
 
