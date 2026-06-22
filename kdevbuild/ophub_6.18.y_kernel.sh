@@ -83,19 +83,33 @@ else
 fi
 
 echo "=== olddefconfig ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig 2>&1 | tee /tmp/olddefconfig.log
 
-echo "=== Building Image ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image || {
-  echo "=== Image build failed, retrying with -j1 for error details ==="
-  make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j1 Image
+BUILD_LOG="/tmp/kernel_build.log"
+echo "=== Building Image (logging to ${BUILD_LOG}) ==="
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image 2>&1 | tee "${BUILD_LOG}" || {
+  echo ""
+  echo "========== BUILD FAILED =========="
+  echo "=== Extracting error lines from build log ==="
+  echo ""
+  echo "--- Lines containing 'error:' or 'Error' ---"
+  grep -iE "error:|warning:.*error|fatal:" "${BUILD_LOG}" | grep -v "Werror" | head -80
+  echo ""
+  echo "--- Last 100 lines of build log ---"
+  tail -100 "${BUILD_LOG}"
+  echo ""
   exit 1
 }
 
 echo "=== Building modules ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules || {
-  echo "=== Modules build failed, retrying with -j1 for error details ==="
-  make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j1 modules
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules 2>&1 | tee "${BUILD_LOG}" || {
+  echo ""
+  echo "========== MODULES BUILD FAILED =========="
+  echo "=== Extracting error lines ==="
+  grep -iE "error:|fatal:" "${BUILD_LOG}" | head -80
+  echo ""
+  echo "--- Last 100 lines of build log ---"
+  tail -100 "${BUILD_LOG}"
   exit 1
 }
 
