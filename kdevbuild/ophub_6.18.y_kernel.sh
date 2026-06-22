@@ -74,44 +74,28 @@ else
 fi
 
 echo "=== Configuring kernel ==="
-# Strategy: use defconfig as base (clean, compiles on any 6.18.y point release),
-# then overlay our board-specific options. This avoids breakage from API changes
-# in unrelated SoC drivers (e.g. i.MX, Renesas, Broadcom) that the full Armbian
-# config enables but we don't need on RK3399Pro.
-echo "Using arm64 defconfig as base..."
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
-
-# Apply our custom options on top of defconfig using merge_config.sh
+# Use our full config-6.18 (matches kernel 6.18.33 exactly)
 CUSTOM_CONFIG="${BUILDER_DIR}/kernel-6.18/config-6.18"
 if [ -f "${CUSTOM_CONFIG}" ]; then
-  echo "Extracting board-specific options from config-6.18..."
-
-  # Extract only the options we care about (Rockchip + WiFi + 4G + peripherals)
-  # This avoids pulling in unrelated SoC drivers that may have API differences
-  grep -E \
-    "^CONFIG_(RTW88|RTW88_8821|RTW88_SDIO|RTW88_CORE|RTW88_LEDS|PPP|PPPOE|PPTP|SLHC|USB_NET_QMI|USB_NET_CDC_MBIM|USB_NET_RNDIS|USB_WDM|USB_SERIAL_OPTION|STMMAC|DWMAC_ROCK|ROCKCHIP|PCIE_ROCKCHIP|PHY_ROCKCHIP|RTK8723CS|BLUETOOTH|BT_|RFCOMM|BT_BNEP|BT_HIDP)" \
-    "${CUSTOM_CONFIG}" > /tmp/board_custom.config 2>/dev/null || true
-
-  # Also extract key Rockchip platform options
-  grep -E \
-    "^CONFIG_(ARCH_ROCKCHIP|ARM_ROCKCHIP|ROCKCHIP_.*=y|ROCKCHIP_.*=m|CLK_ROCKCHIP|PINCTRL_ROCKCHIP|REGULATOR_ROCKCHIP|PHY_ROCKCHIP|VIDEO_ROCKCHIP|SND_SOC_ROCKCHIP|USB_DWC2|USB_DWC3|ECHI|OHCI|XHCI|PCI_HOST_GENERIC|STMMAC|DWMAC)" \
-    "${CUSTOM_CONFIG}" >> /tmp/board_custom.config 2>/dev/null || true
-
-  echo "Board-specific options to merge:"
-  cat /tmp/board_custom.config
-  echo ""
-
-  # Merge using kernel's built-in merge script
-  if [ -f "scripts/kconfig/merge_config.sh" ]; then
-    bash scripts/kconfig/merge_config.sh -m -n .config /tmp/board_custom.config
-  else
-    # Fallback: append and let olddefconfig sort it out
-    cat /tmp/board_custom.config >> .config
-  fi
-  echo "Board-specific options merged."
+  cp -a "${CUSTOM_CONFIG}" .config
+  echo "Using config-6.18 from repo (kernel $(head -3 .config | grep 'Linux/arm64'))"
 else
-  echo "WARNING: config-6.18 not found, using defconfig only"
+  echo "WARNING: config-6.18 not found, using defconfig"
+  make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
 fi
+
+# Disable i.MX clock drivers that have API breakage on this kernel version.
+# The __devm_clk_hw_register_gate function gained a new parameter that the
+# imx8mp-audiomix driver doesn't pass. We don't need i.MX drivers on RK3399Pro.
+echo "=== Disabling problematic non-Rockchip drivers ==="
+sed -i 's/^CONFIG_CLK_IMX8MM=y/# CONFIG_CLK_IMX8MM is not set/' .config
+sed -i 's/^CONFIG_CLK_IMX8MN=y/# CONFIG_CLK_IMX8MN is not set/' .config
+sed -i 's/^CONFIG_CLK_IMX8MP=y/# CONFIG_CLK_IMX8MP is not set/' .config
+sed -i 's/^CONFIG_CLK_IMX8MQ=y/# CONFIG_CLK_IMX8MQ is not set/' .config
+sed -i 's/^CONFIG_CLK_IMX8QXP=y/# CONFIG_CLK_IMX8QXP is not set/' .config
+sed -i 's/^CONFIG_CLK_IMX8ULP=y/# CONFIG_CLK_IMX8ULP is not set/' .config
+sed -i 's/^CONFIG_CLK_IMX93=y/# CONFIG_CLK_IMX93 is not set/' .config
+echo "Disabled: CONFIG_CLK_IMX8xx (i.MX clock drivers not needed on RK3399Pro)"
 
 echo "=== olddefconfig ==="
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig 2>&1 | tee /tmp/olddefconfig.log
