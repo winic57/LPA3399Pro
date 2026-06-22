@@ -50,7 +50,8 @@ jobs:
         if: success()
         uses: ncipollo/release-action@v1
         with:
-          tag: TB-RK3399ProD-kernel-6.18
+          tag: Neardi-LPA3399Pro-kernel-6.18
+          name: Neardi-LPA3399Pro-kernel-6.18
           artifacts: ${{ github.workspace }}/output/*
           allowUpdates: true
           replacesArtifacts: true
