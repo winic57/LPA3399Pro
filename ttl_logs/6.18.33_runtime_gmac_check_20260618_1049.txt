@@ -1,0 +1,107 @@
+
+[?2004l[?2004hroot@armbian:~# 
+[?2004lp -iE 'gmac|stmmac|dwmac|eth0|phy|yt8521|motorcomm|dma|swr|reset' | tail -n 120
+printf '\n[clk gmac summary]\n'; mount -t debugfs debugfs /sys/kernel/debug 2>/dev/null || true; grep -iE 'gmac|mac|rmii|rgmii|125m|50m' /sys/kernel/debug/clk/clk_summary 2>/dev/null || true
+echo __GMAC_RUNTIME_END__
+
+[?2004hroot@armbian:~# echo __GMAC_RUNTIME_BEGIN__
+[?2004l__GMAC_RUNTIME_BEGIN__
+[?2004hroot@armbian:~# date
+[?2004lMon Jun  1 07:04:48 PM CST 2026
+[?2004hroot@armbian:~# uname -a
+[?2004lLinux armbian 6.18.33 #1 SMP PREEMPT Wed Jun 17 16:24:23 CST 2026 aarch64 GNU/Linux
+[?2004hroot@armbian:~# cat /proc/cmdline
+[?2004lroot=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+[?2004hroot@armbian:~# printf '\n[ip -br link]\n'; ip -br link || true
+[?2004l
+[ip -br link]
+[36mlo               [0mUNKNOWN        [33m00:00:00:00:00:00 [0m<LOOPBACK,UP,LOWER_UP> 
+[36meth0             [0m[31mDOWN           [0m[33m36:28:78:08:40:24 [0m<BROADCAST,MULTICAST> 
+[?2004hroot@armbian:~# printf '\n[ip -d link show eth0]\n'; ip -d link show eth0 || true
+[?2004l
+[ip -d link show eth0]
+2: [36meth0: [0m<BROADCAST,MULTICAST> mtu 1500 qdisc noop state [31mDOWN [0mmode DEFAULT group default qlen 1000
+    link/ether [33m36:28:78:08:40:24[0m brd [33mff:ff:ff:ff:ff:ff[0m promiscuity 0 allmulti 0 minmtu 46 maxmtu 3712 numtxqueues 8 numrxqueues 8 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 gso_ipv4_max_size 65536 gro_ipv4_max_size 65536 parentbus platform parentdev fe300000.ethernet 
+    altname end0
+    altname enx362878084024
+[?2004hroot@armbian:~# printf '\n[eth0 sysfs]\n'; for f in operstate carrier speed duplex address; do printf "$f="; cat /sys/class/net/eth0/$f 2>/dev/null || echo NA; done
+[?2004l
+[eth0 sysfs]
+operstate=down
+carrier=NA
+speed=NA
+duplex=NA
+address=36:28:78:08:40:24
+[?2004hroot@armbian:~# printf '\n[ethtool -i eth0]\n'; ethtool -i eth0 2>&1 || true
+[?2004l
+[ethtool -i eth0]
+driver: st_gmac
+version: 6.18.33
+firmware-version: 
+expansion-rom-version: 
+bus-info: fe300000.ethernet
+supports-statistics: yes
+supports-test: no
+supports-eeprom-access: no
+supports-register-dump: yes
+supports-priv-flags: no
+[?2004hroot@armbian:~# printf '\n[ethtool eth0]\n'; ethtool eth0 2>&1 || true
+[?2004l
+[ethtool eth0]
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  Not reported
+	Advertised pause frame use: No
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: Unknown!
+	Duplex: Half
+	Auto-negotiation: off
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: no
+[?2004hroot@armbian:~# printf '\n[network services]\n'; systemctl is-active NetworkManager 2>&1 || true; systemctl is-active systemd-networkd 2>&1 || true; nmcli device status 2>&1 || true
+[?2004l
+[network services]
+active
+inactive
+DEVICE  TYPE      STATE                   CONNECTION 
+[32;2mlo[0m      [32;2mloopback[0m  [32;2mconnected (externally)[0m  [32;2mlo[0m         
+[2meth0[0m    [2methernet[0m  [2munavailable[0m             [2m--[0m         
+[?2004hroot@armbian:~# printf '\n[mdio phy ids]\n'; find /sys/bus/mdio_bus/devices -maxdepth 2 -type f -name phy_id -print -exec cat {} \; 2>/dev/null || true
+[?2004l
+[mdio phy ids]
+[?2004hroot@armbian:~# printf '\n[dt ethernet runtime]\n'; tr -d '\0' </proc/device-tree/ethernet@fe300000/status; echo; tr -d '\0' </proc/device-tree/ethernet@fe300000/clock_in_out; echo; hexdump -Cv /proc/device-tree/ethernet@fe300000/snps,reset-gpio 2>/dev/null || true; hexdump -Cv /proc/device-tree/ethernet@fe300000/rx_delay 2>/dev/null || true
+[?2004l
+[dt ethernet runtime]
+okay
+input
+00000000  00 00 00 23 00 00 00 0f  00 00 00 01              |...#........|
+0000000c
+00000000  00 00 00 11                                       |....|
+00000004
+[?2004hroot@armbian:~# printf '\n[dmesg gmac tail]\n'; dmesg | grep -iE 'gmac|stmmac|dwmac|eth0|phy|yt8521|motorcomm|dma|swr|reset' | tail -n 120
+[?2004l
+[dmesg gmac tail]
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.000000] arch_timer: cp15 timer running at 24.00MHz (phys).
+[    0.051634] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052772] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.054352] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.109328] /syscon@ff770000/phy

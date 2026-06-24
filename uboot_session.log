@@ -1,0 +1,394 @@
+[[0;32m  OK  [0m] Stopped [0;1;39mSystem Logging Service[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mDisk Manager[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mAuthorization Manager[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mOpenBSD Secure Shell server[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mDaemon for power management[0m.
+[   40.618853] tty_port_close_start: tty->count = 1 port count = 2.
+[[0;32m  OK  [0m] Stopped [0;1;39mSerial Getty on ttyFIQ0[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mGetty on tty1[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSetup zram based device zram0[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mrkisp 3A engine[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSave/Restore Sound Card State[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSession c1 of user neardi[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSession c2 of user root[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mBluetooth service[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mLight Display Manager[0m.
+         Stopping [0;1;39mUser Manager for UID 0[0m...
+         Stopping [0;1;39mLogin Service[0m...
+         Stopping [0;1;39mUser Manager for UID 1001[0m...
+         Stopping [0;1;39mManage Sound Card State (restore and store)[0m...
+[[0;32m  OK  [0m] Removed slice [0;1;39msystem-zram\x2dsetup.slice[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39msystem-getty.slice[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39msystem-serial\x2dgetty.slice[0m.
+[   40.690555] Bluetooth: hci_uart_tty_close: tty ffffffc0ededd800
+[   40.691194] Bluetooth: hci_uart_close: hdev ffffffc0eee98000
+[   40.691196] Bluetooth: HCI_RUNNING is not cleared before.
+[   40.691199] Bluetooth: __hci_uart_flush: hdev ffffffc0eee98000 tty ffffffc0ededd800
+[   40.691204] rtk_btcoex: Close BTCOEX
+[   40.691211] rtk_btcoex: -x
+[   40.691237] Bluetooth: hci_uart_close: hdev ffffffc0eee98000
+[   40.691240] Bluetooth: __hci_uart_flush: hdev ffffffc0eee98000 tty ffffffc0ededd800
+[   40.691242] rtk_btcoex: RTL COEX is already closed.
+[   40.692979] Bluetooth: h5_close
+         Stopping [0;1;39m/etc/rc.local Compatibility[0m...
+[   40.610539] rc.local[509]: Realtek Bluetooth :Realtek Bluetooth init uart with init speed:115200, type:HCI UART H5
+[   40.616475] rc.local[509]: Realtek Bluetooth :Realtek hciattach version 3.1.390bad8.20220519-142434
+[   40.617553] rc.local[509]: Realtek Bluetooth :Use epoll
+[[0;32m  OK  [0m] Stopped [0;1;39mLogin Service[0m.
+[   40.618438] rc.local[509]: Realtek Bluetooth :[SYNC] Get SYNC Resp Pkt
+[   40.619092] rc.local[509]: Realtek Bluetooth :[CONFIG] Get SYNC pkt
+[   40.619558] rc.local[509]: Realtek Bluetooth :[CONFIG] Get CONFG pkt
+[   40.620113] rc.local[509]: Realtek Bluetooth :[CONFIG] Get CONFG resp pkt
+[   40.620698] rc.local[509]: Realtek Bluetooth :dic is 1, cfg field 0x14
+[   40.621340] rc.local[509]: Realtek Bluetooth :H5 init finished
+[   40.621747] rc.local[509]: Realtek Bluetooth :Realtek H5 IC
+[   40.622228] rc.local[509]: Realtek Bluetooth :Receive cmd complete event of command: 1001
+[   40.622945] rc.local[509]: Realtek Bluetooth :HCI Version 0x08
+[   40.623466] rc.local[509]: Realtek Bluetooth :HCI Revision 0x000c
+[   40.623907] rc.local[509]: Realtek Bluetooth :LMP Subversion 0x8821
+[   40.624575] rc.local[509]: Realtek Bluetooth :Receive cmd complete event of command: fc6d
+[   40.625291] rc.local[509]: Realtek Bluetooth :Read ROM version 01
+[   40.625799] rc.local[509]: Realtek Bluetooth :LMP Subversion 0x8821
+[   40.626298] rc.local[509]: Realtek Bluetooth :EVersion 1
+[   40.626701] rc.local[509]: Realtek Bluetooth :IC: RTL8821CS
+[   40.627269] rc.local[509]: Realtek Bluetooth :Firmware/config: rtl8821c_fw, rtl8821c_config
+[   40.627956] rc.local[509]: Realtek Bluetooth :Couldnt open extra config /opt/rtk_btconfig.txt, No such file or directory[
+[0;32m  OK  [0m] Stopped [0;1;39mLSB: set CPUFreq kernel parameters[0m.[   40.628825] 
+rc.local[509]: Realtek Bluetooth :Couldnt access customer BT MAC file /opt/bdaddr
+[   40.630198] rc.local[509]: Realtek Bluetooth :Origin cfg len 41
+[   40.630655] rc.local[509]: Realtek Bluetooth :55 ab 23 87 23 00 0c 00 10 02 80 92 04 50 c5 ea
+[[0;32m  OK  [0m] Stopped [0;1;39mManage Sound Card State (restore and store)[0m.[   40.631400] 
+rc.local[509]: Realtek Bluetooth :19 e1 1b fd af 5f 01 a4 0b d9 00 01 0f e4 00 01
+[   40.632771] rc.local[509]: Realtek Bluetooth :08 8d 00 01 fa 8f 00 01 bf
+[   40.633355] rc.local[509]: Realtek Bluetooth :Config baudrate: 04928002
+[[0;32m  OK  [0m[   40.633907] ] rc.localStopped [0;1;39mUser Manager for UID 0[0m.
+[509]: Realtek Bluetooth :uart flow ctrl: 1
+[   40.634918] rc.local[509]: Realtek Bluetooth :Vendor baud from Config file: 04928002
+[   40.635589] rc.local[509]: Realtek Bluetooth :New cfg len 41[
+[0;32m  OK  [0m] Stopped [0;1;39mUser Manager for UID 1001[0m.[   40.636061] 
+rc.local[509]: Realtek Bluetooth :55 ab 23 87 23 00 0c 00 10 02 80 92 04 50 c5 ea
+[   40.637336] rc.local[509]: Realtek Bluetooth :19 e1 1b fd af 5f 01 a4 0b d9 00 01 0f e4 00 01
+[[0;32m  OK  [0m] Stopped [0;1;39m/etc/rc.local Compatibility[0m.[   40.638094] 
+rc.local[509]: Realtek Bluetooth :08 8d 00 01 fa 8f 00 01 bf
+[   40.639185] rc.local[509]: Realtek Bluetooth :Load FW /lib/firmware/rtlbt/rtl8821c_fw OK, size 52448
+[   40.639953] rc.local[509]: Realtek Bluetooth :rtb_get_fw_project_id: opcode 0, len 1, data 10
+[   40.640683] rc.local[509]: Realtek Bluetooth :FW version 0x9aa96ac8, Patch num 2
+[   40.641312] rc.local[509]: Realtek Bluetooth :Chip id 0x0001
+[   40.641816] rc.local[509]: Realtek Bluetooth :Chip id 0x0002
+[   40.642308] rc.local[509]: Realtek Bluetooth :Patch length 0x7fd8
+[   40.642824] rc.local[509]: Realtek Bluetooth :Start offset 0x00004cc0
+         Stopping [0;1;39mUser Runtime Directory /run/user/1001[0m...
+[   40.644037] rc.local[509]: Realtek Bluetooth :Svn version: 2591481294
+[   40.644503] rc.local[509]: Realtek Bluetooth :Coexistence: BTCOEX_20210728-5555
+[   40.645124] rc.local[509]: Realtek Bluetooth :FW  exists, Config file  exists
+[   40.645760] rc.local[509]: Realtek Bluetooth :Total len 32769 for fwc
+[   40.646308] rc.local[509]: Realtek Bluetooth :baudrate in change speed command: 0x02 0x80 0x92 0x04
+[   40.647074] rc.local[509]: Realtek Bluetooth :Receive cmd complete event of command: fc17
+[   40.647767] rc.local[509]: Realtek Bluetooth :Received cc of vendor change baud         
+Stopping [0;1;39mUser Runtime Directory /run/user/0[0m...[   40.648452] 
+rc.local[509]: Realtek Bluetooth :Final speed 1500000
+[   40.649590] rc.local[509]: Realtek Bluetooth :end_idx: 130, lp_len: 9, additional pkts: 1
+[   40.650234] rc.local[509]: Realtek Bluetooth :Start downloading...
+[   40.650722] rc.local[509]: Realtek Bluetooth :Last packet 132
+[   40.651283] rc.local[509]: Realtek Bluetooth :Send last pkt
+[   40.651732] rc.local[509]: Realtek Bluetooth :Enable host hw flow control
+[   40.652481] rc.local[509]: Realtek Bluetooth :h5_hci_reset: Issue hci reset cmd
+[   40.653069] rc.local[509]: Realtek Bluetooth :Receive cmd complete event of command: 0c03
+[   40.653701] rc.local[509]: Realtek Bluetooth :Received cc of hci reset cmd
+[   40.654356] rc.local[509]: Realtek Bluetooth :Init Process finished
+         Stopping [0;1;39mLSB: Load kernel …d to enable cpufreq scaling[0m...[   40.654835] 
+rc.local[509]: Realtek Bluetooth :Realtek Bluetooth post process
+[   40.656468] rc.local[509]: Realtek Bluetooth :Device setup complete
+[   40.657253] rc.local[509]: Realtek Bluetooth :signal term.
+[   40.657941] rc.local[509]: Realtek Bluetooth :Got EINTR.
+[   40.658627] rc.local[509]: Realtek Bluetooth :err -1, p->revents 0000
+[   40.659262] rc.local[509]: Realtek Bluetooth :Restore TTY line discipline
+[[0;32m  OK  [0m] Unmounted [0;1;39m/run/user/1001[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mUser Runtime Directory /run/user/1001[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39mUser Slice of UID 1001[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/run/user/0[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mLSB: Load kernel m…ded to enable cpufreq scaling[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mUser Runtime Directory /run/user/0[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39mUser Slice of UID 0[0m.
+         Stopping [0;1;39mPermit User Sessions[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mPermit User Sessions[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mRemote File Systems[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mNetwork[0m.
+         Stopping [0;1;39mWPA supplicant[0m...
+         Stopping [0;1;39mRaise network interfaces[0m...
+         Stopping [0;1;39mNetwork Manager[0m...
+[   40.836397] RTW: clear key for addr:50:64:2b:14:77:6d, camid:0
+[   40.837488] RTW: clear key for addr:50:64:2b:14:77:6d, camid:1
+[   40.859761] cfg80211: World regulatory domain updated:
+[   40.860245] cfg80211:  DFS Master region: unset
+[   40.860638] cfg80211:   (start_freq - end_freq @ bandwidth), (max_antenna_gain, max_eirp), (dfs_cac_time)
+[   40.861543] cfg80211:   (2402000 KHz - 2472000 KHz @ 40000 KHz), (N/A, 2000 mBm), (N/A)
+[   40.862262] cfg80211:   (2457000 KHz - 2482000 KHz @ 20000 KHz, 92000 KHz AUTO), (N/A, 2000 mBm), (N/A)
+[   40.863100] cfg80211:   (2474000 KHz - 2494000 KHz @ 20000 KHz), (N/A, 2000 mBm), (N/A)
+[   40.863812] cfg80211:   (5170000 KHz - 5250000 KHz @ 80000 KHz, 160000 KHz AUTO), (N/A, 2000 mBm), (N/A)
+[   40.864641] cfg80211:   (5250000 KHz - 5330000 KHz @ 80000 KHz, 160000 KHz AUTO), (N/A, 2000 mBm), (0 s)
+[   40.865482] cfg80211:   (5490000 KHz - 5730000 KHz @ 160000 KHz), (N/A, 2000 mBm), (0 s)
+[   40.866198] cfg80211:   (5735000 KHz - 5835000 KHz @ 80000 KHz), (N/A, 2000 mBm), (N/A)
+[   40.866903] cfg80211:   (57240000 KHz - 63720000 KHz @ 2160000 KHz), (N/A, 0 mBm), (N/A)
+[[0;32m  OK  [0m] Stopped [0;1;39mWPA supplicant[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mRaise network interfaces[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mNetwork Manager[0m.
+         Stopping [0;1;39mD-Bus System Message Bus[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mD-Bus System Message Bus[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mBasic System[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSlices[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39mUser and Session Slice[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSockets[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mSyslog Socket[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mPaths[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mD-Bus System Message Bus Socket[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSystem Initialization[0m.
+         Stopping [0;1;39mUpdate UTMP about System Boot/Shutdown[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mApply Kernel Variables[0m.
+         Stopping [0;1;39mNetwork Time Synchronization[0m...
+[[0;32m  OK  [0m] Stopped target [0;1;39mLocal Encrypted Volumes[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mDispatch Password …ts to Console Directory Watch[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mForward Password R…uests to Wall Directory Watch[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSwap[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mLoad Kernel Modules[0m.
+         Stopping [0;1;39mLoad/Save Random Seed[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mNetwork Time Synchronization[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mLoad/Save Random Seed[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mUpdate UTMP about System Boot/Shutdown[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCreate Volatile Files and Directories[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mLocal File Systems[0m.
+         Unmounting [0;1;39m/media/neardi/ROOTFS[0m...
+         Unmounting [0;1;39m/media/neardi/BOOT[0m...
+         Unmounting [0;1;39m/var/cache[0m...
+         Unmounting [0;1;39m/mnt/sdcard[0m...
+[[0;32m  OK  [0m] Unmounted [0;1;39m/media/neardi/ROOTFS[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/media/neardi/BOOT[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/var/cache[0m.
+         Stopping [0;1;39mClean the /media/neardi/BOOT mount point[0m...
+         Stopping [0;1;39mClean the /media/neardi/ROOTFS mount point[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mClean the /media/neardi/BOOT mount point[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/mnt/sdcard[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mClean the /media/neardi/ROOTFS mount point[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mUnmount All Filesystems[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mLocal File Systems (Pre)[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCreate Static Device Nodes in /dev[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCreate System Users[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mRemount Root and Kernel File Systems[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39msystem-clean\x2dmount\x2dpoint.slice[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mShutdown[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mFinal Step[0m.
+[[0;32m  OK  [0m] Started [0;1;39mReboot[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mReboot[0m.
+[   41.121393] dw_wdt: unexpected close, system will reboot soon
+[   41.183342] systemd-journald[198]: Received SIGTERM from PID 1 (systemd-shutdow).
+[   41.242876] EXT4-fs (mmcblk1p6): re-mounted. Opts: data=ordered
+[   41.269958] kvm: exiting hardware virtualization
+[   41.270525] cpu cpu4: min=816000, max=816000
+[   41.272425] cpu cpu0: min=816000, max=816000
+[   41.286356] I : [File] : drivers/gpu/arm/midgard/platform/rk/mali_kbase_config_rk.c; [Line] : 274; [Func] : kbase_platform_rk_shutdown(); to make vdd_gpu enabled for turning off pd_gpu in pm_framework.
+[   41.287991] rk-vcodec ff660000.rkvdec: shutdown
+[   41.288407] rk-vcodec ff650000.vpu_service: shutdown
+[   41.292012] reboot: Restarting system
+DDR Version 1.24 20191016
+In
+soft reset
+SRX
+Channel 0: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+Channel 1: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+256B stride
+ch 0 ddrconfig = 0x101, ddrsize = 0x2020
+ch 1 ddrconfig = 0x101, ddrsize = 0x2020
+pmugrf_os_reg[2] = 0x3AA0DAA0, stride = 0xD
+OUT
+Boot1 Release Time: May 29 2020 17:36:36, version: 1.26
+CPUId = 0x0
+ChipType = 0x10, 430
+SdmmcInit=2 0
+BootCapSize=100000
+UserCapSize=15028MB
+FwPartOffset=2000 , 100000
+mmc0:cmd8,20
+mmc0:cmd5,20
+mmc0:cmd55,20
+mmc0:cmd1,20
+mmc0:cmd8,20
+mmc0:cmd5,20
+mmc0:cmd55,20
+mmc0:cmd1,20
+mmc0:cmd8,20
+mmc0:cmd5,20
+mmc0:cmd55,20
+mmc0:cmd1,20
+SdmmcInit=0 1
+StorageInit ok = 79143
+SecureMode = 0
+SecureInit read PBA: 0x4
+SecureInit read PBA: 0x404
+SecureInit read PBA: 0x804
+SecureInit read PBA: 0xc04
+SecureInit read PBA: 0x1004
+SecureInit read PBA: 0x1404
+SecureInit read PBA: 0x1804
+SecureInit read PBA: 0x1c04
+SecureInit ret = 0, SecureMode = 0
+atags_set_bootdev: ret:(0)
+GPT part:  0, name:            uboot, start:0x4000, size:0x2000
+GPT part:  1, name:            trust, start:0x6000, size:0x2000
+GPT part:  2, name:             boot, start:0xa000, size:0x10000
+GPT part:  3, name:         recovery, start:0x1a000, size:0x30000
+GPT part:  4, name:           backup, start:0x4a000, size:0x10000
+GPT part:  5, name:           rootfs, start:0x5a000, size:0x1cfffdf
+find part:uboot OK. first_lba:0x4000.
+find part:trust OK. first_lba:0x6000.
+Trust Addr:0x6000, 0x58334c42
+No find bl30.bin
+Load uboot, ReadLba = 4000
+Load OK, addr=0x200000, size=0xfbcb8
+RunBL31 0x40000 @ 124693 us
+NOTICE:  BL31: v1.3(release):845ee93
+NOTICE:  BL31: Built : 15:51:11, Jul 22 2020
+NOTICE:  BL31: Rockchip release version: v1.1
+INFO:    GICv3 with legacy support detected. ARM GICV3 driver initialized in EL3
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 0
+INFO:    plat_rockchip_pmu_init(1196): pd status 3e
+INFO:    BL31: Initializing runtime services
+INFO:    BL31: Initializing BL32
+INF [0x0] TEE-CORE:init_primary_helper:337: Initializing (1.1.0-266-gee81607c #1 Mon Aug 17 09:23:30 UTC 2020 aarch64)
+
+INF [0x0] TEE-CORE:init_primary_helper:338: Release version: 1.2
+
+INF [0x0] TEE-CORE:init_teecore:83: teecore inits done
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0x200000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2017.09 (Feb 01 2026 - 05:43:12 +0000)
+
+Model: Rockchip RK3399 Evaluation Board
+PreSerial: 2, raw, 0xff1a0000
+DRAM:  3.8 GiB
+Sysmem: init
+Relocation Offset: f5bc8000, fdt: f3dbc358 
+Using default environment
+
+Hotkey: ctrl+c
+dwmmc@fe320000: 1, sdhci@fe330000: 0
+Bootdev(atags): mmc 0
+MMC0: HS400, 150Mhz
+PartType: EFI
+No misc partition
+boot mode: normal
+Found DTB in boot part
+DTB: rk-kernel.dtb
+HASH(c): OK
+I2c0 speed: 400000Hz
+PMIC:  RK8090 (on=0x40, off=0x00)
+vdd_center 900000 uV
+vdd_cpu_l 900000 uV
+io-domain: OK
+Model: Rockchip RK3399pro evb v13 linux board with multi camera
+Rockchip UBOOT DRM driver version: v1.0.1
+CLK: (uboot. arml: enter 816000 KHz, init 816000 KHz, kernel 0N/A)
+CLK: (uboot. armb: enter 816000 KHz, init 816000 KHz, kernel 0N/A)
+  aplll 816000 KHz
+  apllb 816000 KHz
+  dpll 800000 KHz
+  cpll 24000 KHz
+  gpll 800000 KHz
+  npll 600000 KHz
+  vpll 24000 KHz
+  aclk_perihp 133333 KHz
+  hclk_perihp 66666 KHz
+  pclk_perihp 33333 KHz
+  aclk_perilp0 266666 KHz
+  hclk_perilp0 88888 KHz
+  pclk_perilp0 44444 KHz
+  hclk_perilp1 100000 KHz
+  pclk_perilp1 50000 KHz
+EC20_PWREN = 1
+EC20_RESET = 0
+------ ec20_init  ------
+EC20_PWRKEY = 0
+EC20_PWRKEY = 1
+Net:   eth0: ethernet@fe300000
+Hit key to stop autoboot('CTRL+C'):  0  0
+=> <INTERRUPT>
+=> <INTERRUPT>
+=> 
+=> 

@@ -1,0 +1,7 @@
+make: 进入目录“/tmp/gmac_patch_build_20260618_143722/src”
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+  GEN     Makefile
+  CALL    /tmp/gmac_patch_build_20260618_143722/src/scripts/checksyscalls.sh
+  CC      drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: 离开目录“/tmp/gmac_patch_build_20260618_143722/src”

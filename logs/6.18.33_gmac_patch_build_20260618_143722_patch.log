@@ -1,0 +1,3 @@
+patching file drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+patch: **** malformed patch at line 75: @@ -1457,6 +1475,25 @@ static int phy_power_on(struct rk_priv_data *bsp_priv, bool enable)
+

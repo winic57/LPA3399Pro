@@ -1,0 +1,218 @@
+
+===== LOCAL REBOOT CAPTURE START =====
+
+[?2004l[?2004hroot@armbian:~# reboot
+[?2004l[?2004hroot@armbian:~# [?2004l[?2004h[?2004l
+[!p]104[?7h[6n[32766;32766H[6n[  795.709064] EXT4-fs (mmcblk1p1): unmounting filesystem 955919d4-e37d-4c44-99d6-c0a5552f798c.
+[  795.978720] systemd-shutdown[1]: Syncing filesystems and block devices.
+[  796.480655] systemd-shutdown[1]: Sending SIGTERM to remaining processes...
+[  796.511465] systemd-journald[118]: Received SIGTERM from PID 1 (systemd-shutdow).
+[  796.524299] systemd-shutdown[1]: Sending SIGKILL to remaining processes...
+[  796.550888] systemd-shutdown[1]: Unmounting file systems.
+[  796.554500] (sd-umount)[764]: Unmounting '/run/credentials/systemd-journald.service'.
+[  796.559282] (sd-remount)[765]: Remounting '/' read-only with options 'data=writeback'.
+[  796.623389] EXT4-fs (mmcblk1p2): re-mounted d52f7f8b-fa0e-4c9f-a552-d6df4329ac87 ro.
+[  796.637837] systemd-shutdown[1]: All filesystems unmounted.
+[  796.638438] systemd-shutdown[1]: Deactivating swaps.
+[  796.638983] systemd-shutdown[1]: All swaps deactivated.
+[  796.639472] systemd-shutdown[1]: Detaching loop devices.
+[  796.647471] systemd-shutdown[1]: All loop devices detached.
+[  796.648016] systemd-shutdown[1]: Stopping MD devices.
+[  796.648919] systemd-shutdown[1]: All MD devices stopped.
+[  796.649418] systemd-shutdown[1]: Detaching DM devices.
+[  796.650235] systemd-shutdown[1]: All DM devices detached.
+[  796.650795] systemd-shutdown[1]: All filesystems, swaps, loop devices, MD devices and DM devices detached.
+[  796.655044] systemd-shutdown[1]: Syncing filesystems and block devices.
+[  796.657301] systemd-shutdown[1]: Rebooting.
+[  796.739855] xhci-hcd xhci-hcd.0.auto: Host halt failed, -110
+[  796.750358] xhci-hcd xhci-hcd.0.auto: remove, state 1
+[  796.750944] usb usb2: USB disconnect, device number 1
+[  796.752725] xhci-hcd xhci-hcd.0.auto: USB bus 2 deregistered
+[  796.753285] xhci-hcd xhci-hcd.0.auto: remove, state 1
+[  796.753764] usb usb1: USB disconnect, device number 1
+[  796.802023] xhci-hcd xhci-hcd.0.auto: Host halt failed, -110
+[  796.802563] xhci-hcd xhci-hcd.0.auto: Host controller not halted, aborting reset.
+[  796.803684] xhci-hcd xhci-hcd.0.auto: USB bus 1 deregistered
+[  796.805801] kvm: exiting hardware virtualization
+[  796.806345] reboot: Restarting system
+DDR Version 1.24 20191016
+In
+Channel 0: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+Channel 1: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+256B stride
+ch 0 ddrconfig = 0x101, ddrsize = 0x2020
+ch 1 ddrconfig = 0x101, ddrsize = 0x2020
+pmugrf_os_reg[2] = 0x3AA0DAA0, stride = 0xD
+OUT
+Boot1 Release Time: May 29 2020 17:36:36, version: 1.26
+CPUId = 0x0
+ChipType = 0x10, 341
+SdmmcInit=2 0
+BootCapSize=100000
+UserCapSize=15028MB
+FwPartOffset=2000 , 100000
+mmc0:cmd5,20
+SdmmcInit=0 0
+BootCapSize=0
+UserCapSize=14748MB
+FwPartOffset=2000 , 0
+StorageInit ok = 123248
+SecureMode = 0
+SecureInit read PBA: 0x4
+SecureInit read PBA: 0x404
+SecureInit read PBA: 0x804
+SecureInit read PBA: 0xc04
+SecureInit read PBA: 0x1004
+SecureInit read PBA: 0x1404
+SecureInit read PBA: 0x1804
+SecureInit read PBA: 0x1c04
+SecureInit ret = 0, SecureMode = 0
+atags_set_bootdev: ret:(0)
+GPT part:  0, name:          primary, start:0x8000, size:0xff800
+GPT part:  1, name:          primary, start:0x108000, size:0x5db800
+no find partition:uboot.
+Trust Addr:0x4000, 0x58334c42
+No find bl30.bin
+Load uboot, ReadLba = 2000
+Load OK, addr=0x200000, size=0xfc8c0
+RunBL31 0x40000 @ 300135 us
+NOTICE:  BL31: v1.3(release):845ee93
+NOTICE:  BL31: Built : 15:51:11, Jul 22 2020
+NOTICE:  BL31: Rockchip release version: v1.1
+INFO:    GICv3 with legacy support detected. ARM GICV3 driver initialized in EL3
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 0
+INFO:    plat_rockchip_pmu_init(1196): pd status 3e
+INFO:    BL31: Initializing runtime services
+INFO:    BL31: Initializing BL32
+INF [0x0] TEE-CORE:init_primary_helper:337: Initializing (1.1.0-266-gee81607c #1 Mon Aug 17 09:23:30 UTC 2020 aarch64)
+
+INF [0x0] TEE-CORE:init_primary_helper:338: Release version: 1.2
+
+INF [0x0] TEE-CORE:init_teecore:83: teecore inits done
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0x200000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2017.09 (Jun 06 2026 - 14:10:22 +0000)
+
+Model: Rockchip RK3399 Evaluation Board
+PreSerial: 2, raw, 0xff1a0000
+DRAM:  3.8 GiB
+Sysmem: init
+Relocation Offset: f5bc7000, fdt: f3dbb358 
+no mmc device at slot 1
+Found IDB in SDcard
+dwmmc@fe320000: 1 (SD), sdhci@fe330000: 0
+Bootdev(atags): mmc 1
+MMC1: Legacy, 50Mhz
+PartType: EFI
+No resource partition
+Failed to load DTB
+Failed to get kernel dtb, ret=-19
+io-domain: OK
+*** Warning - bad CRC, using default environment
+
+Model: Rockchip RK3399 Evaluation Board
+rockchip_set_serialno: could not find efuse/otp device
+No misc partition
+boot mode: None
+CLK: (uboot. arml: enter 400000 KHz, init 816000 KHz, kernel 0N/A)
+CLK: (uboot. armb: enter 24000 KHz, init 816000 KHz, kernel 0N/A)
+  aplll 816000 KHz
+  apllb 816000 KHz
+  dpll 800000 KHz
+  cpll 24000 KHz
+  gpll 800000 KHz
+  npll 600000 KHz
+  vpll 24000 KHz
+  aclk_perihp 133333 KHz
+  hclk_perihp 66666 KHz
+  pclk_perihp 33333 KHz
+  aclk_perilp0 266666 KHz
+  hclk_perilp0 88888 KHz
+  pclk_perilp0 44444 KHz
+  hclk_perilp1 100000 KHz
+  pclk_perilp1 50000 KHz
+EC20_PWREN = -2
+EC20_RESET = -2
+------ ec20_init  ------
+EC20_PWRKEY = -2
+EC20_PWRKEY = -2
+Net:   No ethernet found.
+Hit key to stop autoboot('CTRL+C'):  5  4  3 

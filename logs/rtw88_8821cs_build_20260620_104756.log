@@ -1,0 +1,5 @@
+=== rtw88 build start 2026年 06月 20日 星期六 10:47:56 CST ===
+make: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+/tmp/gmac_patch_build_20260618_143722/src/Makefile:199: *** specified external module directory "drivers/net/wireless/realtek/rtw88" does not exist。 停止。
+make: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+=== build rc=2 2026年 06月 20日 星期六 10:47:56 CST ===

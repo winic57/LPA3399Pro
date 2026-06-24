@@ -1,0 +1,7 @@
+
+[?2004l[?2004hroot@armbian:~# echo TEST_DIRECT; date; uname -a; echo __CURRENT_SHELL_DONE_1781845588910__:$?
+[?2004lTEST_DIRECT
+Mon Jun  1 11:48:34 PM CST 2026
+Linux armbian 6.18.33 #8 SMP PREEMPT Fri Jun 19 10:01:52 CST 2026 aarch64 GNU/Linux
+__CURRENT_SHELL_DONE_1781845588910__:0
+[?2004hroot@armbian:~# 

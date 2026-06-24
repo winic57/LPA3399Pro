@@ -1,0 +1,100 @@
+=== SDIO device details ===
+### /sys/bus/sdio/devices/mmc2:0001:1
+  vendor: 0x024c
+  device: 0xc821
+  modalias: sdio:c07v024CdC821
+  uevent: SDIO_CLASS=07
+SDIO_ID=024C:C821
+SDIO_REVISION=0.0
+MODALIAS=sdio:c07v024CdC821
+  driver: (no driver bound)
+
+=== MMC device details ===
+### /sys/bus/mmc/devices/mmc0:0001
+  type: MMC
+  name: DF4016
+  uevent: DRIVER=mmcblk
+MMC_TYPE=MMC
+MMC_NAME=DF4016
+MODALIAS=mmc:block
+
+### /sys/bus/mmc/devices/mmc1:0001
+  type: SD
+  name: SD16G
+  uevent: DRIVER=mmcblk
+MMC_TYPE=SD
+MMC_NAME=SD16G
+MODALIAS=mmc:block
+
+### /sys/bus/mmc/devices/mmc2:0001
+  type: SDIO
+  name: 
+  uevent: MMC_TYPE=SDIO
+SDIO_ID=024C:C821
+SDIO_REVISION=0.0
+
+=== dmesg: sdio-pwrseq + pwrseq + clock ===
+[    1.286200] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[    2.033101] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[    2.039720] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   12.258479] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   12.266479] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: reset control not ready
+[   18.937663] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   18.980893] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.023957] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.028554] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.056966] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.064503] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.314655] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.329073] dwmmc_rockchip fe310000.mmc: allocated mmc-pwrseq
+
+=== dmesg: mmc2 / SDIO card ===
+[    1.286200] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[    2.033101] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[    2.039720] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   12.258479] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   12.266479] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: reset control not ready
+[   18.937663] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   18.980893] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.023957] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.028554] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.056966] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.064503] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.314655] OF: /sdio-pwrseq: could not get #clock-cells for /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG2
+[   19.329608] mmc_host mmc2: card is non-removable.
+[   19.342569] mmc_host mmc2: Bus speed = 400000Hz (req 400000Hz, actual 400000HZ div = 0)
+[   19.390235] mmc_host mmc2: Bus speed = 100000000Hz (req 100000000Hz, actual 100000000HZ div = 0)
+[   19.892189] mmc2: new UHS-I speed SDR50 SDIO card at address 0001
+
+=== rk809 clocks in clk_summary ===
+ rk808-clkout2                       0       0        0        32768       0          0     50000      Y   deviceless                      no_connection_id         
+ rk808-clkout1                       0       0        0        32768       0          0     50000      Y   deviceless                      no_connection_id         
+
+=== /proc/device-tree/sdio-pwrseq (current) ===
+## clock-names
+00000000  65 78 74 5f 63 6c 6f 63  6b 00                    |ext_clock.|
+0000000a
+## clocks
+00000000  00 00 00 22 00 00 00 01                           |..."....|
+00000008
+## compatible
+00000000  6d 6d 63 2d 70 77 72 73  65 71 2d 73 69 6d 70 6c  |mmc-pwrseq-simpl|
+00000010  65 00                                             |e.|
+00000012
+## name
+00000000  73 64 69 6f 2d 70 77 72  73 65 71 00              |sdio-pwrseq.|
+0000000c
+## phandle
+00000000  00 00 00 24                                       |...$|
+00000004
+## pinctrl-0
+00000000  00 00 00 bb                                       |....|
+00000004
+## pinctrl-names
+00000000  64 65 66 61 75 6c 74 00                           |default.|
+00000008
+## reset-gpios
+00000000  00 00 00 bc 00 00 00 1b  00 00 00 01              |............|
+0000000c
+
+=== CHECK DONE ===

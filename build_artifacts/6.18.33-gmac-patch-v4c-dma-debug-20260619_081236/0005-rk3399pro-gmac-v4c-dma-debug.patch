@@ -1,0 +1,69 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -24,6 +24,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/reset.h>
+
+ #include "stmmac_platform.h"
++#include "dwmac_dma.h"
+
+ struct rk_priv_data;
+
+@@ -1293,6 +1294,46 @@ static void rk3399pro_gmac_reset_cycle(struct rk_priv_data *bsp_priv,
+ 	msleep(50);
+ 	dev_info(dev, "v4b-reset %s: done\n", stage);
+ }
++
++/* v4c: fix_soc_reset callback — instrumented DMA reset to diagnose
++ * why DMA_BUS_MODE SWR bit never clears.  Replaces default dwmac_dma_reset().
++ * Dumps register state before/after SWR write and during polling to reveal:
++ *  - Whether the write reaches hardware (value changes after writel)
++ *  - Whether SWR is stuck (polls never see it clear)
++ *  - Whether SWR clears immediately (reset succeeds, problem is elsewhere)
++ */
++static int rk3399pro_fix_soc_reset(struct stmmac_priv *priv)
++{
++	void __iomem *ioaddr = priv->ioaddr;
++	u32 value;
++	int i;
++
++	value = readl(ioaddr + DMA_BUS_MODE);
++	netdev_info(priv->dev, "v4c: DMA_BUS_MODE before reset: 0x%08x (SWR=%d)\n",
++		    value, value & DMA_BUS_MODE_SFT_RESET ? 1 : 0);
++
++	value |= DMA_BUS_MODE_SFT_RESET;
++	writel(value, ioaddr + DMA_BUS_MODE);
++
++	value = readl(ioaddr + DMA_BUS_MODE);
++	netdev_info(priv->dev, "v4c: DMA_BUS_MODE after SWR write: 0x%08x (SWR=%d)\n",
++		    value, value & DMA_BUS_MODE_SFT_RESET ? 1 : 0);
++
++	for (i = 0; i < 20; i++) {
++		udelay(10000);
++		value = readl(ioaddr + DMA_BUS_MODE);
++		if (!(value & DMA_BUS_MODE_SFT_RESET)) {
++			netdev_info(priv->dev,
++				    "v4c: SWR cleared after %d ms: 0x%08x\n",
++				    (i + 1) * 10, value);
++			return 0;
++		}
++		netdev_info(priv->dev,
++			    "v4c: poll [%d/20]: 0x%08x (SWR still set)\n",
++			    i + 1, value);
++	}
++
++	netdev_err(priv->dev, "v4c: SWR stuck after 200ms: 0x%08x\n", value);
++	return -ETIMEDOUT;
++}
+
+ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
+ 					  struct plat_stmmacenet_data *plat,
+@@ -1751,6 +1792,7 @@ static int rk_gmac_probe(struct platform_device *pdev)
+ 	plat_dat->init = rk_gmac_init;
+ 	plat_dat->exit = rk_gmac_exit;
+ 	plat_dat->suspend = rk_gmac_suspend;
+ 	plat_dat->resume = rk_gmac_resume;
++	plat_dat->fix_soc_reset = rk3399pro_fix_soc_reset;
+
+ 	plat_dat->bsp_priv = rk_gmac_setup(pdev, plat_dat, data);
+ 	if (IS_ERR(plat_dat->bsp_priv))

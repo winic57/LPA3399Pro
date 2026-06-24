@@ -1,0 +1,172 @@
+=== TTL_STATUS_START 2026-06-19T2026-06-01_23:08:41+0800 ===
+root@armbian:~# uname -a
+
+Linux armbian 6.18.33 #8 SMP PREEMPT Fri Jun 19 10:01:52 CST 2026 aarch64 GNU/Linux
+root@armbian:~# printf 'cmdline: '; cat /proc/cmdline
+
+cmdline: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+root@armbian:~# uptime
+
+ 23:08:41 up 8 min,  2 users,  load average: 0.04, 0.11, 0.09
+root@armbian:~# free -h
+
+               total        used        free      shared  buff/cache   available
+Mem:           3.7Gi       167Mi       3.5Gi       8.8Mi       111Mi       3.5Gi
+Swap:             0B          0B          0B
+root@armbian:~# df -h /
+
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root       2.9G  1.8G  1.1G  65% /
+root@armbian:~# ip -br link || true
+
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             UP             36:28:78:08:40:24 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+root@armbian:~# ip -br addr || true
+
+lo               UNKNOWN        127.0.0.1/8 
+eth0             UP             192.168.50.113/24 
+root@armbian:~# printf 'eth0 sysfs: operstate='; cat /sys/class/net/eth0/operstate 2>/dev/null || true; printf ' carrier='; cat /sys/class/net/eth0/carrier 2>/dev/null || true; printf ' speed='; cat /sys/class/net/eth0/speed 2>/dev/null || true; printf ' duplex='; cat /sys/class/net/eth0/duplex 2>/dev/null || true
+
+eth0 sysfs: operstate=up
+ carrier=1
+ speed=100
+ duplex=full
+root@armbian:~# (ethtool eth0 2>/dev/null || true) | sed -n '1,45p'
+
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Advertised FEC modes: Not reported
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
+	Link partner advertised pause frame use: Symmetric
+	Link partner advertised auto-negotiation: Yes
+	Link partner advertised FEC modes: Not reported
+	Speed: 100Mb/s
+	Duplex: Full
+	Auto-negotiation: on
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: external
+	MDI-X: Unknown
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: yes
+root@armbian:~# printf '\n-- GMAC DMESG TAIL --\n'
+
+
+-- GMAC DMESG TAIL --
+root@armbian:~# dmesg | grep -iE 'v4e|rk3399pro test|gmac|stmmac|eth0|yt8521|dma|rgmii|reset|GRF_SOC|Link is|Failed to reset|DMA engine|no carrier|carrier' | tail -n 120
+
+printf '\n-- FAILED UNITS --\n'
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.050973] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.051306] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.051826] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.143888] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.349555] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.349606] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.351336] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.351368] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.558304] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.558921] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.559609] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.560426] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.561075] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.561628] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.562151] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.562714] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.563744] rk_gmac-dwmac fe300000.ethernet: v4b-fix: reused stmmac core stmmaceth reset controller
+[    0.564601] rk_gmac-dwmac fe300000.ethernet: rk3399pro test workaround: forcing clock_input=true for external RGMII PHY
+[    0.565584] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.571556] rk_gmac-dwmac fe300000.ethernet: v4d: clocks enabled (5 clks, includes mac_clk_rx for RGMII)
+[    0.572411] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.572921] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.574058] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.640964] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.641923] rk_gmac-dwmac fe300000.ethernet: v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open
+[    0.845135] rk_gmac-dwmac fe300000.ethernet: v4b: MAC reset cycle before runtime resume/DMA open
+[    0.845927] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: assert stmmaceth
+[    0.866682] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: deassert stmmaceth
+[    0.921130] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: done
+[    0.921777] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.922916] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.923567] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.924045] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.924720] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.925397] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.926073] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.926549] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.927182] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.927847] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.928385] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.928913] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    1.060318] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.061016] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.089272] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.307373] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.308064] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.310061] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.310086] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    2.058479] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    2.059201] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   12.278386] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.279106] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   21.342829] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+
+[   21.349788] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   21.351669] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE before reset: 0x00020100 (SWR=0)
+[   21.352514] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE after SWR write: 0x00020101 (SWR=1)
+[   21.363433] rk_gmac-dwmac fe300000.ethernet eth0: v4e: SWR cleared after 10 ms: 0x00020100
+[   21.364214] rk_gmac-dwmac fe300000.ethernet eth0: No Safety Features support found
+[   21.365776] rk_gmac-dwmac fe300000.ethernet eth0: PTP not supported by HW
+[   21.366424] rk_gmac-dwmac fe300000.ethernet eth0: configuring for phy/rgmii link mode
+[   22.244727] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[   23.398253] rk_gmac-dwmac fe300000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+systemctl --failed --no-pager 2>/dev/null || true
+root@armbian:~# printf '\n-- FAILED UNITS --\n'
+
+
+-- FAILED UNITS --
+root@armbian:~# systemctl --failed --no-pager 2>/dev/null || true
+
+printf '\n-- WARNINGS TAIL --\n'
+  UNIT LOAD ACTIVE SUB DESCRIPTION
+
+0 loaded units listed.
+root@armbian:~# printf '\n-- WARNINGS TAIL --\n'
+
+
+-- WARNINGS TAIL --
+root@armbian:~# journalctl -b -p warning..alert --no-pager 2>/dev/null | tail -n 40 || true
+
+printf '=== TTL_STATUS_END ===
+
+=== TTL_NET_EXTRA_START ===
+root@armbian:~# ip route || true
+
+default via 192.168.50.1 dev eth0 proto dhcp src 192.168.50.113 metric 100 
+192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.113 metric 100 
+root@armbian:~# GW=$(ip route | awk '/default/ {print $3; exit}'); echo gateway=$GW; [ -n "$GW" ] && ping -c 3 -W 2 $GW || true
+
+gateway=192.168.50.1
+D=/proc/device-tree/ethernet@fe300000/mdio/ethernet-phy@0; echo --phy-dt--; for f in compatible reg motorcomm,auto-sleep-disabled motorcomm,keep-pll-enabled motorcomm,clk-out-frequency-hz; do echo "## $f"; [ -e "$D/$f" ] && hexdump -Cv "$D/$f" || echo NA; done
+PING 192.168.50.1 (192.168.50.1) 56(84) bytes of data.
+64 bytes from 192.168.50.1: icmp_seq=1 ttl=64 time=16.2 ms
+printf '=== TTL_NET_EXTRA_END ===

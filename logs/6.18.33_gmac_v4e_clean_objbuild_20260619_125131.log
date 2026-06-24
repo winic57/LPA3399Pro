@@ -1,0 +1,138 @@
+make: Entering directory '/tmp/gmac_patch_build_20260618_143722/src'
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+  GEN     Makefile
+  CALL    /tmp/gmac_patch_build_20260618_143722/src/scripts/checksyscalls.sh
+  CC      drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c: In function ‘rk3399pro_fix_soc_reset’:
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1287:29: warning: missing terminating " character
+ 1287 |                             "rk3399pro: DMA SWR was set before open, cycling stmmaceth reset
+      |                             ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1287:29: error: missing terminating " character
+ 1287 |                             "rk3399pro: DMA SWR was set before open, cycling stmmaceth reset
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1288:1: warning: missing terminating " character
+ 1288 | ");
+      | ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1288:1: error: missing terminating " character
+ 1288 | ");
+      | ^~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1290:48: error: expected ‘)’ before ‘;’ token
+ 1290 |                 ret = reset_control_assert(rst);
+      |                                                ^
+      |                                                )
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1286:28: note: to match this ‘(’
+ 1286 |                 netdev_info(priv->dev,
+      |                            ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1292:48: warning: missing terminating " character
+ 1292 |                         netdev_warn(priv->dev, "stmmaceth assert failed ret=%d
+      |                                                ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1292:48: error: missing terminating " character
+ 1292 |                         netdev_warn(priv->dev, "stmmaceth assert failed ret=%d
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1293:1: warning: missing terminating " character
+ 1293 | ", ret);
+      | ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1293:1: error: missing terminating " character
+ 1293 | ", ret);
+      | ^~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1299:48: warning: missing terminating " character
+ 1299 |                         netdev_warn(priv->dev, "stmmaceth deassert failed ret=%d
+      |                                                ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1299:48: error: missing terminating " character
+ 1299 |                         netdev_warn(priv->dev, "stmmaceth deassert failed ret=%d
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1300:1: warning: missing terminating " character
+ 1300 | ", ret);
+      | ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1300:1: error: missing terminating " character
+ 1300 | ", ret);
+      | ^~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1314:37: warning: missing terminating " character
+ 1314 |                                     "rk3399pro: DMA SWR cleared after %d ms
+      |                                     ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1314:37: error: missing terminating " character
+ 1314 |                                     "rk3399pro: DMA SWR cleared after %d ms
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1315:1: warning: missing terminating " character
+ 1315 | ",
+      | ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1315:1: error: missing terminating " character
+ 1315 | ",
+      | ^~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1321:31: warning: missing terminating " character
+ 1321 |         netdev_err(priv->dev, "rk3399pro: DMA SWR stuck after 200ms: 0x%08x
+      |                               ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1321:31: error: missing terminating " character
+ 1321 |         netdev_err(priv->dev, "rk3399pro: DMA SWR stuck after 200ms: 0x%08x
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1322:1: warning: missing terminating " character
+ 1322 | ",
+      | ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1322:1: error: missing terminating " character
+ 1322 | ",
+      | ^~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1290:21: warning: passing argument 2 of ‘netdev_info’ makes pointer from integer without a cast [-Wint-conversion]
+ 1290 |                 ret = reset_control_assert(rst);
+      |                 ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                     |
+      |                     int
+In file included from /tmp/gmac_patch_build_20260618_143722/src/include/linux/skbuff.h:39,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/if_ether.h:19,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/ethtool.h:18,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/phy.h:16,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/phylink.h:4,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/stmmac.h:16,
+                 from /tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:10:
+/tmp/gmac_patch_build_20260618_143722/src/include/net/net_debug.h:26:60: note: expected ‘const char *’ but argument is of type ‘int’
+   26 | void netdev_info(const struct net_device *dev, const char *format, ...);
+      |                                                ~~~~~~~~~~~~^~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1806:1: error: expected declaration or statement at end of input
+ 1806 | MODULE_LICENSE("GPL");
+      | ^~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1806:1: error: expected declaration or statement at end of input
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1282:13: warning: unused variable ‘i’ [-Wunused-variable]
+ 1282 |         int i, ret;
+      |             ^
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1806:1: error: no return statement in function returning non-void [-Werror=return-type]
+ 1806 | MODULE_LICENSE("GPL");
+      | ^~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c: At top level:
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1277:12: warning: ‘rk3399pro_fix_soc_reset’ defined but not used [-Wunused-function]
+ 1277 | static int rk3399pro_fix_soc_reset(struct stmmac_priv *priv)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1237:13: warning: ‘rk_gmac_external_phy_reset’ defined but not used [-Wunused-function]
+ 1237 | static void rk_gmac_external_phy_reset(struct rk_priv_data *bsp_priv,
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1227:13: warning: ‘rk_phy_powerdown’ defined but not used [-Wunused-function]
+ 1227 | static void rk_phy_powerdown(struct rk_priv_data *bsp_priv)
+      |             ^~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1215:12: warning: ‘rk_phy_powerup’ defined but not used [-Wunused-function]
+ 1215 | static int rk_phy_powerup(struct rk_priv_data *bsp_priv)
+      |            ^~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1179:12: warning: ‘gmac_clk_enable’ defined but not used [-Wunused-function]
+ 1179 | static int gmac_clk_enable(struct rk_priv_data *bsp_priv, bool enable)
+      |            ^~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:1124:12: warning: ‘rk_gmac_clk_init’ defined but not used [-Wunused-function]
+ 1124 | static int rk_gmac_clk_init(struct plat_stmmacenet_data *plat)
+      |            ^~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:165:12: warning: ‘rk_write_gmac_grf_reg’ defined but not used [-Wunused-function]
+  165 | static int rk_write_gmac_grf_reg(struct rk_priv_data *bsp_priv, u32 val)
+      |            ^~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:144:12: warning: ‘rk_get_phy_intf_sel’ defined but not used [-Wunused-function]
+  144 | static int rk_get_phy_intf_sel(phy_interface_t interface)
+      |            ^~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c:133:12: warning: ‘rk_gmac_rgmii_clk_div’ defined but not used [-Wunused-function]
+  133 | static int rk_gmac_rgmii_clk_div(int speed)
+      |            ^~~~~~~~~~~~~~~~~~~~~
+cc1: some warnings being treated as errors
+make[8]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o] 错误 1
+make[7]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:544：drivers/net/ethernet/stmicro/stmmac] 错误 2
+make[6]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:544：drivers/net/ethernet/stmicro] 错误 2
+make[5]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:544：drivers/net/ethernet] 错误 2
+make[4]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:544：drivers/net] 错误 2
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:544：drivers] 错误 2
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:2026：.] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: *** [Makefile:248: __sub-make] Error 2
+make: Leaving directory '/tmp/gmac_patch_build_20260618_143722/src'

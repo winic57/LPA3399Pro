@@ -1,0 +1,7 @@
+rk3399 rgmii applied: GRF_SOC_CON5=0x%08x GRF_SOC_CON6=0x%08x tx=0x%x rx=0x%x
+rk3399 rgmii applied: tx=0x%x rx=0x%x (grf readback unavailable)
+external PHY reset GPIO present.
+powerup start: phy_iface=%d clock_input=%d integrated_phy=%d tx=0x%x rx=0x%x
+external PHY reset (%s) begin
+external PHY reset (%s) end
+powerup done: phy_iface=%d clock_input=%d integrated_phy=%d

@@ -1,0 +1,1244 @@
+# 6.18.33 GMAC patch 编译、部署与验证记录
+
+## 2026-06-18 16:25 当前结论
+
+本轮已完成：
+
+1. 基于 `/tmp/gmac_patch_build_20260618_143722/src` 编译出可启动测试内核 Image。
+2. Image 内已确认包含 GMAC patch 新日志字符串。
+3. 已直接修改 SD 卡 `/dev/sdc1` 的 boot 分区，将 `/Image` 软链接指向的 `vmlinuz-6.18.33-rk35xx-ophub` 替换为新内核。
+4. 已保留旧内核和 extlinux 备份，可回退。
+
+尚未完成：
+
+- 板端启动后的 TTL 验证。原因是当前 SD 卡仍插在宿主机，已完成文件级部署；需要插回 RK3399Pro 板启动后再抓新日志。
+
+## 问题背景
+
+旧内核中 GMAC 驱动并非缺失，关键配置为内建：
+
+```text
+CONFIG_STMMAC_ETH=y
+CONFIG_STMMAC_PLATFORM=y
+CONFIG_DWMAC_ROCKCHIP=y
+CONFIG_MOTORCOMM_PHY=y
+```
+
+失败现象集中在 eth0 open 阶段：
+
+```text
+rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+```
+
+因此本轮 patch 的目标不是补驱动，而是验证 GMAC 时钟/复位/PHY reset 时序问题。
+
+## 源码与构建目录
+
+```text
+源码目录: /tmp/gmac_patch_build_20260618_143722/src
+输出目录: /tmp/gmac_patch_build_20260618_143722/out_full
+配置来源: /tmp/boot618/config-extracted-6.18.33
+最终成功日志: /mnt/sdb3/LPA3399Pro/logs/6.18.33_gmac_patch_build_20260618_143722_full_image_build_retry2.log
+```
+
+最终构建命令：
+
+```bash
+make -C /tmp/gmac_patch_build_20260618_143722/src \
+  O=/tmp/gmac_patch_build_20260618_143722/out_full \
+  ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- Image -j$(nproc)
+```
+
+最终产物：
+
+```text
+/tmp/gmac_patch_build_20260618_143722/out_full/arch/arm64/boot/Image
+```
+
+大小约 48 MiB。
+
+## 本轮源码修改概要
+
+### 1. `drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c`
+
+- 增加 `#include <linux/gpio/consumer.h>`。
+- `struct rk_priv_data` 增加 `struct gpio_desc *reset_gpio;`。
+- `rk3399_set_to_rgmii()` 增加 GRF_SOC_CON5/6 readback 日志，用于确认 TX/RX delay 与 clock mux 写入是否生效。
+- 新增 `rk_gmac_external_phy_reset()`：读取 `snps,reset-delays-us`，通过 `snps,reset` GPIO 在 GMAC powerup 后对外置 PHY 再复位一次。
+- 新增 `rk3399pro_test_prepare()`：对 RK3399 + 外置 RGMII PHY 测试场景强制 `clock_input=true`，避免继续走 CRU clock output 路径。
+- `rk_gmac_powerup()` 增加 `powerup start/done` 日志，并在 `rk_phy_powerup()` 后执行外置 PHY reset。
+- `rk_gmac_setup()` 读取 `devm_gpiod_get_optional(dev, "snps,reset", GPIOD_OUT_LOW)` 并打印 `external PHY reset GPIO present.`。
+
+### 2. `include/linux/clk-provider.h` 构建修复
+
+完整构建第一次失败于 i.MX audio clock 相关源码，根因是当前源码中 `__devm_clk_hw_register_gate()` 参数签名已经包含 `regmap/regmap_offs`，但两个 helper 宏少传参数。
+
+修复方式：
+
+- `devm_clk_hw_register_gate_parent_hw(...)` 补传 `NULL, 0`。
+- `devm_clk_hw_register_gate_parent_data(...)` 补传 `NULL, 0`。
+
+### 3. `.config` 调整
+
+- 关闭 `CONFIG_LOCALVERSION_AUTO`，保持运行版本仍为 `6.18.33`，避免模块路径漂移。
+- 关闭 `CONFIG_FEC`。原因：Freescale FEC 驱动在当前源码中调用不存在的 `phy_find_next()`，与 RK3399Pro GMAC 无关；为完成 RK3399Pro 测试 Image 构建临时禁用。
+- 保持 GMAC 关键项内建：`CONFIG_STMMAC_ETH=y`、`CONFIG_DWMAC_ROCKCHIP=y`、`CONFIG_MOTORCOMM_PHY=y`。
+
+## 产物目录
+
+```text
+/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818
+```
+
+产物文件：
+
+```text
+vmlinuz-6.18.33-gmacpatch
+config-6.18.33-gmacpatch
+dwmac-rk.c.gmacpatch
+clk-provider.h.with-buildfix
+0001-rk3399pro-gmac-debug-and-rxc-workaround-v2-real.patch
+0002-buildfix-clk-provider-gate-macro.patch
+SHA256SUMS
+```
+
+SHA256：
+
+```text
+a491f53f25b7f5110f4f15d58ce91c8f233f0f2ed894325c2fa9d592f887e79c  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/clk-provider.h.with-buildfix
+d1b68d7383a7230ea9e1752ffcf9be2f0ed7320dde37e76d2866a61998d7455a  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/config-6.18.33-gmacpatch
+e1983b073f0ce5f60e28288ef9f84340d79118f149191409ef06243e9fe1f443  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/dwmac-rk.c.gmacpatch
+fab713e9f017713de83d173e251d837f76f5a31fd121c1690eb48fa4c0aea4bb  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/vmlinuz-6.18.33-gmacpatch
+```
+
+Image 内 patch 字符串验证：
+
+```text
+- rk3399 rgmii applied: GRF_SOC_CON5=0x%08x GRF_SOC_CON6=0x%08x tx=0x%x rx=0x%x
+- rk3399 rgmii applied: tx=0x%x rx=0x%x (grf readback unavailable)
+- external PHY reset GPIO present.
+- powerup start: phy_iface=%d clock_input=%d integrated_phy=%d tx=0x%x rx=0x%x
+- external PHY reset (%s) begin
+- external PHY reset (%s) end
+- powerup done: phy_iface=%d clock_input=%d integrated_phy=%d
+```
+
+## Patch 文件
+
+主 patch 草案已保存：
+
+```text
+/mnt/sdb3/LPA3399Pro/patches/0001-rk3399pro-gmac-debug-and-rxc-workaround-v2-real.patch
+```
+
+构建修复 patch 已保存：
+
+```text
+/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/0002-buildfix-clk-provider-gate-macro.patch
+```
+
+说明：主 patch 是按当前源码生成的可审阅 diff；本轮真正已编译验证的是产物目录中的完整源文件与 Image。
+
+## SD 卡部署记录
+
+SD 卡当前在宿主机识别为：
+
+```text
+boot:   /dev/sdc1 -> /mnt/sdc_boot
+rootfs: /dev/sdc2 -> /mnt/sdc_root
+```
+
+已替换：
+
+```text
+/mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+```
+
+`/mnt/sdc_boot/Image` 是指向该文件的软链接，因此无需修改 extlinux 的 `LINUX /Image`。
+
+部署时间戳：
+
+```text
+20260618_162058
+```
+
+回退文件：
+
+```text
+/mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub.pre-gmacpatch-20260618_162058
+/mnt/sdc_boot/extlinux/extlinux.conf.pre-gmacpatch-20260618_162058
+/mnt/sdc_boot/config-6.18.33-rk35xx-ophub.pre-gmacpatch-20260618_162058
+```
+
+当前 extlinux 保持不变：
+
+```text
+  -   LINUX /Image
+  -   FDT /dtb/rockchip/gmac-phyhandle-pll-test.dtb
+  -   APPEND root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+```
+
+部署后 SHA256 已确认 SD 内核与产物一致：
+
+```text
+fab713e9f017713de83d173e251d837f76f5a31fd121c1690eb48fa4c0aea4bb  /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+fab713e9f017713de83d173e251d837f76f5a31fd121c1690eb48fa4c0aea4bb  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/vmlinuz-6.18.33-gmacpatch
+```
+
+## 下一步 TTL 验证计划
+
+把 SD 卡插回 RK3399Pro 板启动后，抓日志并执行：
+
+```bash
+uname -a
+dmesg | grep -iE 'rk3399pro test|gmac|stmmac|eth0|yt8521|dma|rgmii|reset|GRF_SOC'
+ip link set eth0 up
+sleep 2
+ip -br link
+ip -br addr
+```
+
+重点看新日志是否出现：
+
+```text
+rk3399pro test workaround: forcing clock_input=true for external RGMII PHY
+rk3399 rgmii applied: GRF_SOC_CON5=...
+external PHY reset GPIO present.
+external PHY reset (post-grf-post-power) begin
+external PHY reset (post-grf-post-power) end
+powerup done: ...
+```
+
+成功标准：
+
+- 不再出现 `Failed to reset the dma`。
+- 不再出现 `stmmac_hw_setup: DMA engine initialization failed`。
+- `eth0` 能 `UP`，最好能 link up / DHCP 获得 IP。
+
+若仍失败：
+
+1. 如果没有 `external PHY reset GPIO present.`，优先检查当前 DTB 的 reset 属性名/极性，可能需要同时兼容 `snps,reset-gpio` 和 `snps,reset-gpios`。
+2. 如果出现 `rk3399pro test workaround` 但仍 DMA reset fail，下一轮应尝试更接近 vendor BSP 的 GMAC clock/reset 顺序，或在 stmmac core open 前后增加 MAC reset/clock settle delay。
+3. 如果 eth0 能 up 但 no carrier，转向 PHY strap、RGMII delay、YT8521 PLL/auto-sleep 配置。
+
+## 2026-06-18 16:25 Patch 可用性补充验证
+
+已修正并重新生成可应用 patch：
+
+```text
+/mnt/sdb3/LPA3399Pro/patches/0000-combined-rk3399pro-gmac-test-kernel-6.18.33.patch
+/mnt/sdb3/LPA3399Pro/patches/0001-rk3399pro-gmac-debug-and-rxc-workaround-v2-real.patch
+/mnt/sdb3/LPA3399Pro/patches/0002-buildfix-clk-provider-gate-macro-6.18.33.patch
+```
+
+可用性验证：
+
+- 从 `https://raw.githubusercontent.com/unifreq/linux-6.18.y/v6.18.33/...` 重新下载原始 `dwmac-rk.c` 与 `clk-provider.h`。
+- 在 `/tmp/gmac_patch_apply_test_20260618_162542` 构造 clean tree。
+- 执行 `patch -p1 < 0000-combined-rk3399pro-gmac-test-kernel-6.18.33.patch` 成功。
+- patch 后的 `dwmac-rk.c` 与 `clk-provider.h` 已用 `cmp` 确认和本次实际编译源文件一致。
+
+Patch SHA256：
+
+```text
+fe42cd95d04444b0455dc51187db3750c5fa2f3e2fbea86bc7767961cde4cd6a  /mnt/sdb3/LPA3399Pro/patches/0000-combined-rk3399pro-gmac-test-kernel-6.18.33.patch
+bfb17b17eb8a4519757ff0d8ba666ddbccc3625d85f38ac2dacdbba2f09565a6  /mnt/sdb3/LPA3399Pro/patches/0001-rk3399pro-gmac-debug-and-rxc-workaround-v2-real.patch
+fcc9b520db87a0193aa21daac693e0dc5915f347a1ae1734ecbe2660b636555b  /mnt/sdb3/LPA3399Pro/patches/0002-buildfix-clk-provider-gate-macro-6.18.33.patch
+```
+
+注意：产物目录中原先的 `source_git_diff.patch` 是无 `.git` 环境下误生成的跨文件 diff，已改名为：
+
+```text
+/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/source_git_diff.patch.invalid-cross-file.bak
+```
+
+应以后续 `0000/0001/0002` patch 为准。
+
+## 2026-06-18 16:26:44 SD 卡安全卸载状态
+
+部署后最终 SHA256 核对：
+
+```text
+fab713e9f017713de83d173e251d837f76f5a31fd121c1690eb48fa4c0aea4bb  /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+fab713e9f017713de83d173e251d837f76f5a31fd121c1690eb48fa4c0aea4bb  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/vmlinuz-6.18.33-gmacpatch
+```
+
+部署时 extlinux 内容：
+
+```text
+LABEL Armbian
+  LINUX /Image
+  FDT /dtb/rockchip/gmac-phyhandle-pll-test.dtb
+  APPEND root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+```
+
+已执行 sync 并卸载 /mnt/sdc_boot、/mnt/sdc_root。当前 SD 卡可安全拔出并插回 RK3399Pro 板做 TTL 启动验证。
+
+## 2026-06-18 16:48 TTL 启动验证与板端状态检查
+
+### 输入日志
+
+```text
+/mnt/sdb3/LPA3399Pro/ttl_logs/6.18.33_extlinux_test_20260618_163133.log
+```
+
+### TTL 状态抓取文件
+
+```text
+/mnt/sdb3/LPA3399Pro/ttl_logs/6.18.33_gmac_patch_ttl_status_20260618_164353.txt
+```
+
+### 板端当前状态
+
+TTL 已进入系统并可执行命令。目标板输出：
+
+```text
+Linux armbian 6.18.33 #1 SMP PREEMPT Thu Jun 18 16:17:18 CST 2026 aarch64 GNU/Linux
+root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf ... net.ifnames=0
+```
+
+网络状态：
+
+```text
+ip -br link: 仅 lo
+ip -br addr: 仅 lo 127.0.0.1/8
+/sys/class/net: 仅 lo
+/sys/bus/mdio_bus/devices: 空
+```
+
+结论：系统已启动，但 GMAC probe 失败，`eth0` 没有注册出来。
+
+### 本次 GMAC patch 是否实际加载
+
+已确认新 Image 正在运行，patch 日志全部出现：
+
+```text
+rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO present.
+rk_gmac-dwmac fe300000.ethernet: clock input from PHY
+rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+rk_gmac-dwmac fe300000.ethernet: init for RGMII
+rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin
+rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end
+rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+```
+
+说明：SD 中部署的新内核已启动；dwmac-rk patch 已执行；GRF readback 与外置 PHY reset 也已执行。
+
+### 当前失败点
+
+旧失败点本次没有出现：
+
+```text
+Failed to reset the dma
+stmmac_hw_setup: DMA engine initialization failed
+```
+
+新的失败点是 MDIO bus 注册：
+
+```text
+rk_gmac-dwmac fe300000.ethernet: error -EBUSY: Cannot register the MDIO bus
+rk_gmac-dwmac fe300000.ethernet: error -EBUSY: MDIO bus (id: 0) registration failed
+rk_gmac-dwmac fe300000.ethernet: probe with driver rk_gmac-dwmac failed with error -16
+```
+
+手动 rebind `/sys/bus/platform/drivers/rk_gmac-dwmac/bind` 后仍稳定复现同样 `-EBUSY`，不是一次性启动竞争。
+
+### DTB 关键状态
+
+目标板 `/proc/device-tree/ethernet@fe300000`：
+
+```text
+status = okay
+compatible = rockchip,rk3399-gmac
+phy-mode = rgmii
+clock_in_out = input
+phy-handle = 0x000000c2
+tx_delay = 0x21
+rx_delay = 0x15
+snps,reset-gpio = <0x23 0x0f 0x01>
+snps,reset-active-low present
+snps,reset-delays-us = <0 10000 50000>
+mdio compatible = snps,dwmac-mdio
+```
+
+### 当前根因判断
+
+本轮 patch 把问题从 DMA reset 失败推进到了 MDIO 注册阶段。最可疑原因是 patch 在 `rk_gmac_setup()` 中使用：
+
+```c
+devm_gpiod_get_optional(dev, "snps,reset", GPIOD_OUT_LOW)
+```
+
+并把描述符保存在 `struct rk_priv_data` 中长期持有。同一设备随后在 stmmac core 的 `stmmac_mdio_reset()` 中也会再次请求同一个 `snps,reset` GPIO。GPIO consumer 默认独占，第二次请求会返回 `-EBUSY`，导致 MDIO bus 注册失败。
+
+因此当前优先修复点不是 DTB，而是 patch v3 需要避免长期占用 `snps,reset` GPIO。
+
+### 下一步建议 patch v3
+
+推荐方案：
+
+1. 从 `struct rk_priv_data` 移除长期保存的 `reset_gpio`。
+2. 不在 `rk_gmac_setup()` 中使用 `devm_gpiod_get_optional()` 长期申请 `snps,reset`。
+3. 如仍需要 post-GRF 外置 PHY reset，改为一次性申请并释放：
+
+```c
+desc = gpiod_get_optional(dev, "snps,reset", GPIOD_OUT_LOW);
+/* toggle reset */
+gpiod_put(desc);
+```
+
+4. 更保守备选：先完全移除自定义外置 PHY reset，只保留 `clock_input=true` 强制和 GRF readback，验证 MDIO bus / eth0 是否能注册，再观察是否回到 DMA reset 问题。
+
+建议优先做方案 3：保留本轮 patch 的验证价值，同时修复当前 `-EBUSY`。
+
+## 2026-06-18 16:55 Patch v3 具体方案、路径与编译参数
+
+### v3 目标
+
+上一版 v2 已确认可以让 GMAC 走到 `powerup done`，且不再出现旧的 DMA reset 报错；但新失败点是：
+
+```text
+error -EBUSY: Cannot register the MDIO bus
+MDIO bus (id: 0) registration failed
+```
+
+v3 的目标是修复这个 `-EBUSY`：不要在 `dwmac-rk.c` 中长期持有 `snps,reset` GPIO，避免后续 `stmmac_mdio_reset()` 再次申请同一 GPIO 时冲突。
+
+### v3 patch 文件
+
+已生成 v3 增量 patch：
+
+```text
+/mnt/sdb3/LPA3399Pro/patches/0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch
+```
+
+SHA256：
+
+```text
+012dd8be27f236032fb08866c3919c704e5d174cd12fba65f4d7b520944e3c93  /mnt/sdb3/LPA3399Pro/patches/0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch
+```
+
+v3 草案工作目录：
+
+```text
+/tmp/gmac_v3_draft_20260618_165151
+```
+
+其中：
+
+```text
+/tmp/gmac_v3_draft_20260618_165151/dwmac-rk.c.v2
+/tmp/gmac_v3_draft_20260618_165151/dwmac-rk.c.v3
+```
+
+patch apply 自检目录：
+
+```text
+/tmp/gmac_v3_apply_test_20260618_165320
+```
+
+自检结果：
+
+```text
+patch -p1 < 0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch 成功
+patch 后文件与 /tmp/gmac_v3_draft_20260618_165151/dwmac-rk.c.v3 cmp 一致
+```
+
+### v3 代码修改点
+
+#### 1. 移除长期保存 reset GPIO
+
+从 `struct rk_priv_data` 中移除：
+
+```c
+struct gpio_desc *reset_gpio;
+```
+
+原因：该 GPIO 属于 `snps,reset`，stmmac core 的 `stmmac_mdio_reset()` 后续也会请求同一个 GPIO。如果 wrapper 提前用 devm 长期占用，会触发 `-EBUSY`。
+
+#### 2. 移除 `rk_gmac_setup()` 中的 devm 申请
+
+删除 v2 中这段：
+
+```c
+bsp_priv->reset_gpio = devm_gpiod_get_optional(dev, "snps,reset", GPIOD_OUT_LOW);
+...
+```
+
+改成只做属性提示，不占用 GPIO：
+
+```c
+if (device_property_present(dev, "snps,reset-gpio") ||
+    device_property_present(dev, "snps,reset-gpios"))
+        dev_info(dev,
+                 "external PHY reset GPIO described; will use one-shot reset and release before MDIO.\n");
+```
+
+#### 3. 外置 PHY reset 改为一次性申请/释放
+
+`rk_gmac_external_phy_reset()` 改成：
+
+```c
+reset_gpio = gpiod_get_optional(bsp_priv->dev, "snps,reset", GPIOD_OUT_LOW);
+if (IS_ERR(reset_gpio)) {
+        dev_err_probe(bsp_priv->dev, PTR_ERR(reset_gpio),
+                      "failed to acquire one-shot external PHY reset GPIO\n");
+        return;
+}
+if (!reset_gpio)
+        return;
+
+/* toggle reset */
+gpiod_set_value_cansleep(reset_gpio, 1);
+...
+gpiod_set_value_cansleep(reset_gpio, 0);
+...
+gpiod_put(reset_gpio);
+```
+
+关键点：执行完 post-GRF reset 后立刻 `gpiod_put(reset_gpio)`，释放给后续 `stmmac_mdio_reset()` 使用。
+
+### 推荐编译路径
+
+继续沿用当前已成功构建过的 buildroot，避免重新准备源码和 config：
+
+```text
+源码目录: /tmp/gmac_patch_build_20260618_143722/src
+输出目录: /tmp/gmac_patch_build_20260618_143722/out_full
+当前 config: /tmp/gmac_patch_build_20260618_143722/out_full/.config
+```
+
+### 应用 v3 patch 命令
+
+```bash
+BUILDROOT=/tmp/gmac_patch_build_20260618_143722
+SRC=$BUILDROOT/src
+OUT=$BUILDROOT/out_full
+PATCH=/mnt/sdb3/LPA3399Pro/patches/0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch
+LOGBASE=/mnt/sdb3/LPA3399Pro/logs/6.18.33_gmac_patch_v3_$(date +%Y%m%d_%H%M%S)
+
+echo "$LOGBASE" > /tmp/current_gmac_v3_logbase
+
+cd "$SRC"
+patch -p1 < "$PATCH" | tee "${LOGBASE}_apply.log"
+```
+
+如果需要确认 patch 是否已经应用：
+
+```bash
+grep -nE 'one-shot|GPIO released|devm_gpiod_get_optional|reset_gpio' \
+  "$SRC/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c"
+```
+
+期望：
+
+- 能看到 `one-shot` / `GPIO released`。
+- 不应再看到 `bsp_priv->reset_gpio = devm_gpiod_get_optional(...)`。
+
+### 最小对象编译验证
+
+先只编译 `dwmac-rk.o`：
+
+```bash
+make -C "$SRC" \
+  O="$OUT" \
+  ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o \
+  -j$(nproc) \
+  >"${LOGBASE}_dwmac_rk_o_build.log" 2>&1
+```
+
+检查：
+
+```bash
+ls -lh "$OUT/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o"
+strings "$OUT/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o" | \
+  grep -E 'one-shot|GPIO released|powerup start|rk3399 rgmii applied'
+```
+
+### 完整 Image 编译参数
+
+```bash
+make -C "$SRC" \
+  O="$OUT" \
+  ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  Image \
+  -j$(nproc) \
+  >"${LOGBASE}_image_build.log" 2>&1
+```
+
+成功后产物：
+
+```text
+/tmp/gmac_patch_build_20260618_143722/out_full/arch/arm64/boot/Image
+```
+
+检查新 Image 字符串：
+
+```bash
+strings "$OUT/arch/arm64/boot/Image" | \
+  grep -E 'one-shot|GPIO released|powerup start|rk3399 rgmii applied|external PHY reset GPIO described'
+```
+
+期望看到：
+
+```text
+external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+external PHY reset (%s) begin (one-shot)
+external PHY reset (%s) end (one-shot, GPIO released)
+```
+
+### 产物打包建议
+
+```bash
+ART=/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-$(date +%Y%m%d_%H%M%S)
+mkdir -p "$ART"
+
+cp -a "$OUT/arch/arm64/boot/Image" "$ART/vmlinuz-6.18.33-gmacpatch-v3"
+cp -a "$OUT/.config" "$ART/config-6.18.33-gmacpatch-v3"
+cp -a "$SRC/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c" "$ART/dwmac-rk.c.v3"
+cp -a "$PATCH" "$ART/"
+sha256sum "$ART"/* | tee "$ART/SHA256SUMS"
+
+echo "$ART" > /tmp/current_gmac_v3_artifact_dir
+```
+
+### SD 卡部署参数
+
+如果 SD 卡插到宿主机后仍识别为：
+
+```text
+/dev/sdc1 = boot
+/dev/sdc2 = rootfs
+```
+
+部署命令：
+
+```bash
+ART=$(cat /tmp/current_gmac_v3_artifact_dir)
+TS=$(date +%Y%m%d_%H%M%S)
+BOOT=/mnt/sdc_boot
+ROOT=/mnt/sdc_root
+
+sudo mkdir -p "$BOOT" "$ROOT"
+sudo mount /dev/sdc1 "$BOOT"
+sudo mount /dev/sdc2 "$ROOT"
+
+cd "$BOOT"
+sudo cp -a vmlinuz-6.18.33-rk35xx-ophub \
+  "vmlinuz-6.18.33-rk35xx-ophub.pre-gmacpatch-v3-${TS}"
+sudo cp -a extlinux/extlinux.conf \
+  "extlinux/extlinux.conf.pre-gmacpatch-v3-${TS}"
+sudo cp -a config-6.18.33-rk35xx-ophub \
+  "config-6.18.33-rk35xx-ophub.pre-gmacpatch-v3-${TS}" 2>/dev/null || true
+
+sudo cp -a "$ART/vmlinuz-6.18.33-gmacpatch-v3" \
+  "$BOOT/vmlinuz-6.18.33-rk35xx-ophub"
+sudo cp -a "$ART/config-6.18.33-gmacpatch-v3" \
+  "$BOOT/config-6.18.33-rk35xx-ophub"
+
+sync
+sha256sum "$BOOT/vmlinuz-6.18.33-rk35xx-ophub" \
+          "$ART/vmlinuz-6.18.33-gmacpatch-v3"
+
+sudo umount "$ROOT"
+sudo umount "$BOOT"
+sync
+```
+
+当前 extlinux 不需要改，继续使用：
+
+```text
+LINUX /Image
+FDT /dtb/rockchip/gmac-phyhandle-pll-test.dtb
+```
+
+因为 `/Image` 是指向 `vmlinuz-6.18.33-rk35xx-ophub` 的软链接。
+
+### v3 启动后 TTL 验证命令
+
+```bash
+uname -a
+ip -br link
+ip -br addr
+dmesg | grep -iE 'one-shot|GPIO released|rk3399 rgmii|gmac|stmmac|mdio|eth0|yt8521|motorcomm|dma|reset' | tail -n 180
+```
+
+预期变化：
+
+1. 不再出现：
+
+```text
+error -EBUSY: Cannot register the MDIO bus
+MDIO bus (id: 0) registration failed
+```
+
+2. 应出现：
+
+```text
+external PHY reset (...) begin (one-shot)
+external PHY reset (...) end (one-shot, GPIO released)
+```
+
+3. 如果 MDIO 注册成功，下一步会看到 PHY 探测/eth0 注册；然后再观察是否回到旧的 DMA reset 问题。
+
+### 风险与回退
+
+风险：如果一次性 reset 后 stmmac core 再 reset 的时序仍不理想，可能进入下一类问题，例如 PHY ID 读不到、eth0 no carrier 或重新出现 DMA reset fail。
+
+回退方式：SD boot 分区有旧内核备份，例如 v2 部署时备份：
+
+```text
+/mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub.pre-gmacpatch-20260618_162058
+```
+
+v3 部署时也会生成：
+
+```text
+/mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub.pre-gmacpatch-v3-${TS}
+```
+
+需要回退时，把备份复制回：
+
+```bash
+sudo cp -a /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub.pre-gmacpatch-v3-${TS} \
+  /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+sync
+```
+
+## 2026-06-18 17:09 v3 patch 编译、部署完成
+
+### 执行结果概要
+
+按上一节 v3 计划完整执行：patch 应用 → 最小对象编译 → 完整 Image 编译 → 产物打包 → SD 卡部署 → 安全卸载。SD 卡已可拔出插回 RK3399Pro 板做 TTL 验证。
+
+### v3 patch 应用
+
+```text
+源码目录: /tmp/gmac_patch_build_20260618_143722/src
+patch:   /mnt/sdb3/LPA3399Pro/patches/0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch
+apply 日志: /mnt/sdb3/LPA3399Pro/logs/6.18.33_gmac_patch_v3_20260618_170348_apply.log
+```
+
+应用前为 v2 状态（`bsp_priv->reset_gpio` + `devm_gpiod_get_optional`），应用后验证：
+
+```text
+grep -nE 'one-shot|GPIO released|gpiod_get_optional|gpiod_put|device_property_present' dwmac-rk.c
+  1233: reset_gpio = gpiod_get_optional(bsp_priv->dev, "snps,reset", ...)
+  1237: "failed to acquire one-shot external PHY reset GPIO\n"
+  1246: "external PHY reset (%s) begin (one-shot)\n"
+  1259: gpiod_put(reset_gpio);
+  1261: "external PHY reset (%s) end (one-shot, GPIO released)\n"
+  1374: if (device_property_present(dev, "snps,reset-gpio") || ...)
+```
+
+确认已移除：
+
+```text
+grep -nE 'bsp_priv->reset_gpio|devm_gpiod_get_optional' dwmac-rk.c
+  (无输出)
+```
+
+`struct rk_priv_data` 中的 `reset_gpio` 字段已删除；line 1227 的 `struct gpio_desc *reset_gpio` 是 `rk_gmac_external_phy_reset()` 内的局部变量。
+
+### v2 中间产物快照
+
+为保留可复用的 v2 中间产物，在重新编译前快照了 v2 的 `dwmac-rk.o`：
+
+```text
+/mnt/sdb3/LPA3399Pro/logs/6.18.33_gmac_patch_v3_20260618_170348/dwmac-rk.o.v2-snapshot
+```
+
+v2 完整产物仍保留在：
+
+```text
+/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/
+```
+
+### 最小对象编译
+
+```bash
+make -C /tmp/gmac_patch_build_20260618_143722/src \
+  O=/tmp/gmac_patch_build_20260618_143722/out_full \
+  ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
+  drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o -j$(nproc)
+```
+
+结果：exit 0。日志：`/mnt/sdb3/LPA3399Pro/logs/6.18.33_gmac_patch_v3_20260618_170348_dwmac_rk_o_build.log`。
+
+新 `dwmac-rk.o` 字符串验证：
+
+```text
+external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+failed to acquire one-shot external PHY reset GPIO
+external PHY reset (%s) begin (one-shot)
+external PHY reset (%s) end (one-shot, GPIO released)
+powerup start: phy_iface=%d clock_input=%d integrated_phy=%d tx=0x%x rx=0x%x
+rk3399 rgmii applied: GRF_SOC_CON5=0x%08x GRF_SOC_CON6=0x%08x tx=0x%x rx=0x%x
+```
+
+旧的 `external PHY reset GPIO present.` 字符串已不存在。
+
+### 完整 Image 编译
+
+```bash
+make -C /tmp/gmac_patch_build_20260618_143722/src \
+  O=/tmp/gmac_patch_build_20260618_143722/out_full \
+  ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
+  Image -j4
+```
+
+结果：exit 0。增量编译，只重编 `dwmac-rk.c` 后重链接。日志：`/mnt/sdb3/LPA3399Pro/logs/6.18.33_gmac_patch_v3_20260618_170348_image_build.log`。
+
+### v3 产物目录
+
+```text
+/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645
+```
+
+产物文件：
+
+```text
+vmlinuz-6.18.33-gmacpatch-v3
+config-6.18.33-gmacpatch-v3
+dwmac-rk.c.v3
+dwmac-rk.o.v3
+0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch
+6.18.33_gmac_patch_v3_20260618_170348_apply.log
+6.18.33_gmac_patch_v3_20260618_170348_dwmac_rk_o_build.log
+6.18.33_gmac_patch_v3_20260618_170348_image_build.log
+SHA256SUMS
+```
+
+SHA256（从产物目录 SHA256SUMS）：
+
+```text
+b3f62b156835cc3caa989fc90c2304561525278e5aad97e03b61aaf31ea58040  vmlinuz-6.18.33-gmacpatch-v3
+d1b68d7383a7230ea9e1752ffcf9be2f0ed7320dde37e76d2866a61998d7455a  config-6.18.33-gmacpatch-v3
+b03836e4268b140e6d7fcb706d5f0a946d35fd127c87ac0e3f66cf29fd424880  dwmac-rk.c.v3
+8859943478127deda033601ef184d885fb70ca5a5eedf504d2025dd0c4d5bfaa  dwmac-rk.o.v3
+012dd8be27f236032fb08866c3919c704e5d174cd12fba65f4d7b520944e3c93  0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch
+```
+
+v3 Image 内字符串验证：
+
+```text
+external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+failed to acquire one-shot external PHY reset GPIO
+external PHY reset (%s) begin (one-shot)
+external PHY reset (%s) end (one-shot, GPIO released)
+```
+
+### SD 卡部署
+
+部署时间戳：`20260618_170844`
+
+部署前 SD 卡内核 SHA256 为 v2：
+
+```text
+fab713e9f017713de83d173e251d837f76f5a31fd121c1690eb48fa4c0aea4bb  vmlinuz-6.18.33-rk35xx-ophub
+```
+
+部署后 SD 卡内核 SHA256 与 v3 产物一致：
+
+```text
+b3f62b156835cc3caa989fc90c2304561525278e5aad97e03b61aaf31ea58040  /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+b3f62b156835cc3caa989fc90c2304561525278e5aad97e03b61aaf31ea58040  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/vmlinuz-6.18.33-gmacpatch-v3
+```
+
+`/Image` 软链接仍指向 `vmlinuz-6.18.33-rk35xx-ophub`，extlinux.conf 未改动。
+
+SD 卡上生成的回退备份：
+
+```text
+/mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub.pre-gmacpatch-v3-20260618_170844   (v2 kernel, 49986048 bytes)
+/mnt/sdc_boot/extlinux/extlinux.conf.pre-gmacpatch-v3-20260618_170844
+/mnt/sdc_boot/config-6.18.33-rk35xx-ophub.pre-gmacpatch-v3-20260618_170844
+/mnt/sdc_boot/gmacpatch-v3-deploy-20260618_170844.txt   (deploy note)
+```
+
+部署日志：`/mnt/sdb3/LPA3399Pro/logs/6.18.33_gmac_patch_v3_20260618_170348_deploy.log`。
+
+已执行 `sync` 并卸载 `/mnt/sdc_boot`、`/mnt/sdc_root`。SD 卡可安全拔出。
+
+### v3 回退方式
+
+```bash
+sudo mount /dev/sdc1 /mnt/sdc_boot
+sudo cp -a /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub.pre-gmacpatch-v3-20260618_170844 \
+          /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+sync
+sudo umount /mnt/sdc_boot
+```
+
+### 下一步：板端 TTL 验证
+
+SD 卡插回 RK3399Pro 板启动后，抓 TTL 日志并执行：
+
+```bash
+uname -a
+ip -br link
+ip -br addr
+dmesg | grep -iE 'one-shot|GPIO released|GPIO described|rk3399 rgmii|gmac|stmmac|mdio|eth0|yt8521|motorcomm|dma|reset' | tail -n 180
+```
+
+预期变化（相对 v2）：
+
+1. 不再出现：
+
+```text
+error -EBUSY: Cannot register the MDIO bus
+MDIO bus (id: 0) registration failed
+```
+
+2. 应出现：
+
+```text
+external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+external PHY reset (...) begin (one-shot)
+external PHY reset (...) end (one-shot, GPIO released)
+```
+
+3. MDIO bus 注册成功后，下一步观察 PHY 探测 / eth0 注册是否出现，以及是否回到旧的 DMA reset 问题。
+
+4. 旧的 `external PHY reset GPIO present.` 字符串不应再出现。
+
+若 MDIO 注册仍失败（`-EBUSY`），说明 v3 一次性 GPIO 释放路径仍有问题，下一轮需要进一步排查 `stmmac_mdio_reset()` 的 GPIO 申请时序。
+
+## 2026-06-18 19:38 Patch v3 启动验证与 TTL 状态检查
+
+### 输入日志
+
+```text
+/mnt/sdb3/LPA3399Pro/ttl_logs/6.18.33_extlinux_test_20260618_193326.log
+```
+
+### TTL 状态抓取文件
+
+```text
+/mnt/sdb3/LPA3399Pro/ttl_logs/6.18.33_gmac_v3_ttl_status_20260618_193610.txt
+```
+
+### v3 是否启动
+
+已确认启动的是 v3 新内核：
+
+```text
+Linux armbian 6.18.33 #2 SMP PREEMPT Thu Jun 18 17:05:42 CST 2026 aarch64 GNU/Linux
+```
+
+v3 专属日志已出现：
+
+```text
+external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+external PHY reset (post-grf-post-power) begin (one-shot)
+external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+```
+
+说明 v3 patch 已实际运行，且 `snps,reset` GPIO 已按预期 one-shot 使用后释放。
+
+### v3 修复结果
+
+v3 已解决上一轮的 MDIO `-EBUSY` 问题。旧错误未再出现：
+
+```text
+error -EBUSY: Cannot register the MDIO bus
+MDIO bus (id: 0) registration failed
+```
+
+现在 MDIO/PHY/eth0 已能注册：
+
+```text
+/sys/class/net: eth0, lo
+/sys/bus/mdio_bus/devices/stmmac-0:00
+phy_id: 0x0000011a
+driver: /sys/bus/mdio_bus/drivers/YT8521 Gigabit Ethernet
+```
+
+TTL 查询到的网卡状态：
+
+```text
+lo   UNKNOWN  127.0.0.1/8
+eth0 DOWN     36:28:78:08:40:24
+```
+
+`ethtool eth0` 显示 PHY 存在，但 link 未起来：
+
+```text
+PHYAD: 0
+Driver: YT8521 Gigabit Ethernet
+Speed: Unknown
+Duplex: Half
+Auto-negotiation: off
+Link detected: no
+```
+
+### 当前失败点
+
+v3 后问题已经回到最初的 DMA reset fail，但这是在 `eth0` open 阶段发生；说明 probe 阶段已通过。
+
+启动期间 systemd/网络服务尝试拉起 eth0 时：
+
+```text
+rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+```
+
+TTL 手动执行：
+
+```bash
+ip link set eth0 down
+ip link set eth0 up
+```
+
+仍稳定复现：
+
+```text
+RTNETLINK answers: Connection timed out
+Failed to reset the dma
+stmmac_hw_setup: DMA engine initialization failed
+__stmmac_open: Hw setup failed
+```
+
+### 当前阶段结论
+
+v3 是有效的阶段性修复：
+
+1. 已确认新 Image 启动。
+2. 已确认 one-shot reset 生效。
+3. 已修复 MDIO `-EBUSY`。
+4. eth0 和 YT8521 PHY 已注册成功。
+5. 当前剩余问题是 MAC/DMA open 阶段 reset 超时。
+
+这说明问题不再是 GMAC 驱动缺失，也不再是 MDIO/PHY 无法注册；下一阶段应集中在 `stmmac_open()` / DMA engine reset 前后的 MAC reset、clock gating、GMAC reset line、bus clock、power-domain 或 RK3399 GRF clock mode 上。
+
+### 建议下一轮 patch v4 方向
+
+优先建议做“最小侵入的 DMA reset 前稳定化”验证：
+
+1. 在 `rk_gmac_powerup()` 完成 GRF、clock、PHY power、one-shot reset 后，增加更长 settle delay，例如从当前 `usleep_range(20000, 30000)` 提升到 `msleep(100)` 或 `msleep(200)` 做 A/B 测试。
+2. 在 stmmac open 之前确认 GMAC clocks 没被 runtime PM 或 unused clock 禁掉；可临时在 RK wrapper 中保持 clocks enabled，不在 probe 后过早 runtime suspend。
+3. 检查/尝试 GMAC reset control：如果 DT 有 `resets`/`reset-names`，可在 wrapper powerup 后执行 MAC reset deassert 序列或增加 reset pulse。
+4. 对比 vendor BSP 的 RK3399 GMAC 初始化顺序，重点看：
+   - GRF_SOC_CON5/6 写入时机
+   - `clock_in_out` input/output 语义
+   - ACLK/PCLK/STMMACETH clock enable 顺序
+   - PHY reset 与 MAC DMA reset 的间隔
+5. 若要先排除 v3 的 one-shot reset 影响，可做一个 v4a：完全移除 wrapper 自定义 PHY reset，只保留 `clock_input=true` 和 GRF readback，让 stmmac core 独立执行 `snps,reset`，观察 DMA reset 是否变化。
+
+### 下一轮 TTL 验证命令建议
+
+```bash
+uname -a
+ip -br link
+ethtool eth0
+dmesg | grep -iE 'rk_gmac|stmmac|eth0|yt8521|motorcomm|dma|reset|clock|pm_runtime|power' | tail -n 200
+```
+
+如编译了 v4/v4a，应重点比较：
+
+```text
+Failed to reset the dma
+stmmac_hw_setup: DMA engine initialization failed
+```
+
+是否消失，以及 `eth0` 是否能进入 UP/link negotiation。
+
+## 2026-06-18 20:02 Patch v4 具体建议与已完成操作
+
+### v4 背景
+
+v3 已确认：
+
+- MDIO  已解决。
+-  和 YT8521 PHY 已注册成功。
+- 当前失败点回到  open 阶段：DMA software reset 超时。
+
+当前典型失败日志：
+
+
+
+因此 v4 不再处理 MDIO/PHY 注册，而是围绕  前后的 MAC/DMA reset、clock、runtime PM、GMAC reset line 和 post-reset settle time 做最小验证。
+
+### 已完成的 v4 前置 TTL 探测
+
+TTL 探测结果已保存：
+
+
+
+关键结果：
+
+
+
+DTB 中 GMAC reset/clock：
+
+
+
+clock summary 中 GMAC 相关 clock 状态：
+
+
+
+解释：主 bus clock/AXI/PCLK 在当前状态下看起来是 enabled；但 DMA reset 仍失败，下一步优先测试初始化时序/settle delay，其次测试 open 前重新 powerup/reset。
+
+### v4 推荐分支设计
+
+#### v4a：最小延时验证，优先做
+
+目的：验证 PHY reset、GRF 配置、clock mux 稳定时间不足是否导致 DMA software reset stuck。
+
+改动：在  的 one-shot PHY reset 后，把：
+
+
+
+改为：
+
+
+
+优点：改动最小，风险低，能快速确认时序问题。
+
+缺点：如果 DMA reset 失败不是 settle time，仍会失败。
+
+#### v4b：probe 后禁止 runtime suspend / 保持 clocks
+
+目的：排除  注册 netdev 后  关闭 bus clocks，导致后续 open 时 clock 状态或 wrapper 状态不一致。
+
+建议做法之一：只针对 RK3399Pro 测试，在 probe 后保持 runtime PM 引用，或在 wrapper 中增加显式日志确认 resume 后 clock 状态。
+
+风险：可能增加功耗，但用于调试可接受。
+
+#### v4c：open 前重新执行 wrapper powerup 或 MAC reset pulse
+
+目的：DMA reset 发生在  中，probe 阶段 powerup 到 open 中间经过 systemd/udev 延迟；可在 open 前确保 RK GRF/clock/reset line 处于确定状态。
+
+可选方向：
+
+1. 在  中实现 RK3399 自定义 DMA reset wrapper：先打印 DMA_BUS_MODE、GRF readback、clock 状态，再执行原 DMA reset。
+2. 在 DMA reset 前对  reset line 做 assert/deassert pulse，间隔 10~20ms，再执行 DMA software reset。
+3. 在  或 phylink 回调后再次确认 RGMII clock div / GRF_SOC_CON5/6。
+
+风险：侵入 stmmac reset 路径较深，建议 v4a 无效后再做。
+
+#### v4d：移除 wrapper one-shot PHY reset 做对照
+
+目的：排除 v3 one-shot reset 和 stmmac core reset 叠加导致 PHY/MAC 状态异常。
+
+做法：保留  和 GRF readback，但跳过 ，只让  执行 。
+
+风险：可能回到 PHY/MDIO 相关问题，但适合作为 A/B 对照。
+
+### 已生成 v4a patch 草案
+
+已实际生成最小 v4a patch：
+
+
+
+SHA256：
+
+
+
+v4a 草案工作目录：
+
+
+
+patch apply 自检目录：
+
+
+
+自检结果：
+
+
+
+v4a patch 内容摘要：
+
+
+
+### v4a 应用命令
+
+继续基于当前 v3 源码树：
+
+patching file drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+
+确认 patch：
+
+
+
+### v4a 最小对象编译
+
+
+
+检查对象字符串：
+
+
+
+### v4a 完整 Image 编译
+
+
+
+成功产物：
+
+
+
+检查 Image 字符串：
+
+
+
+### v4a 产物打包
+
+
+
+### v4a SD 卡部署
+
+假设 SD 卡仍为：
+
+
+
+部署：
+
+
+
+extlinux 继续保持：
+
+
+
+### v4a TTL 验证命令
+
+启动后执行：
+
+Linux Inspiron-7520 6.17.0-35-generic #35~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May 26 19:30:42 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+enp7s0           UP             d4:be:d9:3d:e5:be <BROADCAST,MULTICAST,UP,LOWER_UP> 
+wlp8s0           UP             e4:70:b8:ee:c6:13 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+tailscale0       UNKNOWN        <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> 
+No data available
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+enp7s0           UP             d4:be:d9:3d:e5:be <BROADCAST,MULTICAST,UP,LOWER_UP> 
+wlp8s0           UP             e4:70:b8:ee:c6:13 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+tailscale0       UNKNOWN        <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> 
+No data available
+
+v4a 成功标准：
+
+
+
+如果 v4a 仍失败，建议立刻做 v4b 或 v4d：
+
+- v4b：保持 runtime PM/clock，不让 probe 后关闭 clocks。
+- v4d：去掉 wrapper one-shot reset，只让 stmmac core 管理 PHY reset，做 A/B 对照。
+
+### 回退
+
+v4a 部署会生成：
+
+
+
+回退：
+
+

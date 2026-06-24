@@ -1,0 +1,17 @@
+[2026年 06月 19日 星期五 18:19:34 CST] Starting modules_install...
+SRC=/tmp/gmac_patch_build_20260618_143722/src
+OUT=/tmp/gmac_patch_build_20260618_143722/out_full
+INSTALL_STAGING=/tmp/modules_install_staging_20260619_181934
+TAR_OUT=/mnt/sdb3/LPA3399Pro/build_artifacts/modules-6.18.33-20260619_181934.tar.gz
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+  SYMLINK /tmp/modules_install_staging_20260619_181934/lib/modules/6.18.33/build
+  INSTALL /tmp/modules_install_staging_20260619_181934/lib/modules/6.18.33/modules.order
+  INSTALL /tmp/modules_install_staging_20260619_181934/lib/modules/6.18.33/modules.builtin
+  INSTALL /tmp/modules_install_staging_20260619_181934/lib/modules/6.18.33/modules.builtin.modinfo
+make[3]: *** 没有规则可制作目标“/tmp/modules_install_staging_20260619_181934/lib/modules/6.18.33/kernel/arch/arm64/crypto/sha3-ce.ko”，由“depmod” 需求。 停止。
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:1932：modules_install] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: *** [Makefile:248：__sub-make] 错误 2
+[2026年 06月 19日 星期五 18:19:35 CST] modules_install done.
+ERROR: /tmp/modules_install_staging_20260619_181934/lib/modules/6.18.33/modules.dep not found

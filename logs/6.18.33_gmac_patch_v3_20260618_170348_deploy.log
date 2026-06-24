@@ -1,0 +1,5 @@
+TS=20260618_170844
+ART=/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645
+=== post-deploy SHA256 verification ===
+b3f62b156835cc3caa989fc90c2304561525278e5aad97e03b61aaf31ea58040  /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+b3f62b156835cc3caa989fc90c2304561525278e5aad97e03b61aaf31ea58040  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/vmlinuz-6.18.33-gmacpatch-v3

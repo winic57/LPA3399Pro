@@ -1,0 +1,21 @@
+make: Entering directory '/tmp/gmac_patch_build_20260618_143722/src'
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac”
+awk: cannot open "/tmp/gmac_patch_build_20260618_143722/out_mod/include/generated/asm-offsets.h" (No such file or directory)
+  CC [M]  stmmac_main.o
+  CC [M]  stmmac_ethtool.o
+aarch64-linux-gnu-gcc: error: missing argument to ‘-mstack-protector-guard-offset=’
+  CC [M]  stmmac_mdio.o
+aarch64-linux-gnu-gcc: error: missing argument to ‘-mstack-protector-guard-offset=’
+  CC [M]  ring_mode.o
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：stmmac_main.o] 错误 1
+make[3]: *** 正在等待未完成的任务....
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：stmmac_ethtool.o] 错误 1
+aarch64-linux-gnu-gcc: error: missing argument to ‘-mstack-protector-guard-offset=’
+aarch64-linux-gnu-gcc: error: missing argument to ‘-mstack-protector-guard-offset=’
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：stmmac_mdio.o] 错误 1
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：ring_mode.o] 错误 1
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:2026：.] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac”
+make: *** [Makefile:248: __sub-make] Error 2
+make: Leaving directory '/tmp/gmac_patch_build_20260618_143722/src'

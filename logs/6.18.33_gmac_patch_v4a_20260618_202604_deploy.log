@@ -1,0 +1,7 @@
+TS=20260618_203012
+ART=/mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4a-20260618_202901
+=== pre-deploy: current SD kernel SHA256 (should be v3 b3f62b15...) ===
+b3f62b156835cc3caa989fc90c2304561525278e5aad97e03b61aaf31ea58040  /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+=== post-deploy SHA256 verification ===
+b53856390db45953488a6cd98b9291c7a97591aec03a353ec076e020cd04a137  /mnt/sdc_boot/vmlinuz-6.18.33-rk35xx-ophub
+b53856390db45953488a6cd98b9291c7a97591aec03a353ec076e020cd04a137  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4a-20260618_202901/vmlinuz-6.18.33-gmacpatch-v4a

@@ -1,0 +1,56 @@
+[2026年 06月 19日 星期五 18:29:31 CST] Starting modules_install...
+SRC=/tmp/gmac_patch_build_20260618_143722/src
+OUT=/tmp/gmac_patch_build_20260618_143722/out_full
+INSTALL_STAGING=/tmp/modules_install_staging_20260619_182931
+TAR_OUT=/mnt/sdb3/LPA3399Pro/build_artifacts/modules-6.18.33-20260619_182931.tar.gz
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+  SYMLINK /tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/build
+  INSTALL /tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/modules.order
+  INSTALL /tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/modules.builtin
+  INSTALL /tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/modules.builtin.modinfo
+  INSTALL /tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/kernel/arch/arm64/crypto/sha3-ce.ko
+  STRIP   /tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/kernel/arch/arm64/crypto/sha3-ce.ko
+aarch64-linux-gnu-strip: 未识别的选项 "--unused"
+用法：aarch64-linux-gnu-strip <选项> 输入文件
+ 从文件中删除符号和节
+ 选项为：
+  -I --input-target=<bfdname>      Assume input file is in format <bfdname>
+  -O --output-target=<bfdname>     Create an output file in format <bfdname>
+  -F --target=<bfdname>            Set both input and output format to <bfdname>
+  -p --preserve-dates              Copy modified/access timestamps to the output
+  -D --enable-deterministic-archives
+                                   Produce deterministic output when stripping archives (default)
+  -U --disable-deterministic-archives
+                                   Disable -D behavior
+  -R --remove-section=<name>       Also remove section <name> from the output
+     --remove-relocations <name>   Remove relocations from section <name>
+     --strip-section-headers       Strip section headers from the output
+  -s --strip-all                   Remove all symbol and relocation information
+  -g -S -d --strip-debug           Remove all debugging symbols & sections
+     --strip-dwo                   Remove all DWO sections
+     --strip-unneeded              Remove all symbols not needed by relocations
+     --only-keep-debug             Strip everything but the debug information
+  -M  --merge-notes                Remove redundant entries in note sections (default)
+      --no-merge-notes             Do not attempt to remove redundant notes
+  -N --strip-symbol=<name>         Do not copy symbol <name>
+     --keep-section=<name>         Do not strip section <name>
+  -K --keep-symbol=<name>          Do not strip symbol <name>
+     --keep-section-symbols        Do not strip section symbols
+     --keep-file-symbols           Do not strip file symbol(s)
+  -w --wildcard                    Permit wildcard in symbol comparison
+  -x --discard-all                 Remove all non-global symbols
+  -X --discard-locals              Remove any compiler-generated symbols
+  -v --verbose                     List all object files modified
+  -V --version                     Display this program's version number
+  -h --help                        Display this output
+     --info                        List object formats & architectures supported
+  -o <file>                        Place stripped output into <file>
+aarch64-linux-gnu-strip：支持的目标： elf64-littleaarch64 elf64-bigaarch64 elf32-littleaarch64 elf32-bigaarch64 elf32-littlearm elf32-bigarm pei-aarch64-little pe-aarch64-little elf64-little elf64-big elf32-little elf32-big srec symbolsrec verilog tekhex binary ihex plugin
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.modinst:124：/tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/kernel/arch/arm64/crypto/sha3-ce.ko] 错误 1
+make[3]: *** 正在删除文件“/tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/kernel/arch/arm64/crypto/sha3-ce.ko”
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:1932：modules_install] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: *** [Makefile:248：__sub-make] 错误 2
+[2026年 06月 19日 星期五 18:29:32 CST] modules_install done.
+ERROR: /tmp/modules_install_staging_20260619_182931/lib/modules/6.18.33/modules.dep not found

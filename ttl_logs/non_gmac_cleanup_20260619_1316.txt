@@ -1,0 +1,120 @@
+
+[?2004l[?2004hroot@armbian:~# HOST_NOW='2026-06-19 13:13:54'; OUT=/root/non_gmac_cleanup_$(date +%Y%m%d_%H%M%S).txt; { echo "=== NON_GMAC_CLEANUP_START host_now=2026-06-19 13:13:54 board_before=$(date) ==="; echo '-- block devices --'; lsblk -o NAME,PATH,SIZE,TYPE,FSTYPE,MOUNTPOINTS | sed -n '1,80p'; echo '-- GPT verify before --'; if command -v sgdisk >/dev/null 2>&1; then sgdisk -v /dev/mmcblk1 || true; sgdisk --backup=/root/mmcblk1_gpt_backup_$(date +%Y%m%d_%H%M%S).sgdisk /dev/mmcblk1 || true; sgdisk -e /dev/mmcblk1 || true; sgdisk -v /dev/mmcblk1 || true; else echo 'sgdisk missing'; fi; echo '-- time before/after --'; date; date -s "2026-06-19 13:13:54" || true; date; hwclock -w 2>&1 || true; hwclock -r 2>&1 || true; echo '-- sysctl sources --'; grep -RInE 'hung_task_timeout_secs|default_qdisc|tcp_congestion_control|tcp_syncookies|ipv6|nf_conntrack' /etc/sysctl.conf /etc/sysctl.d /usr/lib/sysctl.d /run/sysctl.d 2>/dev/null || true; echo '-- missing sysctl keys --'; for key in kernel/hung_task_timeout_secs net/core/default_qdisc net/ipv4/tcp_congestion_control net/ipv4/tcp_syncookies net/ipv6/conf/default/forwarding net/ipv6/conf/all/forwarding net/netfilter/nf_conntrack_acct net/netfilter/nf_conntrack_checksum net/netfilter/nf_conntrack_max net/netfilter/nf_conntrack_tcp_timeout_established net/netfilter/nf_conntrack_udp_timeout net/netfilter/nf_conntrack_udp_timeout_stream net/netfilter/nf_conntrack_helper net/ipv6/conf/all/disable_ipv6 net/ipv6/conf/default/disable_ipv6 net/ipv6/conf/lo/disable_ipv6; do [ -e /proc/sys/$key ] || echo MISSING:$key; done; echo '-- PCIe DT status --'; find /proc/device-tree -maxdepth 3 -iname '*pcie*' -o -path '*pcie@f8000000*' 2>/dev/null | head -n 40; [ -e /proc/device-tree/pcie@f8000000/status ] && hexdump -Cv /proc/device-tree/pcie@f8000000/status || true; dmesg | grep -iE 'GPT|pcie|ipv6|sysctl|hwclock|rtc' | tail -n 120; echo "=== NON_GMAC_CLEANUP_END board_after=$(date) ==="; } 2>&1 | tee "$OUT"; echo OUT=$OUT; echo __CURRENT_SHELL_DONE_1781846034411__:$?
+[?2004l=== NON_GMAC_CLEANUP_START host_now=2026-06-19 13:13:54 board_before=Mon Jun  1 11:55:59 PM CST 2026 ===
+-- block devices --
+NAME         PATH               SIZE TYPE FSTYPE MOUNTPOINTS
+mmcblk0      /dev/mmcblk0      14.7G disk        
+├─mmcblk0p1  /dev/mmcblk0p1       4M part        
+├─mmcblk0p2  /dev/mmcblk0p2       4M part        
+├─mmcblk0p3  /dev/mmcblk0p3      32M part        
+├─mmcblk0p4  /dev/mmcblk0p4      96M part        
+├─mmcblk0p5  /dev/mmcblk0p5      32M part        
+└─mmcblk0p6  /dev/mmcblk0p6    14.5G part ext4   
+mmcblk0boot0 /dev/mmcblk0boot0    4M disk        
+mmcblk0boot1 /dev/mmcblk0boot1    4M disk        
+mmcblk1      /dev/mmcblk1      14.4G disk        
+├─mmcblk1p1  /dev/mmcblk1p1     511M part ext4   
+└─mmcblk1p2  /dev/mmcblk1p2     2.9G part ext4   /
+-- GPT verify before --
+sgdisk missing
+-- time before/after --
+Mon Jun  1 11:56:00 PM CST 2026
+Fri Jun 19 01:13:54 PM CST 2026
+Fri Jun 19 01:13:54 PM CST 2026
+-bash: hwclock: command not found
+-bash: hwclock: command not found
+-- sysctl sources --
+/etc/sysctl.conf:25:#net.ipv4.tcp_syncookies=1
+/etc/sysctl.conf:33:#net.ipv6.conf.all.forwarding=1
+/etc/sysctl.conf:45:#net.ipv6.conf.all.accept_redirects = 0
+/etc/sysctl.conf:56:#net.ipv6.conf.all.accept_source_route = 0
+/etc/sysctl.conf:74:kernel.hung_task_timeout_secs = 0
+/etc/sysctl.conf:87:net.core.default_qdisc = fq
+/etc/sysctl.conf:88:net.ipv4.tcp_congestion_control = bbr
+/etc/sysctl.conf:99:net.ipv4.tcp_syncookies = 1
+/etc/sysctl.conf:104:net.ipv6.conf.default.forwarding = 1
+/etc/sysctl.conf:105:net.ipv6.conf.all.forwarding = 1
+/etc/sysctl.conf:110:net.netfilter.nf_conntrack_acct = 1
+/etc/sysctl.conf:111:net.netfilter.nf_conntrack_checksum = 0
+/etc/sysctl.conf:112:net.netfilter.nf_conntrack_max = 65535
+/etc/sysctl.conf:113:net.netfilter.nf_conntrack_tcp_timeout_established = 7440
+/etc/sysctl.conf:114:net.netfilter.nf_conntrack_udp_timeout = 60
+/etc/sysctl.conf:115:net.netfilter.nf_conntrack_udp_timeout_stream = 180
+/etc/sysctl.conf:116:net.netfilter.nf_conntrack_helper = 1
+/etc/sysctl.conf:119:net.ipv6.conf.all.disable_ipv6 = 1
+/etc/sysctl.conf:120:net.ipv6.conf.default.disable_ipv6 = 1
+/etc/sysctl.conf:121:net.ipv6.conf.lo.disable_ipv6 = 1
+/etc/sysctl.d/99-sysctl.conf:25:#net.ipv4.tcp_syncookies=1
+/etc/sysctl.d/99-sysctl.conf:33:#net.ipv6.conf.all.forwarding=1
+/etc/sysctl.d/99-sysctl.conf:45:#net.ipv6.conf.all.accept_redirects = 0
+/etc/sysctl.d/99-sysctl.conf:56:#net.ipv6.conf.all.accept_source_route = 0
+/etc/sysctl.d/99-sysctl.conf:74:kernel.hung_task_timeout_secs = 0
+/etc/sysctl.d/99-sysctl.conf:87:net.core.default_qdisc = fq
+/etc/sysctl.d/99-sysctl.conf:88:net.ipv4.tcp_congestion_control = bbr
+/etc/sysctl.d/99-sysctl.conf:99:net.ipv4.tcp_syncookies = 1
+/etc/sysctl.d/99-sysctl.conf:104:net.ipv6.conf.default.forwarding = 1
+/etc/sysctl.d/99-sysctl.conf:105:net.ipv6.conf.all.forwarding = 1
+/etc/sysctl.d/99-sysctl.conf:110:net.netfilter.nf_conntrack_acct = 1
+/etc/sysctl.d/99-sysctl.conf:111:net.netfilter.nf_conntrack_checksum = 0
+/etc/sysctl.d/99-sysctl.conf:112:net.netfilter.nf_conntrack_max = 65535
+/etc/sysctl.d/99-sysctl.conf:113:net.netfilter.nf_conntrack_tcp_timeout_established = 7440
+/etc/sysctl.d/99-sysctl.conf:114:net.netfilter.nf_conntrack_udp_timeout = 60
+/etc/sysctl.d/99-sysctl.conf:115:net.netfilter.nf_conntrack_udp_timeout_stream = 180
+/etc/sysctl.d/99-sysctl.conf:116:net.netfilter.nf_conntrack_helper = 1
+/etc/sysctl.d/99-sysctl.conf:119:net.ipv6.conf.all.disable_ipv6 = 1
+/etc/sysctl.d/99-sysctl.conf:120:net.ipv6.conf.default.disable_ipv6 = 1
+/etc/sysctl.d/99-sysctl.conf:121:net.ipv6.conf.lo.disable_ipv6 = 1
+-- missing sysctl keys --
+MISSING:kernel/hung_task_timeout_secs
+MISSING:net/ipv4/tcp_syncookies
+MISSING:net/ipv6/conf/default/forwarding
+MISSING:net/ipv6/conf/all/forwarding
+MISSING:net/netfilter/nf_conntrack_acct
+MISSING:net/netfilter/nf_conntrack_checksum
+MISSING:net/netfilter/nf_conntrack_max
+MISSING:net/netfilter/nf_conntrack_tcp_timeout_established
+MISSING:net/netfilter/nf_conntrack_udp_timeout
+MISSING:net/netfilter/nf_conntrack_udp_timeout_stream
+MISSING:net/netfilter/nf_conntrack_helper
+MISSING:net/ipv6/conf/all/disable_ipv6
+MISSING:net/ipv6/conf/default/disable_ipv6
+MISSING:net/ipv6/conf/lo/disable_ipv6
+-- PCIe DT status --
+00000000  6f 6b 61 79 00                                    |okay.|
+00000005
+[    0.068397] /pcie@f8000000: Fixed dependency cycle(s) with /pcie@f8000000/interrupt-controller
+[    1.262862] rk808-rtc rk808-rtc.4.auto: registered as rtc0
+[    1.264811] rk808-rtc rk808-rtc.4.auto: setting system clock to 2017-08-05T09:25:21 UTC (1501925121)
+[    1.283274] rockchip-pcie f8000000.pcie: host bridge /pcie@f8000000 ranges:
+[    1.284369] rockchip-pcie f8000000.pcie:      MEM 0x00fa000000..0x00fbdfffff -> 0x00fa000000
+[    1.285673] rockchip-pcie f8000000.pcie:       IO 0x00fbe00000..0x00fbefffff -> 0x00fbe00000
+[    1.287440] rockchip-pcie f8000000.pcie: no vpcie12v regulator found
+[    1.288950] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    1.289844] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    1.292029] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    1.292694] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    1.376104] GPT:Primary header thinks Alt. header is not at the end of the disk.
+[    1.376794] GPT:7225343 != 30203903
+[    1.377111] GPT:Alternate GPT header not at the end of the disk.
+[    1.377644] GPT:7225343 != 30203903
+[    1.377959] GPT: Use GNU Parted to correct GPT errors.
+[    1.999608] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    2.000253] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    2.000942] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    2.001627] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    2.002315] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    2.003000] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    2.003710] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    2.004396] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    2.005078] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    2.005793] rockchip-pcie f8000000.pcie: probe with driver rockchip-pcie failed with error -110
+[   14.227662] systemd[1]: Binding to IPv6 address not available since kernel does not support IPv6.
+[   14.228531] systemd[1]: Binding to IPv6 address not available since kernel does not support IPv6.
+[   14.616656] systemd[1]: Starting fake-hwclock-load.service - Restore the current clock...
+[   14.813910] systemd[1]: fake-hwclock-load.service: Deactivated successfully.
+[   14.815453] systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.
+[   14.823308] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[   14.940141] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+=== NON_GMAC_CLEANUP_END board_after=Fri Jun 19 01:13:54 PM CST 2026 ===
+OUT=/root/non_gmac_cleanup_20260601_235559.txt
+__CURRENT_SHELL_DONE_1781846034411__:0

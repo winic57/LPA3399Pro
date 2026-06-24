@@ -1,0 +1,252 @@
+
+[?2004l[?2004hroot@armbian:~# OUT=/root/gmac_iperf3_retry_$(date +%Y%m%d_%H%M%S).txt; { echo "=== GMAC_IPERF3_RETRY_START $(date) ==="; ip -br link show eth0; ethtool eth0 | sed -n "1,35p"; cat /proc/net/dev | grep -E "Inter|face|eth0"; iperf3 -c 192.168.50.12 -p 5201 -t 60 -P 1; cat /proc/net/dev | grep -E "Inter|face|eth0"; ethtool -S eth0 2>&1 | grep -Ei "err|drop|crc|timeout|fifo|collision|carrier|under|over|watchdog|miss" | head -n 120; dmesg | grep -iE "gmac|stmmac|eth0|dma|reset|Failed|timeout|error|watchdog" | tail -n 120; echo "=== GMAC_IPERF3_RETRY_END $(date) ==="; } 2>&1 | tee "$OUT"; echo OUT=$OUT; echo __CURRENT_SHELL_DONE_1781845944084__:$?
+[?2004l=== GMAC_IPERF3_RETRY_START Mon Jun  1 11:54:29 PM CST 2026 ===
+eth0             UP             36:28:78:08:40:24 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Advertised FEC modes: Not reported
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
+	Link partner advertised pause frame use: Symmetric
+	Link partner advertised auto-negotiation: Yes
+	Link partner advertised FEC modes: Not reported
+	Speed: 100Mb/s
+	Duplex: Full
+	Auto-negotiation: on
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: external
+	MDI-X: Unknown
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: yes
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+  eth0:  916671   13627    0    0    0     0          0         0    67176     700    0    0    0     0       0          0
+Connecting to host 192.168.50.12, port 5201
+[  5] local 192.168.50.113 port 56658 connected to 192.168.50.12 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-1.00   sec  12.0 MBytes   101 Mbits/sec    0    174 KBytes       
+[  5]   1.00-2.00   sec  11.1 MBytes  93.3 Mbits/sec    0    194 KBytes       
+[  5]   2.00-3.00   sec  11.2 MBytes  94.4 Mbits/sec    0    194 KBytes       
+[  5]   3.00-4.00   sec  11.4 MBytes  95.4 Mbits/sec    0    194 KBytes       
+[  5]   4.00-5.00   sec  11.2 MBytes  94.4 Mbits/sec    0    194 KBytes       
+[  5]   5.00-6.00   sec  11.4 MBytes  95.4 Mbits/sec    0    194 KBytes       
+[  5]   6.00-7.00   sec  10.9 MBytes  91.2 Mbits/sec    0    194 KBytes       
+[  5]   7.00-8.00   sec  11.2 MBytes  94.4 Mbits/sec    0    194 KBytes       
+[  5]   8.00-9.00   sec  11.4 MBytes  95.4 Mbits/sec    0    194 KBytes       
+[  5]   9.00-10.00  sec  11.2 MBytes  94.4 Mbits/sec    0    194 KBytes       
+[  5]  10.00-11.00  sec  11.2 MBytes  94.4 Mbits/sec    0    194 KBytes       
+[  5]  11.00-12.00  sec  10.9 MBytes  91.2 Mbits/sec    0    194 KBytes       
+[  5]  12.00-13.00  sec  11.4 MBytes  95.4 Mbits/sec    0    194 KBytes       
+[  5]  13.00-14.00  sec  11.2 MBytes  94.4 Mbits/sec    0    194 KBytes       
+[  5]  14.00-15.00  sec  11.4 MBytes  95.4 Mbits/sec    0    194 KBytes       
+[  5]  15.00-16.00  sec  11.2 MBytes  94.4 Mbits/sec    0    246 KBytes       
+[  5]  16.00-17.00  sec  11.8 MBytes  98.6 Mbits/sec    0    293 KBytes       
+[  5]  17.00-18.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  18.00-19.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  19.00-20.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  20.00-21.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  21.00-22.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  22.00-23.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  23.00-24.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  24.00-25.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  25.00-26.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  26.00-27.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  27.00-28.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  28.00-29.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  29.00-30.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  30.00-31.00  sec  10.5 MBytes  88.1 Mbits/sec    0    293 KBytes       
+[  5]  31.00-32.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  32.00-33.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  33.00-34.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  34.00-35.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  35.00-36.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  36.00-37.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  37.00-38.00  sec  11.9 MBytes  99.6 Mbits/sec    0    293 KBytes       
+[  5]  38.00-39.00  sec  10.5 MBytes  88.1 Mbits/sec    0    293 KBytes       
+[  5]  39.00-40.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  40.00-41.00  sec  11.8 MBytes  98.6 Mbits/sec    0    293 KBytes       
+[  5]  41.00-42.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  42.00-43.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  43.00-44.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  44.00-45.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  45.00-46.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  46.00-47.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  47.00-48.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  48.00-49.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  49.00-50.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  50.00-51.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  51.00-52.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  52.00-53.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  53.00-54.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  54.00-55.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  55.00-56.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  56.00-57.00  sec  11.9 MBytes  99.6 Mbits/sec    0    293 KBytes       
+[  5]  57.00-58.00  sec  11.1 MBytes  93.3 Mbits/sec    0    293 KBytes       
+[  5]  58.00-59.00  sec  11.2 MBytes  94.4 Mbits/sec    0    293 KBytes       
+[  5]  59.00-60.00  sec  11.1 MBytes  93.2 Mbits/sec    0    293 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-60.00  sec   674 MBytes  94.2 Mbits/sec    0            sender
+[  5]   0.00-60.01  sec   672 MBytes  94.0 Mbits/sec                  receiver
+
+iperf Done.
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+  eth0: 17359920  262788    0    0    0     0          0         0 737491532  487810    0    0    0     0       0          0
+     mmc_tx_underflow_error: 0
+     mmc_tx_deferred: 0
+     mmc_tx_carrier_error: 0
+     mmc_tx_oversize_g: 0
+     mmc_rx_crc_error: 0
+     mmc_rx_align_error: 0
+     mmc_rx_run_error: 0
+     mmc_rx_jabber_error: 0
+     mmc_rx_undersize_g: 0
+     mmc_rx_oversize_g: 0
+     mmc_rx_length_error: 0
+     mmc_rx_fifo_overflow: 0
+     mmc_rx_watchdog_error: 0
+     mmc_rx_error: 0
+     mmc_rx_align_err_frames: 0
+     mmc_rx_ipv4_hderr: 0
+     mmc_rx_ipv4_hderr_octets: 0
+     mmc_rx_ipv6_hderr_octets: 0
+     mmc_rx_ipv6_hderr: 0
+     mmc_rx_udp_err: 0
+     mmc_rx_tcp_err: 0
+     mmc_rx_icmp_err: 0
+     mmc_rx_udp_err_octets: 0
+     mmc_rx_tcp_err_octets: 0
+     mmc_rx_icmp_err_octets: 0
+     mmc_tx_gate_overrun_cntr: 0
+     mmc_rx_packet_assembly_err_cntr: 0
+     mmc_rx_packet_smd_err_cntr: 0
+     tx_underflow: 0
+     tx_carrier: 0
+     tx_losscarrier: 0
+     tx_deferred: 0
+     tx_payload_error: 0
+     tx_ip_header_error: 0
+     overflow_error: 0
+     ipc_csum_error: 0
+     rx_collision: 0
+     rx_crc_errors: 0
+     rx_gmac_overflow: 0
+     rx_watchdog: 0
+     rx_missed_cntr: 0
+     rx_overflow_cntr: 0
+     rx_overflow_irq: 0
+     rx_watchdog_irq: 0
+     fatal_bus_error_irq: 0
+     phy_eee_wakeup_error_n: 0
+     ip_hdr_err: 0
+     ip_payload_err: 0
+     timestamp_dropped: 0
+     mtl_tx_status_fifo_full: 0
+     mtl_tx_fifo_not_empty: 0
+     mmtl_fifo_ctrl: 0
+     mtl_tx_fifo_read_ctrl_write: 0
+     mtl_tx_fifo_read_ctrl_wait: 0
+     mtl_tx_fifo_read_ctrl_read: 0
+     mtl_tx_fifo_read_ctrl_idle: 0
+     mtl_rx_fifo_fill_level_full: 0
+     mtl_rx_fifo_fill_above_thresh: 0
+     mtl_rx_fifo_fill_below_thresh: 0
+     mtl_rx_fifo_fill_level_empty: 0
+     mtl_rx_fifo_read_ctrl_flush: 0
+     mtl_rx_fifo_read_ctrl_read_data: 0
+     mtl_rx_fifo_read_ctrl_status: 0
+     mtl_rx_fifo_read_ctrl_idle: 0
+     mtl_rx_fifo_ctrl_active: 0
+     mac_rx_frame_ctrl_fifo: 0
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Kernel command line: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+[    0.000000] Policy zone: DMA
+[    0.051253] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052405] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.053980] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.146131] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.352186] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.352236] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.353951] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.353982] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.560592] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.561210] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.561901] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.562722] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.563371] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.563921] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.564444] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.565005] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.566035] rk_gmac-dwmac fe300000.ethernet: v4b-fix: reused stmmac core stmmaceth reset controller
+[    0.566882] rk_gmac-dwmac fe300000.ethernet: rk3399pro test workaround: forcing clock_input=true for external RGMII PHY
+[    0.567882] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.573853] rk_gmac-dwmac fe300000.ethernet: v4d: clocks enabled (5 clks, includes mac_clk_rx for RGMII)
+[    0.574708] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.575218] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.576359] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.639455] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.640392] rk_gmac-dwmac fe300000.ethernet: v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open
+[    0.843437] rk_gmac-dwmac fe300000.ethernet: v4b: MAC reset cycle before runtime resume/DMA open
+[    0.844228] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: assert stmmaceth
+[    0.864984] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: deassert stmmaceth
+[    0.919432] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: done
+[    0.920079] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.921215] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.921869] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.922346] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.923021] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.923699] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.924375] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.924850] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.925484] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.926155] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.926694] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.927223] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    1.058062] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.058760] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.079477] armv8-pmu pmu_a72: hw perfevents: failed to probe PMU!
+[    1.088362] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.282397] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.283087] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.285101] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.286434] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.377959] GPT: Use GNU Parted to correct GPT errors.
+[    1.999608] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    2.005793] rockchip-pcie f8000000.pcie: probe with driver rockchip-pcie failed with error -110
+[    2.032477] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    2.033182] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    2.036189] check access for rdinit=/init failed: -2, ignoring
+[   12.271327] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.272016] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   20.711841] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   20.718412] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.720325] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE before reset: 0x00020100 (SWR=0)
+[   20.721175] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE after SWR write: 0x00020101 (SWR=1)
+[   20.732029] rk_gmac-dwmac fe300000.ethernet eth0: v4e: SWR cleared after 10 ms: 0x00020100
+[   20.732805] rk_gmac-dwmac fe300000.ethernet eth0: No Safety Features support found
+[   20.733992] rk_gmac-dwmac fe300000.ethernet eth0: PTP not supported by HW
+[   20.734615] rk_gmac-dwmac fe300000.ethernet eth0: configuring for phy/rgmii link mode
+[   21.790133] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[   22.785350] rk_gmac-dwmac fe300000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+=== GMAC_IPERF3_RETRY_END Mon Jun  1 11:55:29 PM CST 2026 ===
+OUT=/root/gmac_iperf3_retry_20260601_235429.txt
+__CURRENT_SHELL_DONE_1781845944084__:0

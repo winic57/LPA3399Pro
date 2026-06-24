@@ -1,0 +1,10 @@
+012dd8be27f236032fb08866c3919c704e5d174cd12fba65f4d7b520944e3c93  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/0003-rk3399pro-gmac-v3-release-reset-gpio-before-mdio.patch
+45a781d3dccb1e2ebe8cc741bd510b0b1a80628afb16630bf11b00a10ef46908  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/6.18.33_gmac_patch_v3_20260618_170348_apply.log
+c18bc932363fc25f259886e9e4d3d0ee3876a1abcdd7c65e47f0fea3e5e8fad8  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/6.18.33_gmac_patch_v3_20260618_170348_deploy.log
+2843a62305f5a702f304db8fa437b86356792d8eb5d6445ee37f832a99c7f8d8  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/6.18.33_gmac_patch_v3_20260618_170348_dwmac_rk_o_build.log
+b17160c2b9fb0ca84981f3a6f804c9aecb398239a9d7b28f7c64aaf8faff1be6  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/6.18.33_gmac_patch_v3_20260618_170348_image_build.log
+d1b68d7383a7230ea9e1752ffcf9be2f0ed7320dde37e76d2866a61998d7455a  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/config-6.18.33-gmacpatch-v3
+b03836e4268b140e6d7fcb706d5f0a946d35fd127c87ac0e3f66cf29fd424880  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/dwmac-rk.c.v3
+8859943478127deda033601ef184d885fb70ca5a5eedf504d2025dd0c4d5bfaa  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/dwmac-rk.o.v3
+28b7e60b3c6174ed6c9c94566c5de771979f7219068b3092cbd76fde506c8b64  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/SHA256SUMS
+b3f62b156835cc3caa989fc90c2304561525278e5aad97e03b61aaf31ea58040  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v3-20260618_170645/vmlinuz-6.18.33-gmacpatch-v3

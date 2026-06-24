@@ -1,0 +1,403 @@
+=== TTL_GIGABIT_CHECK_START host_2026-06-19_12:XX ===
+root@armbian:~# date
+
+Mon Jun  1 11:16:18 PM CST 2026
+root@armbian:~# uname -a
+
+Linux armbian 6.18.33 #8 SMP PREEMPT Fri Jun 19 10:01:52 CST 2026 aarch64 GNU/Linux
+root@armbian:~# printf '\n-- brief --\n'
+
+
+-- brief --
+root@armbian:~# ip -br link show eth0
+
+eth0             UP             36:28:78:08:40:24 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+root@armbian:~# ip -br addr show eth0
+
+eth0             UP             192.168.50.113/24 
+root@armbian:~# printf 'sysfs speed='; cat /sys/class/net/eth0/speed 2>/dev/null; printf 'duplex='; cat /sys/class/net/eth0/duplex 2>/dev/null; printf 'carrier='; cat /sys/class/net/eth0/carrier 2>/dev/null; printf 'operstate='; cat /sys/class/net/eth0/operstate 2>/dev/null
+
+sysfs speed=100
+duplex=full
+carrier=1
+
+operstate=up
+
+printf '\n-- ethtool --\n'
+root@armbian:~# printf '\n-- ethtool --\n'
+
+
+
+-- ethtool --
+root@armbian:~# ethtool eth0 2>&1 || true
+
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+
+	Supported FEC modes: Not reported
+
+	Advertised link modes:  10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Advertised FEC modes: Not reported
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
+	Link partner advertised pause frame use: Symmetric
+	Link partner advertised auto-negotiation: Yes
+	Link partner advertised FEC modes: Not reported
+	Speed: 100Mb/s
+	Duplex: Full
+	Auto-negotiation: on
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: external
+	MDI-X: Unknown
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: yes
+root@armbian:~# printf '\n-- driver --\n'
+
+
+-- driver --
+root@armbian:~# ethtool -i eth0 2>&1 || true
+
+driver: st_gmac
+version: 6.18.33
+firmware-version: 
+expansion-rom-version: 
+bus-info: fe300000.ethernet
+supports-statistics: yes
+supports-test: no
+supports-eeprom-access: no
+supports-register-dump: yes
+supports-priv-flags: no
+root@armbian:~# printf '\n-- pause --\n'
+
+
+-- pause --
+root@armbian:~# ethtool -a eth0 2>&1 || true
+
+Pause parameters for eth0:
+Autonegotiate:	on
+RX:		off
+TX:		off
+RX negotiated: on
+TX negotiated: on
+
+root@armbian:~# printf '\n-- eee --\n'
+
+
+-- eee --
+root@armbian:~# ethtool --show-eee eth0 2>&1 || true
+
+netlink error: Operation not supported
+root@armbian:~# printf '\n-- ring/channels --\n'
+
+
+-- ring/channels --
+root@armbian:~# ethtool -g eth0 2>&1 || true
+
+Ring parameters for eth0:
+Pre-set maximums:
+RX:			1024
+RX Mini:		n/a
+RX Jumbo:		n/a
+TX:			1024
+TX push buff len:	n/a
+Current hardware settings:
+RX:			512
+RX Mini:		n/a
+RX Jumbo:		n/a
+TX:			512
+RX Buf Len:		n/a
+CQE Size:		n/a
+TX Push:		off
+
+RX Push:		off
+TX push buff len:	n/a
+TCP data split:		n/a
+root@armbian:~# ethtool -l eth0 2>&1 || true
+
+Channel parameters for eth0:
+Pre-set maximums:
+RX:		n/a
+TX:		n/a
+Other:		n/a
+Combined:	n/a
+Current hardware settings:
+RX:		n/a
+TX:		n/a
+Other:		n/a
+Combined:	n/a
+root@armbian:~# printf '\n-- stats selected --\n'
+
+
+-- stats selected --
+root@armbian:~# ethtool -S eth0 2>&1 | grep -Ei 'rx|tx|err|drop|crc|timeout|fifo|collision|miss|over|under|jabber|watchdog' | head -n 120 || true
+
+     mmc_tx_octetcount_gb: 9564
+     mmc_tx_framecount_gb: 67
+     mmc_tx_broadcastframe_g: 0
+     mmc_tx_multicastframe_g: 0
+     mmc_tx_64_octets_gb: 0
+     mmc_tx_65_to_127_octets_gb: 0
+     mmc_tx_128_to_255_octets_gb: 0
+     mmc_tx_256_to_511_octets_gb: 0
+     mmc_tx_512_to_1023_octets_gb: 0
+     mmc_tx_1024_to_max_octets_gb: 0
+     mmc_tx_unicast_gb: 0
+     mmc_tx_multicast_gb: 0
+     mmc_tx_broadcast_gb: 0
+     mmc_tx_underflow_error: 0
+     mmc_tx_singlecol_g: 0
+     mmc_tx_multicol_g: 0
+     mmc_tx_deferred: 0
+     mmc_tx_latecol: 0
+     mmc_tx_exesscol: 0
+     mmc_tx_carrier_error: 0
+     mmc_tx_octetcount_g: 9564
+     mmc_tx_framecount_g: 67
+     mmc_tx_excessdef: 0
+     mmc_tx_pause_frame: 0
+     mmc_tx_vlan_frame_g: 0
+
+     mmc_tx_oversize_g: 0
+     mmc_tx_lpi_usec: 0
+     mmc_tx_lpi_tran: 0
+     mmc_rx_framecount_gb: 6391
+     mmc_rx_octetcount_gb: 449120
+     mmc_rx_octetcount_g: 449120
+     mmc_rx_broadcastframe_g: 0
+     mmc_rx_multicastframe_g: 40
+     mmc_rx_crc_error: 0
+     mmc_rx_align_error: 0
+     mmc_rx_run_error: 0
+     mmc_rx_jabber_error: 0
+     mmc_rx_undersize_g: 0
+     mmc_rx_oversize_g: 0
+     mmc_rx_64_octets_gb: 0
+     mmc_rx_65_to_127_octets_gb: 0
+     mmc_rx_128_to_255_octets_gb: 0
+     mmc_rx_256_to_511_octets_gb: 0
+     mmc_rx_512_to_1023_octets_gb: 0
+     mmc_rx_1024_to_max_octets_gb: 0
+     mmc_rx_unicast_g: 0
+     mmc_rx_length_error: 0
+     mmc_rx_autofrangetype: 0
+     mmc_rx_pause_frames: 0
+     mmc_rx_fifo_overflow: 0
+     mmc_rx_vlan_frames_gb: 0
+     mmc_rx_watchdog_error: 0
+     mmc_rx_error: 0
+     mmc_rx_lpi_usec: 0
+     mmc_rx_lpi_tran: 0
+     mmc_rx_discard_frames_gb: 0
+     mmc_rx_discard_octets_gb: 0
+     mmc_rx_align_err_frames: 0
+     mmc_rx_ipv4_gd: 180
+     mmc_rx_ipv4_hderr: 0
+     mmc_rx_ipv4_nopay: 0
+     mmc_rx_ipv4_frag: 0
+     mmc_rx_ipv4_udsbl: 0
+     mmc_rx_ipv4_gd_octets: 0
+     mmc_rx_ipv4_hderr_octets: 0
+     mmc_rx_ipv4_nopay_octets: 0
+     mmc_rx_ipv4_frag_octets: 0
+     mmc_rx_ipv4_udsbl_octets: 0
+     mmc_rx_ipv6_gd_octets: 0
+     mmc_rx_ipv6_hderr_octets: 0
+
+     mmc_rx_ipv6_nopay_octets: 0
+     mmc_rx_ipv6_gd: 0
+     mmc_rx_ipv6_hderr: 0
+     mmc_rx_ipv6_nopay: 0
+     mmc_rx_udp_gd: 0
+     mmc_rx_udp_err: 0
+     mmc_rx_tcp_gd: 0
+     mmc_rx_tcp_err: 0
+     mmc_rx_icmp_gd: 0
+     mmc_rx_icmp_err: 0
+     mmc_rx_udp_gd_octets: 0
+     mmc_rx_udp_err_octets: 0
+     mmc_rx_tcp_gd_octets: 0
+     mmc_rx_tcp_err_octets: 0
+     mmc_rx_icmp_gd_octets: 0
+     mmc_rx_icmp_err_octets: 0
+     mmc_tx_fpe_fragment_cntr: 0
+
+     mmc_tx_hold_req_cntr: 0
+     mmc_tx_gate_overrun_cntr: 0
+     mmc_rx_packet_assembly_err_cntr: 0
+     mmc_rx_packet_smd_err_cntr: 0
+     mmc_rx_packet_assembly_ok_cntr: 0
+     mmc_rx_fpe_fragment_cntr: 0
+     tx_underflow: 0
+     tx_carrier: 0
+     tx_losscarrier: 0
+     tx_deferred: 0
+     tx_vlan: 0
+     tx_jabber: 0
+     tx_frame_flushed: 0
+     tx_payload_error: 0
+     tx_ip_header_error: 0
+     rx_desc: 0
+     overflow_error: 0
+     ipc_csum_error: 0
+     rx_collision: 0
+     rx_crc_errors: 0
+     rx_length: 0
+     rx_mii: 0
+     rx_multicast: 0
+     rx_gmac_overflow: 0
+     rx_watchdog: 0
+     da_rx_filter_fail: 0
+     sa_rx_filter_fail: 0
+     rx_missed_cntr: 0
+     rx_overflow_cntr: 0
+     rx_vlan: 0
+     rx_split_hdr_pkt_n: 0
+     tx_undeflow_irq: 0
+     tx_process_stopped_irq: 0
+printf '\n-- proc net dev --\n'
+root@armbian:~# printf '\n-- proc net dev --\n'
+
+
+-- proc net dev --
+root@armbian:~# cat /proc/net/dev | grep -E 'Inter|face|eth0'
+
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+  eth0:  423616    6392    0    0    0     0          0         0     8696      67    0    0    0     0       0          0
+root@armbian:~# printf '\n-- dmesg gmac tail --\n'
+
+
+-- dmesg gmac tail --
+root@armbian:~# dmesg | grep -iE 'gmac|stmmac|eth0|yt8521|rgmii|gmii|mii|Link is|1000|100Mbps|dma|reset|timeout|error' | tail -n 140
+
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Kernel command line: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+[    0.000000] Policy zone: DMA
+[    0.008085] rcu: 	Max phase no-delay instances is 1000.
+[    0.016498] GICv3: CPU2: using allocated LPI pending table @0x0000000003510000
+[    0.039054] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.050973] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.051306] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.051826] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.143888] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.349555] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.349606] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.351336] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.351368] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.549761] e1000: Intel(R) PRO/1000 Network Driver
+[    0.550216] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[    0.550794] e1000e: Intel(R) PRO/1000 Network Driver
+[    0.551245] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    0.558304] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.558921] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.559609] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.560426] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.561075] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.561628] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.562151] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.562714] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.563744] rk_gmac-dwmac fe300000.ethernet: v4b-fix: reused stmmac core stmmaceth reset controller
+[    0.564601] rk_gmac-dwmac fe300000.ethernet: rk3399pro test workaround: forcing clock_input=true for external RGMII PHY
+[    0.565584] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.571556] rk_gmac-dwmac fe300000.ethernet: v4d: clocks enabled (5 clks, includes mac_clk_rx for RGMII)
+[    0.572411] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.572921] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.574058] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.640964] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.641923] rk_gmac-dwmac fe300000.ethernet: v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open
+[    0.845135] rk_gmac-dwmac fe300000.ethernet: v4b: MAC reset cycle before runtime resume/DMA open
+[    0.845927] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: assert stmmaceth
+[    0.866682] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: deassert stmmaceth
+[    0.921130] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: done
+[    0.921777] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.922916] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.923567] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.924045] rk_gmac-dwmac fe300000.ethprintf '\n-- dt ethernet basics --\n'
+ernet: DMA HW capability register supported
+[    0.924720] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.925397] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.926073] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.926549] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.927182] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.927847] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.928385] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+
+[    0.928913] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    1.060318] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.061016] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.061695] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[    1.062262] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 38,32 bit host data width,256 deep fifo
+[    1.089272] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.307373] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.308064] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.310061] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.310086] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.310095] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[    1.310117] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 38,32 bit host data width,256 deep fifo
+[    1.403870] GPT: Use GNU Parted to correct GPT errors.
+[    2.025483] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    2.031666] rockchip-pcie f8000000.pcie: probe with driver rockchip-pcie failed with error -110
+[    2.058479] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    2.059201] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    2.059822] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[    2.059869] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 38,32 bit host data width,256 deep fifo
+[   12.272436] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to fe310000.mmc
+[   12.273418] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff650000.video-codec
+[   12.274431] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff660000.video-codec
+[   12.275439] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff680000.rga
+[   12.276394] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff940000.hdmi
+[   12.278386] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.279106] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   12.279756] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[   12.280326] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 38,32 bit host data width,256 deep fifo
+[   21.342829] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   21.349788] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   21.351669] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE before reset: 0x00020100 (SWR=0)
+[   21.352514] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE after SWR write: 0x00020101 (SWR=1)
+[   21.363433] rk_gmac-dwmac fe300000.ethernet eth0: v4e: SWR cleared after 10 ms: 0x00020100
+[   21.364214] rk_gmac-dwmac fe300000.ethernet eth0: No Safety Features support found
+[   21.365776] rk_gmac-dwmac fe300000.ethernet eth0: PTP not supported by HW
+[   21.366424] rk_gmac-dwmac fe300000.ethernet eth0: configuring for phy/rgmii link mode
+[   22.244727] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[   23.398253] rk_gmac-dwmac fe300000.ethernet eth0: Link is Up - 100Mbps/FullD=/proc/device-tree/ethernet@fe300000; for f in phy-mode phy-connection-type clock_in_out tx_delay rx_delay assigned-clock-rates; do echo "## $f"; [ -e "$D/$f" ] && hexdump -Cv "$D/$f" || echo NA; done
+ - flow control rx/tx
+root@armbian:~# printf '\n-- dt ethernet basics --\n'
+
+
+-- dt ethernet basics --
+root@armbian:~# D=/proc/device-tree/ethernet@fe300000; for f in phy-mode phy-connection-type clock_in_out tx_delay rx_delay assigned-clock-rates; do echo "## $f"; [ -e "$D/$f" ] && hexdump -Cv "$D/$f" || echo NA; done
+
+## phy-mode
+00000000  72 67 6d 69 69 00                                 |rgmii.|
+00000006
+## phy-connection-type
+NA
+## clock_in_out
+00000000  6f 75 74 70 75 74 00                              |output.|
+00000007
+## tx_delay
+00000000  00 00 00 21                                       |...!|
+00000004
+## rx_delay
+00000000  00 00 00 15                                       |....|
+00000004
+## assigned-clock-rates
+00000000  00 00 00 00 07 73 59 40                           |.....sY@|
+00000008
+printf '=== TTL_GIGABIT_CHECK_END ===

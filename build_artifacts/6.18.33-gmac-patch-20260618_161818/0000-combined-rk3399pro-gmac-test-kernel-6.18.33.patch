@@ -1,0 +1,180 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -11,6 +11,7 @@
+ #include <linux/hw_bitfield.h>
+ #include <linux/bitops.h>
+ #include <linux/clk.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/phy.h>
+ #include <linux/of_net.h>
+ #include <linux/module.h>
+@@ -104,6 +105,7 @@
+ 	struct clk *clk_phy;
+ 
+ 	struct reset_control *phy_reset;
++	struct gpio_desc *reset_gpio;
+ 
+ 	int tx_delay;
+ 	int rx_delay;
+@@ -667,10 +669,22 @@
+ static void rk3399_set_to_rgmii(struct rk_priv_data *bsp_priv,
+ 				int tx_delay, int rx_delay)
+ {
++	unsigned int con5 = 0, con6 = 0;
++
+ 	regmap_write(bsp_priv->grf, RK3399_GRF_SOC_CON6,
+ 		     DELAY_ENABLE(RK3399, tx_delay, rx_delay) |
+ 		     RK3399_GMAC_CLK_RX_DL_CFG(rx_delay) |
+ 		     RK3399_GMAC_CLK_TX_DL_CFG(tx_delay));
++
++	if (!regmap_read(bsp_priv->grf, RK3399_GRF_SOC_CON5, &con5) &&
++	    !regmap_read(bsp_priv->grf, RK3399_GRF_SOC_CON6, &con6))
++		dev_info(bsp_priv->dev,
++			 "rk3399 rgmii applied: GRF_SOC_CON5=0x%08x GRF_SOC_CON6=0x%08x tx=0x%x rx=0x%x\n",
++			 con5, con6, tx_delay, rx_delay);
++	else
++		dev_info(bsp_priv->dev,
++			 "rk3399 rgmii applied: tx=0x%x rx=0x%x (grf readback unavailable)\n",
++			 tx_delay, rx_delay);
+ }
+ 
+ static const struct rk_gmac_ops rk3399_ops = {
+@@ -1208,6 +1222,32 @@
+ 		dev_err(bsp_priv->dev, "fail to disable phy-supply\n");
+ }
+ 
++static void rk_gmac_external_phy_reset(struct rk_priv_data *bsp_priv,
++				       const char *reason)
++{
++	u32 delays[3] = { 0, 10000, 50000 };
++
++	if (!bsp_priv->reset_gpio || bsp_priv->integrated_phy)
++		return;
++
++	of_property_read_u32_array(bsp_priv->dev->of_node, "snps,reset-delays-us",
++				   delays, ARRAY_SIZE(delays));
++
++	dev_info(bsp_priv->dev, "external PHY reset (%s) begin\n", reason);
++	if (delays[0])
++		usleep_range(delays[0], delays[0] + 1000);
++
++	gpiod_set_value_cansleep(bsp_priv->reset_gpio, 1);
++	if (delays[1])
++		usleep_range(delays[1], delays[1] + 1000);
++
++	gpiod_set_value_cansleep(bsp_priv->reset_gpio, 0);
++	if (delays[2])
++		usleep_range(delays[2], delays[2] + 5000);
++
++	dev_info(bsp_priv->dev, "external PHY reset (%s) end\n", reason);
++}
++
+ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
+ 					  struct plat_stmmacenet_data *plat,
+ 					  const struct rk_gmac_ops *ops)
+@@ -1317,6 +1357,16 @@
+ 	dev_info(dev, "integrated PHY? (%s).\n",
+ 		 bsp_priv->integrated_phy ? "yes" : "no");
+ 
++	bsp_priv->reset_gpio = devm_gpiod_get_optional(dev, "snps,reset",
++						    GPIOD_OUT_LOW);
++	if (IS_ERR(bsp_priv->reset_gpio)) {
++		ret = PTR_ERR(bsp_priv->reset_gpio);
++		dev_err_probe(dev, ret, "failed to get snps reset gpio\n");
++		return ERR_PTR(ret);
++	}
++	if (bsp_priv->reset_gpio)
++		dev_info(dev, "external PHY reset GPIO present.\n");
++
+ 	bsp_priv->dev = dev;
+ 
+ 	/* Set the default phy_intf_sel and RMII mode register parameters. */
+@@ -1368,6 +1418,27 @@
+ 	return 0;
+ }
+ 
++static void rk3399pro_test_prepare(struct rk_priv_data *bsp_priv)
++{
++	if (bsp_priv->ops != &rk3399_ops)
++		return;
++
++	if (bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII &&
++	    bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII_ID &&
++	    bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII_RXID &&
++	    bsp_priv->phy_iface != PHY_INTERFACE_MODE_RGMII_TXID)
++		return;
++
++	if (bsp_priv->integrated_phy)
++		return;
++
++	if (!bsp_priv->clock_input) {
++		bsp_priv->clock_input = true;
++		dev_info(bsp_priv->dev,
++			 "rk3399pro test workaround: forcing clock_input=true for external RGMII PHY\n");
++	}
++}
++
+ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
+ {
+ 	struct device *dev = bsp_priv->dev;
+@@ -1385,6 +1456,13 @@
+ 
+ 	intf = ret;
+ 
++	rk3399pro_test_prepare(bsp_priv);
++	dev_info(dev,
++		 "powerup start: phy_iface=%d clock_input=%d integrated_phy=%d tx=0x%x rx=0x%x\n",
++		 bsp_priv->phy_iface, bsp_priv->clock_input,
++		 bsp_priv->integrated_phy, bsp_priv->tx_delay,
++		 bsp_priv->rx_delay);
++
+ 	ret = gmac_clk_enable(bsp_priv, true);
+ 	if (ret)
+ 		return ret;
+@@ -1457,11 +1535,25 @@
+ 		return ret;
+ 	}
+ 
++	if (!bsp_priv->integrated_phy &&
++	    (bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII ||
++	     bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII_ID ||
++	     bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII_RXID ||
++	     bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII_TXID))
++		rk_gmac_external_phy_reset(bsp_priv, "post-grf-post-power");
++
++	usleep_range(20000, 30000);
++
+ 	pm_runtime_get_sync(dev);
+ 
+ 	if (bsp_priv->integrated_phy && bsp_priv->ops->integrated_phy_powerup)
+ 		bsp_priv->ops->integrated_phy_powerup(bsp_priv);
+ 
++	dev_info(dev,
++		 "powerup done: phy_iface=%d clock_input=%d integrated_phy=%d\n",
++		 bsp_priv->phy_iface, bsp_priv->clock_input,
++		 bsp_priv->integrated_phy);
++
+ 	return 0;
+ }
+ 
+--- a/include/linux/clk-provider.h
++++ b/include/linux/clk-provider.h
+@@ -666,7 +666,7 @@
+ 					    reg, bit_idx, clk_gate_flags,     \
+ 					    lock)			      \
+ 	__devm_clk_hw_register_gate((dev), NULL, (name), NULL, (parent_hw),   \
+-				    NULL, (flags), (reg), (bit_idx),	      \
++				    NULL, (flags), NULL, 0, (reg), (bit_idx), \
+ 				    (clk_gate_flags), (lock))
+ /**
+  * devm_clk_hw_register_gate_parent_data - register a gate clock with the
+@@ -684,7 +684,8 @@
+ 					      reg, bit_idx, clk_gate_flags,   \
+ 					      lock)			      \
+ 	__devm_clk_hw_register_gate((dev), NULL, (name), NULL, NULL,	      \
+-				    (parent_data), (flags), (reg), (bit_idx), \
++				    (parent_data), (flags), NULL, 0, (reg),   \
++				    (bit_idx),				      \
+ 				    (clk_gate_flags), (lock))
+ 
+ void clk_unregister_gate(struct clk *clk);

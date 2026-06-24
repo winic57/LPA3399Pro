@@ -1,0 +1,128 @@
+
+root@armbian:~# echo TTL_STATUS_CAPTURE; date; uname -a; uptime; echo ---CMDLINE---; cat /proc/cmdline; echo ---NET---; ip -br link; ip -br addr; echo ---GMAC---; dmesg | grep -iE "rk3399pro test|rk_gmac|stmmac|eth0|yt8521|motorcomm|mdio|Cannot register|registration failed|dma|rgmii|reset|GRF_SOC" | tail -n 120; echo ---DT_RESET---; find /proc/device-tree/ethernet@fe300000 -maxdepth 2 -type f | grep -E "status|phy-mode|clock_in_out|phy-handle|snps,reset|mdio|tx_delay|rx_delay" | sort | xargs -r -I{} sh -c "echo [{}]; od -An -tx1 -v {}"; echo ---SYSFS---; ls -l /sys/class/net; find /sys/bus/mdio_bus/devices -maxdepth 1 -mindepth 1 -print 2>/dev/null | sort; echo DONE_STATUS_CAPTURE
+TTL_STATUS_CAPTURE
+Mon Jun  1 10:11:54 PM CST 2026
+Linux armbian 6.18.33 #1 SMP PREEMPT Thu Jun 18 16:17:18 CST 2026 aarch64 GNU/Linux
+ 22:11:54 up 12 min,  2 users,  load average: 0.06, 0.02, 0.00
+---CMDLINE---
+root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+---NET---
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+lo               UNKNOWN        127.0.0.1/8 
+---GMAC---
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.050626] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.050957] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.051477] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.143294] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.349015] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.349066] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.350786] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.350818] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.557486] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.558105] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.558794] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.559593] rk_gmac-dwmac fe300000.ethernet: clock input or output? (input).
+[    0.560234] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.560775] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.561297] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.561929] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO present.
+[    0.562604] rk_gmac-dwmac fe300000.ethernet: clock input from PHY
+[    0.563159] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.569132] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.569645] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.570701] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin
+[    0.637498] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end
+[    0.668257] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.669400] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.670051] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.670528] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.671203] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.671864] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.672557] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.673035] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.673669] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.674330] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.674869] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.675398] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    0.677170] rk_gmac-dwmac fe300000.ethernet: error -EBUSY: Cannot register the MDIO bus
+[    0.677901] rk_gmac-dwmac fe300000.ethernet: error -EBUSY: MDIO bus (id: 0) registration failed
+[    0.678871] rk_gmac-dwmac fe300000.ethernet: probe with driver rk_gmac-dwmac failed with error -16
+[    0.735367] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.736066] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.766834] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    0.979737] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    0.980427] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    0.982657] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.982683] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.733919] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.734624] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   11.766176] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   11.766863] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   21.282719] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[  576.146677] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[  576.147454] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[  576.148661] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[  576.149724] rk_gmac-dwmac fe300000.ethernet: clock input or output? (input).
+[  576.150554] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[  576.151525] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[  576.152574] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[  576.153675] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO present.
+[  576.154723] rk_gmac-dwmac fe300000.ethernet: clock input from PHY
+[  576.155683] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[  576.162054] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[  576.162609] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[  576.163694] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin
+[  576.228650] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end
+[  576.259726] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[  576.261353] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[  576.262028] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[  576.262516] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[  576.263204] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[  576.263874] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[  576.264583] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[  576.265058] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[  576.265692] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[  576.266276] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[  576.266811] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[  576.267335] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[  576.269788] rk_gmac-dwmac fe300000.ethernet: error -EBUSY: Cannot register the MDIO bus
+[  576.270565] rk_gmac-dwmac fe300000.ethernet: error -EBUSY: MDIO bus (id: 0) registration failed
+[  576.333045] rk_gmac-dwmac fe300000.ethernet: probe with driver rk_gmac-dwmac failed with error -16
+---DT_RESET---
+[/proc/device-tree/ethernet@fe300000/clock_in_out]
+ 69 6e 70 75 74 00
+[/proc/device-tree/ethernet@fe300000/mdio/#address-cells]
+ 00 00 00 01
+[/proc/device-tree/ethernet@fe300000/mdio/compatible]
+ 73 6e 70 73 2c 64 77 6d 61 63 2d 6d 64 69 6f 00
+[/proc/device-tree/ethernet@fe300000/mdio/name]
+ 6d 64 69 6f 00
+[/proc/device-tree/ethernet@fe300000/mdio/#size-cells]
+ 00 00 00 00
+[/proc/device-tree/ethernet@fe300000/phy-handle]
+ 00 00 00 c2
+[/proc/device-tree/ethernet@fe300000/phy-mode]
+ 72 67 6d 69 69 00
+[/proc/device-tree/ethernet@fe300000/rx_delay]
+ 00 00 00 15
+[/proc/device-tree/ethernet@fe300000/snps,reset-active-low]
+[/proc/device-tree/ethernet@fe300000/snps,reset-delays-us]
+ 00 00 00 00 00 00 27 10 00 00 c3 50
+[/proc/device-tree/ethernet@fe300000/snps,reset-gpio]
+ 00 00 00 23 00 00 00 0f 00 00 00 01
+[/proc/device-tree/ethernet@fe300000/status]
+ 6f 6b 61 79 00
+[/proc/device-tree/ethernet@fe300000/tx_delay]
+ 00 00 00 21
+---SYSFS---
+total 0
+lrwxrwxrwx 1 root root 0 Jun  1 22:02 lo -> ../../devices/virtual/net/lo
+DONE_STATUS_CAPTURE
+root@armbian:~# echo __CMD_DONE_1781772233172__
+__CMD_DONE_1781772233172__
+root@armbian:~# 

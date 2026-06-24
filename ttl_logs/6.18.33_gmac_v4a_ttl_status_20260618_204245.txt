@@ -1,0 +1,307 @@
+
+root@armbian:~# echo TTL_STATUS_BEGIN_$(date +%Y%m%d_%H%M%S); uname -a; cat /proc/cmdline; printf "\n-- links --\n"; ip -br link; ip -br addr; printf "\n-- eth0 sysfs --\n"; for f in /sys/class/net/eth0/operstate /sys/class/net/eth0/carrier /sys/class/net/eth0/speed /sys/class/net/eth0/duplex /sys/class/net/eth0/device/power/runtime_status /sys/class/net/eth0/device/power/control; do echo -n "$f="; cat $f 2>/dev/null || echo NA; done; printf "\n-- phy --\n"; find /sys/bus/mdio_bus/devices -maxdepth 2 -type f \( -name phy_id -o -name uevent -o -name name \) -print -exec cat {} \; 2>/dev/null; printf "\n-- ethtool --\n"; ethtool eth0 2>&1 || true; printf "\n-- before dmesg --\n"; dmesg | grep -iE "v4a|one-shot|GPIO released|rk_gmac|stmmac|eth0|yt8521|motorcomm|dma|reset|clock|runtime|power|rgmii|mdio|phy" | tail -n 180; printf "\n-- force up --\n"; ip link set eth0 down 2>&1 || true; sleep 1; ip link set eth0 up 2>&1 || true; sleep 3; ip -br link; ethtool eth0 2>&1 || true; printf "\n-- after dmesg --\n"; dmesg | grep -iE "v4a|one-shot|GPIO released|rk_gmac|stmmac|eth0|yt8521|motorcomm|dma|reset|clock|runtime|power|rgmii|mdio|phy|link" | tail -n 220; echo TTL_STATUS_END_$(date +%Y%m%d_%H%M%S)
+TTL_STATUS_BEGIN_20260601_220236
+Linux armbian 6.18.33 #3 SMP PREEMPT Thu Jun 18 20:27:21 CST 2026 aarch64 GNU/Linux
+root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+
+-- links --
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             DOWN           36:28:78:08:40:24 <BROADCAST,MULTICAST> 
+lo               UNKNOWN        127.0.0.1/8 
+eth0             DOWN           
+
+-- eth0 sysfs --
+/sys/class/net/eth0/operstate=down
+/sys/class/net/eth0/carrier=NA
+/sys/class/net/eth0/speed=NA
+/sys/class/net/eth0/duplex=NA
+/sys/class/net/eth0/device/power/runtime_status=active
+/sys/class/net/eth0/device/power/control=auto
+
+-- phy --
+
+-- ethtool --
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  Not reported
+	Advertised pause frame use: No
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: Unknown!
+	Duplex: Half
+	Auto-negotiation: off
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: no
+
+-- before dmesg --
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.000000] arch_timer: cp15 timer running at 24.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
+[    0.000001] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
+[    0.039271] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.051374] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052522] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.054097] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.058284] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.109654] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.112216] /mmc@fe330000: Fixed dependency cycle(s) with /syscon@ff770000/phy@f780
+[    0.112339] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.146501] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.150153] PTP clock support registered
+[    0.155797] clocksource: Switched to clocksource arch_sys_counter
+[    0.352832] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.352881] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.354611] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.354640] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.561729] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.562348] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.563031] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.563885] rk_gmac-dwmac fe300000.ethernet: clock input or output? (input).
+[    0.564527] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.565044] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.565564] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.566126] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.567188] rk_gmac-dwmac fe300000.ethernet: clock input from PHY
+[    0.567742] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.573735] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.574248] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.575374] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.639836] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.640773] rk_gmac-dwmac fe300000.ethernet: v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open
+[    0.843819] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.844855] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.845512] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.845992] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.846667] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.847328] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.848027] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.848504] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.849139] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.849803] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.850342] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.850871] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    0.982479] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.983186] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.985359] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.012021] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.075531] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.076331] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.077930] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.078735] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.079458] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.115193] phy phy-ff770000.syscon:usb2phy@e450.8: Runtime PM usage count underflow!
+[    1.124297] phy phy-ff770000.syscon:usb2phy@e450.8: Runtime PM usage count underflow!
+[    1.130761] phy phy-ff770000.syscon:usb2phy@e450.7: Runtime PM usage count underflow!
+[    1.134328] phy phy-ff770000.syscon:usb2phy@e460.9: Runtime PM usage count underflow!
+[    1.137978] phy phy-ff770000.syscon:usb2phy@e450.7: Runtime PM usage count underflow!
+[    1.143213] phy phy-ff770000.syscon:usb2phy@e460.9: Runtime PM usage count underflow!
+[    1.205492] rk808-rtc rk808-rtc.4.auto: setting system clock to 2017-08-05T09:00:10 UTC (1501923610)
+[    1.224917] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.225608] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.227707] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.227733] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.234259] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    1.234931] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    1.235596] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    1.236285] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    1.944787] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    1.945476] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    1.946164] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    1.946852] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    1.947537] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    1.948244] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    1.948929] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    1.949613] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    1.975500] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.975842] clk: Disabling unused clocks
+[    1.976235] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.978942] PM: genpd: Disabling unused power domains
+[   12.009990] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+[   12.010846] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to fe310000.mmc
+[   12.011846] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff650000.video-codec
+[   12.012858] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff660000.video-codec
+[   12.013868] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff680000.rga
+[   12.014825] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff940000.hdmi
+[   12.017044] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.017802] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   14.347051] systemd[1]: Starting fake-hwclock-load.service - Restore the current clock...
+[   14.535567] systemd[1]: fake-hwclock-load.service: Deactivated successfully.
+[   14.537256] systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.
+[   14.835378] systemd-journald[109]: Received client request to flush runtime journal.
+[   14.954661] systemd-journald[109]: /var/log/journal/63f6b85b0c1e8dbfdd4367466a1d5eef/system.journal: Realtime clock jumped backwards relative to last journal entry, rotating.
+[   20.707732] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   20.714164] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.919310] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[   20.920052] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[   20.920883] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+[   21.808841] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+
+-- force up --
+[  170.393025] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[  170.399244] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[  170.610462] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[  170.611123] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[  170.612044] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+RTNETLINK answers: Connection timed out
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             DOWN           36:28:78:08:40:24 <BROADCAST,MULTICAST> 
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  Not reported
+	Advertised pause frame use: No
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: Unknown!
+	Duplex: Half
+	Auto-negotiation: off
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: no
+
+-- after dmesg --
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.000000] arch_timer: cp15 timer running at 24.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
+[    0.000001] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
+[    0.039271] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.049413] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.051374] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052522] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.054097] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.054185] audit: initializing netlink subsys (disabled)
+[    0.058284] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.109654] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.112216] /mmc@fe330000: Fixed dependency cycle(s) with /syscon@ff770000/phy@f780
+[    0.112339] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.146501] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.150153] PTP clock support registered
+[    0.155797] clocksource: Switched to clocksource arch_sys_counter
+[    0.352832] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.352881] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.354611] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.354640] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.561729] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.562348] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.563031] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.563885] rk_gmac-dwmac fe300000.ethernet: clock input or output? (input).
+[    0.564527] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.565044] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.565564] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.566126] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.567188] rk_gmac-dwmac fe300000.ethernet: clock input from PHY
+[    0.567742] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.573735] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.574248] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.575374] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.639836] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.640773] rk_gmac-dwmac fe300000.ethernet: v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open
+[    0.843819] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.844855] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.845512] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.845992] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.846667] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.847328] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.848027] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.848504] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.849139] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.849803] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.850342] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.850871] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    0.982479] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.983186] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.985359] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.012021] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.075531] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.076331] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.077930] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.078735] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.079458] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[    1.115193] phy phy-ff770000.syscon:usb2phy@e450.8: Runtime PM usage count underflow!
+[    1.124297] phy phy-ff770000.syscon:usb2phy@e450.8: Runtime PM usage count underflow!
+[    1.130761] phy phy-ff770000.syscon:usb2phy@e450.7: Runtime PM usage count underflow!
+[    1.134328] phy phy-ff770000.syscon:usb2phy@e460.9: Runtime PM usage count underflow!
+[    1.137978] phy phy-ff770000.syscon:usb2phy@e450.7: Runtime PM usage count underflow!
+[    1.143213] phy phy-ff770000.syscon:usb2phy@e460.9: Runtime PM usage count underflow!
+[    1.205492] rk808-rtc rk808-rtc.4.auto: setting system clock to 2017-08-05T09:00:10 UTC (1501923610)
+[    1.224917] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.225608] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.227707] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.227733] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.234259] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    1.234931] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    1.235596] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    1.236285] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    1.944136] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    1.944787] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    1.945476] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    1.946164] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    1.946852] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    1.947537] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[    1.948244] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[    1.948929] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[    1.949613] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[    1.975500] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.975842] clk: Disabling unused clocks
+[    1.976235] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.978942] PM: genpd: Disabling unused power domains
+[   12.009990] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+[   12.010846] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to fe310000.mmc
+[   12.011846] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff650000.video-codec
+[   12.012858] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff660000.video-codec
+[   12.013868] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff680000.rga
+[   12.014825] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff940000.hdmi
+[   12.017044] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.017802] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   14.347051] systemd[1]: Starting fake-hwclock-load.service - Restore the current clock...
+[   14.535567] systemd[1]: fake-hwclock-load.service: Deactivated successfully.
+[   14.537256] systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.
+[   14.835378] systemd-journald[109]: Received client request to flush runtime journal.
+[   14.954661] systemd-journald[109]: /var/log/journal/63f6b85b0c1e8dbfdd4367466a1d5eef/system.journal: Realtime clock jumped backwards relative to last journal entry, rotating.
+[   20.707732] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   20.714164] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.919310] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[   20.920052] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[   20.920883] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+[   21.808841] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[  170.393025] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[  170.399244] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[  170.610462] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[  170.611123] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[  170.612044] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+TTL_STATUS_END_20260601_220241
+root@armbian:~# echo __CMD_DONE_1781786565941__
+__CMD_DONE_1781786565941__
+root@armbian:~# 

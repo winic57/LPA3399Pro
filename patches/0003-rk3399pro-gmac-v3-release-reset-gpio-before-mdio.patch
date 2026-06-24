@@ -1,0 +1,78 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -105,7 +105,6 @@
+ 	struct clk *clk_phy;
+ 
+ 	struct reset_control *phy_reset;
+-	struct gpio_desc *reset_gpio;
+ 
+ 	int tx_delay;
+ 	int rx_delay;
+@@ -1225,27 +1224,42 @@
+ static void rk_gmac_external_phy_reset(struct rk_priv_data *bsp_priv,
+ 				       const char *reason)
+ {
++	struct gpio_desc *reset_gpio;
+ 	u32 delays[3] = { 0, 10000, 50000 };
+ 
+-	if (!bsp_priv->reset_gpio || bsp_priv->integrated_phy)
++	if (bsp_priv->integrated_phy)
++		return;
++
++	reset_gpio = gpiod_get_optional(bsp_priv->dev, "snps,reset",
++					 GPIOD_OUT_LOW);
++	if (IS_ERR(reset_gpio)) {
++		dev_err_probe(bsp_priv->dev, PTR_ERR(reset_gpio),
++			      "failed to acquire one-shot external PHY reset GPIO\n");
++		return;
++	}
++	if (!reset_gpio)
+ 		return;
+ 
+ 	of_property_read_u32_array(bsp_priv->dev->of_node, "snps,reset-delays-us",
+ 				   delays, ARRAY_SIZE(delays));
+ 
+-	dev_info(bsp_priv->dev, "external PHY reset (%s) begin\n", reason);
++	dev_info(bsp_priv->dev, "external PHY reset (%s) begin (one-shot)\n",
++		 reason);
+ 	if (delays[0])
+ 		usleep_range(delays[0], delays[0] + 1000);
+ 
+-	gpiod_set_value_cansleep(bsp_priv->reset_gpio, 1);
++	gpiod_set_value_cansleep(reset_gpio, 1);
+ 	if (delays[1])
+ 		usleep_range(delays[1], delays[1] + 1000);
+ 
+-	gpiod_set_value_cansleep(bsp_priv->reset_gpio, 0);
++	gpiod_set_value_cansleep(reset_gpio, 0);
+ 	if (delays[2])
+ 		usleep_range(delays[2], delays[2] + 5000);
+ 
+-	dev_info(bsp_priv->dev, "external PHY reset (%s) end\n", reason);
++	gpiod_put(reset_gpio);
++	dev_info(bsp_priv->dev,
++		 "external PHY reset (%s) end (one-shot, GPIO released)\n",
++		 reason);
+ }
+ 
+ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
+@@ -1357,15 +1371,10 @@
+ 	dev_info(dev, "integrated PHY? (%s).\n",
+ 		 bsp_priv->integrated_phy ? "yes" : "no");
+ 
+-	bsp_priv->reset_gpio = devm_gpiod_get_optional(dev, "snps,reset",
+-						    GPIOD_OUT_LOW);
+-	if (IS_ERR(bsp_priv->reset_gpio)) {
+-		ret = PTR_ERR(bsp_priv->reset_gpio);
+-		dev_err_probe(dev, ret, "failed to get snps reset gpio\n");
+-		return ERR_PTR(ret);
+-	}
+-	if (bsp_priv->reset_gpio)
+-		dev_info(dev, "external PHY reset GPIO present.\n");
++	if (device_property_present(dev, "snps,reset-gpio") ||
++	    device_property_present(dev, "snps,reset-gpios"))
++		dev_info(dev,
++			 "external PHY reset GPIO described; will use one-shot reset and release before MDIO.\n");
+ 
+ 	bsp_priv->dev = dev;
+ 

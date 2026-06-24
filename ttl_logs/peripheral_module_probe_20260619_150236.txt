@@ -1,0 +1,59 @@
+
+[?2004l[?2004hroot@armbian:~# OUT=/root/peripheral_module_probe_$(date +%Y%m%d_%H%M%S).txt; { echo "=== PERIPHERAL_MODULE_PROBE_START $(date) ==="; echo --modules-path--; ls -ld /lib/modules /lib/modules/$(uname -r) 2>&1 || true; find /lib/modules/$(uname -r) -maxdepth 3 -type f 2>/dev/null | head -n 80 || true; echo --modprobe-wifi--; for m in rfkill cfg80211 brcmutil brcmfmac; do echo "## modprobe $m"; modprobe $m 2>&1 || true; done; echo --modprobe-bt--; for m in bluetooth btbcm hci_uart btusb; do echo "## modprobe $m"; modprobe $m 2>&1 || true; done; echo --after-mods--; lsmod | grep -Ei "brcm|cfg80211|rfkill|bluetooth|btbcm|hci|btusb" || true; command -v rfkill && rfkill list || true; command -v iw && iw dev || true; dmesg | grep -iE "brcm|cfg80211|rfkill|bluetooth|hci|bt_|firmware|sdio|wlan|wifi" | tail -n 200; echo "=== PERIPHERAL_MODULE_PROBE_END $(date) ==="; } 2>&1 | tee "$OUT"; echo OUT=$OUT; echo __CURRENT_SHELL_DONE_1781852556919__:$?
+[?2004l=== PERIPHERAL_MODULE_PROBE_START Fri Jun 19 03:02:36 PM CST 2026 ===
+--modules-path--
+ls: cannot access '/lib/modules/6.18.33': No such file or directory
+drwxr-xr-x 3 root root 4096 Jun 17 18:24 /lib/modules
+--modprobe-wifi--
+## modprobe rfkill
+modprobe: FATAL: Module rfkill not found in directory /lib/modules/6.18.33
+## modprobe cfg80211
+modprobe: FATAL: Module cfg80211 not found in directory /lib/modules/6.18.33
+## modprobe brcmutil
+modprobe: FATAL: Module brcmutil not found in directory /lib/modules/6.18.33
+## modprobe brcmfmac
+modprobe: FATAL: Module brcmfmac not found in directory /lib/modules/6.18.33
+--modprobe-bt--
+## modprobe bluetooth
+modprobe: FATAL: Module bluetooth not found in directory /lib/modules/6.18.33
+## modprobe btbcm
+modprobe: FATAL: Module btbcm not found in directory /lib/modules/6.18.33
+## modprobe hci_uart
+modprobe: FATAL: Module hci_uart not found in directory /lib/modules/6.18.33
+## modprobe btusb
+modprobe: FATAL: Module btusb not found in directory /lib/modules/6.18.33
+--after-mods--
+/usr/sbin/rfkill
+rfkill: cannot open /dev/rfkill: No such file or directory
+/usr/sbin/iw
+nl80211 not found.
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    1.061681] mmc0: CQHCI version 5.10
+[    1.088362] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.196411] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    1.196941] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 1
+[    1.197809] xhci-hcd xhci-hcd.0.auto: hcc params 0x0220fe64 hci version 0x110 quirks 0x0000808002000010
+[    1.198690] xhci-hcd xhci-hcd.0.auto: irq 45, io mem 0xfe800000
+[    1.199584] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    1.200113] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 2
+[    1.200826] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    1.205474] ehci-platform fe380000.usb: EHCI Host Controller
+[    1.208148] ehci-platform fe380000.usb: new USB bus registered, assigned bus number 3
+[    1.209030] ehci-platform fe380000.usb: irq 46, io mem 0xfe380000
+[    1.209077] ehci-platform fe3c0000.usb: EHCI Host Controller
+[    1.210129] ehci-platform fe3c0000.usb: new USB bus registered, assigned bus number 4
+[    1.210957] ehci-platform fe3c0000.usb: irq 47, io mem 0xfe3c0000
+[    1.211584] ohci-platform fe3a0000.usb: Generic Platform OHCI controller
+[    1.212751] ohci-platform fe3a0000.usb: new USB bus registered, assigned bus number 5
+[    1.213610] ohci-platform fe3a0000.usb: irq 48, io mem 0xfe3a0000
+[    1.217474] ohci-platform fe3e0000.usb: Generic Platform OHCI controller
+[    1.218097] ohci-platform fe3e0000.usb: new USB bus registered, assigned bus number 6
+[    1.218928] ohci-platform fe3e0000.usb: irq 74, io mem 0xfe3e0000
+[    1.219660] ehci-platform fe380000.usb: USB 2.0 started, EHCI 1.00
+[    1.231575] ehci-platform fe3c0000.usb: USB 2.0 started, EHCI 1.00
+[    1.479741] usb 4-1: new high-speed USB device number 2 using ehci-platform
+[   12.264960] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+[   14.648664] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+=== PERIPHERAL_MODULE_PROBE_END Fri Jun 19 03:02:36 PM CST 2026 ===
+OUT=/root/peripheral_module_probe_20260619_150236.txt
+__CURRENT_SHELL_DONE_1781852556919__:0

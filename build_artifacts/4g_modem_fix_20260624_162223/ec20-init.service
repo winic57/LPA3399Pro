@@ -1,0 +1,15 @@
+[Unit]
+Description=EC20 4G Modem Power-On
+After=network-pre.target systemd-modules-load.service
+Before=network.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ec20-init.sh
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

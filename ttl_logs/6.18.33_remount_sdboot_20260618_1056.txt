@@ -1,0 +1,16 @@
+
+root@armbian:~# set -e; mkdir -p /mnt/sdboot; mountpoint -q /mnt/sdboot || mount /dev/mmcblk1p1 /mnt/sdboot; findmnt /mnt/sdboot; echo "[gmac dtbs]"; ls -l /mnt/sdboot/dtb/rockchip | grep gmac || true; echo "[extlinux]"; grep "^  FDT " /mnt/sdboot/extlinux/extlinux.conf
+[  236.888890] EXT4-fs (mmcblk1p1): mounted filesystem 955919d4-e37d-4c44-99d6-c0a5552f798c r/w with ordered data mode. Quota mode: none.
+mount: (hint) your fstab has been modified, but systemd still uses
+       the old version; use 'systemctl daemon-reload' to reload.
+TARGET      SOURCE         FSTYPE OPTIONS
+/mnt/sdboot /dev/mmcblk1p1 ext4   rw,relatime
+[gmac dtbs]
+-rw-r--r-- 1 root root  60178 Jun  1 19:07 gmac-rx20-test.dtb
+-rw-r--r-- 1 root root  60178 Jun 18  2026 gmac-test.dtb
+-rw-r--r-- 1 root root  60186 Jun 18  2026 rk3399pro-neardi-linux-lc110-base.dtb.gmac_pcie_disabled.bak
+[extlinux]
+  FDT /dtb/rockchip/gmac-rx20-test.dtb
+root@armbian:~# echo __CMD_DONE_1781751281251__
+__CMD_DONE_1781751281251__
+root@armbian:~# 

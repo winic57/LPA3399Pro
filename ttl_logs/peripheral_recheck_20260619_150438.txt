@@ -1,0 +1,90 @@
+
+[?2004l[?2004hroot@armbian:~# echo "=== peripheral live recheck ==="; date; uname -a; echo; echo "--- network links ---"; ip -br link; ip -br addr; echo; echo "--- usb topology ---"; (lsusb -t || true); echo; (lsusb || true); echo; echo "--- wifi/rfkill ---"; (iw dev || true); (rfkill list || true); ls -l /dev/rfkill 2>/dev/null || true; echo; echo "--- bt tools/devices ---"; (hciconfig -a || true); (bluetoothctl list || true); (btmgmt info || true); ls -l /sys/class/bluetooth 2>/dev/null || true; echo; echo "--- modules dir/modules ---"; ls -ld /lib/modules/$(uname -r) 2>/dev/null || true; (lsmod | egrep "brcm|cfg80211|mac80211|rfkill|bluetooth|btbcm|hci|btusb" || true); echo; echo "--- kernel log related ---"; dmesg | egrep -i "usb|xhci|dwc3|brcm|wifi|wlan|sdio|pwrseq|bluetooth|btbcm|hci|rfkill|firmware" | tail -180 || true; echo __CURRENT_SHELL_DONE_1781852678567__:$?
+[?2004l=== peripheral live recheck ===
+Fri Jun 19 03:04:38 PM CST 2026
+Linux armbian 6.18.33 #8 SMP PREEMPT Fri Jun 19 10:01:52 CST 2026 aarch64 GNU/Linux
+
+--- network links ---
+[36mlo               [0mUNKNOWN        [33m00:00:00:00:00:00 [0m<LOOPBACK,UP,LOWER_UP> 
+[36meth0             [0m[32mUP             [0m[33m36:28:78:08:40:24 [0m<BROADCAST,MULTICAST,UP,LOWER_UP> 
+[36mlo               [0mUNKNOWN        [35m127.0.0.1[0m/8 
+[36meth0             [0m[32mUP             [0m[35m192.168.50.113[0m/24 
+
+--- usb topology ---
+/:  Bus 001.Port 001: Dev 001, Class=root_hub, Driver=xhci-hcd/1p, 480M
+/:  Bus 002.Port 001: Dev 001, Class=root_hub, Driver=xhci-hcd/1p, 5000M
+/:  Bus 003.Port 001: Dev 001, Class=root_hub, Driver=ehci-platform/1p, 480M
+/:  Bus 004.Port 001: Dev 001, Class=root_hub, Driver=ehci-platform/1p, 480M
+    |__ Port 001: Dev 002, If 0, Class=Hub, Driver=hub/4p, 480M
+/:  Bus 005.Port 001: Dev 001, Class=root_hub, Driver=ohci-platform/1p, 12M
+/:  Bus 006.Port 001: Dev 001, Class=root_hub, Driver=ohci-platform/1p, 12M
+
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 002: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+
+--- wifi/rfkill ---
+nl80211 not found.
+rfkill: cannot open /dev/rfkill: No such file or directory
+
+--- bt tools/devices ---
+-bash: hciconfig: command not found
+-bash: bluetoothctl: command not found
+-bash: btmgmt: command not found
+
+--- modules dir/modules ---
+
+--- kernel log related ---
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    0.000000] Kernel command line: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+[    0.147310] usbcore: registered new interface driver usbfs
+[    0.147380] usbcore: registered new interface driver hub
+[    0.147436] usbcore: registered new device driver usb
+[    1.017438] usbcore: registered new interface driver usb-storage
+[    1.061681] mmc0: CQHCI version 5.10
+[    1.069359] usbcore: registered new interface driver usbhid
+[    1.069894] usbhid: USB HID core driver
+[    1.088362] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.188748] phy phy-ff770000.syscon:usb2phy@e450.8: Runtime PM usage count underflow!
+[    1.195662] phy phy-ff770000.syscon:usb2phy@e450.8: Runtime PM usage count underflow!
+[    1.196411] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    1.196941] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 1
+[    1.197809] xhci-hcd xhci-hcd.0.auto: hcc params 0x0220fe64 hci version 0x110 quirks 0x0000808002000010
+[    1.198690] xhci-hcd xhci-hcd.0.auto: irq 45, io mem 0xfe800000
+[    1.199584] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    1.200113] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 2
+[    1.200826] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    1.202313] phy phy-ff770000.syscon:usb2phy@e450.7: Runtime PM usage count underflow!
+[    1.202723] hub 1-0:1.0: USB hub found
+[    1.204403] usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+[    1.205474] ehci-platform fe380000.usb: EHCI Host Controller
+[    1.206070] phy phy-ff770000.syscon:usb2phy@e460.9: Runtime PM usage count underflow!
+[    1.206112] hub 2-0:1.0: USB hub found
+[    1.208148] ehci-platform fe380000.usb: new USB bus registered, assigned bus number 3
+[    1.209030] ehci-platform fe380000.usb: irq 46, io mem 0xfe380000
+[    1.209077] ehci-platform fe3c0000.usb: EHCI Host Controller
+[    1.210129] ehci-platform fe3c0000.usb: new USB bus registered, assigned bus number 4
+[    1.210712] phy phy-ff770000.syscon:usb2phy@e450.7: Runtime PM usage count underflow!
+[    1.210957] ehci-platform fe3c0000.usb: irq 47, io mem 0xfe3c0000
+[    1.211584] ohci-platform fe3a0000.usb: Generic Platform OHCI controller
+[    1.212751] ohci-platform fe3a0000.usb: new USB bus registered, assigned bus number 5
+[    1.213610] ohci-platform fe3a0000.usb: irq 48, io mem 0xfe3a0000
+[    1.216725] phy phy-ff770000.syscon:usb2phy@e460.9: Runtime PM usage count underflow!
+[    1.217474] ohci-platform fe3e0000.usb: Generic Platform OHCI controller
+[    1.218097] ohci-platform fe3e0000.usb: new USB bus registered, assigned bus number 6
+[    1.218928] ohci-platform fe3e0000.usb: irq 74, io mem 0xfe3e0000
+[    1.219660] ehci-platform fe380000.usb: USB 2.0 started, EHCI 1.00
+[    1.221161] hub 3-0:1.0: USB hub found
+[    1.231575] ehci-platform fe3c0000.usb: USB 2.0 started, EHCI 1.00
+[    1.233137] hub 4-0:1.0: USB hub found
+[    1.272673] hub 5-0:1.0: USB hub found
+[    1.280469] hub 6-0:1.0: USB hub found
+[    1.479741] usb 4-1: new high-speed USB device number 2 using ehci-platform
+[    1.627679] hub 4-1:1.0: USB hub found
+[   12.264960] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+[   14.648664] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+__CURRENT_SHELL_DONE_1781852678567__:0

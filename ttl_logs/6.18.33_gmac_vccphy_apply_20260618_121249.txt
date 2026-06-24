@@ -1,0 +1,124 @@
+
+root@armbian:~# set -e
+=/tmp/gmac-vccphy-test.dts
+TMPPY=/tmp/make_gmac_vccphy_test.py
+STAMP=$(date +%Y%m%d_%H%M%S)
+cp -a "$SRC" "/mnt/sdboot/dtb/rockchip/gmac-neardi-vendor-delay-test.dtb.bak.$STAMP"
+dtc -I dtb -O dts -o "$TMPDTS" "$SRC"
+cat >"$TMPPY" <<'PY'
+from pathlib import Path
+import re
+p=Path('/tmp/gmac-vccphy-test.dts')
+text=p.read_text(errors='replace')
+if 'regulator-name = "vcc_phy"' in text:
+    raise SystemExit('vcc_phy already exists in source dts, aborting to avoid duplicate node')
+ph=[int(x,16) for x in re.findall(r'phandle = <0x([0-9a-fA-F]+)>;', text)]
+if not ph:
+    raise SystemExit('no phandle found')
+new=max(ph)+1
+lines=text.splitlines()
+in_eth=False
+replaced=False
+for i,l in enumerate(lines):
+    if 'ethernet@fe300000 {' in l:
+        in_eth=True
+        continue
+    if in_eth and l.strip()=='};':
+        in_eth=False
+    if in_eth and 'phy-supply = <' in l:
+        lines[i]=re.sub(r'<0x[0-9a-fA-F]+>', f'<0x{new:x}>', l)
+        replaced=True
+        break
+if not replaced:
+    raise SystemExit('phy-supply not found inside ethernet@fe300000 block')
+insert=[
+    '\tvcc-phy-regulator {',
+    '\t\tcompatible = "regulator-fixed";',
+    '\t\tregulator-name = "vcc_phy";',
+    '\t\tregulator-always-on;',
+    '\t\tregulator-boot-on;',
+    f'\t\tphandle = <0x{new:x}>;',
+    f'\t\tlinux,phandle = <0x{new:x}>;',
+    '\t};',
+]
+for idx in range(len(lines)-1, -1, -1):
+    if lines[idx].strip() == '};':
+        lines = lines[:idx] + [''] + insert + [''] + lines[idx:]
+        break
+else:
+    raise SystemExit('root closing brace not found')
+p.write_text('\n'.join(lines)+'\n')
+print(f'NEW_PHANDLE=0x{new:x}')
+PY
+python3 "$TMPPY"
+dtc -I dts -O dtb -o "$DST" "$TMPDTS"
+echo ====verify-dtb====
+fdtget -t s "$DST" /vcc-phy-regulator regulator-name
+fdtget -t s "$DST" /vcc-phy-regulator compatible
+printf 'phy-supply phandle: '
+fdtget -tx "$DST" /ethernet@fe300000 phy-supply
+echo
+echo ====sha256====
+sha256sum "$SRC" "$DST"
+echo ====dts-snippet====
+dtc -I dtb -O dts -o /tmp/gmac-vccphy-check.dts "$DST"
+sed -n '/ethernet@fe300000 {/,/^\t};/p' /tmp/gmac-vccphy-check.dts | sed -n '1,40p'
+echo ----vccphy-node----
+sed -n '/vcc-phy-regulator {/,/^\t};/p' /tmp/gmac-vccphy-check.dts | sed -n '1,20p'
+cp -a /mnt/sdboot/extlinux/extlinux.conf "/mnt/sdboot/extlinux/extlinux.conf.bak.$STAMP"
+sed -i 's#^\([[:space:]]*FDT[[:space:]]\+\).*#\1/dtb/rockchip/gmac-vccphy-test.dtb#' /mnt/sdboot/extlinux/extlinux.conf
+echo ====extlinux====
+sed -n '1,80p' /mnt/sdboot/extlinux/extlinux.conf
+sync
+echo __CMD_DONE_1781755969311__
+root@armbian:~# mkdir -p /mnt/sdboot
+root@armbian:~# mountpoint -q /mnt/sdboot || mount /dev/mmcblk1p1 /mnt/sdboot
+root@armbian:~# SRC=/mnt/sdboot/dtb/rockchip/gmac-neardi-vendor-delay-test.dtb
+root@armbian:~# DST=/mnt/sdboot/dtb/rockchip/gmac-vccphy-test.dtb
+root@armbian:~# TMPDTS=/tmp/gmac-vccphy-test.dts
+root@armbian:~# TMPPY=/tmp/make_gmac_vccphy_test.py
+root@armbian:~# STAMP=$(date +%Y%m%d_%H%M%S)
+root@armbian:~# cp -a "$SRC" "/mnt/sdboot/dtb/rockchip/gmac-neardi-vendor-delay-test.dtb.bak.$STAMP"
+root@armbian:~# dtc -I dtb -O dts -o "$TMPDTS" "$SRC"
+/tmp/gmac-vccphy-test.dts: Warning (unit_address_vs_reg): /usb@fe800000: node has a unit name, but no reg or ranges property
+/tmp/gmac-vccphy-test.dts: Warning (unit_address_vs_reg): /usb@fe900000: node has a unit name, but no reg or ranges property
+/tmp/gmac-vccphy-test.dts: Warning (unique_unit_address): /pcie@f8000000: duplicate unit-address (also used in node /pcie-ep@f8000000)
+root@armbian:~# cat >"$TMPPY" <<'PY'
+> from pathlib import Path
+> import re
+> p=Path('/tmp/gmac-vccphy-test.dts')
+> text=p.read_text(errors='replace')
+> if 'regulator-name = "vcc_phy"' in text:
+>     raise SystemExit('vcc_phy already exists in source dts, aborting to avoid duplicate node')
+> ph=[int(x,16) for x in re.findall(r'phandle = <0x([0-9a-fA-F]+)>;', text)]
+> if not ph:
+>     raise SystemExit('no phandle found')
+> new=max(ph)+1
+> lines=text.splitlines()
+> in_eth=False
+> replaced=False
+> for i,l in enumerate(lines):
+>     if 'ethernet@fe300000 {' in l:
+>         in_eth=True
+>         continue
+>     if in_eth and l.strip()=='};':
+>         in_eth=False
+>     if in_eth and 'phy-supply = <' in l:
+>         lines[i]=re.sub(r'<0x[0-9a-fA-F]+>', f'<0x{new:x}>', l)
+>         replaced=True
+>         break
+> if not replaced:
+>     raise SystemExit('phy-supply not found inside ethernet@fe300000 block')
+> insert=[
+>     '\tvcc-phy-regulator {',
+>     '\t\tcompatible = "regulator-fixed";',
+>     '\t\tregulator-name = "vcc_phy";',
+>     '\t\tregulator-always-on;',
+>     '\t\tregulator-boot-on;',
+>     f'\t\tphandle = <0x{new:x}>;',
+>     f'\t\tlinux,phandle = <0x{new:x}>;',
+>     '\t};',
+> ]
+> for idx in range(len(lines)-1, -1, -1):
+>     if lines[idx].strip() == '};':
+> 

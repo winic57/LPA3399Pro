@@ -1,0 +1,26 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -72,11 +72,11 @@ struct rk_priv_data;
+
+ static const char * const rk_clocks[] = {
+-	"aclk_mac", "pclk_mac", "mac_clk_tx", "clk_mac_speed",
++	"aclk_mac", "pclk_mac", "mac_clk_tx", "clk_mac_speed", "mac_clk_rx",
+ };
+
+ static const char * const rk_rmii_clocks[] = {
+-	"mac_clk_rx", "clk_mac_ref", "clk_mac_refout",
++	"clk_mac_ref", "clk_mac_refout",
+ };
+
+ enum rk_clocks_index {
+@@ -1185,6 +1185,9 @@ static int gmac_clk_enable(struct rk_priv
+ 			rk_ungate_rmii_clock(bsp_priv);
+
+ 			mdelay(5);
+ 			bsp_priv->clk_enabled = true;
++			dev_info(bsp_priv->dev,
++				 "v4d: clocks enabled (%d clks, includes mac_clk_rx for RGMII)\n",
++				 bsp_priv->num_clks);
+ 		}
+ 	} else {
+ 		if (bsp_priv->clk_enabled) {

@@ -1,0 +1,155 @@
+=== modules deploy verification via SSH ===
+=== Fri Jun 19 03:03:43 PM CST 2026 ===
+
+--- uname ---
+Linux armbian 6.18.33 #8 SMP PREEMPT Fri Jun 19 10:01:52 CST 2026 aarch64 GNU/Linux
+
+--- /lib/modules ---
+drwxrwxr-x 3 root root 4096 Jun 19  2026 /lib/modules/6.18.33
+6.18.33
+6.18.33-rk35xx-ophub
+
+--- modules.dep + .ko count ---
+1422 /lib/modules/6.18.33/modules.dep
+1422
+
+--- depmod -a 6.18.33 ---
+depmod_rc=0
+
+--- modprobe each module ---
+=== modprobe rfkill ===
+rc=0
+=== modprobe cfg80211 ===
+rc=0
+=== modprobe mac80211 ===
+rc=0
+=== modprobe brcmutil ===
+rc=0
+=== modprobe brcmfmac ===
+rc=0
+=== modprobe bluetooth ===
+rc=0
+=== modprobe btbcm ===
+rc=0
+=== modprobe hci_uart ===
+rc=0
+=== modprobe btusb ===
+rc=0
+=== modprobe usbserial ===
+rc=0
+=== modprobe option ===
+rc=0
+=== modprobe qmi_wwan ===
+rc=0
+=== modprobe cdc_mbim ===
+rc=0
+=== modprobe ppp_generic ===
+rc=0
+=== modprobe ppp_async ===
+rc=0
+=== modprobe ppp_deflate ===
+rc=0
+
+--- lsmod (wireless/bt/4g related) ---
+ppp_deflate            12288  0
+ppp_async              16384  0
+crc_ccitt              12288  1 ppp_async
+ppp_generic            40960  2 ppp_deflate,ppp_async
+slhc                   12288  1 ppp_generic
+cdc_mbim               12288  0
+cdc_ncm                32768  1 cdc_mbim
+qmi_wwan               32768  0
+cdc_wdm                20480  2 cdc_mbim,qmi_wwan
+usbnet                 40960  4 cdc_mbim,cdc_ncm,qmi_wwan,cdc_ether
+option                 61440  0
+usb_wwan               20480  1 option
+usbserial              32768  2 usb_wwan,option
+btusb                  61440  0
+btrtl                  20480  1 btusb
+btintel                53248  1 btusb
+btmtk                  24576  1 btusb
+hci_uart               86016  0
+btqca                  16384  1 hci_uart
+btbcm                  20480  2 hci_uart,btusb
+bluetooth             528384  7 btrtl,btmtk,btqca,btintel,hci_uart,btbcm,btusb
+ecdh_generic           16384  1 bluetooth
+brcmfmac              262144  0
+brcmutil               16384  1 brcmfmac
+mac80211              643072  0
+libarc4                12288  1 mac80211
+cfg80211              454656  2 brcmfmac,mac80211
+rfkill                 28672  3 bluetooth,cfg80211
+
+--- /dev/rfkill + rfkill list ---
+crw-rw-r-- 1 root root 10, 242 Jun 19 15:00 /dev/rfkill
+
+--- iw dev + ip link ---
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             UP             36:28:78:08:40:24 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+
+--- /sys/class/bluetooth + BT/4G devices ---
+total 0
+ls: cannot access '/dev/ttyUSB*': No such file or directory
+ls: cannot access '/dev/cdc-wdm*': No such file or directory
+ls: cannot access '/dev/wwan*': No such file or directory
+
+--- USB devices ---
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 002: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+
+--- dmesg: wifi/bt/4g/sdio/firmware related ---
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    0.000000] alternatives: applying boot alternatives
+[    0.018077] alternatives: applying system-wide alternatives
+[    1.062199] mmc0: CQHCI version 5.10
+[    1.087582] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.198071] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    1.198590] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 1
+[    1.203599] xhci-hcd xhci-hcd.0.auto: hcc params 0x0220fe64 hci version 0x110 quirks 0x0000808002000010
+[    1.204510] xhci-hcd xhci-hcd.0.auto: irq 45, io mem 0xfe800000
+[    1.205344] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    1.205861] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 2
+[    1.205883] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    1.208954] ehci-platform fe380000.usb: EHCI Host Controller
+[    1.214775] ehci-platform fe380000.usb: new USB bus registered, assigned bus number 3
+[    1.215527] ehci-platform fe3c0000.usb: EHCI Host Controller
+[    1.215703] ehci-platform fe380000.usb: irq 46, io mem 0xfe380000
+[    1.216072] ehci-platform fe3c0000.usb: new USB bus registered, assigned bus number 4
+[    1.216410] ohci-platform fe3a0000.usb: Generic Platform OHCI controller
+[    1.216431] ohci-platform fe3a0000.usb: new USB bus registered, assigned bus number 5
+[    1.216600] ohci-platform fe3a0000.usb: irq 48, io mem 0xfe3a0000
+[    1.216708] ehci-platform fe3c0000.usb: irq 47, io mem 0xfe3c0000
+[    1.221174] ohci-platform fe3e0000.usb: Generic Platform OHCI controller
+[    1.221795] ohci-platform fe3e0000.usb: new USB bus registered, assigned bus number 6
+[    1.222622] ohci-platform fe3e0000.usb: irq 74, io mem 0xfe3e0000
+[    1.227518] ehci-platform fe380000.usb: USB 2.0 started, EHCI 1.00
+[    1.239399] ehci-platform fe3c0000.usb: USB 2.0 started, EHCI 1.00
+[    1.487749] usb 4-1: new high-speed USB device number 2 using ehci-platform
+[   12.267409] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+[   14.987202] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+[  247.198004] Bluetooth: Core ver 2.22
+[  247.198528] NET: Registered PF_BLUETOOTH protocol family
+[  247.199024] Bluetooth: HCI device and connection manager initialized
+[  247.199702] Bluetooth: HCI socket layer initialized
+[  247.200178] Bluetooth: L2CAP socket layer initialized
+[  247.200699] Bluetooth: SCO socket layer initialized
+[  247.259865] Bluetooth: HCI UART driver ver 2.3
+[  247.260306] Bluetooth: HCI UART protocol H4 registered
+[  247.260866] Bluetooth: HCI UART protocol LL registered
+[  247.261871] Bluetooth: HCI UART protocol Broadcom registered
+[  247.262497] Bluetooth: HCI UART protocol QCA registered
+[  247.263059] Bluetooth: HCI UART protocol Marvell registered
+[  247.330527] usbcore: registered new interface driver option
+[  247.331140] usbserial: USB Serial support registered for GSM modem (1-port)
+[  247.354168] usbcore: registered new interface driver qmi_wwan
+[  247.373872] usbcore: registered new interface driver cdc_mbim
+
+--- dmesg: sdio-pwrseq specifically ---
+[   12.267409] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+
+=== VERIFY DONE ===

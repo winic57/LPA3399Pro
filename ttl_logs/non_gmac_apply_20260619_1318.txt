@@ -1,0 +1,90 @@
+
+[?2004l[?2004hroot@armbian:~# printf '%s' 'IyEvYmluL3NoCnNldCAtdQpPVVQ9L3Jvb3Qvbm9uX2dtYWNfYXBwbHlfJChkYXRlICslWSVtJWRfJUglTSVTKS50eHQKewplY2hvICI9PT0gTk9OX0dNQUNfQVBQTFlfU1RBUlQgJChkYXRlKSA9PT0iCmVjaG8gIi0tIGluc3RhbGwgdG9vbHMgLS0iCmFwdC1nZXQgdXBkYXRlCkRFQklBTl9GUk9OVEVORD1ub25pbnRlcmFjdGl2ZSBhcHQtZ2V0IGluc3RhbGwgLXkgZ2Rpc2sgdXRpbC1saW51eC1leHRyYSB8fCBERUJJQU5fRlJPTlRFTkQ9bm9uaW50ZXJhY3RpdmUgYXB0LWdldCBpbnN0YWxsIC15IGdkaXNrIHV0aWwtbGludXggfHwgdHJ1ZQpjb21tYW5kIC12IHNnZGlzayB8fCB0cnVlCmNvbW1hbmQgLXYgaHdjbG9jayB8fCB0cnVlCmVjaG8gIi0tIEdQVCByZXBhaXIgbW1jYmxrMSAtLSIKaWYgY29tbWFuZCAtdiBzZ2Rpc2sgPi9kZXYvbnVsbCAyPiYxOyB0aGVuCiAgQkFDSz0vcm9vdC9tbWNibGsxX2dwdF9iYWNrdXBfJChkYXRlICslWSVtJWRfJUglTSVTKS5zZ2Rpc2sKICBzZ2Rpc2sgLS1iYWNrdXA9IiRCQUNLIiAvZGV2L21tY2JsazEgfHwgdHJ1ZQogIGVjaG8gIkdQVF9CQUNLVVA9JEJBQ0siCiAgZWNobyAiYmVmb3JlOiI7IHNnZGlzayAtdiAvZGV2L21tY2JsazEgfHwgdHJ1ZQogIHNnZGlzayAtZSAvZGV2L21tY2JsazEgfHwgdHJ1ZQogIGVjaG8gImFmdGVyOiI7IHNnZGlzayAtdiAvZGV2L21tY2JsazEgfHwgdHJ1ZQplbHNlCiAgZWNobyAic2dkaXNrIHN0aWxsIHVuYXZhaWxhYmxlIgpmaQplY2hvICItLSBod2Nsb2NrIC0tIgpkYXRlCmh3Y2xvY2sgLXcgMj4mMSB8fCB0cnVlCmh3Y2xvY2sgLXIgMj4mMSB8fCB0cnVlCmVjaG8gIi0tIHN5c2N0bCBjbGVhbnVwIC0tIgpLRVlTPSdrZXJuZWwuaHVuZ190YXNrX3RpbWVvdXRfc2VjcyBuZXQuaXB2NC50Y3Bfc3luY29va2llcyBuZXQuaXB2Ni5jb25mLmRlZmF1bHQuZm9yd2FyZGluZyBuZXQuaXB2Ni5jb25mLmFsbC5mb3J3YXJkaW5nIG5ldC5uZXRmaWx0ZXIubmZfY29ubnRyYWNrX2FjY3QgbmV0Lm5ldGZpbHRlci5uZl9jb25udHJhY2tfY2hlY2tzdW0gbmV0Lm5ldGZpbHRlci5uZl9jb25udHJhY2tfbWF4IG5ldC5uZXRmaWx0ZXIubmZfY29ubnRyYWNrX3RjcF90aW1lb3V0X2VzdGFibGlzaGVkIG5ldC5uZXRmaWx0ZXIubmZfY29ubnRyYWNrX3VkcF90aW1lb3V0IG5ldC5uZXRmaWx0ZXIubmZfY29ubnRyYWNrX3VkcF90aW1lb3V0X3N0cmVhbSBuZXQubmV0ZmlsdGVyLm5mX2Nvbm50cmFja19oZWxwZXIgbmV0LmlwdjYuY29uZi5hbGwuZGlzYWJsZV9pcHY2IG5ldC5pcHY2LmNvbmYuZGVmYXVsdC5kaXNhYmxlX2lwdjYgbmV0LmlwdjYuY29uZi5sby5kaXNhYmxlX2lwdjYnCmZvciBmIGluIC9ldGMvc3lzY3RsLmNvbmYgL2V0Yy9zeXNjdGwuZC85OS1zeXNjdGwuY29uZjsgZG8KICBbIC1mICIkZiIgXSB8fCBjb250aW51ZQogIGNwIC1hICIkZiIgIiRmLmJha19ub25fZ21hY18kKGRhdGUgKyVZJW0lZF8lSCVNJVMpIgogIHRtcD0iJGYudG1wX25vbl9nbWFjIgogIGF3ayAtdiBrZXlzPSIkS0VZUyIgJwogICAgQkVHSU4geyBuPXNwbGl0KGtleXMsaywiICIpOyBmb3IgKGk9MTtpPD1uO2krKykgYmFkW2tbaV1dPTEgfQogICAgewogICAgICBsaW5lPSQwCiAgICAgIHN0cmlwcGVkPSQwCiAgICAgIHN1YigvXlsgXHRdKi8sICIiLCBzdHJpcHBlZCkKICAgICAgaWYgKHN0cmlwcGVkICF+IC9eIy8gJiYgc3RyaXBwZWQgfiAvPS8pIHsKICAgICAgICBrZXk9c3RyaXBwZWQ7IHN1YigvWyBcdF0qPS4qLywgIiIsIGtleSkKICAgICAgICBpZiAoYmFkW2tleV0pIHsgcHJpbnQgIiMgZGlzYWJsZWQgMjAyNi0wNi0xOToga2VybmVsIGtleSBtaXNzaW5nOiAiIGxpbmU7IG5leHQgfQogICAgICB9CiAgICAgIHByaW50IGxpbmUKICAgIH0nICIkZiIgPiAiJHRtcCIgJiYgY2F0ICIkdG1wIiA+ICIkZiIgJiYgcm0gLWYgIiR0bXAiCiAgZWNobyAidXBkYXRlZCAkZiIKZG9uZQplY2hvICItLSBzeXNjdGwgYXBwbHkgdmVyaWZ5IC0tIgpzeXN0ZW1jdGwgcmVzdGFydCBzeXN0ZW1kLXN5c2N0bC5zZXJ2aWNlIDI+JjEgfHwgdHJ1ZQpzeXN0ZW1jdGwgc3RhdHVzIHN5c3RlbWQtc3lzY3RsLnNlcnZpY2UgLS1uby1wYWdlciAtbCAyPiYxIHwgdGFpbCAtbiA2MCB8fCB0cnVlCmpvdXJuYWxjdGwgLWIgLXUgc3lzdGVtZC1zeXNjdGwuc2VydmljZSAtLW5vLXBhZ2VyIDI+L2Rldi9udWxsIHwgdGFpbCAtbiA4MCB8fCB0cnVlCmVjaG8gIi0tIHJlbWFpbmluZyBjb25maWd1cmVkIG1pc3Npbmcga2V5cyAtLSIKZm9yIGtleSBpbiAkS0VZUzsgZG8gcGF0aD0vcHJvYy9zeXMvJChlY2hvICIka2V5IiB8IHRyIC4gLyk7IFsgLWUgIiRwYXRoIiBdIHx8IGdyZXAgLVJJbiAiXltbOnNwYWNlOl1dKiRrZXlbWzpzcGFjZTpdXSo9IiAvZXRjL3N5c2N0bC5jb25mIC9ldGMvc3lzY3RsLmQvOTktc3lzY3RsLmNvbmYgMj4vZGV2L251bGwgfHwgdHJ1ZTsgZG9uZQplY2hvICI9PT0gTk9OX0dNQUNfQVBQTFlfRU5EICQoZGF0ZSkgPT09Igp9IDI+JjEgfCB0ZWUgIiRPVVQiCmVjaG8gIk9VVD0kT1VUIgo=' | base64 -d > /tmp/non_gmac_apply.sh; chmod +x /tmp/non_gmac_apply.sh; /tmp/non_gmac_apply.sh; echo __CURRENT_SHELL_DONE_1781846067305__:$?
+[?2004l=== NON_GMAC_APPLY_START Fri Jun 19 01:14:26 PM CST 2026 ===
+-- install tools --
+Ign:1 http://apt.armbian.com trixie InRelease
+Ign:2 http://deb.debian.org/debian trixie InRelease
+Ign:3 http://security.debian.org trixie-security InRelease
+Ign:4 https://github.armbian.com/configng stable InRelease
+Ign:5 http://deb.debian.org/debian trixie-updates InRelease
+Ign:6 http://deb.debian.org/debian trixie-backports InRelease
+Ign:3 http://security.debian.org trixie-security InRelease
+Ign:1 http://apt.armbian.com trixie InRelease
+Ign:4 https://github.armbian.com/configng stable InRelease
+Ign:6 http://deb.debian.org/debian trixie-backports InRelease
+Ign:5 http://deb.debian.org/debian trixie-updates InRelease
+Ign:2 http://deb.debian.org/debian trixie InRelease
+Ign:1 http://apt.armbian.com trixie InRelease
+Ign:3 http://security.debian.org trixie-security InRelease
+Ign:4 https://github.armbian.com/configng stable InRelease
+Ign:2 http://deb.debian.org/debian trixie InRelease
+Ign:5 http://deb.debian.org/debian trixie-updates InRelease
+Ign:6 http://deb.debian.org/debian trixie-backports InRelease
+Err:1 http://apt.armbian.com trixie InRelease
+  Could not resolve 'apt.armbian.com'
+Err:3 http://security.debian.org trixie-security InRelease
+  Could not resolve 'security.debian.org'
+Err:4 https://github.armbian.com/configng stable InRelease
+  Could not resolve 'github.armbian.com'
+Err:6 http://deb.debian.org/debian trixie-backports InRelease
+  Could not resolve 'deb.debian.org'
+Err:5 http://deb.debian.org/debian trixie-updates InRelease
+  Could not resolve 'deb.debian.org'
+Err:2 http://deb.debian.org/debian trixie InRelease
+  Could not resolve 'deb.debian.org'
+Reading package lists...
+W: Failed to fetch https://github.armbian.com/configng/dists/stable/InRelease  Could not resolve 'github.armbian.com'
+W: Failed to fetch http://apt.armbian.com/dists/trixie/InRelease  Could not resolve 'apt.armbian.com'
+W: Failed to fetch http://deb.debian.org/debian/dists/trixie/InRelease  Could not resolve 'deb.debian.org'
+W: Failed to fetch http://deb.debian.org/debian/dists/trixie-updates/InRelease  Could not resolve 'deb.debian.org'
+W: Failed to fetch http://deb.debian.org/debian/dists/trixie-backports/InRelease  Could not resolve 'deb.debian.org'
+W: Failed to fetch http://security.debian.org/dists/trixie-security/InRelease  Could not resolve 'security.debian.org'
+W: Some index files failed to download. They have been ignored, or old ones used instead.
+Reading package lists...
+Building dependency tree...
+Package util-linux-extra is not available, but is referred to by another package.
+This may mean that the package is missing, has been obsoleted, or
+is only available from another source
+
+E: Unable to locate package gdisk
+E: Package 'util-linux-extra' has no installation candidate
+Reading package lists...
+Building dependency tree...
+E: Unable to locate package gdisk
+-- GPT repair mmcblk1 --
+sgdisk still unavailable
+-- hwclock --
+Fri Jun 19 01:14:34 PM CST 2026
+/tmp/non_gmac_apply.sh: 24: hwclock: not found
+/tmp/non_gmac_apply.sh: 25: hwclock: not found
+-- sysctl cleanup --
+updated /etc/sysctl.conf
+updated /etc/sysctl.d/99-sysctl.conf
+-- sysctl apply verify --
+● systemd-sysctl.service - Apply Kernel Variables
+     Loaded: loaded (/usr/lib/systemd/system/systemd-sysctl.service; static)
+     Active: active (exited) since Fri 2026-06-19 13:14:34 CST; 71ms ago
+ Invocation: 310a1204bb3a4a77bf742e703b89ec10
+       Docs: man:systemd-sysctl.service(8)
+             man:sysctl.d(5)
+    Process: 927 ExecStart=/usr/lib/systemd/systemd-sysctl (code=exited, status=0/SUCCESS)
+   Main PID: 927 (code=exited, status=0/SUCCESS)
+   Mem peak: 2.2M
+        CPU: 56ms
+
+Jun 19 13:14:34 armbian systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+Jun 19 13:14:34 armbian systemd-sysctl[927]: Couldn't write 'fq' to 'net/core/default_qdisc', ignoring: No such file or directory
+Jun 19 13:14:34 armbian systemd-sysctl[927]: Couldn't write 'bbr' to 'net/ipv4/tcp_congestion_control', ignoring: No such file or directory
+Jun 19 13:14:34 armbian systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+Jun 19 13:14:34 armbian systemd[1]: systemd-sysctl.service: Deactivated successfully.
+Jun 19 13:14:34 armbian systemd[1]: Stopped systemd-sysctl.service - Apply Kernel Variables.
+Jun 19 13:14:34 armbian systemd[1]: Stopping systemd-sysctl.service - Apply Kernel Variables...
+Jun 19 13:14:34 armbian systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+Jun 19 13:14:34 armbian systemd-sysctl[927]: Couldn't write 'fq' to 'net/core/default_qdisc', ignoring: No such file or directory
+Jun 19 13:14:34 armbian systemd-sysctl[927]: Couldn't write 'bbr' to 'net/ipv4/tcp_congestion_control', ignoring: No such file or directory
+Jun 19 13:14:34 armbian systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+-- remaining configured missing keys --
+=== NON_GMAC_APPLY_END Fri Jun 19 01:14:35 PM CST 2026 ===
+OUT=/root/non_gmac_apply_20260619_131426.txt
+__CURRENT_SHELL_DONE_1781846067305__:0
+[?2004hroot@armbian:~# 

@@ -1,0 +1,15 @@
+
+root@armbian:~# set -e; mkdir -p /mnt/sdboot; mountpoint -q /mnt/sdboot || mount /dev/mmcblk1p1 /mnt/sdboot; BOOT=/mnt/sdboot; DTB_DIR=$BOOT/dtb/rockchip; CUR=$DTB_DIR/gmac-pc0-test.dtb; NEXT=$DTB_DIR/gmac-clockout-test.dtb; EXT=$BOOT/extlinux/extlinux.conf; BAK=$BOOT/extlinux/extlinux.conf.gmac-clockout-test.bak; cp -a "$CUR" "$NEXT"; fdtput -t s "$NEXT" /ethernet@fe300000 clock_in_out output; echo clock_in_out=$(tr -d "\0" < "$NEXT" >/dev/null 2>&1 || true); echo value=$(fdtget -t s "$NEXT" /ethernet@fe300000 clock_in_out); cp -a "$EXT" "$BAK"; sed -i "s#FDT /dtb/rockchip/gmac-pc0-test.dtb#FDT /dtb/rockchip/gmac-clockout-test.dtb#" "$EXT"; echo "[extlinux]"; grep "^  FDT " "$EXT"; echo "[dtb]"; ls -l "$NEXT" "$BAK"; sync
+[  198.408433] EXT4-fs (mmcblk1p1): mounted filesystem 955919d4-e37d-4c44-99d6-c0a5552f798c r/w with ordered data mode. Quota mode: none.
+mount: (hint) your fstab has been modified, but systemd still uses
+       the old version; use 'systemctl daemon-reload' to reload.
+clock_in_out=
+value=output
+[extlinux]
+  FDT /dtb/rockchip/gmac-clockout-test.dtb
+[dtb]
+-rw-r--r-- 1 root root 60178 Jun  1 19:15 /mnt/sdboot/dtb/rockchip/gmac-clockout-test.dtb
+-rw-r--r-- 1 root root   404 Jun  1 19:12 /mnt/sdboot/extlinux/extlinux.conf.gmac-clockout-test.bak
+root@armbian:~# echo __CMD_DONE_1781751546171__
+__CMD_DONE_1781751546171__
+root@armbian:~# 

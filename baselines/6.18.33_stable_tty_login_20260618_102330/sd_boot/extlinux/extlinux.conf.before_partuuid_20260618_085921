@@ -1,0 +1,4 @@
+LABEL Armbian
+  LINUX /Image
+  FDT /dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+  APPEND root=UUID=d52f7f8b-fa0e-4c9f-a552-d6df4329ac87 rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M net.ifnames=0

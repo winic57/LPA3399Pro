@@ -1,0 +1,10 @@
+=== board baseline probe — /dev/ttyUSB0 @ 1500000 ===
+=== log file: /mnt/sdb3/LPA3399Pro/ttl_logs/peripheral_baseline_pre_modules_20260619_173652.txt ===
+
+--- wake ---
+
+
+--- alive ---
+
+
+!!! Board not responding. !!!

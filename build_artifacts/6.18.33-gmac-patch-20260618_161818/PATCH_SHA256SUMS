@@ -1,0 +1,3 @@
+fe42cd95d04444b0455dc51187db3750c5fa2f3e2fbea86bc7767961cde4cd6a  /mnt/sdb3/LPA3399Pro/patches/0000-combined-rk3399pro-gmac-test-kernel-6.18.33.patch
+bfb17b17eb8a4519757ff0d8ba666ddbccc3625d85f38ac2dacdbba2f09565a6  /mnt/sdb3/LPA3399Pro/patches/0001-rk3399pro-gmac-debug-and-rxc-workaround-v2-real.patch
+fcc9b520db87a0193aa21daac693e0dc5915f347a1ae1734ecbe2660b636555b  /mnt/sdb3/LPA3399Pro/patches/0002-buildfix-clk-provider-gate-macro-6.18.33.patch

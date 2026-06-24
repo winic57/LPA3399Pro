@@ -1,0 +1,16 @@
+
+root@LPA3399Pro:~# fdisk -l /dev/mmcblk0; echo __CURRENT_SHELL_DONE_1781186078156__:$?
+GPT PMBR size mismatch (7225343 != 60733439) will be corrected by write.
+The backup GPT table is not on the end of the device. This problem will be corrected by write.
+Disk /dev/mmcblk0: 29 GiB, 31095521280 bytes, 60733440 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: F4D7E9AB-BC10-4B80-A30D-3E15B71628BE
+
+Device           Start     End Sectors  Size Type
+/dev/mmcblk0p1   32768 1079295 1046528  511M Linux filesystem
+/dev/mmcblk0p2 1081344 7223295 6141952    3G Linux filesystem
+__CURRENT_SHELL_DONE_1781186078156__:0
+root@LPA3399Pro:

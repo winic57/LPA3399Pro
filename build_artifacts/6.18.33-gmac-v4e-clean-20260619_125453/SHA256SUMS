@@ -1,0 +1,4 @@
+82ac1adab5f6100ba9fbd6412650e5a5f8efdb8b76aa33c3867c804c7f6174d7  /mnt/sdb3/LPA3399Pro/patches/0000-rk3399pro-gmac-v4e-clean-final-20260619.patch
+7c87eb998a8d01c02509cd36916b94525c4c63e5ab46342e21ef7d81a134c4b8  /mnt/sdb3/LPA3399Pro/patches/0008-rk3399pro-gmac-v4e-cleanup-from-v4e-20260619.patch
+df91556ef42f4ff7110283938dd2331ef70e983569ea06c28475bdcb54a306cf  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-v4e-clean-20260619_125453/dwmac-rk.c.v4e-clean
+a491f53f25b7f5110f4f15d58ce91c8f233f0f2ed894325c2fa9d592f887e79c  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-v4e-clean-20260619_125453/clk-provider.h.with-buildfix

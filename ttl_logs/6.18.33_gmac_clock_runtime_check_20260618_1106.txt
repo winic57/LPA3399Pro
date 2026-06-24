@@ -1,0 +1,133 @@
+
+root@armbian:~# echo CLK_CHECK_BEGIN; mount -t debugfs debugfs /sys/kernel/debug 2>/dev/null || true; if [ -r /sys/kernel/debug/clk/clk_summary ]; then grep -iE "gmac|mac|rmii|rgmii|stmmac|sclk.*mac|aclk.*mac|pclk.*mac|clk_mac" /sys/kernel/debug/clk/clk_summary || true; else echo NO_CLK_SUMMARY; fi; echo; echo DT_RUNTIME; tr -d "\0" </proc/device-tree/ethernet@fe300000/clock_in_out; echo; hexdump -Cv /proc/device-tree/ethernet@fe300000/assigned-clocks 2>/dev/null || true; hexdump -Cv /proc/device-tree/ethernet@fe300000/assigned-clock-parents 2>/dev/null || true; hexdump -Cv /proc/device-tree/ethernet@fe300000/clocks 2>/dev/null || true; echo; echo ETH_STATE; ip -d link show eth0; ethtool eth0 2>&1 || true; dmesg | grep -iE "gmac|stmmac|dwmac|eth0|phy|yt8521|dma|clock" | tail -n 80; echo CLK_CHECK_END
+CLK_CHECK_BEGIN
+ clkin_gmac                          1       1        0        125000000   0          0     50000      Y   deviceless                      no_connection_id         
+    clk_rmii_src                     1       4        0        125000000   0          0     50000      Y      deviceless                      no_connection_id         
+       clk_rmii_tx                   1       2        0        125000000   0          0     50000      Y         fe300000.ethernet               mac_clk_tx               
+       clk_rmii_rx                   0       1        0        125000000   0          0     50000      N         ethernet@fe300000               no_connection_id         
+       clk_mac_ref                   0       1        0        125000000   0          0     50000      N         ethernet@fe300000               no_connection_id         
+       clk_mac_refout                0       1        0        125000000   0          0     50000      N         ethernet@fe300000               no_connection_id         
+          clk_gmac                   1       2        0        50000000    0          0     50000      Y            fe300000.ethernet               stmmaceth                
+          gpll_aclk_gmac_src         0       0        0        594000000   0          0     50000      Y            deviceless                      no_connection_id         
+                aclk_dmac1_perilp    0       1        0        100000000   0          0     50000      N                  ff6e0000.dma-controller         apb_pclk                 
+                aclk_dmac0_perilp    1       2        0        100000000   0          0     50000      Y                  ff6d0000.dma-controller         apb_pclk                 
+          cpll_aclk_gmac_src         1       1        0        800000000   0          0     50000      Y            deviceless                      no_connection_id         
+             aclk_gmac_pre           2       2        0        200000000   0          0     50000      Y               deviceless                      no_connection_id         
+                pclk_gmac_pre        1       1        0        50000000    0          0     50000      Y                  deviceless                      no_connection_id         
+                   pclk_gmac_noc     0       0        0        50000000    0          0     50000      Y                     deviceless                      no_connection_id         
+                   pclk_gmac         1       3        0        50000000    0          0     50000      Y                     fe300000.ethernet               pclk_mac                 
+                aclk_perf_gmac       0       0        0        200000000   0          0     50000      N                  deviceless                      no_connection_id         
+                aclk_gmac_noc        0       0        0        200000000   0          0     50000      Y                  deviceless                      no_connection_id         
+                aclk_gmac            1       3        0        200000000   0          0     50000      Y                  fe300000.ethernet               aclk_mac                 
+
+DT_RUNTIME
+output
+00000000  00 00 00 08 00 00 00 a6                           |........|
+00000008
+00000000  00 00 00 20                                       |... |
+00000004
+00000000  00 00 00 08 00 00 00 69  00 00 00 08 00 00 00 67  |.......i.......g|
+00000010  00 00 00 08 00 00 00 68  00 00 00 08 00 00 00 66  |.......h.......f|
+00000020  00 00 00 08 00 00 00 6a  00 00 00 08 00 00 00 d5  |.......j........|
+00000030  00 00 00 08 00 00 01 66                           |.......f|
+00000038
+
+ETH_STATE
+2: eth0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 36:28:78:08:40:24 brd ff:ff:ff:ff:ff:ff promiscuity 0 allmulti 0 minmtu 46 maxmtu 3712 numtxqueues 8 numrxqueues 8 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 gso_ipv4_max_size 65536 gro_ipv4_max_size 65536 parentbus platform parentdev fe300000.ethernet 
+    altname end0
+    altname enx362878084024
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  Not reported
+	Advertised pause frame use: No
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: Unknown!
+	Duplex: Half
+	Auto-negotiation: off
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: no
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.000000] arch_timer: cp15 timer running at 24.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
+[    0.000001] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
+[    0.039309] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.051606] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052736] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.054311] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.109271] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.111800] /mmc@fe330000: Fixed dependency cycle(s) with /syscon@ff770000/phy@f780
+[    0.111929] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.145342] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.148846] PTP clock support registered
+[    0.154364] clocksource: Switched to clocksource arch_sys_counter
+[    0.349471] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.349524] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.351286] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.351317] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.614280] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.615517] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.645294] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    0.828459] rk808-rtc rk808-rtc.4.auto: setting system clock to 2017-08-05T09:17:30 UTC (1501924650)
+[    0.845928] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    0.846658] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    0.848495] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.848521] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.580456] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    1.581101] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    1.581729] rk_gmac-dwmac fe300000.ethernet: Deprecated MDIO bus assumption used
+[    1.582527] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    1.583667] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    1.584328] rk_gmac-dwmac fe300000.ethernet: TX delay(0x28).
+[    1.584853] rk_gmac-dwmac fe300000.ethernet: RX delay(0x11).
+[    1.585382] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    1.591004] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    1.592103] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    1.592770] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    1.593257] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    1.593939] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    1.594629] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    1.595102] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    1.595732] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    1.596378] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    1.596911] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    1.597434] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    1.683468] YT8521 Gigabit Ethernet stmmac-0:00: attached PHY driver (mii_bus:phy_addr=stmmac-0:00, irq=POLL)
+[    1.684406] YT8521 Gigabit Ethernet stmmac-0:03: attached PHY driver (mii_bus:phy_addr=stmmac-0:03, irq=POLL)
+[    1.700283] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.700732] clk: Disabling unused clocks
+[    1.700996] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   11.751671] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+[   11.758631] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   11.759304] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   14.062180] systemd[1]: Starting fake-hwclock-load.service - Restore the current clock...
+[   14.262268] systemd[1]: fake-hwclock-load.service: Deactivated successfully.
+[   14.264605] systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.
+[   19.795611] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   19.801606] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.008068] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[   20.008736] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[   20.009565] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+[   20.858555] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+CLK_CHECK_END
+root@armbian:~# echo __CMD_DONE_1781751882954__
+__CMD_DONE_1781751882954__
+root@armbian:~# 

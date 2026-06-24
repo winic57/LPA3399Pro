@@ -1,0 +1,86 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -22,6 +22,7 @@
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
+ #include <linux/pm_runtime.h>
++#include <linux/reset.h>
+ 
+ #include "stmmac_platform.h"
+ 
+@@ -105,6 +106,7 @@
+ 	struct clk *clk_phy;
+ 
+ 	struct reset_control *phy_reset;
++	struct reset_control *stmmac_rst_dbg;
+ 
+ 	int tx_delay;
+ 	int rx_delay;
+@@ -1262,6 +1264,36 @@
+ 		 reason);
+ }
+ 
++static void rk3399pro_gmac_reset_cycle(struct rk_priv_data *bsp_priv,
++				       const char *stage)
++{
++	struct device *dev = bsp_priv->dev;
++	int ret;
++
++	if (!bsp_priv->stmmac_rst_dbg) {
++		dev_info(dev, "v4b-reset %s: no stmmaceth reset controller\n",
++			 stage);
++		return;
++	}
++
++	dev_info(dev, "v4b-reset %s: assert stmmaceth\n", stage);
++	ret = reset_control_assert(bsp_priv->stmmac_rst_dbg);
++	if (ret)
++		dev_warn(dev, "v4b-reset %s: assert failed ret=%d\n",
++			 stage, ret);
++
++	usleep_range(10000, 20000);
++
++	dev_info(dev, "v4b-reset %s: deassert stmmaceth\n", stage);
++	ret = reset_control_deassert(bsp_priv->stmmac_rst_dbg);
++	if (ret)
++		dev_warn(dev, "v4b-reset %s: deassert failed ret=%d\n",
++			 stage, ret);
++
++	msleep(50);
++	dev_info(dev, "v4b-reset %s: done\n", stage);
++}
++
+ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
+ 					  struct plat_stmmacenet_data *plat,
+ 					  const struct rk_gmac_ops *ops)
+@@ -1378,6 +1410,20 @@
+ 
+ 	bsp_priv->dev = dev;
+ 
++	bsp_priv->stmmac_rst_dbg = devm_reset_control_get_optional(dev,
++								  "stmmaceth");
++	if (IS_ERR(bsp_priv->stmmac_rst_dbg)) {
++		dev_err_probe(dev, PTR_ERR(bsp_priv->stmmac_rst_dbg),
++			      "v4b: failed to get optional stmmaceth reset\n");
++		bsp_priv->stmmac_rst_dbg = NULL;
++	} else if (bsp_priv->stmmac_rst_dbg) {
++		dev_info(dev,
++			 "v4b: got optional stmmaceth reset controller\n");
++	} else {
++		dev_info(dev,
++			 "v4b: no optional stmmaceth reset controller\n");
++	}
++
+ 	/* Set the default phy_intf_sel and RMII mode register parameters. */
+ 	bsp_priv->gmac_grf_reg = ops->gmac_grf_reg;
+ 	bsp_priv->gmac_phy_intf_sel_mask = ops->gmac_phy_intf_sel_mask;
+@@ -1554,6 +1600,9 @@
+ 	dev_info(dev, "v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open\n");
+ 	msleep(200);
+ 
++	dev_info(dev, "v4b: MAC reset cycle before runtime resume/DMA open\n");
++	rk3399pro_gmac_reset_cycle(bsp_priv, "after-v4a-settle");
++
+ 	pm_runtime_get_sync(dev);
+ 
+ 	if (bsp_priv->integrated_phy && bsp_priv->ops->integrated_phy_powerup)

@@ -1,0 +1,11 @@
+
+root@armbian:~# echo RUNTIME2; findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS | grep -E '(/boot|mmcblk|/ )' || true; ls -la /boot 2>/dev/null | head -50; ls -l /boot/dtb/rockchip/gmac-test.dtb /boot/extlinux/extlinux.conf 2>/dev/null || true
+RUNTIME2
+/                                               /dev/mmcblk1p2 ext4       rw,relatime,data=writeback
+total 8
+drwxr-xr-x  2 root root 4096 Jun 11  2026 .
+drwxrwxrwx 19 root root 4096 Jun 17  2026 ..
+-rw-r--r--  1 root root    0 Jun  1 18:29 .next
+root@armbian:~# echo __CMD_DONE_1781750877255__
+__CMD_DONE_1781750877255__
+root@armbian:~# 

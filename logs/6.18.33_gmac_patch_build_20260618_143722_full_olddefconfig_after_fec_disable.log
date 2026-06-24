@@ -1,0 +1,8 @@
+make: Entering directory '/tmp/gmac_patch_build_20260618_143722/src'
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+  GEN     Makefile
+#
+# No change to .config
+#
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: Leaving directory '/tmp/gmac_patch_build_20260618_143722/src'

@@ -1,0 +1,11 @@
+
+root@armbian:~# set -e; BOOT=/mnt/sdboot; DTB_DIR=$BOOT/dtb/rockchip; CUR=$DTB_DIR/gmac-test.dtb; NEXT=$DTB_DIR/gmac-rx20-test.dtb; EXT=$BOOT/extlinux/extlinux.conf; BAK=$BOOT/extlinux/extlinux.conf.gmac-rx20-test.bak; cp -a "$CUR" "$NEXT"; fdtput -t x "$NEXT" /ethernet@fe300000 rx_delay 0x20; echo rx_delay=$(fdtget -t x "$NEXT" /ethernet@fe300000 rx_delay); cp -a "$EXT" "$BAK"; sed -i "s#FDT /dtb/rockchip/gmac-test.dtb#FDT /dtb/rockchip/gmac-rx20-test.dtb#" "$EXT"; echo "[extlinux]"; grep "^  FDT " "$EXT"; echo "[dtb]"; ls -l "$NEXT" "$BAK"; sync
+rx_delay=20
+[extlinux]
+  FDT /dtb/rockchip/gmac-rx20-test.dtb
+[dtb]
+-rw-r--r-- 1 root root 60178 Jun  1 19:07 /mnt/sdboot/dtb/rockchip/gmac-rx20-test.dtb
+-rw-r--r-- 1 root root   400 Jun 18  2026 /mnt/sdboot/extlinux/extlinux.conf.gmac-rx20-test.bak
+root@armbian:~# echo __CMD_DONE_1781751007250__
+__CMD_DONE_1781751007250__
+root@armbian:~# 

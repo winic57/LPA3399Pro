@@ -1,0 +1,8 @@
+make: Entering directory '/tmp/gmac_patch_build_20260618_143722/src'
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+  SYNC    include/config/auto.conf.cmd
+  GEN     Makefile
+  GEN     Makefile
+  CALL    /tmp/gmac_patch_build_20260618_143722/src/scripts/checksyscalls.sh
+  CC      drivers/net/ethernet/freescale/xgmac_mdio.o
+  CC      drivers/hwmon/hwmon.o

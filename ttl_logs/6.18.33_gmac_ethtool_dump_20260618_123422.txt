@@ -1,0 +1,209 @@
+
+root@armbian:~# echo ====before====; ethtool -d eth0 2>&1; echo ====ifup====; ip link set eth0 up || true; echo ====after====; ethtool -d eth0 2>&1; echo ====dmesg====; dmesg | tail -n 30
+====before====
+ST GMAC Registers
+GMAC Registers
+Reg0  0x00000000
+Reg1  0x00000000
+Reg2  0x00000000
+Reg3  0x00000000
+Reg4  0x000007CC
+Reg5  0x00000000
+Reg6  0x00000000
+Reg7  0x00000000
+Reg8  0x00001035
+Reg9  0x00000100
+Reg10  0x00000000
+Reg11  0x00000000
+Reg12  0x00000000
+Reg13  0x00000000
+Reg14  0x00000000
+Reg15  0x00000000
+Reg16  0x8000FFFF
+Reg17  0xFFFFFFFF
+Reg18  0x00000000
+Reg19  0x00000000
+Reg20  0x00000000
+Reg21  0x00000000
+Reg22  0x00000000
+Reg23  0x00000000
+Reg24  0x00000000
+Reg25  0x00000000
+Reg26  0x00000000
+Reg27  0x00000000
+Reg28  0x00000000
+Reg29  0x00000000
+Reg30  0x00000000
+Reg31  0x00000000
+Reg32  0x00000000
+Reg33  0x00000000
+Reg34  0x00000000
+Reg35  0x00000000
+Reg36  0x00000000
+Reg37  0x00000000
+Reg38  0x00000000
+Reg39  0x00000000
+Reg40  0x00000000
+Reg41  0x00000000
+Reg42  0x00000000
+Reg43  0x00000000
+Reg44  0x00000000
+Reg45  0x00000000
+Reg46  0x00000000
+Reg47  0x00000000
+Reg48  0x00000000
+Reg49  0x00000000
+Reg50  0x00000000
+Reg51  0x00000000
+Reg52  0x00000000
+Reg53  0x00000000
+Reg54  0x00000000
+
+DMA Registers
+Reg0  0x00020101
+Reg1  0x00000000
+Reg2  0x00000000
+Reg3  0x00000000
+Reg4  0x00000000
+Reg5  0x00000000
+Reg6  0x00000000
+Reg7  0x00000000
+Reg8  0x00000000
+Reg9  0x00000000
+Reg10  0x00110001
+Reg11  0x00000000
+Reg12  0x00000000
+Reg13  0x00000000
+Reg14  0x00000000
+Reg15  0x00000000
+Reg16  0x00000000
+Reg17  0x00000000
+Reg18  0x00000000
+Reg19  0x00000000
+Reg20  0x00000000
+Reg21  0x00000000
+Reg22  0x000D0F17
+====ifup====
+[  165.492875] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[  165.499110] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[  165.708936] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[  165.709603] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[  165.710431] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+RTNETLINK answers: Connection timed out
+====after====
+ST GMAC Registers
+GMAC Registers
+Reg0  0x00000000
+Reg1  0x00000000
+Reg2  0x00000000
+Reg3  0x00000000
+Reg4  0x000007CC
+Reg5  0x00000000
+Reg6  0x00000000
+Reg7  0x00000000
+Reg8  0x00001035
+Reg9  0x00000100
+Reg10  0x00000000
+Reg11  0x00000000
+Reg12  0x00000000
+Reg13  0x00000000
+Reg14  0x00000000
+Reg15  0x00000000
+Reg16  0x8000FFFF
+Reg17  0xFFFFFFFF
+Reg18  0x00000000
+Reg19  0x00000000
+Reg20  0x00000000
+Reg21  0x00000000
+Reg22  0x00000000
+Reg23  0x00000000
+Reg24  0x00000000
+Reg25  0x00000000
+Reg26  0x00000000
+Reg27  0x00000000
+Reg28  0x00000000
+Reg29  0x00000000
+Reg30  0x00000000
+Reg31  0x00000000
+Reg32  0x00000000
+Reg33  0x00000000
+Reg34  0x00000000
+Reg35  0x00000000
+Reg36  0x00000000
+Reg37  0x00000000
+Reg38  0x00000000
+Reg39  0x00000000
+Reg40  0x00000000
+Reg41  0x00000000
+Reg42  0x00000000
+Reg43  0x00000000
+Reg44  0x00000000
+Reg45  0x00000000
+Reg46  0x00000000
+Reg47  0x00000000
+Reg48  0x00000000
+Reg49  0x00000000
+Reg50  0x00000000
+Reg51  0x00000000
+Reg52  0x00000000
+Reg53  0x00000000
+Reg54  0x00000000
+
+DMA Registers
+Reg0  0x00020101
+Reg1  0x00000000
+Reg2  0x00000000
+Reg3  0x00000000
+Reg4  0x00000000
+Reg5  0x00000000
+Reg6  0x00000000
+Reg7  0x00000000
+Reg8  0x00000000
+Reg9  0x00000000
+Reg10  0x00110001
+Reg11  0x00000000
+Reg12  0x00000000
+Reg13  0x00000000
+Reg14  0x00000000
+Reg15  0x00000000
+Reg16  0x00000000
+Reg17  0x00000000
+Reg18  0x00000000
+Reg19  0x00000000
+Reg20  0x00000000
+Reg21  0x00000000
+Reg22  0x000D0F17
+====dmesg====
+[   14.286459] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+[   14.290576] systemd[1]: fake-hwclock-load.service: Deactivated successfully.
+[   14.292237] systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.
+[   14.299950] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[   14.339247] systemd-journald[117]: Collecting audit messages is disabled.
+[   14.345800] systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+[   14.386561] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[   14.388615] systemd[1]: systemd-sysusers.service - Create System Users skipped, no trigger condition checks were met.
+[   14.397757] systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+[   14.424088] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[   14.449296] systemd[1]: Started systemd-journald.service - Journal Service.
+[   14.566172] systemd-journald[117]: Received client request to flush runtime journal.
+[   17.425781] systemd-journald[117]: Received client request to relinquish /var/log/journal/63f6b85b0c1e8dbfdd4367466a1d5eef access.
+[   19.020827] random: crng init done
+[   20.432852] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   20.439373] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.643790] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[   20.644457] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[   20.645372] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+[   21.477565] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[   47.528542] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   47.535011] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   47.739137] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[   47.739798] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[   47.740621] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+[  165.492875] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[  165.499110] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[  165.708936] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[  165.709603] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[  165.710431] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+root@armbian:~# echo __CMD_DONE_1781757262861__
+__CMD_DONE_1781757262861__
+root@armbian:~# 

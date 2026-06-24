@@ -1,0 +1,5 @@
+
+=> fdisk -l /dev/mmcblk0; echo __CURRENT_SHELL_DONE_1781186039109__:$?
+Unknown command 'fdisk' - try 'help'
+__CURRENT_SHELL_DONE_1781186039109__:1
+=> 

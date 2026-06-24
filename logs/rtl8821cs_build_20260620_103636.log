@@ -1,0 +1,176 @@
+=== build start 2026年 06月 20日 星期六 10:36:36 CST ===
+make: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make[1]: 进入目录“/tmp/rtl8821cs_build_20260620_102054”
+  CC [M]  core/rtw_br_ext.o
+  CC [M]  core/rtw_btcoex_wifionly.o
+  CC [M]  core/rtw_btcoex.o
+  CC [M]  core/rtw_beamforming.o
+core/rtw_br_ext.c:656:6: warning: no previous prototype for ‘nat25_db_expire’ [-Wmissing-prototypes]
+  656 | void nat25_db_expire(_adapter *priv)
+      |      ^~~~~~~~~~~~~~~
+core/rtw_br_ext.c:772:5: warning: no previous prototype for ‘nat25_db_handle’ [-Wmissing-prototypes]
+  772 | int nat25_db_handle(_adapter *priv, struct sk_buff *skb, int method)
+      |     ^~~~~~~~~~~~~~~
+core/rtw_br_ext.c:1402:5: warning: no previous prototype for ‘nat25_handle_frame’ [-Wmissing-prototypes]
+ 1402 | int nat25_handle_frame(_adapter *priv, struct sk_buff *skb)
+      |     ^~~~~~~~~~~~~~~~~~
+core/rtw_br_ext.c:1533:6: warning: no previous prototype for ‘dhcp_flag_bcast’ [-Wmissing-prototypes]
+ 1533 | void dhcp_flag_bcast(_adapter *priv, struct sk_buff *skb)
+      |      ^~~~~~~~~~~~~~~
+core/rtw_br_ext.c:1574:7: warning: no previous prototype for ‘scdb_findEntry’ [-Wmissing-prototypes]
+ 1574 | void *scdb_findEntry(_adapter *priv, unsigned char *macAddr,
+      |       ^~~~~~~~~~~~~~
+core/rtw_btcoex.c:409:6: warning: no previous prototype for ‘rtw_btcoex_SetBtPatchVersion’ [-Wmissing-prototypes]
+  409 | void rtw_btcoex_SetBtPatchVersion(PADAPTER padapter, u16 btHciVer, u16 btPatchVer)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+core/rtw_btcoex.c:414:6: warning: no previous prototype for ‘rtw_btcoex_SetHciVersion’ [-Wmissing-prototypes]
+  414 | void rtw_btcoex_SetHciVersion(PADAPTER  padapter, u16 hciVersion)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~
+core/rtw_btcoex.c:419:6: warning: no previous prototype for ‘rtw_btcoex_StackUpdateProfileInfo’ [-Wmissing-prototypes]
+  419 | void rtw_btcoex_StackUpdateProfileInfo(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  CC [M]  core/rtw_odm.o
+  CC [M]  core/rtw_rm.o
+  CC [M]  core/rtw_rm_fsm.o
+  CC [M]  core/rtw_ft.o
+core/rtw_odm.c:67:6: warning: no previous prototype for ‘rtw_odm_adaptivity_ver_msg’ [-Wmissing-prototypes]
+   67 | void rtw_odm_adaptivity_ver_msg(void *sel, _adapter *adapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+core/rtw_odm.c:76:6: warning: no previous prototype for ‘rtw_odm_adaptivity_en_msg’ [-Wmissing-prototypes]
+   76 | void rtw_odm_adaptivity_en_msg(void *sel, _adapter *adapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~
+core/rtw_odm.c:95:6: warning: no previous prototype for ‘rtw_odm_adaptivity_mode_msg’ [-Wmissing-prototypes]
+   95 | void rtw_odm_adaptivity_mode_msg(void *sel, _adapter *adapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+  CC [M]  core/rtw_wnm.o
+  CC [M]  core/rtw_mbo.o
+  CC [M]  core/rtw_rm_util.o
+  CC [M]  core/efuse/rtw_efuse.o
+  CC [M]  core/rtw_roch.o
+  CC [M]  core/rtw_sdio.o
+core/efuse/rtw_efuse.c:60:9: warning: no previous prototype for ‘efuse_IsBT_Masked’ [-Wmissing-prototypes]
+   60 | BOOLEAN efuse_IsBT_Masked(PADAPTER pAdapter, u16 Offset)
+      |         ^~~~~~~~~~~~~~~~~
+core/efuse/rtw_efuse.c: In function ‘rtw_efuse_analyze’:
+core/efuse/rtw_efuse.c:971:17: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  971 |                 if (i % 16 == 0)
+      |                 ^~
+In file included from ././include/drv_types.h:60,
+                 from core/efuse/rtw_efuse.c:17:
+././include/rtw_debug.h:261:9: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  261 |         do {\
+      |         ^~
+core/efuse/rtw_efuse.c:973:25: note: in expansion of macro ‘_RTW_PRINT_SEL’
+  973 |                         _RTW_PRINT_SEL(RTW_DBGDUMP, "%02X%s"
+      |                         ^~~~~~~~~~~~~~
+core/efuse/rtw_efuse.c: At top level:
+  CC [M]  core/crypto/aes-internal.o
+core/efuse/rtw_efuse.c:985:6: warning: no previous prototype for ‘efuse_PreUpdateAction’ [-Wmissing-prototypes]
+  985 | void efuse_PreUpdateAction(
+      |      ^~~~~~~~~~~~~~~~~~~~~
+core/efuse/rtw_efuse.c:1014:6: warning: no previous prototype for ‘efuse_PostUpdateAction’ [-Wmissing-prototypes]
+ 1014 | void efuse_PostUpdateAction(
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+  CC [M]  core/crypto/aes-internal-enc.o
+core/rtw_sdio.c:123:4: warning: no previous prototype for ‘rtw_sdio_read_cmd52’ [-Wmissing-prototypes]
+  123 | u8 rtw_sdio_read_cmd52(struct dvobj_priv *d, u32 addr, void *buf, size_t len)
+      |    ^~~~~~~~~~~~~~~~~~~
+core/rtw_sdio.c:128:4: warning: no previous prototype for ‘rtw_sdio_read_cmd53’ [-Wmissing-prototypes]
+  128 | u8 rtw_sdio_read_cmd53(struct dvobj_priv *d, u32 addr, void *buf, size_t len)
+      |    ^~~~~~~~~~~~~~~~~~~
+core/rtw_sdio.c:133:4: warning: no previous prototype for ‘rtw_sdio_write_cmd52’ [-Wmissing-prototypes]
+  133 | u8 rtw_sdio_write_cmd52(struct dvobj_priv *d, u32 addr, void *buf, size_t len)
+      |    ^~~~~~~~~~~~~~~~~~~~
+core/rtw_sdio.c:138:4: warning: no previous prototype for ‘rtw_sdio_write_cmd53’ [-Wmissing-prototypes]
+  138 | u8 rtw_sdio_write_cmd53(struct dvobj_priv *d, u32 addr, void *buf, size_t len)
+      |    ^~~~~~~~~~~~~~~~~~~~
+core/rtw_sdio.c:143:4: warning: no previous prototype for ‘rtw_sdio_f0_read’ [-Wmissing-prototypes]
+  143 | u8 rtw_sdio_f0_read(struct dvobj_priv *d, u32 addr, void *buf, size_t len)
+      |    ^~~~~~~~~~~~~~~~
+core/rtw_roch.c:353:6: warning: no previous prototype for ‘rtw_ap_roch_ch_switch_timer_process’ [-Wmissing-prototypes]
+  353 | void rtw_ap_roch_ch_switch_timer_process(void *ctx)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  CC [M]  core/crypto/aes-gcm.o
+  CC [M]  core/crypto/aes-ccm.o
+  CC [M]  core/crypto/aes-omac1.o
+  CC [M]  core/crypto/ccmp.o
+  CC [M]  core/crypto/gcmp.o
+  CC [M]  core/crypto/aes-siv.o
+  CC [M]  core/crypto/aes-ctr.o
+core/crypto/ccmp.c:179:6: warning: no previous prototype for ‘ccmp_get_pn’ [-Wmissing-prototypes]
+  179 | void ccmp_get_pn(u8 *pn, const u8 *data)
+      |      ^~~~~~~~~~~
+  CC [M]  core/crypto/sha256-internal.o
+  CC [M]  core/crypto/sha256.o
+  CC [M]  core/crypto/sha256-prf.o
+  CC [M]  core/crypto/rtw_crypto_wrap.o
+In file included from core/crypto/sha256-internal.c:12:
+core/crypto/sha256.h:16:5: error: conflicting types for ‘hmac_sha256’; have ‘int(const u8 *, size_t,  const u8 *, size_t,  u8 *)’ {aka ‘int(const unsigned char *, long unsigned int,  const unsigned char *, long unsigned int,  unsigned char *)’}
+   16 | int hmac_sha256(const u8 *key, size_t key_len, const u8 *data,
+      |     ^~~~~~~~~~~
+In file included from /tmp/gmac_patch_build_20260618_143722/src/include/linux/bpf.h:10,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/security.h:35,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/net/scm.h:9,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/netlink.h:9,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/uapi/linux/neighbour.h:6,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/netdevice.h:44,
+                 from ././include/osdep_service_linux.h:31,
+                 from ././include/osdep_service.h:59,
+                 from ././include/drv_types.h:27,
+                 from core/crypto/rtw_crypto_wrap.h:4,
+                 from core/crypto/sha256-internal.c:9:
+/tmp/gmac_patch_build_20260618_143722/src/include/crypto/sha2.h:504:6: note: previous declaration of ‘hmac_sha256’ with type ‘void(const struct hmac_sha256_key *, const u8 *, size_t,  u8 *)’ {aka ‘void(const struct hmac_sha256_key *, const unsigned char *, long unsigned int,  unsigned char *)’}
+  504 | void hmac_sha256(const struct hmac_sha256_key *key,
+      |      ^~~~~~~~~~~
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：core/crypto/sha256-internal.o] 错误 1
+make[3]: *** 正在等待未完成的任务....
+In file included from core/crypto/sha256.c:11:
+core/crypto/sha256.h:16:5: error: conflicting types for ‘hmac_sha256’; have ‘int(const u8 *, size_t,  const u8 *, size_t,  u8 *)’ {aka ‘int(const unsigned char *, long unsigned int,  const unsigned char *, long unsigned int,  unsigned char *)’}
+   16 | int hmac_sha256(const u8 *key, size_t key_len, const u8 *data,
+      |     ^~~~~~~~~~~
+In file included from /tmp/gmac_patch_build_20260618_143722/src/include/linux/bpf.h:10,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/security.h:35,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/net/scm.h:9,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/netlink.h:9,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/uapi/linux/neighbour.h:6,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/netdevice.h:44,
+                 from ././include/osdep_service_linux.h:31,
+                 from ././include/osdep_service.h:59,
+                 from ././include/drv_types.h:27,
+                 from core/crypto/rtw_crypto_wrap.h:4,
+                 from core/crypto/sha256.c:9:
+/tmp/gmac_patch_build_20260618_143722/src/include/crypto/sha2.h:504:6: note: previous declaration of ‘hmac_sha256’ with type ‘void(const struct hmac_sha256_key *, const u8 *, size_t,  u8 *)’ {aka ‘void(const struct hmac_sha256_key *, const unsigned char *, long unsigned int,  unsigned char *)’}
+  504 | void hmac_sha256(const struct hmac_sha256_key *key,
+      |      ^~~~~~~~~~~
+core/crypto/sha256.c:100:5: error: conflicting types for ‘hmac_sha256’; have ‘int(const u8 *, size_t,  const u8 *, size_t,  u8 *)’ {aka ‘int(const unsigned char *, long unsigned int,  const unsigned char *, long unsigned int,  unsigned char *)’}
+  100 | int hmac_sha256(const u8 *key, size_t key_len, const u8 *data,
+      |     ^~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/include/crypto/sha2.h:504:6: note: previous declaration of ‘hmac_sha256’ with type ‘void(const struct hmac_sha256_key *, const u8 *, size_t,  u8 *)’ {aka ‘void(const struct hmac_sha256_key *, const unsigned char *, long unsigned int,  unsigned char *)’}
+  504 | void hmac_sha256(const struct hmac_sha256_key *key,
+      |      ^~~~~~~~~~~
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：core/crypto/sha256.o] 错误 1
+In file included from core/crypto/sha256-prf.c:12:
+core/crypto/sha256.h:16:5: error: conflicting types for ‘hmac_sha256’; have ‘int(const u8 *, size_t,  const u8 *, size_t,  u8 *)’ {aka ‘int(const unsigned char *, long unsigned int,  const unsigned char *, long unsigned int,  unsigned char *)’}
+   16 | int hmac_sha256(const u8 *key, size_t key_len, const u8 *data,
+      |     ^~~~~~~~~~~
+In file included from /tmp/gmac_patch_build_20260618_143722/src/include/linux/bpf.h:10,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/security.h:35,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/net/scm.h:9,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/netlink.h:9,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/uapi/linux/neighbour.h:6,
+                 from /tmp/gmac_patch_build_20260618_143722/src/include/linux/netdevice.h:44,
+                 from ././include/osdep_service_linux.h:31,
+                 from ././include/osdep_service.h:59,
+                 from ././include/drv_types.h:27,
+                 from core/crypto/rtw_crypto_wrap.h:4,
+                 from core/crypto/sha256-prf.c:9:
+/tmp/gmac_patch_build_20260618_143722/src/include/crypto/sha2.h:504:6: note: previous declaration of ‘hmac_sha256’ with type ‘void(const struct hmac_sha256_key *, const u8 *, size_t,  u8 *)’ {aka ‘void(const struct hmac_sha256_key *, const unsigned char *, long unsigned int,  unsigned char *)’}
+  504 | void hmac_sha256(const struct hmac_sha256_key *key,
+      |      ^~~~~~~~~~~
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：core/crypto/sha256-prf.o] 错误 1
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:2026：.] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/rtl8821cs_build_20260620_102054”
+make: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+=== build rc=2 2026年 06月 20日 星期六 10:36:59 CST ===

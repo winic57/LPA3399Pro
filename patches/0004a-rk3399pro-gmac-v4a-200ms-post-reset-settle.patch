@@ -1,0 +1,12 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -1551,7 +1551,8 @@
+ 	     bsp_priv->phy_iface == PHY_INTERFACE_MODE_RGMII_TXID))
+ 		rk_gmac_external_phy_reset(bsp_priv, "post-grf-post-power");
+ 
+-	usleep_range(20000, 30000);
++	dev_info(dev, "v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open\n");
++	msleep(200);
+ 
+ 	pm_runtime_get_sync(dev);
+ 

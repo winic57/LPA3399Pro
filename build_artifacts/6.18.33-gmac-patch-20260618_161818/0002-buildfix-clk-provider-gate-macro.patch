@@ -1,0 +1,21 @@
+--- /tmp/gmac_orig_fetch/clk-provider.h.orig	2026-06-18 16:24:36.394286376 +0800
++++ /tmp/gmac_patch_build_20260618_143722/src/include/linux/clk-provider.h	2026-06-18 15:25:33.191604963 +0800
+@@ -666,7 +666,7 @@
+ 					    reg, bit_idx, clk_gate_flags,     \
+ 					    lock)			      \
+ 	__devm_clk_hw_register_gate((dev), NULL, (name), NULL, (parent_hw),   \
+-				    NULL, (flags), (reg), (bit_idx),	      \
++				    NULL, (flags), NULL, 0, (reg), (bit_idx), \
+ 				    (clk_gate_flags), (lock))
+ /**
+  * devm_clk_hw_register_gate_parent_data - register a gate clock with the
+@@ -684,7 +684,8 @@
+ 					      reg, bit_idx, clk_gate_flags,   \
+ 					      lock)			      \
+ 	__devm_clk_hw_register_gate((dev), NULL, (name), NULL, NULL,	      \
+-				    (parent_data), (flags), (reg), (bit_idx), \
++				    (parent_data), (flags), NULL, 0, (reg),   \
++				    (bit_idx),				      \
+ 				    (clk_gate_flags), (lock))
+ 
+ void clk_unregister_gate(struct clk *clk);

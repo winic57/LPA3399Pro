@@ -1,0 +1,87 @@
+
+[?2004l[?2004hroot@armbian:~# OUT=/root/peripheral_dt_config_$(date +%Y%m%d_%H%M%S).txt; { echo "=== PERIPHERAL_DT_CONFIG_START $(date) ==="; echo --dt-wifi-bt--; find /proc/device-tree -maxdepth 5 \( -iname "*wifi*" -o -iname "*wireless*" -o -iname "*bluetooth*" -o -iname "*bt*" -o -iname "*sdio*" -o -iname "*pwrseq*" \) 2>/dev/null | sort; for n in /proc/device-tree/wireless-wlan /proc/device-tree/wireless-bluetooth /proc/device-tree/sdio-pwrseq /proc/device-tree/mmc@fe310000 /proc/device-tree/mmc@fe320000; do [ -e "$n" ] || continue; echo "## $n"; for f in compatible status clocks clock-names pinctrl-names bus-width cap-sdio-irq keep-power-in-suspend non-removable mmc-pwrseq; do [ -e "$n/$f" ] && { echo "### $f"; hexdump -Cv "$n/$f"; }; done; done; echo --kernel-config--; for k in CFG80211 MAC80211 RFKILL WLAN_VENDOR_BROADCOM BRCMFMAC BRCMFMAC_SDIO BT HCIUART HCIUART_BCM BT_BCM BT_HCIBTUSB MMC_SDHCI_OF_DWCMSHC; do zgrep -E "^CONFIG_${k}=" /proc/config.gz 2>/dev/null || grep -E "^CONFIG_${k}=" /boot/config-$(uname -r) 2>/dev/null || echo "CONFIG_${k}=NA"; done; echo --modules-dir--; ls -la /lib/modules/$(uname -r) 2>/dev/null || true; echo "=== PERIPHERAL_DT_CONFIG_END $(date) ==="; } 2>&1 | tee "$OUT"; echo OUT=$OUT; echo __CURRENT_SHELL_DONE_1781852375459__:$?
+[?2004l=== PERIPHERAL_DT_CONFIG_START Fri Jun 19 02:59:34 PM CST 2026 ===
+--dt-wifi-bt--
+## /proc/device-tree/sdio-pwrseq
+### compatible
+00000000  6d 6d 63 2d 70 77 72 73  65 71 2d 73 69 6d 70 6c  |mmc-pwrseq-simpl|
+00000010  65 00                                             |e.|
+00000012
+### clocks
+00000000  00 00 00 ba                                       |....|
+00000004
+### clock-names
+00000000  65 78 74 5f 63 6c 6f 63  6b 00                    |ext_clock.|
+0000000a
+### pinctrl-names
+00000000  64 65 66 61 75 6c 74 00                           |default.|
+00000008
+## /proc/device-tree/mmc@fe310000
+### compatible
+00000000  72 6f 63 6b 63 68 69 70  2c 72 6b 33 33 39 39 2d  |rockchip,rk3399-|
+00000010  64 77 2d 6d 73 68 63 00  72 6f 63 6b 63 68 69 70  |dw-mshc.rockchip|
+00000020  2c 72 6b 33 32 38 38 2d  64 77 2d 6d 73 68 63 00  |,rk3288-dw-mshc.|
+00000030
+### status
+00000000  6f 6b 61 79 00                                    |okay.|
+00000005
+### clocks
+00000000  00 00 00 08 00 00 01 ee  00 00 00 08 00 00 00 4d  |...............M|
+00000010  00 00 00 08 00 00 00 9c  00 00 00 08 00 00 00 9d  |................|
+00000020
+### clock-names
+00000000  62 69 75 00 63 69 75 00  63 69 75 2d 64 72 69 76  |biu.ciu.ciu-driv|
+00000010  65 00 63 69 75 2d 73 61  6d 70 6c 65 00           |e.ciu-sample.|
+0000001d
+### pinctrl-names
+00000000  64 65 66 61 75 6c 74 00                           |default.|
+00000008
+### bus-width
+00000000  00 00 00 04                                       |....|
+00000004
+### cap-sdio-irq
+### keep-power-in-suspend
+### non-removable
+### mmc-pwrseq
+00000000  00 00 00 24                                       |...$|
+00000004
+## /proc/device-tree/mmc@fe320000
+### compatible
+00000000  72 6f 63 6b 63 68 69 70  2c 72 6b 33 33 39 39 2d  |rockchip,rk3399-|
+00000010  64 77 2d 6d 73 68 63 00  72 6f 63 6b 63 68 69 70  |dw-mshc.rockchip|
+00000020  2c 72 6b 33 32 38 38 2d  64 77 2d 6d 73 68 63 00  |,rk3288-dw-mshc.|
+00000030
+### status
+00000000  6f 6b 61 79 00                                    |okay.|
+00000005
+### clocks
+00000000  00 00 00 08 00 00 01 ce  00 00 00 08 00 00 00 4c  |...............L|
+00000010  00 00 00 08 00 00 00 9a  00 00 00 08 00 00 00 9b  |................|
+00000020
+### clock-names
+00000000  62 69 75 00 63 69 75 00  63 69 75 2d 64 72 69 76  |biu.ciu.ciu-driv|
+00000010  65 00 63 69 75 2d 73 61  6d 70 6c 65 00           |e.ciu-sample.|
+0000001d
+### pinctrl-names
+00000000  64 65 66 61 75 6c 74 00                           |default.|
+00000008
+### bus-width
+00000000  00 00 00 04                                       |....|
+00000004
+--kernel-config--
+CONFIG_CFG80211=m
+CONFIG_MAC80211=m
+CONFIG_RFKILL=m
+CONFIG_WLAN_VENDOR_BROADCOM=y
+CONFIG_BRCMFMAC=m
+CONFIG_BRCMFMAC_SDIO=y
+CONFIG_BT=m
+CONFIG_HCIUART=NA
+CONFIG_HCIUART_BCM=NA
+CONFIG_BT_BCM=m
+CONFIG_BT_HCIBTUSB=m
+CONFIG_MMC_SDHCI_OF_DWCMSHC=y
+--modules-dir--
+=== PERIPHERAL_DT_CONFIG_END Fri Jun 19 02:59:35 PM CST 2026 ===
+OUT=/root/peripheral_dt_config_20260619_145934.txt
+__CURRENT_SHELL_DONE_1781852375459__:0

@@ -1,0 +1,598 @@
+
+[?2004l[?2004hroot@armbian:~# printf '%s' 'IyEvYmluL3NoCnNldCAtdQpPVVQ9L3Jvb3QvZ21hY19sb25ndGVzdF8kKGRhdGUgKyVZJW0lZF8lSCVNJVMpLnR4dAp7CmVjaG8gIj09PSBHTUFDX0xPTkdURVNUX1NUQVJUICQoZGF0ZSkgPT09Igp1bmFtZSAtYQppcCAtYnIgbGluayBzaG93IGV0aDAgfHwgdHJ1ZQppcCAtYnIgYWRkciBzaG93IGV0aDAgfHwgdHJ1ZQpldGh0b29sIGV0aDAgMj4mMSB8IHNlZCAtbiAnMSw0NXAnIHx8IHRydWUKZWNobyAiLS0gaW5zdGFsbC9jaGVjayBpcGVyZjMgLS0iCmlmICEgY29tbWFuZCAtdiBpcGVyZjMgPi9kZXYvbnVsbCAyPiYxOyB0aGVuCiAgZWNobyAiaXBlcmYzIG1pc3Npbmc7IGluc3RhbGxpbmciCiAgYXB0LWdldCB1cGRhdGUKICBERUJJQU5fRlJPTlRFTkQ9bm9uaW50ZXJhY3RpdmUgYXB0LWdldCBpbnN0YWxsIC15IGlwZXJmMwpmaQpjb21tYW5kIC12IGlwZXJmMyB8fCB0cnVlCmlwZXJmMyAtLXZlcnNpb24gMj4vZGV2L251bGwgfCBoZWFkIC1uMSB8fCB0cnVlCmVjaG8gIi0tIGJlZm9yZSBjb3VudGVycyAtLSIKY2F0IC9wcm9jL25ldC9kZXYgfCBncmVwIC1FICdJbnRlcnxmYWNlfGV0aDAnCmV0aHRvb2wgLVMgZXRoMCAyPiYxIHwgZ3JlcCAtRWkgJ2Vycnxkcm9wfGNyY3x0aW1lb3V0fGZpZm98Y29sbGlzaW9ufGNhcnJpZXJ8dW5kZXJ8b3Zlcnx3YXRjaGRvZ3xtaXNzJyB8IGhlYWQgLW4gMTIwIHx8IHRydWUKR1c9JChpcCByb3V0ZSB8IGF3ayAnL2RlZmF1bHQvIHtwcmludCAkMzsgZXhpdH0nKQplY2hvICItLSBwaW5nIDMwMHMgZ2F0ZXdheT0kR1cgLS0iClsgLW4gIiRHVyIgXSAmJiBwaW5nIC1jIDMwMCAtaSAxIC1XIDIgIiRHVyIgfHwgdHJ1ZQplY2hvICItLSBpcGVyZjMgNjBzIHRvIGhvc3QgMTkyLjE2OC41MC4xMiAtLSIKaXBlcmYzIC1jIDE5Mi4xNjguNTAuMTIgLXAgNTIwMSAtdCA2MCAtUCAxIDI+JjEgfHwgdHJ1ZQplY2hvICItLSBhZnRlciBjb3VudGVycyAtLSIKaXAgLWJyIGxpbmsgc2hvdyBldGgwIHx8IHRydWUKaXAgLWJyIGFkZHIgc2hvdyBldGgwIHx8IHRydWUKZXRodG9vbCBldGgwIDI+JjEgfCBzZWQgLW4gJzEsNDVwJyB8fCB0cnVlCmNhdCAvcHJvYy9uZXQvZGV2IHwgZ3JlcCAtRSAnSW50ZXJ8ZmFjZXxldGgwJwpldGh0b29sIC1TIGV0aDAgMj4mMSB8IGdyZXAgLUVpICdlcnJ8ZHJvcHxjcmN8dGltZW91dHxmaWZvfGNvbGxpc2lvbnxjYXJyaWVyfHVuZGVyfG92ZXJ8d2F0Y2hkb2d8bWlzcycgfCBoZWFkIC1uIDEyMCB8fCB0cnVlCmVjaG8gIi0tIGRtZXNnIEdNQUMgdGFpbCAtLSIKZG1lc2cgfCBncmVwIC1pRSAnZ21hY3xzdG1tYWN8ZXRoMHx5dDg1MjF8ZG1hfHJlc2V0fHJnbWlpfExpbmsgaXN8RmFpbGVkfHRpbWVvdXR8ZXJyb3J8d2F0Y2hkb2cnIHwgdGFpbCAtbiAyNDAKZWNobyAiPT09IEdNQUNfTE9OR1RFU1RfRU5EICQoZGF0ZSkgPT09Igp9IDI+JjEgfCB0ZWUgIiRPVVQiCmVjaG8gIk9VVD0kT1VUIgo=' | base64 -d > /tmp/gmac_longtest.sh; chmod +x /tmp/gmac_longtest.sh; /tmp/gmac_longtest.sh; echo __CURRENT_SHELL_DONE_1781845613879__:$?
+[?2004l=== GMAC_LONGTEST_START Mon Jun  1 11:48:59 PM CST 2026 ===
+Linux armbian 6.18.33 #8 SMP PREEMPT Fri Jun 19 10:01:52 CST 2026 aarch64 GNU/Linux
+eth0             UP             36:28:78:08:40:24 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+eth0             UP             192.168.50.113/24 
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Advertised FEC modes: Not reported
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
+	Link partner advertised pause frame use: Symmetric
+	Link partner advertised auto-negotiation: Yes
+	Link partner advertised FEC modes: Not reported
+	Speed: 100Mb/s
+	Duplex: Full
+	Auto-negotiation: on
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: external
+	MDI-X: Unknown
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: yes
+-- install/check iperf3 --
+/usr/bin/iperf3
+iperf 3.18 (cJSON 1.7.15)
+-- before counters --
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+  eth0:  753011   11283    0    0    0     0          0         0    36862     379    0    0    0     0       0          0
+     mmc_tx_underflow_error: 0
+     mmc_tx_deferred: 0
+     mmc_tx_carrier_error: 0
+     mmc_tx_oversize_g: 0
+     mmc_rx_crc_error: 0
+     mmc_rx_align_error: 0
+     mmc_rx_run_error: 0
+     mmc_rx_jabber_error: 0
+     mmc_rx_undersize_g: 0
+     mmc_rx_oversize_g: 0
+     mmc_rx_length_error: 0
+     mmc_rx_fifo_overflow: 0
+     mmc_rx_watchdog_error: 0
+     mmc_rx_error: 0
+     mmc_rx_align_err_frames: 0
+     mmc_rx_ipv4_hderr: 0
+     mmc_rx_ipv4_hderr_octets: 0
+     mmc_rx_ipv6_hderr_octets: 0
+     mmc_rx_ipv6_hderr: 0
+     mmc_rx_udp_err: 0
+     mmc_rx_tcp_err: 0
+     mmc_rx_icmp_err: 0
+     mmc_rx_udp_err_octets: 0
+     mmc_rx_tcp_err_octets: 0
+     mmc_rx_icmp_err_octets: 0
+     mmc_tx_gate_overrun_cntr: 0
+     mmc_rx_packet_assembly_err_cntr: 0
+     mmc_rx_packet_smd_err_cntr: 0
+     tx_underflow: 0
+     tx_carrier: 0
+     tx_losscarrier: 0
+     tx_deferred: 0
+     tx_payload_error: 0
+     tx_ip_header_error: 0
+     overflow_error: 0
+     ipc_csum_error: 0
+     rx_collision: 0
+     rx_crc_errors: 0
+     rx_gmac_overflow: 0
+     rx_watchdog: 0
+     rx_missed_cntr: 0
+     rx_overflow_cntr: 0
+     rx_overflow_irq: 0
+     rx_watchdog_irq: 0
+     fatal_bus_error_irq: 0
+     phy_eee_wakeup_error_n: 0
+     ip_hdr_err: 0
+     ip_payload_err: 0
+     timestamp_dropped: 0
+     mtl_tx_status_fifo_full: 0
+     mtl_tx_fifo_not_empty: 0
+     mmtl_fifo_ctrl: 0
+     mtl_tx_fifo_read_ctrl_write: 0
+     mtl_tx_fifo_read_ctrl_wait: 0
+     mtl_tx_fifo_read_ctrl_read: 0
+     mtl_tx_fifo_read_ctrl_idle: 0
+     mtl_rx_fifo_fill_level_full: 0
+     mtl_rx_fifo_fill_above_thresh: 0
+     mtl_rx_fifo_fill_below_thresh: 0
+     mtl_rx_fifo_fill_level_empty: 0
+     mtl_rx_fifo_read_ctrl_flush: 0
+     mtl_rx_fifo_read_ctrl_read_data: 0
+     mtl_rx_fifo_read_ctrl_status: 0
+     mtl_rx_fifo_read_ctrl_idle: 0
+     mtl_rx_fifo_ctrl_active: 0
+     mac_rx_frame_ctrl_fifo: 0
+-- ping 300s gateway=192.168.50.1 --
+PING 192.168.50.1 (192.168.50.1) 56(84) bytes of data.
+64 bytes from 192.168.50.1: icmp_seq=1 ttl=64 time=4.09 ms
+64 bytes from 192.168.50.1: icmp_seq=2 ttl=64 time=3.88 ms
+64 bytes from 192.168.50.1: icmp_seq=3 ttl=64 time=4.50 ms
+64 bytes from 192.168.50.1: icmp_seq=4 ttl=64 time=3.91 ms
+64 bytes from 192.168.50.1: icmp_seq=5 ttl=64 time=2.41 ms
+64 bytes from 192.168.50.1: icmp_seq=6 ttl=64 time=5.69 ms
+64 bytes from 192.168.50.1: icmp_seq=7 ttl=64 time=8.62 ms
+64 bytes from 192.168.50.1: icmp_seq=8 ttl=64 time=3.21 ms
+64 bytes from 192.168.50.1: icmp_seq=9 ttl=64 time=4.91 ms
+64 bytes from 192.168.50.1: icmp_seq=10 ttl=64 time=5.34 ms
+64 bytes from 192.168.50.1: icmp_seq=11 ttl=64 time=4.62 ms
+64 bytes from 192.168.50.1: icmp_seq=12 ttl=64 time=15.8 ms
+64 bytes from 192.168.50.1: icmp_seq=13 ttl=64 time=3.03 ms
+64 bytes from 192.168.50.1: icmp_seq=14 ttl=64 time=3.32 ms
+64 bytes from 192.168.50.1: icmp_seq=15 ttl=64 time=5.54 ms
+64 bytes from 192.168.50.1: icmp_seq=16 ttl=64 time=4.21 ms
+64 bytes from 192.168.50.1: icmp_seq=17 ttl=64 time=2.94 ms
+64 bytes from 192.168.50.1: icmp_seq=18 ttl=64 time=2.66 ms
+64 bytes from 192.168.50.1: icmp_seq=19 ttl=64 time=3.40 ms
+64 bytes from 192.168.50.1: icmp_seq=20 ttl=64 time=3.06 ms
+64 bytes from 192.168.50.1: icmp_seq=21 ttl=64 time=4.73 ms
+64 bytes from 192.168.50.1: icmp_seq=22 ttl=64 time=15.6 ms
+64 bytes from 192.168.50.1: icmp_seq=23 ttl=64 time=3.32 ms
+64 bytes from 192.168.50.1: icmp_seq=24 ttl=64 time=4.82 ms
+64 bytes from 192.168.50.1: icmp_seq=25 ttl=64 time=3.03 ms
+64 bytes from 192.168.50.1: icmp_seq=26 ttl=64 time=4.71 ms
+64 bytes from 192.168.50.1: icmp_seq=27 ttl=64 time=2.68 ms
+64 bytes from 192.168.50.1: icmp_seq=28 ttl=64 time=2.63 ms
+64 bytes from 192.168.50.1: icmp_seq=29 ttl=64 time=4.35 ms
+64 bytes from 192.168.50.1: icmp_seq=30 ttl=64 time=4.49 ms
+64 bytes from 192.168.50.1: icmp_seq=31 ttl=64 time=4.21 ms
+64 bytes from 192.168.50.1: icmp_seq=32 ttl=64 time=3.33 ms
+64 bytes from 192.168.50.1: icmp_seq=33 ttl=64 time=4.24 ms
+64 bytes from 192.168.50.1: icmp_seq=34 ttl=64 time=3.17 ms
+64 bytes from 192.168.50.1: icmp_seq=35 ttl=64 time=2.35 ms
+64 bytes from 192.168.50.1: icmp_seq=36 ttl=64 time=3.10 ms
+64 bytes from 192.168.50.1: icmp_seq=37 ttl=64 time=2.49 ms
+64 bytes from 192.168.50.1: icmp_seq=38 ttl=64 time=3.40 ms
+64 bytes from 192.168.50.1: icmp_seq=39 ttl=64 time=3.40 ms
+64 bytes from 192.168.50.1: icmp_seq=40 ttl=64 time=3.62 ms
+64 bytes from 192.168.50.1: icmp_seq=41 ttl=64 time=2.75 ms
+64 bytes from 192.168.50.1: icmp_seq=42 ttl=64 time=4.26 ms
+64 bytes from 192.168.50.1: icmp_seq=43 ttl=64 time=3.64 ms
+64 bytes from 192.168.50.1: icmp_seq=44 ttl=64 time=2.03 ms
+64 bytes from 192.168.50.1: icmp_seq=45 ttl=64 time=2.69 ms
+64 bytes from 192.168.50.1: icmp_seq=46 ttl=64 time=4.67 ms
+64 bytes from 192.168.50.1: icmp_seq=47 ttl=64 time=2.52 ms
+64 bytes from 192.168.50.1: icmp_seq=48 ttl=64 time=2.22 ms
+64 bytes from 192.168.50.1: icmp_seq=49 ttl=64 time=3.33 ms
+64 bytes from 192.168.50.1: icmp_seq=50 ttl=64 time=4.02 ms
+64 bytes from 192.168.50.1: icmp_seq=51 ttl=64 time=3.38 ms
+64 bytes from 192.168.50.1: icmp_seq=52 ttl=64 time=3.02 ms
+64 bytes from 192.168.50.1: icmp_seq=53 ttl=64 time=3.25 ms
+64 bytes from 192.168.50.1: icmp_seq=54 ttl=64 time=2.39 ms
+64 bytes from 192.168.50.1: icmp_seq=55 ttl=64 time=2.39 ms
+64 bytes from 192.168.50.1: icmp_seq=56 ttl=64 time=2.19 ms
+64 bytes from 192.168.50.1: icmp_seq=57 ttl=64 time=4.05 ms
+64 bytes from 192.168.50.1: icmp_seq=58 ttl=64 time=23.8 ms
+64 bytes from 192.168.50.1: icmp_seq=59 ttl=64 time=4.56 ms
+64 bytes from 192.168.50.1: icmp_seq=60 ttl=64 time=3.73 ms
+64 bytes from 192.168.50.1: icmp_seq=61 ttl=64 time=3.48 ms
+64 bytes from 192.168.50.1: icmp_seq=62 ttl=64 time=3.31 ms
+64 bytes from 192.168.50.1: icmp_seq=63 ttl=64 time=9.40 ms
+64 bytes from 192.168.50.1: icmp_seq=64 ttl=64 time=3.13 ms
+64 bytes from 192.168.50.1: icmp_seq=65 ttl=64 time=5.72 ms
+64 bytes from 192.168.50.1: icmp_seq=66 ttl=64 time=2.76 ms
+64 bytes from 192.168.50.1: icmp_seq=67 ttl=64 time=2.15 ms
+64 bytes from 192.168.50.1: icmp_seq=68 ttl=64 time=7.43 ms
+64 bytes from 192.168.50.1: icmp_seq=69 ttl=64 time=3.50 ms
+64 bytes from 192.168.50.1: icmp_seq=70 ttl=64 time=2.17 ms
+64 bytes from 192.168.50.1: icmp_seq=71 ttl=64 time=10.6 ms
+64 bytes from 192.168.50.1: icmp_seq=72 ttl=64 time=2.98 ms
+64 bytes from 192.168.50.1: icmp_seq=73 ttl=64 time=4.50 ms
+64 bytes from 192.168.50.1: icmp_seq=74 ttl=64 time=3.63 ms
+64 bytes from 192.168.50.1: icmp_seq=75 ttl=64 time=2.65 ms
+64 bytes from 192.168.50.1: icmp_seq=76 ttl=64 time=2.22 ms
+64 bytes from 192.168.50.1: icmp_seq=77 ttl=64 time=1.87 ms
+64 bytes from 192.168.50.1: icmp_seq=78 ttl=64 time=4.37 ms
+64 bytes from 192.168.50.1: icmp_seq=79 ttl=64 time=2.95 ms
+64 bytes from 192.168.50.1: icmp_seq=80 ttl=64 time=3.83 ms
+64 bytes from 192.168.50.1: icmp_seq=81 ttl=64 time=2.32 ms
+64 bytes from 192.168.50.1: icmp_seq=82 ttl=64 time=3.99 ms
+64 bytes from 192.168.50.1: icmp_seq=83 ttl=64 time=5.22 ms
+64 bytes from 192.168.50.1: icmp_seq=84 ttl=64 time=2.41 ms
+64 bytes from 192.168.50.1: icmp_seq=85 ttl=64 time=4.19 ms
+64 bytes from 192.168.50.1: icmp_seq=86 ttl=64 time=3.63 ms
+64 bytes from 192.168.50.1: icmp_seq=87 ttl=64 time=7.36 ms
+64 bytes from 192.168.50.1: icmp_seq=88 ttl=64 time=3.57 ms
+64 bytes from 192.168.50.1: icmp_seq=89 ttl=64 time=4.85 ms
+64 bytes from 192.168.50.1: icmp_seq=90 ttl=64 time=2.43 ms
+64 bytes from 192.168.50.1: icmp_seq=91 ttl=64 time=2.83 ms
+64 bytes from 192.168.50.1: icmp_seq=92 ttl=64 time=3.63 ms
+64 bytes from 192.168.50.1: icmp_seq=93 ttl=64 time=4.60 ms
+64 bytes from 192.168.50.1: icmp_seq=94 ttl=64 time=8.95 ms
+64 bytes from 192.168.50.1: icmp_seq=95 ttl=64 time=5.45 ms
+64 bytes from 192.168.50.1: icmp_seq=96 ttl=64 time=4.42 ms
+64 bytes from 192.168.50.1: icmp_seq=97 ttl=64 time=4.22 ms
+64 bytes from 192.168.50.1: icmp_seq=98 ttl=64 time=5.67 ms
+64 bytes from 192.168.50.1: icmp_seq=99 ttl=64 time=6.31 ms
+64 bytes from 192.168.50.1: icmp_seq=100 ttl=64 time=4.14 ms
+64 bytes from 192.168.50.1: icmp_seq=101 ttl=64 time=3.13 ms
+64 bytes from 192.168.50.1: icmp_seq=102 ttl=64 time=8.51 ms
+64 bytes from 192.168.50.1: icmp_seq=103 ttl=64 time=2.37 ms
+64 bytes from 192.168.50.1: icmp_seq=104 ttl=64 time=3.63 ms
+64 bytes from 192.168.50.1: icmp_seq=105 ttl=64 time=2.99 ms
+64 bytes from 192.168.50.1: icmp_seq=106 ttl=64 time=6.15 ms
+64 bytes from 192.168.50.1: icmp_seq=107 ttl=64 time=4.76 ms
+64 bytes from 192.168.50.1: icmp_seq=108 ttl=64 time=2.99 ms
+64 bytes from 192.168.50.1: icmp_seq=109 ttl=64 time=4.35 ms
+64 bytes from 192.168.50.1: icmp_seq=110 ttl=64 time=2.40 ms
+64 bytes from 192.168.50.1: icmp_seq=111 ttl=64 time=4.01 ms
+64 bytes from 192.168.50.1: icmp_seq=112 ttl=64 time=4.65 ms
+64 bytes from 192.168.50.1: icmp_seq=113 ttl=64 time=10.1 ms
+64 bytes from 192.168.50.1: icmp_seq=114 ttl=64 time=8.75 ms
+64 bytes from 192.168.50.1: icmp_seq=115 ttl=64 time=4.30 ms
+64 bytes from 192.168.50.1: icmp_seq=116 ttl=64 time=2.55 ms
+64 bytes from 192.168.50.1: icmp_seq=117 ttl=64 time=3.59 ms
+64 bytes from 192.168.50.1: icmp_seq=118 ttl=64 time=129 ms
+64 bytes from 192.168.50.1: icmp_seq=119 ttl=64 time=2.36 ms
+64 bytes from 192.168.50.1: icmp_seq=120 ttl=64 time=5.00 ms
+64 bytes from 192.168.50.1: icmp_seq=121 ttl=64 time=3.11 ms
+64 bytes from 192.168.50.1: icmp_seq=122 ttl=64 time=2.97 ms
+64 bytes from 192.168.50.1: icmp_seq=123 ttl=64 time=3.53 ms
+64 bytes from 192.168.50.1: icmp_seq=124 ttl=64 time=2.69 ms
+64 bytes from 192.168.50.1: icmp_seq=125 ttl=64 time=4.01 ms
+64 bytes from 192.168.50.1: icmp_seq=126 ttl=64 time=4.14 ms
+64 bytes from 192.168.50.1: icmp_seq=127 ttl=64 time=4.30 ms
+64 bytes from 192.168.50.1: icmp_seq=128 ttl=64 time=4.47 ms
+64 bytes from 192.168.50.1: icmp_seq=129 ttl=64 time=2.61 ms
+64 bytes from 192.168.50.1: icmp_seq=130 ttl=64 time=4.59 ms
+64 bytes from 192.168.50.1: icmp_seq=131 ttl=64 time=2.91 ms
+64 bytes from 192.168.50.1: icmp_seq=132 ttl=64 time=6.80 ms
+64 bytes from 192.168.50.1: icmp_seq=133 ttl=64 time=4.10 ms
+64 bytes from 192.168.50.1: icmp_seq=134 ttl=64 time=3.69 ms
+64 bytes from 192.168.50.1: icmp_seq=135 ttl=64 time=3.55 ms
+64 bytes from 192.168.50.1: icmp_seq=136 ttl=64 time=3.62 ms
+64 bytes from 192.168.50.1: icmp_seq=137 ttl=64 time=5.68 ms
+64 bytes from 192.168.50.1: icmp_seq=138 ttl=64 time=2.22 ms
+64 bytes from 192.168.50.1: icmp_seq=139 ttl=64 time=6.49 ms
+64 bytes from 192.168.50.1: icmp_seq=140 ttl=64 time=3.89 ms
+64 bytes from 192.168.50.1: icmp_seq=141 ttl=64 time=2.78 ms
+64 bytes from 192.168.50.1: icmp_seq=142 ttl=64 time=3.39 ms
+64 bytes from 192.168.50.1: icmp_seq=143 ttl=64 time=6.83 ms
+64 bytes from 192.168.50.1: icmp_seq=144 ttl=64 time=2.75 ms
+64 bytes from 192.168.50.1: icmp_seq=145 ttl=64 time=2.61 ms
+64 bytes from 192.168.50.1: icmp_seq=146 ttl=64 time=4.85 ms
+64 bytes from 192.168.50.1: icmp_seq=147 ttl=64 time=3.41 ms
+64 bytes from 192.168.50.1: icmp_seq=148 ttl=64 time=4.00 ms
+64 bytes from 192.168.50.1: icmp_seq=149 ttl=64 time=4.31 ms
+64 bytes from 192.168.50.1: icmp_seq=150 ttl=64 time=5.19 ms
+64 bytes from 192.168.50.1: icmp_seq=151 ttl=64 time=3.10 ms
+64 bytes from 192.168.50.1: icmp_seq=152 ttl=64 time=3.30 ms
+64 bytes from 192.168.50.1: icmp_seq=153 ttl=64 time=3.62 ms
+64 bytes from 192.168.50.1: icmp_seq=154 ttl=64 time=5.96 ms
+64 bytes from 192.168.50.1: icmp_seq=155 ttl=64 time=2.60 ms
+64 bytes from 192.168.50.1: icmp_seq=156 ttl=64 time=2.69 ms
+64 bytes from 192.168.50.1: icmp_seq=157 ttl=64 time=4.10 ms
+64 bytes from 192.168.50.1: icmp_seq=158 ttl=64 time=5.61 ms
+64 bytes from 192.168.50.1: icmp_seq=159 ttl=64 time=2.58 ms
+64 bytes from 192.168.50.1: icmp_seq=160 ttl=64 time=2.73 ms
+64 bytes from 192.168.50.1: icmp_seq=161 ttl=64 time=3.05 ms
+64 bytes from 192.168.50.1: icmp_seq=162 ttl=64 time=4.40 ms
+64 bytes from 192.168.50.1: icmp_seq=163 ttl=64 time=5.92 ms
+64 bytes from 192.168.50.1: icmp_seq=164 ttl=64 time=3.87 ms
+64 bytes from 192.168.50.1: icmp_seq=165 ttl=64 time=2.55 ms
+64 bytes from 192.168.50.1: icmp_seq=166 ttl=64 time=9.54 ms
+64 bytes from 192.168.50.1: icmp_seq=167 ttl=64 time=2.59 ms
+64 bytes from 192.168.50.1: icmp_seq=168 ttl=64 time=3.32 ms
+64 bytes from 192.168.50.1: icmp_seq=169 ttl=64 time=3.21 ms
+64 bytes from 192.168.50.1: icmp_seq=170 ttl=64 time=7.59 ms
+64 bytes from 192.168.50.1: icmp_seq=171 ttl=64 time=2.70 ms
+64 bytes from 192.168.50.1: icmp_seq=172 ttl=64 time=3.26 ms
+64 bytes from 192.168.50.1: icmp_seq=173 ttl=64 time=3.14 ms
+64 bytes from 192.168.50.1: icmp_seq=174 ttl=64 time=2.76 ms
+64 bytes from 192.168.50.1: icmp_seq=175 ttl=64 time=3.92 ms
+64 bytes from 192.168.50.1: icmp_seq=176 ttl=64 time=2.24 ms
+64 bytes from 192.168.50.1: icmp_seq=177 ttl=64 time=2.88 ms
+64 bytes from 192.168.50.1: icmp_seq=178 ttl=64 time=25.2 ms
+64 bytes from 192.168.50.1: icmp_seq=179 ttl=64 time=10.0 ms
+64 bytes from 192.168.50.1: icmp_seq=180 ttl=64 time=5.70 ms
+64 bytes from 192.168.50.1: icmp_seq=181 ttl=64 time=2.26 ms
+64 bytes from 192.168.50.1: icmp_seq=182 ttl=64 time=2.61 ms
+64 bytes from 192.168.50.1: icmp_seq=183 ttl=64 time=2.43 ms
+64 bytes from 192.168.50.1: icmp_seq=184 ttl=64 time=3.39 ms
+64 bytes from 192.168.50.1: icmp_seq=185 ttl=64 time=17.5 ms
+64 bytes from 192.168.50.1: icmp_seq=186 ttl=64 time=4.85 ms
+64 bytes from 192.168.50.1: icmp_seq=187 ttl=64 time=2.29 ms
+64 bytes from 192.168.50.1: icmp_seq=188 ttl=64 time=2.85 ms
+64 bytes from 192.168.50.1: icmp_seq=189 ttl=64 time=2.68 ms
+64 bytes from 192.168.50.1: icmp_seq=190 ttl=64 time=6.14 ms
+64 bytes from 192.168.50.1: icmp_seq=191 ttl=64 time=4.30 ms
+64 bytes from 192.168.50.1: icmp_seq=192 ttl=64 time=2.85 ms
+64 bytes from 192.168.50.1: icmp_seq=193 ttl=64 time=2.45 ms
+64 bytes from 192.168.50.1: icmp_seq=194 ttl=64 time=2.43 ms
+64 bytes from 192.168.50.1: icmp_seq=195 ttl=64 time=2.85 ms
+64 bytes from 192.168.50.1: icmp_seq=196 ttl=64 time=3.58 ms
+64 bytes from 192.168.50.1: icmp_seq=197 ttl=64 time=3.16 ms
+64 bytes from 192.168.50.1: icmp_seq=198 ttl=64 time=2.12 ms
+64 bytes from 192.168.50.1: icmp_seq=199 ttl=64 time=2.55 ms
+64 bytes from 192.168.50.1: icmp_seq=200 ttl=64 time=2.82 ms
+64 bytes from 192.168.50.1: icmp_seq=201 ttl=64 time=2.99 ms
+64 bytes from 192.168.50.1: icmp_seq=202 ttl=64 time=4.65 ms
+64 bytes from 192.168.50.1: icmp_seq=203 ttl=64 time=2.26 ms
+64 bytes from 192.168.50.1: icmp_seq=204 ttl=64 time=2.87 ms
+64 bytes from 192.168.50.1: icmp_seq=205 ttl=64 time=3.12 ms
+64 bytes from 192.168.50.1: icmp_seq=206 ttl=64 time=2.70 ms
+64 bytes from 192.168.50.1: icmp_seq=207 ttl=64 time=2.54 ms
+64 bytes from 192.168.50.1: icmp_seq=208 ttl=64 time=2.76 ms
+64 bytes from 192.168.50.1: icmp_seq=209 ttl=64 time=3.30 ms
+64 bytes from 192.168.50.1: icmp_seq=210 ttl=64 time=3.07 ms
+64 bytes from 192.168.50.1: icmp_seq=211 ttl=64 time=3.44 ms
+64 bytes from 192.168.50.1: icmp_seq=212 ttl=64 time=6.93 ms
+64 bytes from 192.168.50.1: icmp_seq=213 ttl=64 time=8.79 ms
+64 bytes from 192.168.50.1: icmp_seq=214 ttl=64 time=5.56 ms
+64 bytes from 192.168.50.1: icmp_seq=215 ttl=64 time=2.49 ms
+64 bytes from 192.168.50.1: icmp_seq=216 ttl=64 time=2.18 ms
+64 bytes from 192.168.50.1: icmp_seq=217 ttl=64 time=2.68 ms
+64 bytes from 192.168.50.1: icmp_seq=218 ttl=64 time=2.92 ms
+64 bytes from 192.168.50.1: icmp_seq=219 ttl=64 time=2.51 ms
+64 bytes from 192.168.50.1: icmp_seq=220 ttl=64 time=2.87 ms
+64 bytes from 192.168.50.1: icmp_seq=221 ttl=64 time=2.67 ms
+64 bytes from 192.168.50.1: icmp_seq=222 ttl=64 time=2.66 ms
+64 bytes from 192.168.50.1: icmp_seq=223 ttl=64 time=2.76 ms
+64 bytes from 192.168.50.1: icmp_seq=224 ttl=64 time=2.64 ms
+64 bytes from 192.168.50.1: icmp_seq=225 ttl=64 time=2.49 ms
+64 bytes from 192.168.50.1: icmp_seq=226 ttl=64 time=2.00 ms
+64 bytes from 192.168.50.1: icmp_seq=227 ttl=64 time=3.10 ms
+64 bytes from 192.168.50.1: icmp_seq=228 ttl=64 time=2.49 ms
+64 bytes from 192.168.50.1: icmp_seq=229 ttl=64 time=2.18 ms
+64 bytes from 192.168.50.1: icmp_seq=230 ttl=64 time=9.06 ms
+64 bytes from 192.168.50.1: icmp_seq=231 ttl=64 time=5.07 ms
+64 bytes from 192.168.50.1: icmp_seq=232 ttl=64 time=3.42 ms
+64 bytes from 192.168.50.1: icmp_seq=233 ttl=64 time=2.58 ms
+64 bytes from 192.168.50.1: icmp_seq=234 ttl=64 time=3.06 ms
+64 bytes from 192.168.50.1: icmp_seq=235 ttl=64 time=4.19 ms
+64 bytes from 192.168.50.1: icmp_seq=236 ttl=64 time=2.82 ms
+64 bytes from 192.168.50.1: icmp_seq=237 ttl=64 time=2.24 ms
+64 bytes from 192.168.50.1: icmp_seq=238 ttl=64 time=2.31 ms
+64 bytes from 192.168.50.1: icmp_seq=239 ttl=64 time=8.91 ms
+64 bytes from 192.168.50.1: icmp_seq=240 ttl=64 time=3.59 ms
+64 bytes from 192.168.50.1: icmp_seq=241 ttl=64 time=4.62 ms
+64 bytes from 192.168.50.1: icmp_seq=242 ttl=64 time=2.32 ms
+64 bytes from 192.168.50.1: icmp_seq=243 ttl=64 time=2.16 ms
+64 bytes from 192.168.50.1: icmp_seq=244 ttl=64 time=2.01 ms
+64 bytes from 192.168.50.1: icmp_seq=245 ttl=64 time=4.92 ms
+64 bytes from 192.168.50.1: icmp_seq=246 ttl=64 time=3.53 ms
+64 bytes from 192.168.50.1: icmp_seq=247 ttl=64 time=2.36 ms
+64 bytes from 192.168.50.1: icmp_seq=248 ttl=64 time=2.26 ms
+64 bytes from 192.168.50.1: icmp_seq=249 ttl=64 time=2.54 ms
+64 bytes from 192.168.50.1: icmp_seq=250 ttl=64 time=15.8 ms
+64 bytes from 192.168.50.1: icmp_seq=251 ttl=64 time=5.55 ms
+64 bytes from 192.168.50.1: icmp_seq=252 ttl=64 time=2.53 ms
+64 bytes from 192.168.50.1: icmp_seq=253 ttl=64 time=3.10 ms
+64 bytes from 192.168.50.1: icmp_seq=254 ttl=64 time=2.59 ms
+64 bytes from 192.168.50.1: icmp_seq=255 ttl=64 time=2.03 ms
+64 bytes from 192.168.50.1: icmp_seq=256 ttl=64 time=4.41 ms
+64 bytes from 192.168.50.1: icmp_seq=257 ttl=64 time=2.21 ms
+64 bytes from 192.168.50.1: icmp_seq=258 ttl=64 time=2.94 ms
+64 bytes from 192.168.50.1: icmp_seq=259 ttl=64 time=2.50 ms
+64 bytes from 192.168.50.1: icmp_seq=260 ttl=64 time=2.36 ms
+64 bytes from 192.168.50.1: icmp_seq=261 ttl=64 time=2.87 ms
+64 bytes from 192.168.50.1: icmp_seq=262 ttl=64 time=3.25 ms
+64 bytes from 192.168.50.1: icmp_seq=263 ttl=64 time=3.73 ms
+64 bytes from 192.168.50.1: icmp_seq=264 ttl=64 time=2.86 ms
+64 bytes from 192.168.50.1: icmp_seq=265 ttl=64 time=2.40 ms
+64 bytes from 192.168.50.1: icmp_seq=266 ttl=64 time=3.24 ms
+64 bytes from 192.168.50.1: icmp_seq=267 ttl=64 time=2.07 ms
+64 bytes from 192.168.50.1: icmp_seq=268 ttl=64 time=2.69 ms
+64 bytes from 192.168.50.1: icmp_seq=269 ttl=64 time=3.09 ms
+64 bytes from 192.168.50.1: icmp_seq=270 ttl=64 time=2.32 ms
+64 bytes from 192.168.50.1: icmp_seq=271 ttl=64 time=3.60 ms
+64 bytes from 192.168.50.1: icmp_seq=272 ttl=64 time=2.49 ms
+64 bytes from 192.168.50.1: icmp_seq=273 ttl=64 time=2.98 ms
+64 bytes from 192.168.50.1: icmp_seq=274 ttl=64 time=3.13 ms
+64 bytes from 192.168.50.1: icmp_seq=275 ttl=64 time=2.74 ms
+64 bytes from 192.168.50.1: icmp_seq=276 ttl=64 time=6.02 ms
+64 bytes from 192.168.50.1: icmp_seq=277 ttl=64 time=4.83 ms
+64 bytes from 192.168.50.1: icmp_seq=278 ttl=64 time=3.94 ms
+64 bytes from 192.168.50.1: icmp_seq=279 ttl=64 time=2.21 ms
+64 bytes from 192.168.50.1: icmp_seq=280 ttl=64 time=3.46 ms
+64 bytes from 192.168.50.1: icmp_seq=281 ttl=64 time=2.88 ms
+64 bytes from 192.168.50.1: icmp_seq=282 ttl=64 time=2.18 ms
+64 bytes from 192.168.50.1: icmp_seq=283 ttl=64 time=3.45 ms
+64 bytes from 192.168.50.1: icmp_seq=284 ttl=64 time=4.82 ms
+64 bytes from 192.168.50.1: icmp_seq=285 ttl=64 time=2.41 ms
+64 bytes from 192.168.50.1: icmp_seq=286 ttl=64 time=2.86 ms
+64 bytes from 192.168.50.1: icmp_seq=287 ttl=64 time=3.70 ms
+64 bytes from 192.168.50.1: icmp_seq=288 ttl=64 time=2.50 ms
+64 bytes from 192.168.50.1: icmp_seq=289 ttl=64 time=2.61 ms
+64 bytes from 192.168.50.1: icmp_seq=290 ttl=64 time=3.55 ms
+64 bytes from 192.168.50.1: icmp_seq=291 ttl=64 time=2.54 ms
+64 bytes from 192.168.50.1: icmp_seq=292 ttl=64 time=2.25 ms
+64 bytes from 192.168.50.1: icmp_seq=293 ttl=64 time=2.61 ms
+64 bytes from 192.168.50.1: icmp_seq=294 ttl=64 time=2.63 ms
+64 bytes from 192.168.50.1: icmp_seq=295 ttl=64 time=3.51 ms
+64 bytes from 192.168.50.1: icmp_seq=296 ttl=64 time=3.93 ms
+64 bytes from 192.168.50.1: icmp_seq=297 ttl=64 time=3.81 ms
+64 bytes from 192.168.50.1: icmp_seq=298 ttl=64 time=4.53 ms
+64 bytes from 192.168.50.1: icmp_seq=299 ttl=64 time=2.48 ms
+64 bytes from 192.168.50.1: icmp_seq=300 ttl=64 time=3.62 ms
+
+--- 192.168.50.1 ping statistics ---
+300 packets transmitted, 300 received, 0% packet loss, time 299529ms
+rtt min/avg/max/mdev = 1.865/4.440/128.996/7.699 ms
+-- iperf3 60s to host 192.168.50.12 --
+iperf3: error - unable to connect to server - server may have stopped running or use a different port, firewall issue, etc.: Connection refused
+-- after counters --
+eth0             UP             36:28:78:08:40:24 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+eth0             UP             192.168.50.113/24 
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Advertised pause frame use: Symmetric Receive-only
+	Advertised auto-negotiation: Yes
+	Advertised FEC modes: Not reported
+	Link partner advertised link modes:  10baseT/Half 10baseT/Full
+	                                     100baseT/Half 100baseT/Full
+	Link partner advertised pause frame use: Symmetric
+	Link partner advertised auto-negotiation: Yes
+	Link partner advertised FEC modes: Not reported
+	Speed: 100Mb/s
+	Duplex: Full
+	Auto-negotiation: on
+	Port: Twisted Pair
+	PHYAD: 0
+	Transceiver: external
+	MDI-X: Unknown
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: yes
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+  eth0:  912349   13562    0    0    0     0          0         0    67050     697    0    0    0     0       0          0
+     mmc_tx_underflow_error: 0
+     mmc_tx_deferred: 0
+     mmc_tx_carrier_error: 0
+     mmc_tx_oversize_g: 0
+     mmc_rx_crc_error: 0
+     mmc_rx_align_error: 0
+     mmc_rx_run_error: 0
+     mmc_rx_jabber_error: 0
+     mmc_rx_undersize_g: 0
+     mmc_rx_oversize_g: 0
+     mmc_rx_length_error: 0
+     mmc_rx_fifo_overflow: 0
+     mmc_rx_watchdog_error: 0
+     mmc_rx_error: 0
+     mmc_rx_align_err_frames: 0
+     mmc_rx_ipv4_hderr: 0
+     mmc_rx_ipv4_hderr_octets: 0
+     mmc_rx_ipv6_hderr_octets: 0
+     mmc_rx_ipv6_hderr: 0
+     mmc_rx_udp_err: 0
+     mmc_rx_tcp_err: 0
+     mmc_rx_icmp_err: 0
+     mmc_rx_udp_err_octets: 0
+     mmc_rx_tcp_err_octets: 0
+     mmc_rx_icmp_err_octets: 0
+     mmc_tx_gate_overrun_cntr: 0
+     mmc_rx_packet_assembly_err_cntr: 0
+     mmc_rx_packet_smd_err_cntr: 0
+     tx_underflow: 0
+     tx_carrier: 0
+     tx_losscarrier: 0
+     tx_deferred: 0
+     tx_payload_error: 0
+     tx_ip_header_error: 0
+     overflow_error: 0
+     ipc_csum_error: 0
+     rx_collision: 0
+     rx_crc_errors: 0
+     rx_gmac_overflow: 0
+     rx_watchdog: 0
+     rx_missed_cntr: 0
+     rx_overflow_cntr: 0
+     rx_overflow_irq: 0
+     rx_watchdog_irq: 0
+     fatal_bus_error_irq: 0
+     phy_eee_wakeup_error_n: 0
+     ip_hdr_err: 0
+     ip_payload_err: 0
+     timestamp_dropped: 0
+     mtl_tx_status_fifo_full: 0
+     mtl_tx_fifo_not_empty: 0
+     mmtl_fifo_ctrl: 0
+     mtl_tx_fifo_read_ctrl_write: 0
+     mtl_tx_fifo_read_ctrl_wait: 0
+     mtl_tx_fifo_read_ctrl_read: 0
+     mtl_tx_fifo_read_ctrl_idle: 0
+     mtl_rx_fifo_fill_level_full: 0
+     mtl_rx_fifo_fill_above_thresh: 0
+     mtl_rx_fifo_fill_below_thresh: 0
+     mtl_rx_fifo_fill_level_empty: 0
+     mtl_rx_fifo_read_ctrl_flush: 0
+     mtl_rx_fifo_read_ctrl_read_data: 0
+     mtl_rx_fifo_read_ctrl_status: 0
+     mtl_rx_fifo_read_ctrl_idle: 0
+     mtl_rx_fifo_ctrl_active: 0
+     mac_rx_frame_ctrl_fifo: 0
+-- dmesg GMAC tail --
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Kernel command line: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+[    0.000000] Policy zone: DMA
+[    0.051253] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052405] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.053980] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.146131] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.352186] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.352236] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.353951] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.353982] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.560592] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.561210] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.561901] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.562722] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.563371] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.563921] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.564444] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.565005] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.566035] rk_gmac-dwmac fe300000.ethernet: v4b-fix: reused stmmac core stmmaceth reset controller
+[    0.566882] rk_gmac-dwmac fe300000.ethernet: rk3399pro test workaround: forcing clock_input=true for external RGMII PHY
+[    0.567882] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.573853] rk_gmac-dwmac fe300000.ethernet: v4d: clocks enabled (5 clks, includes mac_clk_rx for RGMII)
+[    0.574708] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.575218] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.576359] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.639455] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.640392] rk_gmac-dwmac fe300000.ethernet: v4a: wait 200ms after GMAC GRF/PHY reset before runtime resume/DMA open
+[    0.843437] rk_gmac-dwmac fe300000.ethernet: v4b: MAC reset cycle before runtime resume/DMA open
+[    0.844228] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: assert stmmaceth
+[    0.864984] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: deassert stmmaceth
+[    0.919432] rk_gmac-dwmac fe300000.ethernet: v4b-reset after-v4a-settle: done
+[    0.920079] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.921215] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.921869] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.922346] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.923021] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.923699] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.924375] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.924850] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.925484] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.926155] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.926694] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.927223] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    1.058062] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.058760] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.079477] armv8-pmu pmu_a72: hw perfevents: failed to probe PMU!
+[    1.088362] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.282397] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.283087] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.285101] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.286434] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.377959] GPT: Use GNU Parted to correct GPT errors.
+[    1.999608] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    2.005793] rockchip-pcie f8000000.pcie: probe with driver rockchip-pcie failed with error -110
+[    2.032477] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    2.033182] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    2.036189] check access for rdinit=/init failed: -2, ignoring
+[   12.271327] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.272016] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   20.711841] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   20.718412] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.720325] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE before reset: 0x00020100 (SWR=0)
+[   20.721175] rk_gmac-dwmac fe300000.ethernet eth0: v4e: DMA_BUS_MODE after SWR write: 0x00020101 (SWR=1)
+[   20.732029] rk_gmac-dwmac fe300000.ethernet eth0: v4e: SWR cleared after 10 ms: 0x00020100
+[   20.732805] rk_gmac-dwmac fe300000.ethernet eth0: No Safety Features support found
+[   20.733992] rk_gmac-dwmac fe300000.ethernet eth0: PTP not supported by HW
+[   20.734615] rk_gmac-dwmac fe300000.ethernet eth0: configuring for phy/rgmii link mode
+[   21.790133] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[   22.785350] rk_gmac-dwmac fe300000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+=== GMAC_LONGTEST_END Mon Jun  1 11:53:59 PM CST 2026 ===
+OUT=/root/gmac_longtest_20260601_234859.txt
+__CURRENT_SHELL_DONE_1781845613879__:0

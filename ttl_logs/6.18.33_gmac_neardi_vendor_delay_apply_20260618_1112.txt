@@ -1,0 +1,14 @@
+
+root@armbian:~# set -e; mkdir -p /mnt/sdboot; mountpoint -q /mnt/sdboot || mount /dev/mmcblk1p1 /mnt/sdboot; BOOT=/mnt/sdboot; DTB_DIR=$BOOT/dtb/rockchip; CUR=$DTB_DIR/gmac-test.dtb; NEXT=$DTB_DIR/gmac-neardi-vendor-delay-test.dtb; EXT=$BOOT/extlinux/extlinux.conf; BAK=$BOOT/extlinux/extlinux.conf.gmac-neardi-vendor-delay-test.bak; ls -l "$CUR"; cp -a "$CUR" "$NEXT"; fdtput -t x "$NEXT" /ethernet@fe300000 tx_delay 0x21; fdtput -t x "$NEXT" /ethernet@fe300000 rx_delay 0x15; fdtput -t s "$NEXT" /ethernet@fe300000 clock_in_out input; fdtput -t x "$NEXT" /ethernet@fe300000 snps,reset-gpio 0x00000023 0x0000000f 0x00000001; echo tx=$(fdtget -t x "$NEXT" /ethernet@fe300000 tx_delay); echo rx=$(fdtget -t x "$NEXT" /ethernet@fe300000 rx_delay); echo clock=$(fdtget -t s "$NEXT" /ethernet@fe300000 clock_in_out); echo reset=$(fdtget -t x "$NEXT" /ethernet@fe300000 snps,reset-gpio); cp -a "$EXT" "$BAK"; sed -i -E "s#FDT /dtb/rockchip/[^ ]+#FDT /dtb/rockchip/gmac-neardi-vendor-delay-test.dtb#" "$EXT"; echo "[extlinux]"; grep "^  FDT " "$EXT"; ls -l "$NEXT" "$BAK"; sync
+-rw-r--r-- 1 root root 60178 Jun 18  2026 /mnt/sdboot/dtb/rockchip/gmac-test.dtb
+tx=21
+rx=15
+clock=input
+reset=23 f 1
+[extlinux]
+  FDT /dtb/rockchip/gmac-neardi-vendor-delay-test.dtb
+-rw-r--r-- 1 root root 60178 Jun  1 20:17 /mnt/sdboot/dtb/rockchip/gmac-neardi-vendor-delay-test.dtb
+-rw-r--r-- 1 root root   409 Jun  1 19:15 /mnt/sdboot/extlinux/extlinux.conf.gmac-neardi-vendor-delay-test.bak
+root@armbian:~# echo __CMD_DONE_1781755260784__
+__CMD_DONE_1781755260784__
+root@armbian:~# 

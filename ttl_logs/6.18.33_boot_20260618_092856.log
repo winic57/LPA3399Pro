@@ -1,0 +1,898 @@
+DDR Version 1.24 20191016
+In
+Channel 0: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x2
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x2
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+Channel 1: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x2
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x2
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+256B stride
+ch 0 ddrconfig = 0x101, ddrsize = 0x2020
+ch 1 ddrconfig = 0x101, ddrsize = 0x2020
+pmugrf_os_reg[2] = 0x3AA0DAA0, stride = 0xD
+OUT
+Boot1 Release Time: May 29 2020 17:36:36, version: 1.26
+CPUId = 0x0
+ChipType = 0x10, 341
+SdmmcInit=2 0
+BootCapSize=100000
+UserCapSize=15028MB
+FwPartOffset=2000 , 100000
+mmc0:cmd5,20
+SdmmcInit=0 0
+BootCapSize=0
+UserCapSize=14748MB
+FwPartOffset=2000 , 0
+StorageInit ok = 128551
+SecureMode = 0
+SecureInit read PBA: 0x4
+SecureInit read PBA: 0x404
+SecureInit read PBA: 0x804
+SecureInit read PBA: 0xc04
+SecureInit read PBA: 0x1004
+SecureInit read PBA: 0x1404
+SecureInit read PBA: 0x1804
+SecureInit read PBA: 0x1c04
+SecureInit ret = 0, SecureMode = 0
+atags_set_bootdev: ret:(0)
+GPT part:  0, name:          primary, start:0x8000, size:0xff800
+GPT part:  1, name:          primary, start:0x108000, size:0x5db800
+no find partition:uboot.
+Trust Addr:0x4000, 0x58334c42
+No find bl30.bin
+Load uboot, ReadLba = 2000
+Load OK, addr=0x200000, size=0xfc8c0
+RunBL31 0x40000 @ 305373 us
+NOTICE:  BL31: v1.3(release):845ee93
+NOTICE:  BL31: Built : 15:51:11, Jul 22 2020
+NOTICE:  BL31: Rockchip release version: v1.1
+INFO:    GICv3 with legacy support detected. ARM GICV3 driver initialized in EL3
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 0
+INFO:    plat_rockchip_pmu_init(1196): pd status 3e
+INFO:    BL31: Initializing runtime services
+INFO:    BL31: Initializing BL32
+INF [0x0] TEE-CORE:init_primary_helper:337: Initializing (1.1.0-266-gee81607c #1 Mon Aug 17 09:23:30 UTC 2020 aarch64)
+
+
+INF [0x0] TEE-CORE:init_primary_helper:338: Release version: 1.2
+
+
+INF [0x0] TEE-CORE:init_teecore:83: teecore inits done
+
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0x200000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2017.09 (Jun 06 2026 - 14:10:22 +0000)
+
+Model: Rockchip RK3399 Evaluation Board
+PreSerial: 2, raw, 0xff1a0000
+DRAM:  3.8 GiB
+Sysmem: init
+Relocation Offset: f5bc7000, fdt: f3dbb358 
+no mmc device at slot 1
+Found IDB in SDcard
+dwmmc@fe320000: 1 (SD), sdhci@fe330000: 0
+Bootdev(atags): mmc 1
+MMC1: Legacy, 50Mhz
+PartType: EFI
+No resource partition
+Failed to load DTB
+Failed to get kernel dtb, ret=-19
+io-domain: OK
+*** Warning - bad CRC, using default environment
+
+Model: Rockchip RK3399 Evaluation Board
+rockchip_set_serialno: could not find efuse/otp device
+No misc partition
+boot mode: None
+CLK: (uboot. arml: enter 400000 KHz, init 816000 KHz, kernel 0N/A)
+CLK: (uboot. armb: enter 24000 KHz, init 816000 KHz, kernel 0N/A)
+  aplll 816000 KHz
+  apllb 816000 KHz
+  dpll 800000 KHz
+  cpll 24000 KHz
+  gpll 800000 KHz
+  npll 600000 KHz
+  vpll 24000 KHz
+  aclk_perihp 133333 KHz
+  hclk_perihp 66666 KHz
+  pclk_perihp 33333 KHz
+  aclk_perilp0 266666 KHz
+  hclk_perilp0 88888 KHz
+  pclk_perilp0 44444 KHz
+  hclk_perilp1 100000 KHz
+  pclk_perilp1 50000 KHz
+EC20_PWREN = -2
+EC20_RESET = -2
+------ ec20_init  ------
+EC20_PWRKEY = -2
+EC20_PWRKEY = -2
+Net:   No ethernet found.
+Hit key to stop autoboot('CTRL+C'):  5  4  3  2  1  0 
+Could not find misc partition
+ANDROID: reboot reason: "(none)"
+optee api revision: 2.0
+TEEC: Waring: Could not find security partition
+Not AVB images, AVB skip
+android_image_load_by_partname: Can't find part: boot
+Android image load failed
+Android boot failed, error -1.
+Could not find misc partition
+Could not find primary part
+switch to partitions #0, OK
+mmc1 is current device
+Scanning mmc 1:1...
+Found /extlinux/extlinux.conf
+Retrieving file: /extlinux/extlinux.conf
+359 bytes read in 22 ms (15.6 KiB/s)
+1:	Armbian
+Retrieving file: /Image
+49678848 bytes read in 2170 ms (21.8 MiB/s)
+append: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M net.ifnames=0
+Retrieving file: /dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+60182 bytes read in 266 ms (220.7 KiB/s)
+Fdt Ramdisk skip relocation
+## Flattened Device Tree blob at 08300000
+   Booting using the fdt blob at 0x8300000
+   Using Device Tree in place at 0000000008300000, end 0000000008311b15
+can't found rockchip,drm-logo, use rockchip,fb-logo
+WARNING: could not set reg FDT_ERR_BADOFFSET.
+failed to reserve fb-loader-logo memory
+Adding bank: 0x00200000 - 0x08400000 (size: 0x08200000)
+Adding bank: 0x0a200000 - 0xf8000000 (size: 0xede00000)
+Total: 8254.563 ms
+
+Starting kernel ...
+
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[    0.000000] Linux version 6.18.33 (henry@Inspiron-7520) (aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #1 SMP PREEMPT Wed Jun 17 16:24:23 CST 2026
+[    0.000000] KASLR disabled due to lack of seed
+[    0.000000] Machine model: Radxa ROCK Pi N10
+[    0.000000] efi: UEFI not found.
+[    0.000000] OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+[    0.000000] NUMA: Faking a node at [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000] NODE_DATA(0) allocated [mem 0xf77f6880-0xf77f8eff]
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000200000-0x00000000083fffff]
+[    0.000000]   node   0: [mem 0x000000000a200000-0x00000000f7ffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] cma: Reserved 32 MiB at 0x00000000f1800000
+[    0.000000] psci: probing for conduit method from DT.
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+[    0.000000] psci: Trusted OS migration not required
+[    0.000000] psci: SMC Calling Convention v1.0
+[    0.000000] percpu: Embedded 25 pages/cpu s62552 r8192 d31656 u102400
+[    0.000000] Detected VIPT I-cache on CPU0
+[    0.000000] CPU features: detected: GICv3 CPU interface
+[    0.000000] CPU features: detected: ARM erratum 845719
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M net.ifnames=0
+[    0.000000] printk: log buffer data + meta data: 16777216 + 58720256 = 75497472 bytes
+[    0.000000] printk: early log buf free: 128880(98%)
+[    0.000000] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] software IO TLB: SWIOTLB bounce buffer size adjusted to 3MB
+[    0.000000] software IO TLB: area num 8.
+[    0.000000] software IO TLB: mapped [mem 0x00000000ec600000-0x00000000eca00000] (4MB)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 1007616
+[    0.000000] Policy zone: DMA
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=6, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=6.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=6
+[    0.000000] RCU Tasks: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=6.
+[    0.000000] RCU Tasks Trace: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=6.
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GICv3: GIC: Using split EOI/Deactivate mode
+[    0.000000] GICv3: 256 SPIs implemented
+[    0.000000] GICv3: 0 Extended SPIs implemented
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] GICv3: GICv3 features: 16 PPIs
+[    0.000000] GICv3: GICD_CTLR.DS=0, SCR_EL3.FIQ=1
+[    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x00000000fef00000
+[    0.000000] ITS [mem 0xfee20000-0xfee3ffff]
+[    0.000000] ITS@0x00000000fee20000: allocated 65536 Devices @3880000 (flat, esz 8, psz 64K, shr 0)
+[    0.000000] ITS: using cache flushing for cmd queue
+
+[    0.000000] GICv3: using LPI property table @0x0000000003860000
+[    0.000000] GIC: using cache flushing for LPI property table
+[    0.000000] GICv3: CPU0: using allocated LPI pending table @0x0000000003870000
+[    0.000000] GICv3: GIC: PPI partition interrupt-partition-0[0] { /cpus/cpu@0[0] /cpus/cpu@1[1] /cpus/cpu@2[2] /cpus/cpu@3[3] }
+[    0.000000] GICv3: GIC: PPI partition interrupt-partition-1[1] { /cpus/cpu@100[4] /cpus/cpu@101[5] }
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] arch_timer: cp15 timer running at 24.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
+[    0.000001] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
+[    0.003334] Console: colour dummy device 80x25
+[    0.003353] printk: legacy console [tty1] enabled
+[    0.004274] Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=96000)
+[    0.004309] pid_max: default: 32768 minimum: 301
+[    0.004457] LSM: initializing lsm=capability
+[    0.004641] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+
+[    0.004684] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.007874] rcu: Hierarchical SRCU implementation.
+[    0.007912] rcu: 	Max phase no-delay instances is 1000.
+[    0.008273] Timer migration: 1 hierarchy levels; 8 children per group; 1 crossnode level
+[    0.008598] fsl-mc MSI: msi-controller@fee20000 domain created
+[    0.013514] EFI services will not be available.
+[    0.014012] smp: Bringing up secondary CPUs ...
+[    0.014758] Detected VIPT I-cache on CPU1
+[    0.014963] GICv3: CPU1: found redistributor 1 region 0:0x00000000fef20000
+[    0.014984] GICv3: CPU1: using allocated LPI pending table @0x0000000003900000
+[    0.015041] CPU1: Booted secondary processor 0x0000000001 [0x410fd034]
+[    0.015892] Detected VIPT I-cache on CPU2
+[    0.016070] GICv3: CPU2: found redistributor 2 region 0:0x00000000fef40000
+[    0.016088] GICv3: CPU2: using allocated LPI pending table @0x0000000003910000
+[    0.016127] CPU2: Booted secondary processor 0x0000000002 [0x410fd034]
+[    0.016968] Detected VIPT I-cache on CPU3
+[    0.017144] GICv3: CPU3: found redistributor 3 region 0:0x00000000fef60000
+[    0.017161] GICv3: CPU3: using allocated LPI pending table @0x0000000003920000
+[    0.017200] CPU3: Booted secondary processor 0x0000000003 [0x410fd034]
+[    0.017987] CPU features: detected: Spectre-v2
+[    0.017999] CPU features: detected: Spectre-v3a
+[    0.018005] CPU features: detected: Spectre-v4
+[    0.018010] CPU features: detected: Spectre-BHB
+[    0.018017] CPU features: detected: ARM erratum 1742098
+[    0.018024] CPU features: detected: ARM errata 1165522, 1319367, or 1530923
+[    0.018030] Detected PIPT I-cache on CPU4
+[    0.018190] GICv3: CPU4: found redistributor 100 region 0:0x00000000fef80000
+[    0.018206] GICv3: CPU4: using allocated LPI pending table @0x0000000003930000
+[    0.018243] CPU4: Booted secondary processor 0x0000000100 [0x410fd082]
+[    0.018999] Detected PIPT I-cache on CPU5
+[    0.019146] GICv3: CPU5: found redistributor 101 region 0:0x00000000fefa0000
+[    0.019162] GICv3: CPU5: using allocated LPI pending table @0x0000000003940000
+[    0.019192] CPU5: Booted secondary processor 0x0000000101 [0x410fd082]
+
+[    0.019336] smp: Brought up 1 node, 6 CPUs
+[    0.019637] SMP: Total of 6 processors activated.
+[    0.019653] CPU: All CPU(s) started at EL2
+[    0.019695] CPU features: detected: 32-bit EL0 Support
+[    0.019712] CPU features: detected: 32-bit EL1 Support
+[    0.019730] CPU features: detected: CRC32 instructions
+[    0.019756] CPU features: detected: PMUv3
+[    0.019835] alternatives: applying system-wide alternatives
+[    0.022575] Memory: 3784328K/4030464K available (18176K kernel code, 5442K rwdata, 13052K rodata, 11712K init, 690K bss, 205760K reserved, 32768K cma-reserved)
+[    0.023071] devtmpfs: initialized
+[    0.034607] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.034659] posixtimers hash table entries: 4096 (order: 4, 65536 bytes, linear)
+[    0.034771] futex hash table entries: 2048 (131072 bytes on 1 NUMA nodes, total 128 KiB, linear).
+[    0.035194] 20448 pages in range for non-PLT usage
+[    0.035202] 511968 pages in range for PLT usage
+[    0.035425] pinctrl core: initialized pinctrl subsystem
+[    0.038573] DMI not present or invalid.
+[    0.041695] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+
+[    0.043233] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.043945] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.044936] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.045329] audit: initializing netlink subsys (disabled)
+[    0.045535] audit: type=2000 audit(0.044:1): state=initialized audit_enabled=0 res=1
+[    0.047961] thermal_sys: Registered thermal governor 'step_wise'
+[    0.047970] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.048067] cpuidle: using governor menu
+[    0.048369] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.048558] ASID allocator initialised with 65536 entries
+[    0.052180] Serial: AMBA PL011 UART driver
+[    0.054846] /pcie@f8000000: Fixed dependency cycle(s) with /pcie@f8000000/interrupt-controller
+[    0.083256] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.084960] /mmc@fe330000: Fixed dependency cycle(s) with /syscon@ff770000/phy@f780
+[    0.085033] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[    0.094018] gpio gpiochip0: Static allocation of GPIO base is deprecated, use dynamic allocation.
+[    0.094517] rockchip-gpio ff720000.gpio: probed /pinctrl/gpio@ff720000
+[    0.095052] gpio gpiochip1: Static allocation of GPIO base is deprecated, use dynamic allocation.
+[    0.095259] rockchip-gpio ff730000.gpio: probed /pinctrl/gpio@ff730000
+[    0.095696] gpio gpiochip2: Static allocation of GPIO base is deprecated, use dynamic allocation.
+[    0.095883] rockchip-gpio ff780000.gpio: probed /pinctrl/gpio@ff780000
+[    0.096287] gpio gpiochip3: Static allocation of GPIO base is deprecated, use dynamic allocation.
+[    0.096465] rockchip-gpio ff788000.gpio: probed /pinctrl/gpio@ff788000
+[    0.096943] gpio gpiochip4: Static allocation of GPIO base is deprecated, use dynamic allocation.
+[    0.097128] rockchip-gpio ff790000.gpio: probed /pinctrl/gpio@ff790000
+[    0.102111] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.102134] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.102148] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.102160] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.102173] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.102184] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.102196] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.102207] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.104385] ACPI: Interpreter disabled.
+[    0.108929] iommu: Default domain type: Translated
+[    0.108949] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.109461] SCSI subsystem initialized
+[    0.109878] usbcore: registered new interface driver usbfs
+[    0.109922] usbcore: registered new interface driver hub
+[    0.109964] usbcore: registered new device driver usb
+[    0.111295] pps_core: LinuxPPS API ver. 1 registered
+[    0.111308] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.111359] PTP clock support registered
+[    0.111534] EDAC MC: Ver: 3.0.0
+[    0.112011] scmi_core: SCMI protocol bus registered
+[    0.113407] FPGA manager framework
+[    0.114477] vgaarb: loaded
+[    0.114951] clocksource: Switched to clocksource arch_sys_counter
+[    0.115273] VFS: Disk quotas dquot_6.6.0
+[    0.115303] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.115774] pnp: PnP ACPI: disabled
+[    0.124246] NET: Registered PF_INET protocol family
+[    0.124465] IP idents hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[    0.127790] tcp_listen_portaddr_hash hash table entries: 2048 (order: 3, 32768 bytes, linear)
+[    0.127892] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.127917] TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.128185] TCP bind hash table entries: 32768 (order: 8, 1048576 bytes, linear)
+[    0.129134] TCP: Hash tables configured (established 32768 bind 32768)
+[    0.129263] UDP hash table entries: 2048 (order: 5, 131072 bytes, linear)
+[    0.129448] UDP-Lite hash table entries: 2048 (order: 5, 131072 bytes, linear)
+[    0.129778] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.130299] RPC: Registered named UNIX socket transport module.
+[    0.130317] RPC: Registered udp transport module.
+[    0.130328] RPC: Registered tcp transport module.
+
+[    0.130338] RPC: Registered tcp-with-tls transport module.
+[    0.130348] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.130382] PCI: CLS 0 bytes, default 64
+[    0.134142] kvm [1]: nv: 568 coarse grained trap handlers
+[    0.134558] kvm [1]: IPA Size Limit: 40 bits
+[    0.136985] kvm [1]: vgic-v2@fff20000
+[    0.137050] kvm [1]: GIC system register CPU interface enabled
+[    0.137082] kvm [1]: vgic interrupt IRQ18
+[    0.137124] kvm [1]: Hyp nVHE mode initialized successfully
+[    0.138779] Initialise system trusted keyrings
+[    0.139007] workingset: timestamp_bits=42 max_order=20 bucket_order=0
+[    0.139402] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.139691] NFS: Registering the id_resolver key type
+[    0.139721] Key type id_resolver registered
+[    0.139733] Key type id_legacy registered
+[    0.139759] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.139774] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.139981] 9p: Installing v9fs 9p2000 file system support
+[    0.194342] Key type asymmetric registered
+[    0.194360] Asymmetric key parser 'x509' registered
+[    0.194424] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+[    0.194443] io scheduler mq-deadline registered
+[    0.194459] io scheduler kyber registered
+[    0.194505] io scheduler bfq registered
+[    0.217632] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.252405] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.252436] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.253562] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.253583] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.271038] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.274338] ff180000.serial: ttyS0 at MMIO 0xff180000 (irq = 35, base_baud = 1500000) is a 16550A
+[    0.275401] ff1a0000.serial: ttyS2 at MMIO 0xff1a0000 (irq = 36, base_baud = 1500000) is a 16550A
+[    0.275487] printk: legacy console [ttyS2] enabled
+[    0.398687] msm_serial: driver initialized
+[    0.399652] SuperH (H)SCI(F) driver initialized
+[    0.400348] STM32 USART driver initialized
+[    0.405918] platform ff650000.video-codec: Adding to iommu group 0
+[    0.407588] platform ff660000.video-codec: Adding to iommu group 1
+[    0.418580] loop: module loaded
+[    0.420424] megasas: 07.734.00.00-rc1
+[    0.430179] tun: Universal TUN/TAP device driver, 1.6
+[    0.432163] thunder_xcv, ver 1.0
+[    0.432508] thunder_bgx, ver 1.0
+[    0.432842] nicpf, ver 1.0
+[    0.435097] e1000: Intel(R) PRO/1000 Network Driver
+[    0.435540] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[    0.436098] e1000e: Intel(R) PRO/1000 Network Driver
+[    0.436542] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    0.437108] igb: Intel(R) Gigabit Ethernet Network Driver
+[    0.437589] igb: Copyright (c) 2007-2014 Intel Corporation.
+[    0.438123] igbvf: Intel(R) Gigabit Virtual Function Network Driver
+[    0.438681] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[    0.439724] sky2: driver version 1.30
+[    0.442553] VFIO - User Level meta-driver version: 0.3
+[    0.450155] usbcore: registered new interface driver usb-storage
+[    0.455651] i2c_dev: i2c /dev entries driver
+[    0.460322] /i2c@ff3c0000/pmic@20: Fixed dependency cycle(s) with /i2c@ff3c0000/pmic@20/regulators/DCDC_REG4
+[    0.461227] /i2c@ff3c0000/pmic@20: Fixed dependency cycle(s) with /i2c@ff3c0000/pmic@20/regulators/DCDC_REG5
+[    0.474697] sdhci: Secure Digital Host Controller Interface driver
+[    0.475285] sdhci: Copyright(c) Pierre Ossman
+[    0.476868] Synopsys Designware Multimedia Card Interface Driver
+[    0.479092] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.479112] sdhci-pltfm: SDHCI platform and OF driver helper
+[    0.479160] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.480859] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[    0.481338] mmc0: CQHCI version 5.10
+[    0.481427] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 48,32 bit host data width,256 deep fifo
+[    0.486319] usbcore: registered new interface driver usbhid
+[    0.486832] usbhid: USB HID core driver
+[    0.493229] hw perfevents: enabled with armv8_cortex_a53 PMU driver, 7 (0,8000003f) counters available
+[    0.494991] hw perfevents: enabled with armv8_cortex_a72 PMU driver, 7 (0,8000003f) counters available
+[    0.503293] NET: Registered PF_PACKET protocol family
+[    0.503846] 9pnet: Installing 9P2000 support
+[    0.504315] Key type dns_resolver registered
+[    0.507661] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    0.516406] registered taskstats version 1
+
+[    0.517012] Loading compiled-in X.509 certificates
+[    0.526566] Demotion targets for Node 0: null
+[    0.575506] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    0.576036] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 1
+[    0.576869] xhci-hcd xhci-hcd.0.auto: hcc params 0x0220fe64 hci version 0x110 quirks 0x0000808002000010
+[    0.577733] xhci-hcd xhci-hcd.0.auto: irq 56, io mem 0xfe800000
+[    0.578487] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[    0.579024] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 2
+[    0.579721] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    0.581992] mmc0: Command Queue Engine enabled
+[    0.582057] hub 1-0:1.0: USB hub found
+[    0.582414] mmc0: new HS400 Enhanced strobe MMC card at address 0001
+[    0.582770] hub 1-0:1.0: 1 port detected
+[    0.582984] ehci-platform fe380000.usb: EHCI Host Controller
+[    0.584157] mmcblk0: mmc0:0001 DF4016 14.7 GiB
+[    0.584548] usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+[    0.585643] ehci-platform fe3c0000.usb: EHCI Host Controller
+[    0.585949] hub 2-0:1.0: USB hub found
+[    0.586561] hub 2-0:1.0: 1 port detected
+[    0.587413] ehci-platform fe380000.usb: new USB bus registered, assigned bus number 3
+[    0.587491] ehci-platform fe3c0000.usb: new USB bus registered, assigned bus number 4
+[    0.588316] ehci-platform fe380000.usb: irq 57, io mem 0xfe380000
+[    0.588972] ehci-platform fe3c0000.usb: irq 58, io mem 0xfe3c0000
+[    0.589831] ohci-platform fe3a0000.usb: Generic Platform OHCI controller
+[    0.590555] ohci-platform fe3a0000.usb: new USB bus registered, assigned bus number 5
+[    0.591531] ohci-platform fe3e0000.usb: Generic Platform OHCI controller
+[    0.591584] ohci-platform fe3a0000.usb: irq 59, io mem 0xfe3a0000
+[    0.592147] ohci-platform fe3e0000.usb: new USB bus registered, assigned bus number 6
+[    0.592227] ohci-platform fe3e0000.usb: irq 85, io mem 0xfe3e0000
+[    0.595667]  mmcblk0: p1 p2 p3 p4 p5 p6
+[    0.597297] mmcblk0boot0: mmc0:0001 DF4016 4.00 MiB
+[    0.599315] mmcblk0boot1: mmc0:0001 DF4016 4.00 MiB
+[    0.601425] mmcblk0rpmb: mmc0:0001 DF4016 4.00 MiB, chardev (511:0)
+[    0.603006] ehci-platform fe380000.usb: USB 2.0 started, EHCI 1.00
+[    0.604369] hub 3-0:1.0: USB hub found
+[    0.604753] hub 3-0:1.0: 1 port detected
+[    0.614970] ehci-platform fe3c0000.usb: USB 2.0 started, EHCI 1.00
+[    0.616333] hub 4-0:1.0: USB hub found
+[    0.616714] hub 4-0:1.0: 1 port detected
+[    0.625512] vcc_buck5: Bringing 3300000uV into 2200000-2200000uV
+[    0.634024] vcca_1v8: Bringing 1800000uV into 1850000-1850000uV
+[    0.638454] vdd1v5_dvp: Bringing 1800000uV into 1500000-1500000uV
+[    0.652037] hub 5-0:1.0: USB hub found
+[    0.652456] hub 5-0:1.0: 1 port detected
+[    0.653901] hub 6-0:1.0: USB hub found
+[    0.654278] hub 6-0:1.0: 1 port detected
+[    0.657717] rk808-rtc rk808-rtc.4.auto: registered as rtc0
+[    0.659037] rk808-rtc rk808-rtc.4.auto: setting system clock to 2017-08-05T09:00:10 UTC (1501923610)
+[    0.664169] cpu cpu0: EM: created perf domain
+[    0.665511] cpu cpu4: EM: created perf domain
+[    0.675754] rockchip-pcie f8000000.pcie: host bridge /pcie@f8000000 ranges:
+[    0.676461] rockchip-pcie f8000000.pcie:      MEM 0x00fa000000..0x00fbdfffff -> 0x00fa000000
+[    0.677213] rockchip-pcie f8000000.pcie:       IO 0x00fbe00000..0x00fbefffff -> 0x00fbe00000
+[    0.677411] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    0.678340] rockchip-pcie f8000000.pcie: no vpcie12v regulator found
+[    0.678642] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    0.679341] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.679810] dwmmc_rockchip fe320000.mmc: Version ID is 270a
+[    0.679844] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.680523] dwmmc_rockchip fe320000.mmc: DW MMC controller at irq 86,32 bit host data width,256 deep fifo
+[    0.680968] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[    0.682272] dwmmc_rockchip fe320000.mmc: Got CD GPIO
+[    0.682481] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 48,32 bit host data width,256 deep fifo
+[    0.695181] mmc_host mmc1: Bus speed (slot 0) = 400000Hz (slot req 400000Hz, actual 400000HZ div = 0)
+[    0.757747] mmc_host mmc1: Bus speed (slot 0) = 50000000Hz (slot req 50000000Hz, actual 50000000HZ div = 0)
+[    0.758992] mmc1: new high speed SDHC card at address 0001
+[    0.760523] mmcblk1: mmc1:0001 SD16G 14.4 GiB
+[    0.772332] GPT:Primary header thinks Alt. header is not at the end of the disk.
+[    0.773027] GPT:7225343 != 30203903
+[    0.773347] GPT:Alternate GPT header not at the end of the disk.
+[    0.773882] GPT:7225343 != 30203903
+[    0.774200] GPT: Use GNU Parted to correct GPT errors.
+[    0.774686]  mmcblk1: p1 p2
+[    0.863330] usb 4-1: new high-speed USB device number 2 using ehci-platform
+[    1.011873] hub 4-1:1.0: USB hub found
+[    1.012624] hub 4-1:1.0: 4 ports detected
+[    1.387454] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    1.388142] rockchip-pcie f8000000.pcie: probe with driver rockchip-pcie failed with error -110
+[    1.406883] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.406889] clk: Disabling unused clocks
+[    1.406923] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.408528] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[    1.408931] PM: genpd: Disabling unused power domains
+[    1.409050] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 48,32 bit host data width,256 deep fifo
+[    1.410569] check access for rdinit=/init failed: -2, ignoring
+[    1.411120] Waiting 10 sec before mounting root device...
+[   11.495478] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: external clock not ready
+[   11.496335] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to fe310000.mmc
+[   11.497286] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff650000.video-codec
+[   11.498297] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff660000.video-codec
+[   11.499577] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff680000.rga
+[   11.500782] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff940000.hdmi
+[   11.503004] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   11.504174] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   11.504782] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[   11.505316] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 48,32 bit host data width,256 deep fifo
+[   11.511978] EXT4-fs (mmcblk1p2): mounted filesystem d52f7f8b-fa0e-4c9f-a552-d6df4329ac87 r/w with writeback data mode. Quota mode: none.
+[   11.513169] VFS: Mounted root (ext4 filesystem) on device 179:98.
+[   11.515293] devtmpfs: mounted
+[   11.521322] Freeing unused kernel memory: 11712K
+[   11.521882] Run /sbin/init as init process
+[   12.396051] systemd[1]: System time advanced to built-in epoch: Tue 2026-04-14 03:38:05 CST
+[   12.499108] systemd[1]: systemd 257.13-1~deb13u1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 -IDN +IPTC +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +SYSVINIT +LIBARCHIVE)
+[   12.502212] systemd[1]: Detected architecture arm64.
+[   12.522787] systemd[1]: Hostname set to <armbian>.
+[   12.827781] systemd[1]: bpf-restrict-fs: BPF LSM hook not enabled in the kernel, BPF LSM not supported.
+[   13.269286] systemd[1]: Binding to IPv6 address not available since kernel does not support IPv6.
+[   13.270160] systemd[1]: Binding to IPv6 address not available since kernel does not support IPv6.
+[   13.571219] systemd[1]: Queued start job for default target multi-user.target.
+[   13.621584] systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+[   13.624737] systemd[1]: Created slice system-serial\x2dgetty.slice - Slice /system/serial-getty.
+[   13.627102] systemd[1]: Created slice user.slice - User and Session Slice.
+[   13.628331] systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+[   13.629635] systemd[1]: proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point skipped, unmet condition check ConditionPathExists=/proc/sys/fs/binfmt_misc
+[   13.631304] systemd[1]: Expecting device dev-ttyAML0.device - /dev/ttyAML0...
+[   13.632119] systemd[1]: Expecting device dev-ttyS2.device - /dev/ttyS2...
+[   13.633000] systemd[1]: Reached target nfs-client.target - NFS client services.
+[   13.633919] systemd[1]: Reached target slices.target - Slice Units.
+[   13.634656] systemd[1]: Reached target swap.target - Swaps.
+[   13.645117] systemd[1]: Listening on rpcbind.socket - RPCbind Server Activation Socket.
+[   13.646800] systemd[1]: Listening on syslog.socket - Syslog Socket.
+[   13.654245] systemd[1]: Listening on systemd-creds.socket - Credential Encryption/Decryption.
+[   13.655941] systemd[1]: Listening on systemd-initctl.socket - initctl Compatibility Named Pipe.
+[   13.657554] systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+[   13.659244] systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
+[   13.660442] systemd[1]: systemd-pcrextend.socket - TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-uki
+[   13.661613] systemd[1]: systemd-pcrlock.socket - Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+[   13.663474] systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+[   13.665041] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+[   13.672306] systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+[   13.676755] systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+[   13.681400] systemd[1]: Mounting run-lock.mount - Legacy Locks Directory /run/lock...
+[   13.685582] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[   13.686799] systemd[1]: sys-kernel-tracing.mount - Kernel Trace File System skipped, unmet condition check ConditionPathExists=/sys/kernel/tracing
+[   13.692596] systemd[1]: Mounting tmp.mount - Temporary Directory /tmp...
+[   13.693639] systemd[1]: auth-rpcgss-module.service - Kernel Module supporting RPCSEC_GSS skipped, unmet condition check ConditionPathExists=/etc/krb5.keytab
+[   13.699442] systemd[1]: Starting fake-hwclock-load.service - Restore the current clock...
+[   13.707517] systemd[1]: Starting keyboard-setup.service - Set the console keyboard layout...
+[   13.708529] systemd[1]: kmod-static-nodes.service - Create List of Static Device Nodes skipped, unmet condition check ConditionFileNotEmpty=/lib/modules/6.18.33/modules.devname
+[   13.712885] systemd[1]: Starting modprobe@fuse.service - Load Kernel Module fuse...
+[   13.714056] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+[   13.719605] systemd[1]: systemd-hwdb-update.service - Rebuild Hardware Database skipped, no trigger condition checks were met.
+[   13.746851] systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+[   13.747984] systemd[1]: systemd-pcrmachine.service - TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-uki
+[   13.753486] systemd[1]: Starting systemd-random-seed.service - Load/Save OS Random Seed...
+[   13.757171] systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+[   13.763182] systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-uki
+[   13.764445] systemd[1]: systemd-tpm2-setup.service - TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-uki
+[   13.768408] systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+
+[   13.772283] systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+[   13.776577] systemd[1]: modprobe@fuse.service: Deactivated successfully.
+[   13.777769] systemd[1]: Finished modprobe@fuse.service - Load Kernel Module fuse.
+[   13.779599] systemd[1]: sys-fs-fuse-connections.mount - FUSE Control File System skipped, unmet condition check ConditionPathExists=/sys/fs/fuse/connections
+[   13.782443] systemd[1]: systemd-random-seed.service: Main process exited, code=dumped, status=11/SEGV
+[   13.783614] systemd[1]: systemd-random-seed.service: Failed with result 'core-dump'.
+[   13.784720] systemd[1]: Failed to start systemd-random-seed.service - Load/Save OS Random Seed.
+[   13.785972] systemd[1]: first-boot-complete.target - First Boot Complete skipped, unmet condition check ConditionFirstBoot=yes
+[   13.865677] systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+[   13.866774] systemd[1]: Mounted run-lock.mount - Legacy Locks Directory /run/lock.
+[   13.867963] systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+[   13.869039] systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+[   13.869989] systemd[1]: Mounted tmp.mount - Temporary Directory /tmp.
+[   13.871363] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+[   13.875501] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[   13.909361] systemd[1]: fake-hwclock-load.service: Deactivated successfully.
+[   13.932070] systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.
+[   13.934195] systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+[   13.988011] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[   13.992491] systemd[1]: Starting systemd-sysusers.service - Create System Users...
+[   14.000116] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[   14.067293] systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+[   14.097822] systemd[1]: Finished systemd-sysusers.service - Create System Users.
+[   14.113040] systemd[1]: Starting systemd-resolved.service - Network Name Resolution...
+[   14.119329] systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+[   14.135573] Unable to handle kernel paging request at virtual address 7ffe800083cd3ec0
+[   14.136288] Mem abort info:
+[   14.136537]   ESR = 0x0000000096000044
+[   14.136870]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   14.137338]   SET = 0, FnV = 0
+[   14.137609]   EA = 0, S1PTW = 0
+[   14.137888]   FSC = 0x04: level 0 translation fault
+[   14.138318] Data abort info:
+[   14.138573]   ISV = 0, ISS = 0x00000044, ISS2 = 0x00000000
+[   14.139067]   CM = 0, WnR = 1, TnD = 0, TagAccess = 0
+[   14.139513]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   14.139980] [7ffe800083cd3ec0] address between user and kernel address ranges
+[   14.140607] Internal error: Oops: 0000000096000044 [#1]  SMP
+[   14.141105] Modules linked in:
+[   14.141382] CPU: 4 UID: 0 PID: 143 Comm: udevadm Not tainted 6.18.33 #1 PREEMPT 
+[   14.142034] Hardware name: Radxa ROCK Pi N10 (DT)
+[   14.142449] pstate: 40000005 (nZcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   14.143061] pc : invoke_syscall+0x58/0xe4
+[   14.143430] lr : invoke_syscall+0x44/0xe4
+[   14.143788] sp : ffff800083cd3e30
+[   14.144081] x29: ffff800083cd3e30 x28: ffff0000075f8000 x27: 0000000000000000
+[   14.144713] x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
+[   14.145351] x23: 0000000060000000 x22: 0000ffffae86263c x21: 00000000ffffffff
+[   14.145357] x20: ffff0000075f8000 x19: 7ffe800083cd3ec0 x18: 0000000000000000
+[   14.145364] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[   14.145370] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+[   14.145375] x11: 0000000000000000 x10: 00000000000003ff x9 : ffff0000075f8000
+[   14.145381] x8 : ffff8000756ba000 x7 : 0000000000000000 x6 : ffff800082102d40
+[   14.145387] x5 : ffff0000075f8000 x4 : ffff0000f77c2320 x3 : 0000000001837e04
+[   14.145393] x2 : 0000000000000000 x1 : 0000000000000000 x0 : 0000000000000000
+[   14.145400] Call trace:
+[   14.145402]  invoke_syscall+0x58/0xe4 (P)
+[   14.145409]  el0_svc_common.constprop.0+0x40/0xe0
+[   14.145416]  do_el0_svc+0x1c/0x28
+[   14.145422]  el0_svc+0x38/0x11c
+[   14.145427]  el0t_64_sync_handler+0xa0/0xe4
+[   14.145431]  el0t_64_sync+0x198/0x19c
+[   14.145438] Code: f9400022 92407c01 720a005f 9a801020 (f9000260) 
+[   14.145441] ---[ end trace 0000000000000000 ]---
+[   14.147912] systemd[1]: Finished systemd-udev-trigger.service - Coldplug All udev Devices.
+[   14.216029] systemd[1]: Finished systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev.
+[   14.217524] systemd[1]: Reached target local-fs-pre.target - Preparation for Local File Systems.
+[   14.218517] systemd[1]: Reached target local-fs.target - Local File Systems.
+[   14.229145] systemd[1]: Listening on systemd-sysext.socket - System Extension Image Management.
+[   14.237191] systemd[1]: Starting armbian-zram-config.service - Armbian ZRAM config...
+[   14.242766] systemd[1]: Starting console-setup.service - Set console font and keymap...
+[   14.248430] systemd[1]: Starting plymouth-read-write.service - Tell Plymouth To Write Out Runtime Data...
+[   14.252660] systemd[1]: systemd-binfmt.service - Set Up Additional Binary Formats skipped, unmet condition check ConditionPathIsMountPoint=/proc/sys/fs/binfmt_misc
+[   14.254351] systemd[1]: systemd-machine-id-commit.service - Save Transient machine-id to Disk skipped, unmet condition check ConditionPathIsMountPoint=/etc/machine-id
+[   14.261815] systemd[1]: Starting systemd-udevd.service - Rule-based Manager for Device Events and Files...
+[   14.292894] Unable to handle kernel paging request at virtual address fffe000003a51f70
+[   14.293606] Mem abort info:
+[   14.293855]   ESR = 0x0000000096000004
+[   14.294187]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   14.294655]   SET = 0, FnV = 0
+[   14.294926]   EA = 0, S1PTW = 0
+[   14.295222]   FSC = 0x04: level 0 translation fault
+[   14.295653] Data abort info:
+[   14.295909]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[   14.296392]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[   14.296837]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   14.297306] swapper pgtable: 4k pages, 48-bit VAs, pgdp=000000000229f000
+[   14.297895] [fffe000003a51f70] pgd=0000000000000000, p4d=18000000f7fff403, pud=18000000f7ffe403, pmd=18000000f7ff0403, pte=00e8000003a51707
+[   14.299009] Internal error: Oops: 0000000096000004 [#2]  SMP
+[   14.299509] Modules linked in:
+[   14.299786] CPU: 5 UID: 0 PID: 175 Comm: (md-udevd) Tainted: G      D             6.18.33 #1 PREEMPT 
+
+[   14.300599] Tainted: [D]=DIE
+[   14.300856] Hardware name: Radxa ROCK Pi N10 (DT)
+[   14.301271] pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   14.301884] pc : make_visible+0x40/0x80
+[   14.302233] lr : copy_tree+0x1d4/0x39c
+[   14.302570] sp : ffff800083d93c50
+[   14.302864] x29: ffff800083d93c50 x28: ffff000006406300 x27: ffff0000072a0c00
+[   14.303496] x26: ffff0000072a0f00 x25: ffff000006406600 x24: 0000000000000000
+[   14.304127] x23: ffff000003d0fd80 x22: ffff800082a1a784 x21: 0000000000000040
+[   14.304757] x20: ffff800082a1a780 x19: ffff0000072a0c00 x18: 0000000000000001
+[   14.305388] x17: 000000040044ffff x16: 00500074b5503510 x15: 0000000000000000
+[   14.306018] x14: 00000000000000e4 x13: 0000000000000400 x12: 0000000000006400
+[   14.306650] x11: ffff000004275a14 x10: ffff000004275a00 x9 : 00000000000000e6
+[   14.307280] x8 : fffffdffbf7f7398 x7 : 0000000000000000 x6 : 0000000000001fff
+[   14.307910] x5 : ffff000003a50000 x4 : 000000000000000d x3 : ffff000003a51f70
+[   14.308539] x2 : ffff000006406300 x1 : 00000000000003ee x0 : ffff000006406600
+[   14.309169] Call trace:
+[   14.309388]  make_visible+0x40/0x80 (P)
+[   14.309731]  __do_loopback+0x11c/0x134
+[   14.310066]  path_mount+0x864/0xa2c
+[   14.310378]  __arm64_sys_mount+0x184/0x294
+[   14.310743]  invoke_syscall+0x44/0xe4
+[   14.311072]  el0_svc_common.constprop.0+0x40/0xe0
+[   14.311490]  do_el0_svc+0x1c/0x28
+[   14.311787]  el0_svc+0x38/0x11c
+[   14.312068]  el0t_64_sync_handler+0xa0/0xe4
+[   14.312438]  el0t_64_sync+0x198/0x19c
+[   14.312767] Code: 9ac42423 8b030021 8a060021 8b010ca3 (f86178a1) 
+[   14.313304] ---[ end trace 0000000000000000 ]---
+[   14.313717] note: (md-udevd)[175] exited with preempt_count 1
+[   15.382945] Unable to handle kernel paging request at virtual address 7ffe800082e1f6d8
+[   15.382945] Unable to handle kernel paging request at virtual address 7ffe800082e1f6d8
+[   15.382948] Unable to handle kernel paging request at virtual address 7ffe800082e1f6d8
+[   15.382948] Unable to handle kernel paging request at virtual address 7ffe800082e1f6d8
+[   15.382948] Unable to handle kernel paging request at virtual address 7ffe800082e1f6d8
+[   15.382953] Mem abort info:
+[   15.382955]   ESR = 0x0000000096000004
+[   15.382962] Mem abort info:
+[   15.382962] Mem abort info:
+[   15.382962] Mem abort info:
+[   15.382964] Mem abort info:
+[   15.382965]   ESR = 0x0000000096000004
+[   15.382966]   ESR = 0x0000000096000004
+[   15.382967]   ESR = 0x0000000096000004
+[   15.382971]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   15.382971]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   15.382971]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   15.382970]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   15.382974]   SET = 0, FnV = 0
+[   15.382975]   SET = 0, FnV = 0
+[   15.382978]   EA = 0, S1PTW = 0
+[   15.382978]   EA = 0, S1PTW = 0
+[   15.382978]   SET = 0, FnV = 0
+[   15.382981]   FSC = 0x04: level 0 translation fault
+[   15.382981]   FSC = 0x04: level 0 translation fault
+[   15.382983]   EA = 0, S1PTW = 0
+[   15.382983] Data abort info:
+[   15.382984] Data abort info:
+[   15.382985]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[   15.382986]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[   15.382989]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[   15.382989]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[   15.382989]   FSC = 0x04: level 0 translation fault
+[   15.382991]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   15.382992]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   15.382994] Data abort info:
+[   15.382995]   ESR = 0x0000000096000004
+[   15.382995] [7ffe800082e1f6d8] address between user and kernel address ranges
+[   15.382995] [7ffe800082e1f6d8] address between user and kernel address ranges
+[   15.382994] Unable to handle kernel paging request at virtual address 7ffe800082e1f6d8
+[   15.383000] Internal error: Oops: 0000000096000004 [#3]  SMP
+[   15.383001] Mem abort info:
+[   15.383001]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   15.383004] Modules linked in:
+[   15.383005]   ESR = 0x0000000096000004
+[   15.383006] 
+[   15.383007]   SET = 0, FnV = 0
+[   15.383008]   SET = 0, FnV = 0
+[   15.383010]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   15.383011]   EA = 0, S1PTW = 0
+[   15.383011] CPU: 5 UID: 0 PID: 173 Comm: (setup.sh) Tainted: G      D             6.18.33 #1 PREEMPT 
+[   15.383014]   SET = 0, FnV = 0
+[   15.383015]   FSC = 0x04: level 0 translation fault
+[   15.383018] Tainted: [D]=DIE
+[   15.383019]   EA = 0, S1PTW = 0
+[   15.383019] Data abort info:
+[   15.383019]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[   15.383023]   FSC = 0x04: level 0 translation fault
+[   15.383023]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[   15.383024]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[   15.383026] Data abort info:
+[   15.383026]   EA = 0, S1PTW = 0
+[   15.383027]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[   15.383029]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[   15.383030]   FSC = 0x04: level 0 translation fault
+[   15.383031] Hardware name: Radxa ROCK Pi N10 (DT)
+[   15.383031]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   15.383032]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[   15.383034] pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   15.383036] [7ffe800082e1f6d8] address between user and kernel address ranges
+[   15.383037]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   15.383042] [7ffe800082e1f6d8] address between user and kernel address ranges
+[   15.383043]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   15.383039] pc : ktime_get+0x38/0xcc
+[   15.383047] [7ffe800082e1f6d8] address between user and kernel address ranges
+[   15.383049] Data abort info:
+[   15.383050] lr : clockevents_program_event+0x70/0x12c
+[   15.383052]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[   15.383056] sp : ffff800083053e90
+[   15.383063]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[   15.383069]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[   15.383755] x29: ffff800083053e90
+[   15.383767] [7ffe800082e1f6d8] address between user and kernel address ranges
+[   15.417105]  x28: ffff0000f77ce0f0 x27: ffff0000f77ce130
+[   15.417576] x26: ffff0000f77ce170 x25: ffff0000f77ce04c x24: 7fffffffffffffff
+[   15.418206] x23: 0000000000000003 x22: 0000000394b82f22 x21: 0000000000000b54
+[   15.418837] x20: 00000003786625db x19: ffff800082f9d540 x18: 0000000000000000
+[   15.419466] x17: ffff8000756d3000 x16: ffff800083050000 x15: 02a29d819b3dcb78
+[   15.420096] x14: 02a29d7edafb76c6 x13: 00000000000000aa x12: 0000000000000001
+[   15.420727] x11: 0000000000000004 x10: 0000000000000001 x9 : ffff800082a1e9f0
+[   15.421357] x8 : 0000000394b82d00 x7 : 7fffffffffffffff x6 : 0000000394b82d00
+[   15.421985] x5 : 0000000394f53600 x4 : 0000000000000041 x3 : 7fffffffffffffff
+[   15.422615] x2 : 0000000000000000 x1 : 0000000000000003 x0 : 7ffe800082e1f6d8
+[   15.423246] Call trace:
+[   15.423465]  ktime_get+0x38/0xcc (P)
+[   15.423784]  clockevents_program_event+0x70/0x12c
+[   15.424201]  tick_program_event+0x50/0x9c
+[   15.424558]  hrtimer_interrupt+0x120/0x254
+[   15.424922]  arch_timer_handler_phys+0x34/0x44
+[   15.425317]  handle_percpu_devid_irq+0x80/0x120
+[   15.425720]  handle_irq_desc+0x40/0x58
+[   15.426053]  generic_handle_domain_irq+0x1c/0x28
+[   15.426461]  gic_handle_irq+0x4c/0x128
+[   15.426795]  call_on_irq_stack+0x30/0x48
+[   15.427143]  do_interrupt_handler+0x80/0x84
+[   15.427514]  el1_interrupt+0x3c/0x60
+[   15.427835]  el1h_64_irq_handler+0x18/0x24
+[   15.428198]  el1h_64_irq+0x6c/0x70
+[   15.428502]  path_init+0x32c/0x3d0 (P)
+[   15.428838]  path_openat+0x74/0xfec
+[   15.429148]  do_filp_open+0xa8/0x164
+[   15.429465]  do_open_execat+0x64/0x168
+[   15.429799]  open_exec+0x30/0x54
+[   15.430087]  load_script+0x1f0/0x2b0
+[   15.430406]  bprm_execve+0x280/0x4a0
+[   15.430724]  do_execveat_common.isra.0+0x150/0x1d8
+[   15.431149]  __arm64_sys_execve+0x44/0x58
+[   15.431506]  invoke_syscall+0x44/0xe4
+[   15.431834]  el0_svc_common.constprop.0+0x40/0xe0
+[   15.432252]  do_el0_svc+0x1c/0x28
+[   15.432549]  el0_svc+0x38/0x11c
+[   15.432828]  el0t_64_sync_handler+0xa0/0xe4
+[   15.433198]  el0t_64_sync+0x198/0x19c
+[   15.433525] Code: 88dffe75 37000355 f9400660 f9401a74 (f9400001) 
+[   15.434063] ---[ end trace 0000000000000000 ]---
+[   15.434470] Kernel panic - not syncing: Oops: Fatal exception in interrupt
+[   15.435073] SMP: stopping secondary CPUs
+[   16.602086] SMP: failed to stop secondary CPUs 0-4
+[   16.602512] Kernel Offset: disabled
+[   16.602821] CPU features: 0x100000,04107800,40004001,0400421b
+[   16.603327] Memory Limit: none
+[   16.603601] ---[ end Kernel panic - not syncing: Oops: Fatal exception in interrupt ]---

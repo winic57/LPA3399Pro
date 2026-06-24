@@ -1,0 +1,336 @@
+=== build start 2026年 06月 20日 星期六 10:42:26 CST ===
+make: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make[1]: 进入目录“/tmp/rtl8821cs_build_20260620_102054”
+  CC [M]  os_dep/osdep_service.o
+  CC [M]  os_dep/linux/os_intfs.o
+  CC [M]  os_dep/linux/sdio_intf.o
+  CC [M]  os_dep/linux/xmit_linux.o
+os_dep/osdep_service.c:297:7: warning: no previous prototype for ‘_rtw_malloc’ [-Wmissing-prototypes]
+  297 | void *_rtw_malloc(u32 sz)
+      |       ^~~~~~~~~~~
+os_dep/osdep_service.c:338:7: warning: no previous prototype for ‘_rtw_zmalloc’ [-Wmissing-prototypes]
+  338 | void *_rtw_zmalloc(u32 sz)
+      |       ^~~~~~~~~~~~
+os_dep/osdep_service.c:360:6: warning: no previous prototype for ‘_rtw_mfree’ [-Wmissing-prototypes]
+  360 | void _rtw_mfree(void *pbuf, u32 sz)
+      |      ^~~~~~~~~~
+os_dep/osdep_service.c:532:6: warning: no previous prototype for ‘_rtw_skb_queue_purge’ [-Wmissing-prototypes]
+  532 | void _rtw_skb_queue_purge(struct sk_buff_head *list)
+      |      ^~~~~~~~~~~~~~~~~~~~
+os_dep/osdep_service.c:768:13: warning: conflicting types for ‘dbg_rtw_vmfree’ due to enum/integer mismatch; have ‘void(void *, u32,  const enum mstat_f,  const char *, const int)’ {aka ‘void(void *, unsigned int,  const enum mstat_f,  const char *, const int)’} [-Wenum-int-mismatch]
+  768 | inline void dbg_rtw_vmfree(void *pbuf, u32 sz, const enum mstat_f flags, const char *func, const int line)
+      |             ^~~~~~~~~~~~~~
+In file included from ././include/drv_types.h:27,
+                 from os_dep/osdep_service.c:19:
+././include/osdep_service.h:168:6: note: previous declaration of ‘dbg_rtw_vmfree’ with type ‘void(void *, const enum mstat_f,  u32,  const char *, const int)’ {aka ‘void(void *, const enum mstat_f,  unsigned int,  const char *, const int)’}
+  168 | void dbg_rtw_vmfree(void *pbuf, const enum mstat_f flags, u32 sz, const char *func, const int line);
+      |      ^~~~~~~~~~~~~~
+os_dep/osdep_service.c:819:13: warning: conflicting types for ‘dbg_rtw_mfree’ due to enum/integer mismatch; have ‘void(void *, u32,  const enum mstat_f,  const char *, const int)’ {aka ‘void(void *, unsigned int,  const enum mstat_f,  const char *, const int)’} [-Wenum-int-mismatch]
+  819 | inline void dbg_rtw_mfree(void *pbuf, u32 sz, const enum mstat_f flags, const char *func, const int line)
+      |             ^~~~~~~~~~~~~
+././include/osdep_service.h:171:6: note: previous declaration of ‘dbg_rtw_mfree’ with type ‘void(void *, const enum mstat_f,  u32,  const char *, const int)’ {aka ‘void(void *, const enum mstat_f,  unsigned int,  const char *, const int)’}
+  171 | void dbg_rtw_mfree(void *pbuf, const enum mstat_f flags, u32 sz, const char *func, const int line);
+      |      ^~~~~~~~~~~~~
+os_dep/linux/sdio_intf.c:834:11: warning: no previous prototype for ‘rtw_sdio_primary_adapter_init’ [-Wmissing-prototypes]
+  834 | _adapter *rtw_sdio_primary_adapter_init(struct dvobj_priv *dvobj)
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/sdio_intf.c:1275:5: warning: no previous prototype for ‘rtw_resume_process’ [-Wmissing-prototypes]
+ 1275 | int rtw_resume_process(_adapter *padapter)
+      |     ^~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1096:6: warning: no previous prototype for ‘rtw_regsty_load_target_tx_power’ [-Wmissing-prototypes]
+ 1096 | void rtw_regsty_load_target_tx_power(struct registry_priv *regsty)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c: In function ‘rtw_net_set_mac_address’:
+os_dep/linux/os_intfs.c:1688:28: warning: passing argument 1 of ‘_rtw_memcpy’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1688 |         _rtw_memcpy(pnetdev->dev_addr, sa->sa_data, ETH_ALEN); /* set mac addr to net_device */
+      |                     ~~~~~~~^~~~~~~~~~
+In file included from ././include/drv_types.h:27,
+                 from os_dep/linux/os_intfs.c:17:
+././include/osdep_service.h:318:35: note: expected ‘void *’ but argument is of type ‘const unsigned char *’
+  318 | extern void     _rtw_memcpy(void *dec, const void *sour, u32 sz);
+      |                             ~~~~~~^~~
+os_dep/linux/os_intfs.c: At top level:
+os_dep/linux/os_intfs.c:1728:14: warning: no previous prototype for ‘rtw_classify8021d’ [-Wmissing-prototypes]
+ 1728 | unsigned int rtw_classify8021d(struct sk_buff *skb)
+      |              ^~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1864:5: warning: no previous prototype for ‘rtw_ndev_init’ [-Wmissing-prototypes]
+ 1864 | int rtw_ndev_init(struct net_device *dev)
+      |     ^~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1877:6: warning: no previous prototype for ‘rtw_ndev_uninit’ [-Wmissing-prototypes]
+ 1877 | void rtw_ndev_uninit(struct net_device *dev)
+      |      ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1937:6: warning: no previous prototype for ‘rtw_hook_if_ops’ [-Wmissing-prototypes]
+ 1937 | void rtw_hook_if_ops(struct net_device *ndev)
+      |      ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:2019:5: warning: no previous prototype for ‘rtw_os_ndev_alloc’ [-Wmissing-prototypes]
+ 2019 | int rtw_os_ndev_alloc(_adapter *adapter)
+      |     ^~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:2174:5: warning: no previous prototype for ‘rtw_os_ndev_register’ [-Wmissing-prototypes]
+ 2174 | int rtw_os_ndev_register(_adapter *adapter, const char *name)
+      |     ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c: In function ‘rtw_os_ndev_register’:
+os_dep/linux/os_intfs.c:2202:25: warning: passing argument 1 of ‘_rtw_memcpy’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2202 |         _rtw_memcpy(ndev->dev_addr, adapter_mac_addr(adapter), ETH_ALEN);
+      |                     ~~~~^~~~~~~~~~
+././include/osdep_service.h:318:35: note: expected ‘void *’ but argument is of type ‘const unsigned char *’
+  318 | extern void     _rtw_memcpy(void *dec, const void *sour, u32 sz);
+      |                             ~~~~~~^~~
+os_dep/linux/os_intfs.c: At top level:
+os_dep/linux/os_intfs.c:2317:5: warning: no previous prototype for ‘rtw_os_ndevs_alloc’ [-Wmissing-prototypes]
+ 2317 | int rtw_os_ndevs_alloc(struct dvobj_priv *dvobj)
+      |     ^~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:2369:6: warning: no previous prototype for ‘rtw_os_ndevs_free’ [-Wmissing-prototypes]
+ 2369 | void rtw_os_ndevs_free(struct dvobj_priv *dvobj)
+      |      ^~~~~~~~~~~~~~~~~
+  CC [M]  os_dep/linux/mlme_linux.o
+os_dep/linux/os_intfs.c:2501:4: warning: no previous prototype for ‘rtw_init_default_value’ [-Wmissing-prototypes]
+ 2501 | u8 rtw_init_default_value(_adapter *padapter)
+      |    ^~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3249:5: warning: no previous prototype for ‘_netdev_vir_if_open’ [-Wmissing-prototypes]
+ 3249 | int _netdev_vir_if_open(struct net_device *pnetdev)
+      |     ^~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3340:5: warning: no previous prototype for ‘netdev_vir_if_open’ [-Wmissing-prototypes]
+ 3340 | int netdev_vir_if_open(struct net_device *pnetdev)
+      |     ^~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3542:6: warning: no previous prototype for ‘rtw_drv_stop_vir_if’ [-Wmissing-prototypes]
+ 3542 | void rtw_drv_stop_vir_if(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3584:6: warning: no previous prototype for ‘rtw_drv_free_vir_if’ [-Wmissing-prototypes]
+ 3584 | void rtw_drv_free_vir_if(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3748:5: warning: no previous prototype for ‘rtw_os_ndevs_register’ [-Wmissing-prototypes]
+ 3748 | int rtw_os_ndevs_register(struct dvobj_priv *dvobj)
+      |     ^~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3865:6: warning: no previous prototype for ‘netdev_br_init’ [-Wmissing-prototypes]
+ 3865 | void netdev_br_init(struct net_device *netdev)
+      |      ^~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:4182:6: warning: no previous prototype for ‘ips_netdrv_open’ [-Wmissing-prototypes]
+ 4182 | int  ips_netdrv_open(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:4375:5: warning: no previous prototype for ‘pm_netdev_open’ [-Wmissing-prototypes]
+ 4375 | int pm_netdev_open(struct net_device *pnetdev, u8 bnormal)
+      |     ^~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:4503:5: warning: no previous prototype for ‘pm_netdev_close’ [-Wmissing-prototypes]
+ 4503 | int pm_netdev_close(struct net_device *pnetdev, u8 bnormal)
+      |     ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:5210:5: warning: no previous prototype for ‘rtw_suspend_normal’ [-Wmissing-prototypes]
+ 5210 | int rtw_suspend_normal(_adapter *padapter)
+      |     ^~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:5623:6: warning: no previous prototype for ‘rtw_mi_resume_process_normal’ [-Wmissing-prototypes]
+ 5623 | void rtw_mi_resume_process_normal(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:5656:5: warning: no previous prototype for ‘rtw_resume_process_normal’ [-Wmissing-prototypes]
+ 5656 | int rtw_resume_process_normal(_adapter *padapter)
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~
+  CC [M]  os_dep/linux/recv_linux.o
+  CC [M]  os_dep/linux/ioctl_cfg80211.o
+  CC [M]  os_dep/linux/rtw_cfgvendor.o
+  CC [M]  os_dep/linux/wifi_regd.o
+os_dep/linux/recv_linux.c: In function ‘napi_recv’:
+os_dep/linux/recv_linux.c:409:76: error: ‘GRO_DROP’ undeclared (first use in this function)
+  409 |                         if (rtw_napi_gro_receive(&padapter->napi, pskb) != GRO_DROP)
+      |                                                                            ^~~~~~~~
+os_dep/linux/recv_linux.c:409:76: note: each undeclared identifier is reported only once for each function it appears in
+os_dep/linux/recv_linux.c: In function ‘rtw_os_recv_indicate_pkt’:
+os_dep/linux/recv_linux.c:556:68: warning: suggest braces around empty body in an ‘else’ statement [-Wempty-body]
+  556 |                         DBG_COUNTER(padapter->rx_logs.os_netif_err);
+      |                                                                    ^
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：os_dep/linux/recv_linux.o] 错误 1
+make[3]: *** 正在等待未完成的任务....
+os_dep/linux/rtw_cfgvendor.c:46:17: warning: no previous prototype for ‘dbg_rtw_cfg80211_vendor_event_alloc’ [-Wmissing-prototypes]
+   46 | struct sk_buff *dbg_rtw_cfg80211_vendor_event_alloc(struct wiphy *wiphy, struct wireless_dev *wdev, int len, int event_id, gfp_t gfp
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/rtw_cfgvendor.c:73:6: warning: no previous prototype for ‘dbg_rtw_cfg80211_vendor_event’ [-Wmissing-prototypes]
+   73 | void dbg_rtw_cfg80211_vendor_event(struct sk_buff *skb, gfp_t gfp
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/rtw_cfgvendor.c:90:17: warning: no previous prototype for ‘dbg_rtw_cfg80211_vendor_cmd_alloc_reply_skb’ [-Wmissing-prototypes]
+   90 | struct sk_buff *dbg_rtw_cfg80211_vendor_cmd_alloc_reply_skb(struct wiphy *wiphy, int len
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/rtw_cfgvendor.c:113:5: warning: no previous prototype for ‘dbg_rtw_cfg80211_vendor_cmd_reply’ [-Wmissing-prototypes]
+  113 | int dbg_rtw_cfg80211_vendor_cmd_reply(struct sk_buff *skb
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/rtw_cfgvendor.c:252:5: warning: no previous prototype for ‘rtw_dev_get_feature_set’ [-Wmissing-prototypes]
+  252 | int rtw_dev_get_feature_set(struct net_device *dev)
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/rtw_cfgvendor.c:291:6: warning: no previous prototype for ‘rtw_dev_get_feature_set_matrix’ [-Wmissing-prototypes]
+  291 | int *rtw_dev_get_feature_set_matrix(struct net_device *dev, int *num)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:460:6: warning: no previous prototype for ‘rtw_cfg80211_allow_ch_switch_notify’ [-Wmissing-prototypes]
+  460 | bool rtw_cfg80211_allow_ch_switch_notify(_adapter *adapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c: In function ‘rtw_cfg80211_ch_switch_notify’:
+os_dep/linux/ioctl_cfg80211.c:502:17: error: too few arguments to function ‘cfg80211_ch_switch_started_notify’
+  502 |                 cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, false);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ././include/osdep_service_linux.h:98,
+                 from ././include/osdep_service.h:59,
+                 from ././include/drv_types.h:27,
+                 from os_dep/linux/ioctl_cfg80211.c:17:
+/tmp/gmac_patch_build_20260618_143722/src/include/net/cfg80211.h:9751:6: note: declared here
+ 9751 | void cfg80211_ch_switch_started_notify(struct net_device *dev,
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:513:9: error: too few arguments to function ‘cfg80211_ch_switch_notify’
+  513 |         cfg80211_ch_switch_notify(adapter->pnetdev, &chdef);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/include/net/cfg80211.h:9735:6: note: declared here
+ 9735 | void cfg80211_ch_switch_notify(struct net_device *dev,
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c: At top level:
+os_dep/linux/ioctl_cfg80211.c:536:6: warning: no previous prototype for ‘rtw_2g_channels_init’ [-Wmissing-prototypes]
+  536 | void rtw_2g_channels_init(struct ieee80211_channel *channels)
+      |      ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:541:6: warning: no previous prototype for ‘rtw_5g_channels_init’ [-Wmissing-prototypes]
+  541 | void rtw_5g_channels_init(struct ieee80211_channel *channels)
+      |      ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:546:6: warning: no previous prototype for ‘rtw_2g_rates_init’ [-Wmissing-prototypes]
+  546 | void rtw_2g_rates_init(struct ieee80211_rate *rates)
+      |      ^~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:553:6: warning: no previous prototype for ‘rtw_5g_rates_init’ [-Wmissing-prototypes]
+  553 | void rtw_5g_rates_init(struct ieee80211_rate *rates)
+      |      ^~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:560:34: warning: no previous prototype for ‘rtw_spt_band_alloc’ [-Wmissing-prototypes]
+  560 | struct ieee80211_supported_band *rtw_spt_band_alloc(BAND_TYPE band)
+      |                                  ^~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:595:6: warning: no previous prototype for ‘rtw_spt_band_free’ [-Wmissing-prototypes]
+  595 | void rtw_spt_band_free(struct ieee80211_supported_band *spt_band)
+      |      ^~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:683:36: warning: no previous prototype for ‘nl80211_iftype_to_rtw_network_type’ [-Wmissing-prototypes]
+  683 | NDIS_802_11_NETWORK_INFRASTRUCTURE nl80211_iftype_to_rtw_network_type(enum nl80211_iftype type)
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:718:5: warning: no previous prototype for ‘nl80211_iftype_to_rtw_mlme_state’ [-Wmissing-prototypes]
+  718 | u32 nl80211_iftype_to_rtw_mlme_state(enum nl80211_iftype type)
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c: In function ‘rtw_cfg80211_indicate_connect’:
+os_dep/linux/ioctl_cfg80211.c:1180:26: error: ‘struct cfg80211_roam_info’ has no member named ‘bssid’
+ 1180 |                 roam_info.bssid = cur_network->network.MacAddress;
+      |                          ^
+os_dep/linux/ioctl_cfg80211.c: At top level:
+os_dep/linux/ioctl_cfg80211.c:2357:5: warning: no previous prototype for ‘cfg80211_rtw_set_default_mgmt_key’ [-Wmissing-prototypes]
+ 2357 | int cfg80211_rtw_set_default_mgmt_key(struct wiphy *wiphy,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:3000:5: warning: no previous prototype for ‘rtw_cfg80211_is_target_wps_scan’ [-Wmissing-prototypes]
+ 3000 | int rtw_cfg80211_is_target_wps_scan(struct cfg80211_scan_request *scan_req, struct cfg80211_ssid *target_ssid)
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c: In function ‘rtw_cfg80211_indicate_sta_assoc’:
+os_dep/linux/ioctl_cfg80211.c:5245:34: error: passing argument 1 of ‘cfg80211_new_sta’ from incompatible pointer type [-Werror=incompatible-pointer-types]
+ 5245 |                 cfg80211_new_sta(ndev, get_addr2_ptr(pmgmt_frame), &sinfo, GFP_ATOMIC);
+      |                                  ^~~~
+      |                                  |
+      |                                  struct net_device *
+/tmp/gmac_patch_build_20260618_143722/src/include/net/cfg80211.h:9177:44: note: expected ‘struct wireless_dev *’ but argument is of type ‘struct net_device *’
+ 9177 | void cfg80211_new_sta(struct wireless_dev *wdev, const u8 *mac_addr,
+      |                       ~~~~~~~~~~~~~~~~~~~~~^~~~
+os_dep/linux/ioctl_cfg80211.c: In function ‘rtw_cfg80211_indicate_sta_disassoc’:
+os_dep/linux/ioctl_cfg80211.c:5291:26: error: passing argument 1 of ‘cfg80211_del_sta’ from incompatible pointer type [-Werror=incompatible-pointer-types]
+ 5291 |         cfg80211_del_sta(ndev, da, GFP_ATOMIC);
+      |                          ^~~~
+      |                          |
+      |                          struct net_device *
+/tmp/gmac_patch_build_20260618_143722/src/include/net/cfg80211.h:9197:58: note: expected ‘struct wireless_dev *’ but argument is of type ‘struct net_device *’
+ 9197 | static inline void cfg80211_del_sta(struct wireless_dev *wdev,
+      |                                     ~~~~~~~~~~~~~~~~~~~~~^~~~
+os_dep/linux/ioctl_cfg80211.c: At top level:
+os_dep/linux/ioctl_cfg80211.c:5707:6: warning: no previous prototype for ‘dump_station_parameters’ [-Wmissing-prototypes]
+ 5707 | void dump_station_parameters(void *sel, struct wiphy *wiphy, const struct station_parameters *params)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:6168:18: warning: no previous prototype for ‘rtw_sta_info_get_by_idx’ [-Wmissing-prototypes]
+ 6168 | struct sta_info *rtw_sta_info_get_by_idx(struct sta_priv *pstapriv, const int idx, u8 *asoc_list_num)
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10127:6: warning: no previous prototype for ‘rtw_cfg80211_update_wiphy_max_txpower’ [-Wmissing-prototypes]
+10127 | void rtw_cfg80211_update_wiphy_max_txpower(_adapter *adapter, struct wiphy *wiphy)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10536:5: warning: no previous prototype for ‘cfg80211_rtw_external_auth’ [-Wmissing-prototypes]
+10536 | int cfg80211_rtw_external_auth(struct wiphy *wiphy, struct net_device *dev,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10745:20: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, int,  u8,  bool,  const u8 *, struct key_params *)’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, int,  unsigned char,  _Bool,  const unsigned char *, struct key_params *)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, u8,  bool,  const u8 *, struct key_params *)’ {aka ‘int (*)(struct wiphy *, struct net_device *, unsigned char,  _Bool,  const unsigned char *, struct key_params *)’} [-Werror=incompatible-pointer-types]
+10745 |         .add_key = cfg80211_rtw_add_key,
+      |                    ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10745:20: note: (near initialization for ‘rtw_cfg80211_ops.add_key’)
+os_dep/linux/ioctl_cfg80211.c:10746:20: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, int,  u8,  bool,  const u8 *, void *, void (*)(void *, struct key_params *))’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, int,  unsigned char,  _Bool,  const unsigned char *, void *, void (*)(void *, struct key_params *))’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, u8,  bool,  const u8 *, void *, void (*)(void *, struct key_params *))’ {aka ‘int (*)(struct wiphy *, struct net_device *, unsigned char,  _Bool,  const unsigned char *, void *, void (*)(void *, struct key_params *))’} [-Werror=incompatible-pointer-types]
+10746 |         .get_key = cfg80211_rtw_get_key,
+      |                    ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10746:20: note: (near initialization for ‘rtw_cfg80211_ops.get_key’)
+os_dep/linux/ioctl_cfg80211.c:10747:20: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, int,  u8,  bool,  const u8 *)’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, int,  unsigned char,  _Bool,  const unsigned char *)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, u8,  bool,  const u8 *)’ {aka ‘int (*)(struct wiphy *, struct net_device *, unsigned char,  _Bool,  const unsigned char *)’} [-Werror=incompatible-pointer-types]
+10747 |         .del_key = cfg80211_rtw_del_key,
+      |                    ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10747:20: note: (near initialization for ‘rtw_cfg80211_ops.del_key’)
+os_dep/linux/ioctl_cfg80211.c:10748:28: error: initialization of ‘int (*)(struct wiphy *, struct net_device *, int,  u8,  bool,  bool)’ {aka ‘int (*)(struct wiphy *, struct net_device *, int,  unsigned char,  _Bool,  _Bool)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, u8,  bool,  bool)’ {aka ‘int (*)(struct wiphy *, struct net_device *, unsigned char,  _Bool,  _Bool)’} [-Werror=incompatible-pointer-types]
+10748 |         .set_default_key = cfg80211_rtw_set_default_key,
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10748:28: note: (near initialization for ‘rtw_cfg80211_ops.set_default_key’)
+os_dep/linux/ioctl_cfg80211.c:10750:33: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, int,  u8)’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, int,  unsigned char)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, u8)’ {aka ‘int (*)(struct wiphy *, struct net_device *, unsigned char)’} [-Werror=incompatible-pointer-types]
+10750 |         .set_default_mgmt_key = cfg80211_rtw_set_default_mgmt_key,
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10750:33: note: (near initialization for ‘rtw_cfg80211_ops.set_default_mgmt_key’)
+os_dep/linux/ioctl_cfg80211.c:10755:24: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, const u8 *, struct station_info *)’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, const unsigned char *, struct station_info *)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, const u8 *, struct station_info *)’ {aka ‘int (*)(struct wiphy *, struct net_device *, const unsigned char *, struct station_info *)’} [-Werror=incompatible-pointer-types]
+10755 |         .get_station = cfg80211_rtw_get_station,
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10755:24: note: (near initialization for ‘rtw_cfg80211_ops.get_station’)
+os_dep/linux/ioctl_cfg80211.c:10760:29: error: initialization of ‘int (*)(struct wiphy *, int,  u32)’ {aka ‘int (*)(struct wiphy *, int,  unsigned int)’} from incompatible pointer type ‘int (*)(struct wiphy *, u32)’ {aka ‘int (*)(struct wiphy *, unsigned int)’} [-Werror=incompatible-pointer-types]
+10760 |         .set_wiphy_params = cfg80211_rtw_set_wiphy_params,
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10760:29: note: (near initialization for ‘rtw_cfg80211_ops.set_wiphy_params’)
+os_dep/linux/ioctl_cfg80211.c:10766:25: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, int,  enum nl80211_tx_power_setting,  int)’ from incompatible pointer type ‘int (*)(struct wiphy *, struct wireless_dev *, enum nl80211_tx_power_setting,  int)’ [-Werror=incompatible-pointer-types]
+10766 |         .set_tx_power = cfg80211_rtw_set_txpower,
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10766:25: note: (near initialization for ‘rtw_cfg80211_ops.set_tx_power’)
+os_dep/linux/ioctl_cfg80211.c:10767:25: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, int,  unsigned int,  int *)’ from incompatible pointer type ‘int (*)(struct wiphy *, struct wireless_dev *, int *)’ [-Werror=incompatible-pointer-types]
+10767 |         .get_tx_power = cfg80211_rtw_get_txpower,
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10767:25: note: (near initialization for ‘rtw_cfg80211_ops.get_tx_power’)
+os_dep/linux/ioctl_cfg80211.c:10784:26: error: initialization of ‘int (*)(struct wiphy *, struct net_device *, struct cfg80211_ap_update *)’ from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, struct cfg80211_beacon_data *)’ [-Werror=incompatible-pointer-types]
+10784 |         .change_beacon = cfg80211_rtw_change_beacon,
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10784:26: note: (near initialization for ‘rtw_cfg80211_ops.change_beacon’)
+os_dep/linux/ioctl_cfg80211.c:10785:20: error: initialization of ‘int (*)(struct wiphy *, struct net_device *, unsigned int)’ from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *)’ [-Werror=incompatible-pointer-types]
+10785 |         .stop_ap = cfg80211_rtw_stop_ap,
+      |                    ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10785:20: note: (near initialization for ‘rtw_cfg80211_ops.stop_ap’)
+os_dep/linux/ioctl_cfg80211.c:10792:24: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, const u8 *, struct station_parameters *)’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, const unsigned char *, struct station_parameters *)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, const u8 *, struct station_parameters *)’ {aka ‘int (*)(struct wiphy *, struct net_device *, const unsigned char *, struct station_parameters *)’} [-Werror=incompatible-pointer-types]
+10792 |         .add_station = cfg80211_rtw_add_station,
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10792:24: note: (near initialization for ‘rtw_cfg80211_ops.add_station’)
+os_dep/linux/ioctl_cfg80211.c:10793:24: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, struct station_del_parameters *)’ from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, struct station_del_parameters *)’ [-Werror=incompatible-pointer-types]
+10793 |         .del_station = cfg80211_rtw_del_station,
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10793:24: note: (near initialization for ‘rtw_cfg80211_ops.del_station’)
+os_dep/linux/ioctl_cfg80211.c:10794:27: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, const u8 *, struct station_parameters *)’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, const unsigned char *, struct station_parameters *)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, const u8 *, struct station_parameters *)’ {aka ‘int (*)(struct wiphy *, struct net_device *, const unsigned char *, struct station_parameters *)’} [-Werror=incompatible-pointer-types]
+10794 |         .change_station = cfg80211_rtw_change_station,
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10794:27: note: (near initialization for ‘rtw_cfg80211_ops.change_station’)
+os_dep/linux/ioctl_cfg80211.c:10795:25: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, int,  u8 *, struct station_info *)’ {aka ‘int (*)(struct wiphy *, struct wireless_dev *, int,  unsigned char *, struct station_info *)’} from incompatible pointer type ‘int (*)(struct wiphy *, struct net_device *, int,  u8 *, struct station_info *)’ {aka ‘int (*)(struct wiphy *, struct net_device *, int,  unsigned char *, struct station_info *)’} [-Werror=incompatible-pointer-types]
+10795 |         .dump_station = cfg80211_rtw_dump_station,
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10795:25: note: (near initialization for ‘rtw_cfg80211_ops.dump_station’)
+os_dep/linux/ioctl_cfg80211.c:10826:32: error: initialization of ‘int (*)(struct wiphy *, struct net_device *, struct cfg80211_chan_def *)’ from incompatible pointer type ‘int (*)(struct wiphy *, struct cfg80211_chan_def *)’ [-Werror=incompatible-pointer-types]
+10826 |         .set_monitor_channel = cfg80211_rtw_set_monitor_channel,
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10826:32: note: (near initialization for ‘rtw_cfg80211_ops.set_monitor_channel’)
+os_dep/linux/ioctl_cfg80211.c:10829:24: error: initialization of ‘int (*)(struct wiphy *, struct wireless_dev *, unsigned int,  struct cfg80211_chan_def *)’ from incompatible pointer type ‘int (*)(struct wiphy *, struct wireless_dev *, struct cfg80211_chan_def *)’ [-Werror=incompatible-pointer-types]
+10829 |         .get_channel = cfg80211_rtw_get_channel,
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_cfg80211.c:10829:24: note: (near initialization for ‘rtw_cfg80211_ops.get_channel’)
+os_dep/linux/ioctl_cfg80211.c: In function ‘rtw_wdev_unregister’:
+os_dep/linux/ioctl_cfg80211.c:11089:17: error: ‘struct wireless_dev’ has no member named ‘current_bss’
+11089 |         if (wdev->current_bss) {
+      |                 ^~
+cc1: some warnings being treated as errors
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：os_dep/linux/ioctl_cfg80211.o] 错误 1
+os_dep/linux/wifi_regd.c:48:6: warning: no previous prototype for ‘rtw_regd_is_wiphy_self_managed’ [-Wmissing-prototypes]
+   48 | bool rtw_regd_is_wiphy_self_managed(struct wiphy *wiphy)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/wifi_regd.c:209:6: warning: no previous prototype for ‘rtw_update_wiphy_regd’ [-Wmissing-prototypes]
+  209 | void rtw_update_wiphy_regd(struct wiphy *wiphy, struct get_chplan_resp *chplan, bool rtnl_lock_needed)
+      |      ^~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/wifi_regd.c: In function ‘rtw_regd_init’:
+os_dep/linux/wifi_regd.c:698:36: error: ‘REGULATORY_IGNORE_STALE_KICKOFF’ undeclared (first use in this function)
+  698 |         wiphy->regulatory_flags |= REGULATORY_IGNORE_STALE_KICKOFF;
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/wifi_regd.c:698:36: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：os_dep/linux/wifi_regd.o] 错误 1
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:2026：.] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/rtl8821cs_build_20260620_102054”
+make: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+=== build rc=2 2026年 06月 20日 星期六 10:42:36 CST ===

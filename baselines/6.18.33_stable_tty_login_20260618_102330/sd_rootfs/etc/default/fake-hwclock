@@ -1,0 +1,3 @@
+# Uncomment and set FORCE to not be "false" to set the clock even if
+# the saved value appears to be in the past
+#FORCE=false

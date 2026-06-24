@@ -1,0 +1,9 @@
+acbc17f2afa5d0c786c09994fe806196ee2ec6eb6c4191128cd1ce19c427afb3  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/0004b-rk3399pro-gmac-v4b-mac-reset-debug.patch
+69b2d197f3427c0c616e58b8cb4bb92e9fdb1f95940ce983e3255e9d13b49b2f  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/6.18.33_gmac_patch_v4b_reset_20260618_212015_deploy.log
+2843a62305f5a702f304db8fa437b86356792d8eb5d6445ee37f832a99c7f8d8  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/6.18.33_gmac_patch_v4b_reset_20260618_212015_dwmac_rk_o_build.log
+b17160c2b9fb0ca84981f3a6f804c9aecb398239a9d7b28f7c64aaf8faff1be6  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/6.18.33_gmac_patch_v4b_reset_20260618_212015_image_build.log
+d1b68d7383a7230ea9e1752ffcf9be2f0ed7320dde37e76d2866a61998d7455a  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/config-6.18.33-gmacpatch-v4b-reset
+ae72e4545cd0dde29f0b09cf9aaa738e5814c3b6b52a92bc093f57bb7047d5c6  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/dwmac-rk.c.v4b-reset
+eef6e88abe4adf4fb9e7ae9e1cb4f256cb8d67c4bbe3fcb474d85f86773cdcfd  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/dwmac-rk.o.v4b-reset
+d8ebf3b33fd86c6fd61272517bf1c11b26682206f756a3ac85f00ec097358a2f  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/SHA256SUMS
+f6e8fa1be6e1fae582df9a0a8fce5157923b52aa9300d04d5ec6ba06841db6a7  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-v4b-reset-20260618_212817/vmlinuz-6.18.33-gmacpatch-v4b-reset

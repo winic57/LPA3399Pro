@@ -1,0 +1,33 @@
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -1410,19 +1410,19 @@
+ 
+ 	bsp_priv->dev = dev;
+ 
+-	bsp_priv->stmmac_rst_dbg = devm_reset_control_get_optional(dev,
+-								  "stmmaceth");
+-	if (IS_ERR(bsp_priv->stmmac_rst_dbg)) {
+-		dev_err_probe(dev, PTR_ERR(bsp_priv->stmmac_rst_dbg),
+-			      "v4b: failed to get optional stmmaceth reset\n");
+-		bsp_priv->stmmac_rst_dbg = NULL;
+-	} else if (bsp_priv->stmmac_rst_dbg) {
++	/* v4b-fix: reuse stmmac core's existing stmmaceth reset handle.
++	 * stmmac_platform.c:615 already obtained it exclusively via
++	 * devm_reset_control_get_optional(); trying to get it again here
++	 * causes -EBUSY.  Reuse the handle so the reset cycle in
++	 * rk_gmac_powerup() can actually execute.
++	 */
++	bsp_priv->stmmac_rst_dbg = plat->stmmac_rst;
++	if (bsp_priv->stmmac_rst_dbg)
+ 		dev_info(dev,
+-			 "v4b: got optional stmmaceth reset controller\n");
+-	} else {
++			 "v4b-fix: reused stmmac core stmmaceth reset controller\n");
++	else
+ 		dev_info(dev,
+-			 "v4b: no optional stmmaceth reset controller\n");
+-	}
++			 "v4b-fix: stmmac core has no stmmaceth reset controller\n");
+ 
+ 	/* Set the default phy_intf_sel and RMII mode register parameters. */
+ 	bsp_priv->gmac_grf_reg = ops->gmac_grf_reg;

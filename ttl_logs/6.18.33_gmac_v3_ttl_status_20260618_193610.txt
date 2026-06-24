@@ -1,0 +1,209 @@
+
+root@armbian:~# echo TTL_V3_STATUS; date; uname -a; uptime; echo ---CMDLINE---; cat /proc/cmdline; echo ---NET---; ip -br link; ip -br addr; echo ---ETHTOOL---; ethtool eth0 2>/dev/null || true; echo ---SYSFS_NET---; ls -l /sys/class/net; echo ---MDIO---; find /sys/bus/mdio_bus/devices -maxdepth 1 -mindepth 1 -print -exec sh -c "echo [{}]; cat {}/phy_id 2>/dev/null; readlink -f {}/driver 2>/dev/null" \; 2>/dev/null | sort; echo ---GMAC_DMESG---; dmesg | grep -iE "one-shot|GPIO released|rk3399 rgmii|rk_gmac|stmmac|mdio|eth0|yt8521|motorcomm|dma|reset|link|carrier" | tail -n 220; echo ---TRY_ETH0_UP---; ip link set eth0 down 2>/dev/null || true; sleep 1; ip link set eth0 up 2>&1 || true; sleep 3; ip -br link; ip -br addr; ethtool eth0 2>/dev/null || true; echo ---DMESG_AFTER_UP---; dmesg | grep -iE "rk_gmac|stmmac|eth0|dma|link|yt8521|motorcomm|reset" | tail -n 120; echo DONE_V3_STATUS
+TTL_V3_STATUS
+Mon Jun  1 10:02:18 PM CST 2026
+Linux armbian 6.18.33 #2 SMP PREEMPT Thu Jun 18 17:05:42 CST 2026 aarch64 GNU/Linux
+ 22:02:18 up 2 min,  2 users,  load average: 0.07, 0.08, 0.03
+---CMDLINE---
+root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+---NET---
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             DOWN           36:28:78:08:40:24 <BROADCAST,MULTICAST> 
+lo               UNKNOWN        127.0.0.1/8 
+eth0             DOWN           
+---ETHTOOL---
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  Not reported
+	Advertised pause frame use: No
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: Unknown!
+	Duplex: Half
+	Auto-negotiation: off
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: no
+---SYSFS_NET---
+total 0
+lrwxrwxrwx 1 root root 0 Jun  1 22:00 eth0 -> ../../devices/platform/fe300000.ethernet/net/eth0
+lrwxrwxrwx 1 root root 0 Jun  1 22:00 lo -> ../../devices/virtual/net/lo
+---MDIO---
+0x0000011a
+/sys/bus/mdio_bus/devices/stmmac-0:00
+[/sys/bus/mdio_bus/devices/stmmac-0:00]
+/sys/bus/mdio_bus/drivers/YT8521 Gigabit Ethernet
+---GMAC_DMESG---
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.049380] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.051328] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052473] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.054048] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.054136] audit: initializing netlink subsys (disabled)
+[    0.146398] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.352426] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.352477] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.354223] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.354253] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.560981] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.561598] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.562294] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.563107] rk_gmac-dwmac fe300000.ethernet: clock input or output? (input).
+[    0.563791] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.564310] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.564830] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.565392] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.566459] rk_gmac-dwmac fe300000.ethernet: clock input from PHY
+[    0.567014] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.573024] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.573537] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.574663] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.639702] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.670660] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.671814] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.672466] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.672944] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.673619] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.674281] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.674955] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.675430] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.676079] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.676747] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.677287] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.677817] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    0.806404] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.807104] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.838595] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.049789] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.050476] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.052434] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.052458] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.768067] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    1.801190] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.801884] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   12.017066] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.017829] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   20.237958] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   20.244394] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.453563] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[   20.454230] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[   20.455060] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+[   21.533548] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+---TRY_ETH0_UP---
+[  151.858306] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[  151.864633] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[  152.073846] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[  152.074508] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[  152.075331] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+RTNETLINK answers: Connection timed out
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             DOWN           36:28:78:08:40:24 <BROADCAST,MULTICAST> 
+lo               UNKNOWN        127.0.0.1/8 
+eth0             DOWN           
+Settings for eth0:
+	Supported ports: [ TP	 MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full
+	                        100baseT/Half 100baseT/Full
+	                        1000baseT/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: Yes
+	Supported FEC modes: Not reported
+	Advertised link modes:  Not reported
+	Advertised pause frame use: No
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: Unknown!
+	Duplex: Half
+	Auto-negotiation: off
+	Port: MII
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: ug
+	Wake-on: d
+        Current message level: 0x0000003f (63)
+                               drv probe link timer ifdown ifup
+	Link detected: no
+---DMESG_AFTER_UP---
+[    0.000000]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[    0.000000]   DMA32    empty
+[    0.000000] On node 0, zone DMA: 512 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 7680 pages in unavailable ranges
+[    0.000000] Policy zone: DMA
+[    0.049380] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.051328] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.052473] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.054048] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.054136] audit: initializing netlink subsys (disabled)
+[    0.146398] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.352426] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.352477] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    0.354223] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    0.354253] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    0.560981] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[    0.561598] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[    0.562294] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[    0.563107] rk_gmac-dwmac fe300000.ethernet: clock input or output? (input).
+[    0.563791] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[    0.564310] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[    0.564830] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[    0.565392] rk_gmac-dwmac fe300000.ethernet: external PHY reset GPIO described; will use one-shot reset and release before MDIO.
+[    0.566459] rk_gmac-dwmac fe300000.ethernet: clock input from PHY
+[    0.567014] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[    0.573024] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[    0.573537] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[    0.574663] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) begin (one-shot)
+[    0.639702] rk_gmac-dwmac fe300000.ethernet: external PHY reset (post-grf-post-power) end (one-shot, GPIO released)
+[    0.670660] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[    0.671814] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[    0.672466] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[    0.672944] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[    0.673619] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[    0.674281] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[    0.674955] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[    0.675430] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[    0.676079] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[    0.676747] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[    0.677287] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[    0.677817] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    0.806404] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    0.807104] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    0.838595] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    1.049789] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[    1.050476] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[    1.052434] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.052458] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[    1.768067] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[    1.801190] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[    1.801884] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   12.017066] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   12.017829] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   20.237958] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   20.244394] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   20.453563] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[   20.454230] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[   20.455060] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+[   21.533548] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[  151.858306] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[  151.864633] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[  152.073846] rk_gmac-dwmac fe300000.ethernet eth0: Failed to reset the dma
+[  152.074508] rk_gmac-dwmac fe300000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[  152.075331] rk_gmac-dwmac fe300000.ethernet eth0: __stmmac_open: Hw setup failed
+DONE_V3_STATUS
+root@armbian:~# echo __CMD_DONE_1781782570688__
+__CMD_DONE_1781782570688__
+root@armbian:~# 

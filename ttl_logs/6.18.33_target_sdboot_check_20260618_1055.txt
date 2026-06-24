@@ -1,0 +1,52 @@
+
+root@armbian:~# echo TARGET_CHECK; lsblk -o NAME,PATH,SIZE,FSTYPE,LABEL,PARTUUID,MOUNTPOINTS; blkid /dev/mmcblk1p1 /dev/mmcblk1p2 2>/dev/null || true; which fdtput fdtget dtc python3 perl xxd hexdump sed cp mount sync || true; mkdir -p /mnt/sdboot; mountpoint -q /mnt/sdboot || mount /dev/mmcblk1p1 /mnt/sdboot; findmnt /mnt/sdboot; ls -l /mnt/sdboot/extlinux/extlinux.conf /mnt/sdboot/dtb/rockchip/gmac-test.dtb 2>&1; fdtget -t x /mnt/sdboot/dtb/rockchip/gmac-test.dtb /ethernet@fe300000 rx_delay 2>&1 || true
+TARGET_CHECK
+NAME PATH               SIZE FSTYPE LABEL  PARTUUID                             MOUNTPOINTS
+mmcblk0
+│    /dev/mmcblk0      14.7G                                                    
+├─mmcblk0p1
+│    /dev/mmcblk0p1       4M               a6540000-0000-4e08-8000-41e5000028c9 
+├─mmcblk0p2
+│    /dev/mmcblk0p2       4M               e6790000-0000-4335-8000-14e300003a46 
+├─mmcblk0p3
+│    /dev/mmcblk0p3      32M               27710000-0000-4e5e-8000-101d00003473 
+├─mmcblk0p4
+│    /dev/mmcblk0p4      96M               d0580000-0000-470b-8000-6ef900004938 
+├─mmcblk0p5
+│    /dev/mmcblk0p5      32M               4b7e0000-0000-4737-8000-1be00000227d 
+└─mmcblk0p6
+     /dev/mmcblk0p6    14.5G ext4          614e0000-0000-4b53-8000-1d28000054a9 
+mmcblk0boot0
+     /dev/mmcblk0boot0    4M                                                    
+mmcblk0boot1
+     /dev/mmcblk0boot1    4M                                                    
+mmcblk1
+│    /dev/mmcblk1      14.4G                                                    
+├─mmcblk1p1
+│    /dev/mmcblk1p1     511M ext4   BOOT   bd1cf4c1-4313-4797-88d2-745d74467271 
+└─mmcblk1p2
+     /dev/mmcblk1p2     2.9G ext4   ROOTFS 61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf /
+/dev/mmcblk1p1: LABEL="BOOT" UUID="955919d4-e37d-4c44-99d6-c0a5552f798c" BLOCK_SIZE="4096" TYPE="ext4" PARTLABEL="primary" PARTUUID="bd1cf4c1-4313-4797-88d2-745d74467271"
+/dev/mmcblk1p2: LABEL="ROOTFS" UUID="d52f7f8b-fa0e-4c9f-a552-d6df4329ac87" BLOCK_SIZE="4096" TYPE="ext4" PARTLABEL="primary" PARTUUID="61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf"
+/usr/bin/fdtput
+/usr/bin/fdtget
+/usr/bin/dtc
+/usr/bin/python3
+/usr/bin/perl
+/usr/bin/hexdump
+/usr/bin/sed
+/usr/bin/cp
+/usr/bin/mount
+/usr/bin/sync
+[  403.531991] EXT4-fs (mmcblk1p1): recovery complete
+[  403.536976] EXT4-fs (mmcblk1p1): mounted filesystem 955919d4-e37d-4c44-99d6-c0a5552f798c r/w with ordered data mode. Quota mode: none.
+mount: (hint) your fstab has been modified, but systemd still uses
+       the old version; use 'systemctl daemon-reload' to reload.
+TARGET      SOURCE         FSTYPE OPTIONS
+/mnt/sdboot /dev/mmcblk1p1 ext4   rw,relatime
+-rw-r--r-- 1 root root 60178 Jun 18  2026 /mnt/sdboot/dtb/rockchip/gmac-test.dtb
+-rw-r--r-- 1 root root   400 Jun 18  2026 /mnt/sdboot/extlinux/extlinux.conf
+11
+root@armbian:~# echo __CMD_DONE_1781750942767__
+__CMD_DONE_1781750942767__
+root@armbian:~# 

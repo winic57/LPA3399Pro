@@ -1,0 +1,2 @@
+[  565.143483] cdc_ether 3-1.1:1.0 usb0: kevent 12 may have been dropped
+[  610.137262] cdc_ether 3-1.1:1.0 usb0: kevent 12 may have been dropped

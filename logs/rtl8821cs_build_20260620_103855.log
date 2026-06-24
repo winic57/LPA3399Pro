@@ -1,0 +1,203 @@
+=== build start 2026年 06月 20日 星期六 10:38:55 CST ===
+make: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make[1]: 进入目录“/tmp/rtl8821cs_build_20260620_102054”
+  CC [M]  core/crypto/sha256-internal.o
+  CC [M]  core/crypto/sha256.o
+  CC [M]  core/crypto/sha256-prf.o
+  CC [M]  core/rtw_swcrypto.o
+  CC [M]  os_dep/osdep_service.o
+  CC [M]  os_dep/linux/os_intfs.o
+core/rtw_swcrypto.c:30:5: warning: no previous prototype for ‘_rtw_ccmp_encrypt’ [-Wmissing-prototypes]
+   30 | int _rtw_ccmp_encrypt(_adapter *padapter, u8 *key, u32 key_len, uint hdrlen, u8 *frame, uint plen)
+      |     ^~~~~~~~~~~~~~~~~
+core/rtw_swcrypto.c:71:5: warning: no previous prototype for ‘_rtw_ccmp_decrypt’ [-Wmissing-prototypes]
+   71 | int _rtw_ccmp_decrypt(_adapter * padapter, u8 *key, u32 key_len, uint hdrlen, u8 *frame,
+      |     ^~~~~~~~~~~~~~~~~
+core/rtw_swcrypto.c:134:5: warning: no previous prototype for ‘_rtw_gcmp_encrypt’ [-Wmissing-prototypes]
+  134 | int _rtw_gcmp_encrypt(_adapter * padapter, u8 *key, u32 key_len, uint hdrlen, u8 *frame, uint plen)
+      |     ^~~~~~~~~~~~~~~~~
+core/rtw_swcrypto.c:165:5: warning: no previous prototype for ‘_rtw_gcmp_decrypt’ [-Wmissing-prototypes]
+  165 | int _rtw_gcmp_decrypt(_adapter *padapter, u8 *key, u32 key_len, uint hdrlen, u8 *frame, uint plen)
+      |     ^~~~~~~~~~~~~~~~~
+core/rtw_swcrypto.c:196:4: warning: no previous prototype for ‘_bip_ccmp_protect’ [-Wmissing-prototypes]
+  196 | u8 _bip_ccmp_protect(const u8 *key, size_t key_len,
+      |    ^~~~~~~~~~~~~~~~~
+core/rtw_swcrypto.c:220:4: warning: no previous prototype for ‘_bip_gcmp_protect’ [-Wmissing-prototypes]
+  220 | u8 _bip_gcmp_protect(u8 *whdr_pos, size_t len,
+      |    ^~~~~~~~~~~~~~~~~
+  CC [M]  os_dep/linux/sdio_intf.o
+  CC [M]  os_dep/linux/sdio_ops_linux.o
+os_dep/osdep_service.c:297:7: warning: no previous prototype for ‘_rtw_malloc’ [-Wmissing-prototypes]
+  297 | void *_rtw_malloc(u32 sz)
+      |       ^~~~~~~~~~~
+os_dep/osdep_service.c:338:7: warning: no previous prototype for ‘_rtw_zmalloc’ [-Wmissing-prototypes]
+  338 | void *_rtw_zmalloc(u32 sz)
+      |       ^~~~~~~~~~~~
+os_dep/osdep_service.c:360:6: warning: no previous prototype for ‘_rtw_mfree’ [-Wmissing-prototypes]
+  360 | void _rtw_mfree(void *pbuf, u32 sz)
+      |      ^~~~~~~~~~
+os_dep/osdep_service.c:532:6: warning: no previous prototype for ‘_rtw_skb_queue_purge’ [-Wmissing-prototypes]
+  532 | void _rtw_skb_queue_purge(struct sk_buff_head *list)
+      |      ^~~~~~~~~~~~~~~~~~~~
+os_dep/osdep_service.c:768:13: warning: conflicting types for ‘dbg_rtw_vmfree’ due to enum/integer mismatch; have ‘void(void *, u32,  const enum mstat_f,  const char *, const int)’ {aka ‘void(void *, unsigned int,  const enum mstat_f,  const char *, const int)’} [-Wenum-int-mismatch]
+  768 | inline void dbg_rtw_vmfree(void *pbuf, u32 sz, const enum mstat_f flags, const char *func, const int line)
+      |             ^~~~~~~~~~~~~~
+In file included from ././include/drv_types.h:27,
+                 from os_dep/osdep_service.c:19:
+././include/osdep_service.h:168:6: note: previous declaration of ‘dbg_rtw_vmfree’ with type ‘void(void *, const enum mstat_f,  u32,  const char *, const int)’ {aka ‘void(void *, const enum mstat_f,  unsigned int,  const char *, const int)’}
+  168 | void dbg_rtw_vmfree(void *pbuf, const enum mstat_f flags, u32 sz, const char *func, const int line);
+      |      ^~~~~~~~~~~~~~
+os_dep/osdep_service.c:819:13: warning: conflicting types for ‘dbg_rtw_mfree’ due to enum/integer mismatch; have ‘void(void *, u32,  const enum mstat_f,  const char *, const int)’ {aka ‘void(void *, unsigned int,  const enum mstat_f,  const char *, const int)’} [-Wenum-int-mismatch]
+  819 | inline void dbg_rtw_mfree(void *pbuf, u32 sz, const enum mstat_f flags, const char *func, const int line)
+      |             ^~~~~~~~~~~~~
+././include/osdep_service.h:171:6: note: previous declaration of ‘dbg_rtw_mfree’ with type ‘void(void *, const enum mstat_f,  u32,  const char *, const int)’ {aka ‘void(void *, const enum mstat_f,  unsigned int,  const char *, const int)’}
+  171 | void dbg_rtw_mfree(void *pbuf, const enum mstat_f flags, u32 sz, const char *func, const int line);
+      |      ^~~~~~~~~~~~~
+os_dep/osdep_service.c: In function ‘thread_exit’:
+os_dep/osdep_service.c:1476:9: error: implicit declaration of function ‘complete_and_exit’ [-Werror=implicit-function-declaration]
+ 1476 |         complete_and_exit(comp, 0);
+      |         ^~~~~~~~~~~~~~~~~
+os_dep/osdep_service.c: In function ‘rtw_random32’:
+os_dep/osdep_service.c:3158:16: error: implicit declaration of function ‘prandom_u32’; did you mean ‘get_random_u32’? [-Werror=implicit-function-declaration]
+ 3158 |         return prandom_u32();
+      |                ^~~~~~~~~~~
+      |                get_random_u32
+  CC [M]  os_dep/linux/ioctl_linux.o
+os_dep/linux/sdio_intf.c:834:11: warning: no previous prototype for ‘rtw_sdio_primary_adapter_init’ [-Wmissing-prototypes]
+  834 | _adapter *rtw_sdio_primary_adapter_init(struct dvobj_priv *dvobj)
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/sdio_intf.c:1275:5: warning: no previous prototype for ‘rtw_resume_process’ [-Wmissing-prototypes]
+ 1275 | int rtw_resume_process(_adapter *padapter)
+      |     ^~~~~~~~~~~~~~~~~~
+In file included from /tmp/gmac_patch_build_20260618_143722/src/include/linux/module.h:23,
+                 from ././include/basic_types.h:76,
+                 from ././include/drv_types.h:26,
+                 from os_dep/linux/sdio_intf.c:17:
+os_dep/linux/sdio_intf.c:1433:18: error: expected ‘,’ or ‘;’ before ‘VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver’
+ 1433 | MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/gmac_patch_build_20260618_143722/src/include/linux/moduleparam.h:31:61: note: in definition of macro ‘MODULE_INFO’
+   31 |                 = __MODULE_INFO_PREFIX __stringify(tag) "=" info
+      |                                                             ^~~~
+os_dep/linux/sdio_intf.c:1433:1: note: in expansion of macro ‘MODULE_IMPORT_NS’
+ 1433 | MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+      | ^~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1096:6: warning: no previous prototype for ‘rtw_regsty_load_target_tx_power’ [-Wmissing-prototypes]
+ 1096 | void rtw_regsty_load_target_tx_power(struct registry_priv *regsty)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c: In function ‘rtw_net_set_mac_address’:
+os_dep/linux/os_intfs.c:1688:28: warning: passing argument 1 of ‘_rtw_memcpy’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1688 |         _rtw_memcpy(pnetdev->dev_addr, sa->sa_data, ETH_ALEN); /* set mac addr to net_device */
+      |                     ~~~~~~~^~~~~~~~~~
+In file included from ././include/drv_types.h:27,
+                 from os_dep/linux/os_intfs.c:17:
+././include/osdep_service.h:318:35: note: expected ‘void *’ but argument is of type ‘const unsigned char *’
+  318 | extern void     _rtw_memcpy(void *dec, const void *sour, u32 sz);
+      |                             ~~~~~~^~~
+os_dep/linux/os_intfs.c: At top level:
+os_dep/linux/os_intfs.c:1728:14: warning: no previous prototype for ‘rtw_classify8021d’ [-Wmissing-prototypes]
+ 1728 | unsigned int rtw_classify8021d(struct sk_buff *skb)
+      |              ^~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1864:5: warning: no previous prototype for ‘rtw_ndev_init’ [-Wmissing-prototypes]
+ 1864 | int rtw_ndev_init(struct net_device *dev)
+      |     ^~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1877:6: warning: no previous prototype for ‘rtw_ndev_uninit’ [-Wmissing-prototypes]
+ 1877 | void rtw_ndev_uninit(struct net_device *dev)
+      |      ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:1937:6: warning: no previous prototype for ‘rtw_hook_if_ops’ [-Wmissing-prototypes]
+ 1937 | void rtw_hook_if_ops(struct net_device *ndev)
+      |      ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:2019:5: warning: no previous prototype for ‘rtw_os_ndev_alloc’ [-Wmissing-prototypes]
+ 2019 | int rtw_os_ndev_alloc(_adapter *adapter)
+      |     ^~~~~~~~~~~~~~~~~
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：os_dep/linux/sdio_intf.o] 错误 1
+make[3]: *** 正在等待未完成的任务....
+os_dep/linux/os_intfs.c: In function ‘rtw_ethtool_get_drvinfo’:
+os_dep/linux/os_intfs.c:2075:17: error: implicit declaration of function ‘strlcpy’; did you mean ‘strncpy’? [-Werror=implicit-function-declaration]
+ 2075 |                 strlcpy(info->driver, wiphy_dev(wdev->wiphy)->driver->name,
+      |                 ^~~~~~~
+      |                 strncpy
+os_dep/linux/os_intfs.c: At top level:
+os_dep/linux/os_intfs.c:2174:5: warning: no previous prototype for ‘rtw_os_ndev_register’ [-Wmissing-prototypes]
+ 2174 | int rtw_os_ndev_register(_adapter *adapter, const char *name)
+      |     ^~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c: In function ‘rtw_os_ndev_register’:
+os_dep/linux/os_intfs.c:2182:9: error: too many arguments to function ‘netif_napi_add’
+ 2182 |         netif_napi_add(ndev, &adapter->napi, rtw_recv_napi_poll, RTL_NAPI_WEIGHT);
+      |         ^~~~~~~~~~~~~~
+In file included from ././include/osdep_service_linux.h:31,
+                 from ././include/osdep_service.h:59:
+/tmp/gmac_patch_build_20260618_143722/src/include/linux/netdevice.h:2841:1: note: declared here
+ 2841 | netif_napi_add(struct net_device *dev, struct napi_struct *napi,
+      | ^~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:2202:25: warning: passing argument 1 of ‘_rtw_memcpy’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2202 |         _rtw_memcpy(ndev->dev_addr, adapter_mac_addr(adapter), ETH_ALEN);
+      |                     ~~~~^~~~~~~~~~
+././include/osdep_service.h:318:35: note: expected ‘void *’ but argument is of type ‘const unsigned char *’
+  318 | extern void     _rtw_memcpy(void *dec, const void *sour, u32 sz);
+      |                             ~~~~~~^~~
+os_dep/linux/os_intfs.c: At top level:
+os_dep/linux/os_intfs.c:2317:5: warning: no previous prototype for ‘rtw_os_ndevs_alloc’ [-Wmissing-prototypes]
+ 2317 | int rtw_os_ndevs_alloc(struct dvobj_priv *dvobj)
+      |     ^~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:2369:6: warning: no previous prototype for ‘rtw_os_ndevs_free’ [-Wmissing-prototypes]
+ 2369 | void rtw_os_ndevs_free(struct dvobj_priv *dvobj)
+      |      ^~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:2501:4: warning: no previous prototype for ‘rtw_init_default_value’ [-Wmissing-prototypes]
+ 2501 | u8 rtw_init_default_value(_adapter *padapter)
+      |    ^~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3249:5: warning: no previous prototype for ‘_netdev_vir_if_open’ [-Wmissing-prototypes]
+ 3249 | int _netdev_vir_if_open(struct net_device *pnetdev)
+      |     ^~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3340:5: warning: no previous prototype for ‘netdev_vir_if_open’ [-Wmissing-prototypes]
+ 3340 | int netdev_vir_if_open(struct net_device *pnetdev)
+      |     ^~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3542:6: warning: no previous prototype for ‘rtw_drv_stop_vir_if’ [-Wmissing-prototypes]
+ 3542 | void rtw_drv_stop_vir_if(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3584:6: warning: no previous prototype for ‘rtw_drv_free_vir_if’ [-Wmissing-prototypes]
+ 3584 | void rtw_drv_free_vir_if(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3748:5: warning: no previous prototype for ‘rtw_os_ndevs_register’ [-Wmissing-prototypes]
+ 3748 | int rtw_os_ndevs_register(struct dvobj_priv *dvobj)
+      |     ^~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:3865:6: warning: no previous prototype for ‘netdev_br_init’ [-Wmissing-prototypes]
+ 3865 | void netdev_br_init(struct net_device *netdev)
+      |      ^~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:4182:6: warning: no previous prototype for ‘ips_netdrv_open’ [-Wmissing-prototypes]
+ 4182 | int  ips_netdrv_open(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:4375:5: warning: no previous prototype for ‘pm_netdev_open’ [-Wmissing-prototypes]
+ 4375 | int pm_netdev_open(struct net_device *pnetdev, u8 bnormal)
+      |     ^~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:4503:5: warning: no previous prototype for ‘pm_netdev_close’ [-Wmissing-prototypes]
+ 4503 | int pm_netdev_close(struct net_device *pnetdev, u8 bnormal)
+      |     ^~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:5210:5: warning: no previous prototype for ‘rtw_suspend_normal’ [-Wmissing-prototypes]
+ 5210 | int rtw_suspend_normal(_adapter *padapter)
+      |     ^~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:5623:6: warning: no previous prototype for ‘rtw_mi_resume_process_normal’ [-Wmissing-prototypes]
+ 5623 | void rtw_mi_resume_process_normal(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/os_intfs.c:5656:5: warning: no previous prototype for ‘rtw_resume_process_normal’ [-Wmissing-prototypes]
+ 5656 | int rtw_resume_process_normal(_adapter *padapter)
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~
+cc1: some warnings being treated as errors
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：os_dep/linux/os_intfs.o] 错误 1
+cc1: some warnings being treated as errors
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：os_dep/osdep_service.o] 错误 1
+os_dep/linux/ioctl_linux.c:157:6: warning: no previous prototype for ‘indicate_wx_scan_complete_event’ [-Wmissing-prototypes]
+  157 | void indicate_wx_scan_complete_event(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_linux.c:170:6: warning: no previous prototype for ‘rtw_indicate_wx_assoc_event’ [-Wmissing-prototypes]
+  170 | void rtw_indicate_wx_assoc_event(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+os_dep/linux/ioctl_linux.c:193:6: warning: no previous prototype for ‘rtw_indicate_wx_disassoc_event’ [-Wmissing-prototypes]
+  193 | void rtw_indicate_wx_disassoc_event(_adapter *padapter)
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:2026：.] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/rtl8821cs_build_20260620_102054”
+make: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+=== build rc=2 2026年 06月 20日 星期六 10:39:07 CST ===

@@ -1,0 +1,78 @@
+make: Entering directory '/tmp/gmac_patch_build_20260618_143722/src'
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac”
+  CC [M]  stmmac_main.o
+  CC [M]  stmmac_ethtool.o
+  CC [M]  stmmac_mdio.o
+  CC [M]  ring_mode.o
+  CC [M]  chain_mode.o
+  CC [M]  dwmac_lib.o
+  CC [M]  dwmac1000_core.o
+  CC [M]  dwmac1000_dma.o
+  CC [M]  dwmac100_core.o
+  CC [M]  dwmac100_dma.o
+  CC [M]  enh_desc.o
+  CC [M]  norm_desc.o
+  CC [M]  mmc_core.o
+  CC [M]  stmmac_hwtstamp.o
+  CC [M]  stmmac_ptp.o
+  CC [M]  dwmac4_descs.o
+  CC [M]  dwmac4_dma.o
+  CC [M]  dwmac4_lib.o
+  CC [M]  dwmac4_core.o
+  CC [M]  dwmac5.o
+  CC [M]  hwif.o
+  CC [M]  stmmac_tc.o
+  CC [M]  dwxgmac2_core.o
+  CC [M]  dwxgmac2_dma.o
+  CC [M]  dwxgmac2_descs.o
+  CC [M]  stmmac_xdp.o
+  CC [M]  stmmac_est.o
+  CC [M]  stmmac_fpe.o
+  CC [M]  stmmac_vlan.o
+  CC [M]  stmmac_pcs.o
+  CC [M]  stmmac_platform.o
+  CC [M]  dwmac-ipq806x.o
+  CC [M]  dwmac-mediatek.o
+  CC [M]  dwmac-meson.o
+  CC [M]  dwmac-meson8b.o
+  CC [M]  dwmac-nuvoton.o
+  CC [M]  dwmac-qcom-ethqos.o
+  CC [M]  dwmac-renesas-gbeth.o
+  CC [M]  dwmac-rk.o
+  CC [M]  dwmac-s32.o
+  CC [M]  dwmac-socfpga.o
+  CC [M]  dwmac-sophgo.o
+  CC [M]  dwmac-stm32.o
+  CC [M]  dwmac-sunxi.o
+  CC [M]  dwmac-sun8i.o
+  CC [M]  dwmac-sun55i.o
+  CC [M]  dwmac-generic.o
+  CC [M]  dwmac-imx.o
+  CC [M]  dwmac-tegra.o
+  CC [M]  dwmac-visconti.o
+  LD [M]  stmmac.o
+  LD [M]  stmmac-platform.o
+  LD [M]  dwmac-altr-socfpga.o
+  MODPOST Module.symvers
+WARNING: /tmp/gmac_patch_build_20260618_143722/out_mod2/Module.symvers is missing.
+         Modules may not have dependencies or modversions.
+         You may get many unresolved symbol errors.
+         You can set KBUILD_MODPOST_WARN=1 to turn errors into warning
+         if you want to proceed at your own risk.
+ERROR: modpost: "mdiobus_alloc_size" [stmmac.ko] undefined!
+ERROR: modpost: "napi_alloc_skb" [stmmac.ko] undefined!
+ERROR: modpost: "free_irq" [stmmac.ko] undefined!
+ERROR: modpost: "is_vmalloc_addr" [stmmac.ko] undefined!
+ERROR: modpost: "device_set_wakeup_enable" [stmmac.ko] undefined!
+ERROR: modpost: "rtnl_unlock" [stmmac.ko] undefined!
+ERROR: modpost: "bpf_prog_put" [stmmac.ko] undefined!
+ERROR: modpost: "device_set_wakeup_capable" [stmmac.ko] undefined!
+ERROR: modpost: "devlink_unregister" [stmmac.ko] undefined!
+ERROR: modpost: "hrtimer_setup" [stmmac.ko] undefined!
+WARNING: modpost: suppressed 672 unresolved symbol warnings because there were too many)
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.modpost:147：Module.symvers] 错误 1
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:1976：modpost] 错误 2
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/src/drivers/net/ethernet/stmicro/stmmac”
+make: *** [Makefile:248: __sub-make] Error 2
+make: Leaving directory '/tmp/gmac_patch_build_20260618_143722/src'

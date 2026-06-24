@@ -1,0 +1,59 @@
+
+root@armbian:~# echo TTL_PM_CLOCK_PROBE; date; uname -a; echo ---PM---; for f in /sys/devices/platform/fe300000.ethernet/power/runtime_status /sys/devices/platform/fe300000.ethernet/power/runtime_usage /sys/devices/platform/fe300000.ethernet/power/control; do echo [$f]; cat $f 2>/dev/null || true; done; echo ---RESET_DT---; for f in resets reset-names clocks clock-names assigned-clocks assigned-clock-parents; do echo [$f]; od -An -tx4 -v /proc/device-tree/ethernet@fe300000/$f 2>/dev/null || strings /proc/device-tree/ethernet@fe300000/$f 2>/dev/null || true; done; echo ---DEBUGFS_CLK_GMAC---; mount -t debugfs none /sys/kernel/debug 2>/dev/null || true; grep -iE "gmac|stmmac|mac|rmii|rgmii|sclk_mac|aclk_gmac|pclk_gmac|clk_mac" /sys/kernel/debug/clk/clk_summary 2>/dev/null | head -n 120 || true; echo ---DUMP_REGS_IF_ANY---; find /sys/kernel/debug -maxdepth 4 -iname "*stmmac*" -o -iname "*eth*" 2>/dev/null | head -n 80; echo DONE_PM_CLOCK_PROBE
+TTL_PM_CLOCK_PROBE
+Mon Jun  1 10:19:37 PM CST 2026
+Linux armbian 6.18.33 #2 SMP PREEMPT Thu Jun 18 17:05:42 CST 2026 aarch64 GNU/Linux
+---PM---
+[/sys/devices/platform/fe300000.ethernet/power/runtime_status]
+active
+[/sys/devices/platform/fe300000.ethernet/power/runtime_usage]
+[/sys/devices/platform/fe300000.ethernet/power/control]
+auto
+---RESET_DT---
+[resets]
+ 08000000 89000000
+[reset-names]
+ 6d6d7473 74656361 00000068
+[clocks]
+ 08000000 69000000 08000000 67000000
+ 08000000 68000000 08000000 66000000
+ 08000000 6a000000 08000000 d5000000
+ 08000000 66010000
+[clock-names]
+ 6d6d7473 74656361 616d0068 6c635f63
+ 78725f6b 63616d00 6b6c635f 0078745f
+ 5f6b6c63 5f63616d 00666572 5f6b6c63
+ 5f63616d 6f666572 61007475 5f6b6c63
+ 0063616d 6b6c6370 63616d5f 00000000
+[assigned-clocks]
+ 08000000 a6000000
+[assigned-clock-parents]
+ 20000000
+---DEBUGFS_CLK_GMAC---
+ clkin_gmac                          1       1        0        125000000   0          0     50000      Y   deviceless                      no_connection_id         
+    clk_rmii_src                     1       4        0        125000000   0          0     50000      Y      deviceless                      no_connection_id         
+       clk_rmii_tx                   1       2        0        125000000   0          0     50000      Y         fe300000.ethernet               mac_clk_tx               
+       clk_rmii_rx                   0       1        0        125000000   0          0     50000      N         ethernet@fe300000               no_connection_id         
+       clk_mac_ref                   0       1        0        125000000   0          0     50000      N         ethernet@fe300000               no_connection_id         
+       clk_mac_refout                0       1        0        125000000   0          0     50000      N         ethernet@fe300000               no_connection_id         
+          clk_gmac                   1       2        0        50000000    0          0     50000      Y            fe300000.ethernet               stmmaceth                
+          gpll_aclk_gmac_src         0       0        0        594000000   0          0     50000      Y            deviceless                      no_connection_id         
+                aclk_dmac1_perilp    0       1        0        100000000   0          0     50000      N                  ff6e0000.dma-controller         apb_pclk                 
+                aclk_dmac0_perilp    1       2        0        100000000   0          0     50000      Y                  ff6d0000.dma-controller         apb_pclk                 
+          cpll_aclk_gmac_src         1       1        0        800000000   0          0     50000      Y            deviceless                      no_connection_id         
+             aclk_gmac_pre           2       2        0        200000000   0          0     50000      Y               deviceless                      no_connection_id         
+                pclk_gmac_pre        1       1        0        50000000    0          0     50000      Y                  deviceless                      no_connection_id         
+                   pclk_gmac_noc     0       0        0        50000000    0          0     50000      Y                     deviceless                      no_connection_id         
+                   pclk_gmac         1       3        0        50000000    0          0     50000      Y                     fe300000.ethernet               pclk_mac                 
+                aclk_perf_gmac       0       0        0        200000000   0          0     50000      N                  deviceless                      no_connection_id         
+                aclk_gmac_noc        0       0        0        200000000   0          0     50000      Y                  deviceless                      no_connection_id         
+                aclk_gmac            1       3        0        200000000   0          0     50000      Y                  fe300000.ethernet               aclk_mac                 
+---DUMP_REGS_IF_ANY---
+/sys/kernel/debug/stmmaceth
+/sys/kernel/debug/stmmaceth/eth0
+/sys/kernel/debug/dpaa2-eth
+/sys/kernel/debug/regulator/vcc_phy/fe300000.ethernet-phy
+DONE_PM_CLOCK_PROBE
+root@armbian:~# echo __CMD_DONE_1781783610521__
+__CMD_DONE_1781783610521__
+root@armbian:~# 

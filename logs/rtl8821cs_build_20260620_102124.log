@@ -1,0 +1,67 @@
+=== build start 2026年 06月 20日 星期六 10:21:24 CST ===
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -C /tmp/gmac_patch_build_20260618_143722/out_full M=/mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/external/ldwifibt/drivers/rtl8821cs  modules
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make[2]: 进入目录“/mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/external/ldwifibt/drivers/rtl8821cs”
+  CC [M]  core/rtw_cmd.o
+core/rtw_cmd.c:17:10: fatal error: drv_types.h: 没有那个文件或目录
+   17 | #include <drv_types.h>
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make[4]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：core/rtw_cmd.o] 错误 1
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:2026：.] 错误 2
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[2]: 离开目录“/mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/external/ldwifibt/drivers/rtl8821cs”
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: *** [Makefile:2469：modules] 错误 2
+=== build end 2026年 06月 20日 星期六 10:21:25 CST rc=2 ===
+=== retry build 2026年 06月 20日 星期六 10:25:06 CST ===
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -C /tmp/gmac_patch_build_20260618_143722/out_full M=/tmp/rtl8821cs_build_20260620_102054  modules
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make[2]: 进入目录“/tmp/rtl8821cs_build_20260620_102054”
+  CC [M]  core/rtw_cmd.o
+In file included from ././include/osdep_service.h:59,
+                 from ././include/drv_types.h:27,
+                 from core/rtw_cmd.c:17:
+././include/osdep_service_linux.h: In function ‘timer_hdl’:
+././include/osdep_service_linux.h:361:26: error: implicit declaration of function ‘from_timer’; did you mean ‘mod_timer’? [-Werror=implicit-function-declaration]
+  361 |         _timer *ptimer = from_timer(ptimer, in_timer, timer);
+      |                          ^~~~~~~~~~
+      |                          mod_timer
+././include/osdep_service_linux.h:361:55: error: ‘timer’ undeclared (first use in this function); did you mean ‘ptimer’?
+  361 |         _timer *ptimer = from_timer(ptimer, in_timer, timer);
+      |                                                       ^~~~~
+      |                                                       ptimer
+././include/osdep_service_linux.h:361:55: note: each undeclared identifier is reported only once for each function it appears in
+././include/osdep_service_linux.h: In function ‘_cancel_timer’:
+././include/osdep_service_linux.h:390:23: error: implicit declaration of function ‘del_timer_sync’; did you mean ‘dev_mc_sync’? [-Werror=implicit-function-declaration]
+  390 |         *bcancelled = del_timer_sync(&ptimer->timer) == 1 ? 1 : 0;
+      |                       ^~~~~~~~~~~~~~
+      |                       dev_mc_sync
+././include/osdep_service_linux.h: In function ‘_cancel_timer_async’:
+././include/osdep_service_linux.h:395:9: error: implicit declaration of function ‘del_timer’; did you mean ‘_set_timer’? [-Werror=implicit-function-declaration]
+  395 |         del_timer(&ptimer->timer);
+      |         ^~~~~~~~~
+      |         _set_timer
+In file included from ././include/drv_types.h:114:
+././include/rtw_mlme_ext.h: At top level:
+././include/rtw_mlme_ext.h:1210:4: warning: no previous prototype for ‘rtw_mesh_set_plink_state_cmd_hdl’ [-Wmissing-prototypes]
+ 1210 | u8 rtw_mesh_set_plink_state_cmd_hdl(_adapter *adapter, u8 *parmbuf) { return H2C_CMD_FAIL; };
+      |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ././include/../hal/phydm/phydm.h:107,
+                 from ././include/../hal/phydm/phydm_precomp.h:90,
+                 from ././include/hal_data.h:20,
+                 from core/rtw_cmd.c:18:
+././include/../hal/phydm/halrf/halrf.h:32:10: fatal error: halrf/halrf_psd.h: 没有那个文件或目录
+   32 | #include "halrf/halrf_psd.h"
+      |          ^~~~~~~~~~~~~~~~~~~
+cc1: some warnings being treated as errors
+compilation terminated.
+make[4]: *** [/tmp/gmac_patch_build_20260618_143722/src/scripts/Makefile.build:287：core/rtw_cmd.o] 错误 1
+make[3]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:2026：.] 错误 2
+make[2]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[2]: 离开目录“/tmp/rtl8821cs_build_20260620_102054”
+make[1]: *** [/tmp/gmac_patch_build_20260618_143722/src/Makefile:248：__sub-make] 错误 2
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: *** [Makefile:2469：modules] 错误 2
+=== build rc=2 2026年 06月 20日 星期六 10:25:08 CST ===

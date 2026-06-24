@@ -1,0 +1,101 @@
+-rw-r--r-- root:root etc/systemd/system/getty@tty1.service.d/autologin.conf -> 
+-rw-r--r-- root:root etc/systemd/system/logrotate.service -> 
+-rw-r--r-- root:root etc/systemd/system/serial-getty@ttyS2.service.d/autologin.conf -> 
+-rw-rw-r-- root:root etc/systemd/system/getty@.service.d/override.conf -> 
+-rw-rw-r-- root:root etc/systemd/system/serial-getty@.service.d/override.conf -> 
+drwxr-xr-x root:root etc/systemd/system -> 
+drwxr-xr-x root:root etc/systemd/system/basic.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/default.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/getty.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/getty@tty1.service.d -> 
+drwxr-xr-x root:root etc/systemd/system/multi-user.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/nfs-client.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/remote-fs.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/serial-getty@ttyS2.service.d -> 
+drwxr-xr-x root:root etc/systemd/system/shutdown.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/sockets.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/ssh.service.wants -> 
+drwxr-xr-x root:root etc/systemd/system/ssh.socket.wants -> 
+drwxr-xr-x root:root etc/systemd/system/sshd.service.wants -> 
+drwxr-xr-x root:root etc/systemd/system/sshd@.service.wants -> 
+drwxr-xr-x root:root etc/systemd/system/sysinit.target.wants -> 
+drwxr-xr-x root:root etc/systemd/system/timers.target.wants -> 
+drwxrwxr-x root:root etc/systemd/system/getty@.service.d -> 
+drwxrwxr-x root:root etc/systemd/system/serial-getty@.service.d -> 
+lrwxrwxrwx root:root etc/systemd/system/NetworkManager-wait-online.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/apt-daily-upgrade.timer -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/apt-daily.timer -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/armbian-zram-config.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/basic.target.wants/armbian-led-state.service -> /usr/lib/systemd/system/armbian-led-state.service
+lrwxrwxrwx root:root etc/systemd/system/chronyd.service -> /usr/lib/systemd/system/chrony.service
+lrwxrwxrwx root:root etc/systemd/system/console-setup.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/dbus-fi.w1.wpa_supplicant1.service -> /usr/lib/systemd/system/wpa_supplicant.service
+lrwxrwxrwx root:root etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service -> /usr/lib/systemd/system/NetworkManager-dispatcher.service
+lrwxrwxrwx root:root etc/systemd/system/dbus-org.freedesktop.resolve1.service -> /usr/lib/systemd/system/systemd-resolved.service
+lrwxrwxrwx root:root etc/systemd/system/default.target -> /lib/systemd/system/multi-user.target
+lrwxrwxrwx root:root etc/systemd/system/default.target.wants/watchdog.service -> /usr/lib/systemd/system/watchdog.service
+lrwxrwxrwx root:root etc/systemd/system/dpkg-db-backup.timer -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/getty.target.wants/getty@tty1.service -> /usr/lib/systemd/system/getty@.service
+lrwxrwxrwx root:root etc/systemd/system/hibernate.target -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/hybrid-sleep.target -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/keyboard-setup.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/man-db.timer -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/modprobe@configfs.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/modprobe@drm.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/modprobe@efi_pstore.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/NetworkManager.service -> /usr/lib/systemd/system/NetworkManager.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/chrony.service -> /usr/lib/systemd/system/chrony.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/console-setup.service -> /lib/systemd/system/console-setup.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/cron.service -> /usr/lib/systemd/system/cron.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/e2scrub_reap.service -> /usr/lib/systemd/system/e2scrub_reap.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/nfs-client.target -> /usr/lib/systemd/system/nfs-client.target
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/openvpn.service -> /usr/lib/systemd/system/openvpn.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/remote-fs.target -> /usr/lib/systemd/system/remote-fs.target
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/rng-tools-debian.service -> /usr/lib/systemd/system/rng-tools-debian.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/rpcbind.service -> /usr/lib/systemd/system/rpcbind.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/rsyslog.service -> /usr/lib/systemd/system/rsyslog.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/serial-getty@ttyS2.service -> /usr/lib/systemd/system/serial-getty@.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/ssh.service -> /usr/lib/systemd/system/ssh.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/unattended-upgrades.service -> /usr/lib/systemd/system/unattended-upgrades.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/vnstat.service -> /usr/lib/systemd/system/vnstat.service
+lrwxrwxrwx root:root etc/systemd/system/multi-user.target.wants/wpa_supplicant.service -> /usr/lib/systemd/system/wpa_supplicant.service
+lrwxrwxrwx root:root etc/systemd/system/nfs-client.target.wants/nfs-blkmap.service -> /usr/lib/systemd/system/nfs-blkmap.service
+lrwxrwxrwx root:root etc/systemd/system/plymouth-halt.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/plymouth-poweroff.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/plymouth-quit-wait.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/plymouth-quit.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/plymouth-read-write.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/plymouth-reboot.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/plymouth-start.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/plymouth-switch-root.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/remote-fs.target.wants/nfs-client.target -> /usr/lib/systemd/system/nfs-client.target
+lrwxrwxrwx root:root etc/systemd/system/rng-tools.service -> /usr/lib/systemd/system/rng-tools-debian.service
+lrwxrwxrwx root:root etc/systemd/system/serial-getty@ttyAML0.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/shutdown.target.wants/fake-hwclock-save.service -> /usr/lib/systemd/system/fake-hwclock-save.service
+lrwxrwxrwx root:root etc/systemd/system/sleep.target -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/sockets.target.wants/rpcbind.socket -> /usr/lib/systemd/system/rpcbind.socket
+lrwxrwxrwx root:root etc/systemd/system/ssh.service.wants/sshd-keygen.service -> /usr/lib/systemd/system/sshd-keygen.service
+lrwxrwxrwx root:root etc/systemd/system/ssh.socket.wants/sshd-keygen.service -> /usr/lib/systemd/system/sshd-keygen.service
+lrwxrwxrwx root:root etc/systemd/system/sshd.service -> /usr/lib/systemd/system/ssh.service
+lrwxrwxrwx root:root etc/systemd/system/sshd.service.wants/sshd-keygen.service -> /usr/lib/systemd/system/sshd-keygen.service
+lrwxrwxrwx root:root etc/systemd/system/sshd@.service.wants/sshd-keygen.service -> /usr/lib/systemd/system/sshd-keygen.service
+lrwxrwxrwx root:root etc/systemd/system/suspend.target -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/sys-kernel-config.mount -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/sysinit.target.wants/armbian-zram-config.service -> /usr/lib/systemd/system/armbian-zram-config.service
+lrwxrwxrwx root:root etc/systemd/system/sysinit.target.wants/fake-hwclock-load.service -> /usr/lib/systemd/system/fake-hwclock-load.service
+lrwxrwxrwx root:root etc/systemd/system/sysinit.target.wants/keyboard-setup.service -> /lib/systemd/system/keyboard-setup.service
+lrwxrwxrwx root:root etc/systemd/system/sysinit.target.wants/systemd-pstore.service -> /usr/lib/systemd/system/systemd-pstore.service
+lrwxrwxrwx root:root etc/systemd/system/sysinit.target.wants/systemd-resolved.service -> /usr/lib/systemd/system/systemd-resolved.service
+lrwxrwxrwx root:root etc/systemd/system/syslog.service -> /usr/lib/systemd/system/rsyslog.service
+lrwxrwxrwx root:root etc/systemd/system/systemd-ask-password-plymouth.path -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/systemd-firstboot.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/systemd-pstore.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/systemd-random-seed.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/systemd-resolved.service -> /dev/null
+lrwxrwxrwx root:root etc/systemd/system/timers.target.wants/apt-daily-upgrade.timer -> /lib/systemd/system/apt-daily-upgrade.timer
+lrwxrwxrwx root:root etc/systemd/system/timers.target.wants/apt-daily.timer -> /lib/systemd/system/apt-daily.timer
+lrwxrwxrwx root:root etc/systemd/system/timers.target.wants/dpkg-db-backup.timer -> /lib/systemd/system/dpkg-db-backup.timer
+lrwxrwxrwx root:root etc/systemd/system/timers.target.wants/fake-hwclock-save.timer -> /usr/lib/systemd/system/fake-hwclock-save.timer
+lrwxrwxrwx root:root etc/systemd/system/timers.target.wants/logrotate.timer -> /usr/lib/systemd/system/logrotate.timer
+lrwxrwxrwx root:root etc/systemd/system/timers.target.wants/man-db.timer -> /usr/lib/systemd/system/man-db.timer
+lrwxrwxrwx root:root etc/systemd/system/unattended-upgrades.service -> /dev/null

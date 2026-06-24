@@ -1,0 +1,101 @@
+
+root@armbian:~# set -e
+TAMP=$(date +%Y%m%d_%H%M%S)
+cp -a "$SRC" "$SRC.bak.$STAMP"
+dtc -I dtb -O dts -o /tmp/gmac-phyhandle-pll-test.dts "$SRC"
+cat >/tmp/make_gmac_phyhandle_pll.py <<'PY'
+from pathlib import Path
+import re
+p=Path('/tmp/gmac-phyhandle-pll-test.dts')
+text=p.read_text(errors='replace')
+if 'motorcomm,keep-pll-enabled' in text or 'phy-handle =' in text:
+    raise SystemExit('target dts already contains phy-handle or keep-pll markers; aborting')
+ph=[int(x,16) for x in re.findall(r'phandle = <0x([0-9a-fA-F]+)>;', text)]
+new=max(ph)+1 if ph else 0xc2
+lines=text.splitlines()
+# locate ethernet block boundaries
+start=None
+end=None
+for i,l in enumerate(lines):
+    if '\tethernet@fe300000 {' == l:
+        start=i
+        break
+if start is None:
+    raise SystemExit('ethernet block not found')
+for i in range(start+1, len(lines)):
+    if lines[i] == '\t};':
+        end=i
+        break
+if end is None:
+    raise SystemExit('ethernet block end not found')
+insert=[
+    '\t\tphy-handle = <0x%x>;' % new,
+    '\t\tmdio {',
+    '\t\t\tcompatible = "snps,dwmac-mdio";',
+    '\t\t\t#address-cells = <0x01>;',
+    '\t\t\t#size-cells = <0x00>;',
+    '',
+    '\t\t\tethernet-phy@0 {',
+    '\t\t\t\treg = <0x00>;',
+    '\t\t\t\tphandle = <0x%x>;' % new,
+    '\t\t\t\tlinux,phandle = <0x%x>;' % new,
+    '\t\t\t\tmotorcomm,keep-pll-enabled;',
+    '\t\t\t\tmotorcomm,auto-sleep-disabled;',
+    '\t\t\t};',
+    '\t\t};',
+]
+lines = lines[:end] + insert + lines[end:]
+p.write_text('\n'.join(lines)+'\n')
+print(f'NEW_PHY_PHANDLE=0x{new:x}')
+PY
+python3 /tmp/make_gmac_phyhandle_pll.py
+dtc -I dts -O dtb -o "$DST" /tmp/gmac-phyhandle-pll-test.dts
+echo ====verify-dtb====
+dtc -I dtb -O dts -o /tmp/gmac-phyhandle-pll-check.dts "$DST"
+sed -n '/ethernet@fe300000 {/,/^\t};/p' /tmp/gmac-phyhandle-pll-check.dts | sed -n '1,80p'
+echo ----mdio-node----
+sed -n '/mdio {/,/^\t\t};/p' /tmp/gmac-phyhandle-pll-check.dts | sed -n '1,40p'
+cp -a /mnt/sdboot/extlinux/extlinux.conf /mnt/sdboot/extlinux/extlinux.conf.bak.$STAMP
+sed -i 's#^\([[:space:]]*FDT[[:space:]]\+\).*#\1/dtb/rockchip/gmac-phyhandle-pll-test.dtb#' /mnt/sdboot/extlinux/extlinux.conf
+echo ====extlinux====
+sed -n '1,20p' /mnt/sdboot/extlinux/extlinux.conf
+sync
+echo __CMD_DONE_1781756737475__
+root@armbian:~# mkdir -p /mnt/sdboot
+root@armbian:~# mountpoint -q /mnt/sdboot || mount /dev/mmcblk1p1 /mnt/sdboot
+[  636.365016] EXT4-fs (mmcblk1p1): mounted filesystem 955919d4-e37d-4c44-99d6-c0a5552f798c r/w with ordered data mode. Quota mode: none.
+mount: (hint) your fstab has been modified, but systemd still uses
+       the old version; use 'systemctl daemon-reload' to reload.
+root@armbian:~# SRC=/mnt/sdboot/dtb/rockchip/gmac-vccphy-test.dtb
+root@armbian:~# DST=/mnt/sdboot/dtb/rockchip/gmac-phyhandle-pll-test.dtb
+root@armbian:~# STAMP=$(date +%Y%m%d_%H%M%S)
+root@armbian:~# cp -a "$SRC" "$SRC.bak.$STAMP"
+root@armbian:~# dtc -I dtb -O dts -o /tmp/gmac-phyhandle-pll-test.dts "$SRC"
+/tmp/gmac-phyhandle-pll-test.dts: Warning (unit_address_vs_reg): /usb@fe800000: node has a unit name, but no reg or ranges property
+/tmp/gmac-phyhandle-pll-test.dts: Warning (unit_address_vs_reg): /usb@fe900000: node has a unit name, but no reg or ranges property
+/tmp/gmac-phyhandle-pll-test.dts: Warning (unique_unit_address): /pcie@f8000000: duplicate unit-address (also used in node /pcie-ep@f8000000)
+root@armbian:~# cat >/tmp/make_gmac_phyhandle_pll.py <<'PY'
+> from pathlib import Path
+> import re
+> p=Path('/tmp/gmac-phyhandle-pll-test.dts')
+> text=p.read_text(errors='replace')
+> if 'motorcomm,keep-pll-enabled' in text or 'phy-handle =' in text:
+>     raise SystemExit('target dts already contains phy-handle or keep-pll markers; aborting')
+> ph=[int(x,16) for x in re.findall(r'phandle = <0x([0-9a-fA-F]+)>;', text)]
+> new=max(ph)+1 if ph else 0xc2
+> lines=text.splitlines()
+> # locate ethernet block boundaries
+> start=None
+> end=None
+> for i,l in enumerate(lines):
+>     if '\tethernet@fe300000 {' == l:
+>         start=i
+>         break
+> if start is None:
+>     raise SystemExit('ethernet block not found')
+> for i in range(start+1, len(lines)):
+>     if lines[i] == '\t};':
+>         end=i
+>         break
+> if end is None:
+

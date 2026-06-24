@@ -1,0 +1,107 @@
+
+## 2026-06-18 16:22:01 GMAC patch 编译与 SD 部署记录
+
+### 目标
+- 解决  后 eth0 open 时报  /  的问题。
+- 本轮实现的是**可回退测试内核**：先强化 dwmac-rockchip 初始化日志、强制 RK3399 外置 RGMII PHY 使用 、在 GRF/PHY power 后补一次外置 PHY reset。
+
+### 编译源码与配置
+- 源码目录：
+  - 
+- 输出目录：
+  - 
+- 原始配置来源：
+  - 
+- 完整 Image 编译命令：
+  - make: Entering directory '/tmp/gmac_patch_build_20260618_143722/src'
+make[1]: 进入目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+  GEN     Makefile
+  CALL    /tmp/gmac_patch_build_20260618_143722/src/scripts/checksyscalls.sh
+make[1]: 离开目录“/tmp/gmac_patch_build_20260618_143722/out_full”
+make: Leaving directory '/tmp/gmac_patch_build_20260618_143722/src'
+- 编译日志：
+  - （第一次完整编译，遇到 FEC 无关错误）
+  - （最终成功）
+
+### 本轮源码修改概要
+1. 
+   - 增加 。
+   -  增加 。
+   -  打印 GRF_SOC_CON5/6 readback，用于确认 TX/RX delay 和 clock mux 写入是否生效。
+   - 新增 ：读取 ，通过  GPIO 在 GMAC powerup 后对外置 PHY 再复位一次。
+   - 新增 ：对 RK3399 外置 RGMII PHY 测试场景强制 ，避免继续走 CRU clock output 路径。
+   -  增加  日志，并在  后执行外置 PHY reset。
+   -  读取  并打印 。
+2. 
+   - 为当前源码中  宏参数不匹配做构建修复： 补传 。
+3. 
+   -  关闭，保持 6.17.0-35-generic 仍为 ，避免模块/路径版本漂移。
+   -  关闭：该 Freescale FEC 驱动在当前 v6.18.33 源码中调用不存在的 ，与 RK3399Pro GMAC 无关；为完成 Image 构建临时禁用。
+   - GMAC 关键项保持内建：、、。
+
+### 产物
+- 产物目录：
+  - 
+- 内核 Image：
+  - 
+- 配置：
+  - 
+- 源文件副本：
+  - 
+  - 
+- SHA256：
+a491f53f25b7f5110f4f15d58ce91c8f233f0f2ed894325c2fa9d592f887e79c  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/clk-provider.h.with-buildfix
+d1b68d7383a7230ea9e1752ffcf9be2f0ed7320dde37e76d2866a61998d7455a  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/config-6.18.33-gmacpatch
+e1983b073f0ce5f60e28288ef9f84340d79118f149191409ef06243e9fe1f443  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/dwmac-rk.c.gmacpatch
+fab713e9f017713de83d173e251d837f76f5a31fd121c1690eb48fa4c0aea4bb  /mnt/sdb3/LPA3399Pro/build_artifacts/6.18.33-gmac-patch-20260618_161818/vmlinuz-6.18.33-gmacpatch
+
+### Image 内 patch 字符串验证
+
+defensive strings check:
+
+- rk3399 rgmii applied: GRF_SOC_CON5=0x%08x GRF_SOC_CON6=0x%08x tx=0x%x rx=0x%x
+- rk3399 rgmii applied: tx=0x%x rx=0x%x (grf readback unavailable)
+- external PHY reset GPIO present.
+- powerup start: phy_iface=%d clock_input=%d integrated_phy=%d tx=0x%x rx=0x%x
+- external PHY reset (%s) begin
+- external PHY reset (%s) end
+- powerup done: phy_iface=%d clock_input=%d integrated_phy=%d
+
+### SD 卡部署
+- SD boot 分区： 挂载到 
+- SD rootfs 分区： 挂载到 
+- 部署时间戳：
+- 替换文件：
+  - 
+  -  是指向该文件的软链接，因此无需改 extlinux。
+- 旧内核备份：
+  - 
+- extlinux 备份：
+  - 
+- 当前 extlinux 仍使用：
+  -   LINUX /Image
+  -   FDT /dtb/rockchip/gmac-phyhandle-pll-test.dtb
+  -   APPEND root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0
+
+### 当前状态与下一步验证
+- 编译已成功，SD 卡内核已替换完成，并保留旧内核可回退。
+- 需要把 SD 插回板子启动，然后通过 TTL 抓新日志。
+- 重点查找新内核日志：
+  - 
+  - 
+  - 
+  - 
+  - 
+- 验证命令建议：
+  - Linux Inspiron-7520 6.17.0-35-generic #35~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May 26 19:30:42 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+  - 
+  - lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+enp7s0           UP             d4:be:d9:3d:e5:be <BROADCAST,MULTICAST,UP,LOWER_UP> 
+wlp8s0           UP             e4:70:b8:ee:c6:13 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+tailscale0       UNKNOWN        <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> 
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+enp7s0           UP             192.168.50.12/24 2409:8a20:9665:99c4:d23:ed17:108b:91ac/64 2409:8a20:9665:99c4:7823:c0e9:873:498a/64 fe80::4779:378a:94:5c40/64 
+wlp8s0           UP             192.168.50.76/24 2409:8a20:9665:99c4:de58:3a06:2b52:d8f4/64 2409:8a20:9665:99c4:5b0f:560:26ad:433/64 fe80::7495:31eb:8cca:24b7/64 
+tailscale0       UNKNOWN        100.118.255.38/32 fd7a:115c:a1e0::3f37:ff26/128 fe80::efb9:f50a:f7e:f516/64 
+- 成功标准：不再出现  / ，且 eth0 能进入 UP/link up/DHCP 流程。
+

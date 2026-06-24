@@ -1,0 +1,44 @@
+
+[?2004l[?2004hroot@armbian:~# OUT=/root/gpt_parted_fix_$(date +%Y%m%d_%H%M%S).txt; { echo "=== GPT_PARTED_FIX_START $(date) ==="; echo --before--; parted /dev/mmcblk1 unit s print 2>&1 || true; echo --fix--; printf "Fix\n" | parted ---pretend-input-tty /dev/mmcblk1 unit s print 2>&1 || true; echo --after--; parted /dev/mmcblk1 unit s print 2>&1 || true; echo "=== GPT_PARTED_FIX_END $(date) ==="; } 2>&1 | tee "$OUT"; echo OUT=$OUT; echo __CURRENT_SHELL_DONE_1781846117680__:$?
+[?2004l=== GPT_PARTED_FIX_START Fri Jun 19 01:15:17 PM CST 2026 ===
+--before--
+Warning: Not all of the space available to /dev/mmcblk1 appears to be used, you
+can fix the GPT to use all of the space (an extra 22978560 blocks) or continue
+with the current setting? 
+                                                                                                                                                    [?2004hFix/Ignore? 
+[?2004l                                                                          [?2004hFix/Ignore? Fix
+[?2004lModel: SD SD16G (sd/mmc)
+Disk /dev/mmcblk1: 30203904s
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start     End       Size      File system  Name     Flags
+ 1      32768s    1079295s  1046528s  ext4         primary
+ 2      1081344s  7223295s  6141952s  ext4         primary
+
+--fix--
+Model: SD SD16G (sd/mmc)
+Disk /dev/mmcblk1: 30203904s
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start     End       Size      File system  Name     Flags
+ 1      32768s    1079295s  1046528s  ext4         primary
+ 2      1081344s  7223295s  6141952s  ext4         primary
+
+--after--
+Model: SD SD16G (sd/mmc)
+Disk /dev/mmcblk1: 30203904s
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start     End       Size      File system  Name     Flags
+ 1      32768s    1079295s  1046528s  ext4         primary
+ 2      1081344s  7223295s  6141952s  ext4         primary
+
+=== GPT_PARTED_FIX_END Fri Jun 19 01:16:14 PM CST 2026 ===
+OUT=/root/gpt_parted_fix_20260619_131517.txt
+__CURRENT_SHELL_DONE_1781846117680__:0

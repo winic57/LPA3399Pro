@@ -1,0 +1,4 @@
+94f66a239ba0c4ecf610945cf18b7b3f63ca14c67c2406026d7ff807cba6cea3  vmlinuz-6.18.33-gmacpatch-v4d
+d1b68d7383a7230ea9e1752ffcf9be2f0ed7320dde37e76d2866a61998d7455a  config-6.18.33-gmacpatch-v4d
+0b6d95165ca4538b166506bea138e8a1d1aeb09eead0b80fe4f6ee0aa3506e6e  dwmac-rk.o.v4d
+cfb10e84c3684c0e8c470fcf3406aacf797d4ae1e36f91eec3cca54914b7aa9b  dwmac-rk.c.v4d
