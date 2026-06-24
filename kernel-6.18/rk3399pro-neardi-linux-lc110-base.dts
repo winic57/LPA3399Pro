@@ -2671,6 +2671,7 @@
 
 		pcfg-output-high {
 			output-high;
+			phandle = <0xd4>;
 		};
 
 		pcfg-output-low {
@@ -3277,7 +3278,7 @@
 		n4 {
 
 			n4-pwr-pin {
-				rockchip,pins = <0x00 0x09 0x00 0xbd>;
+				rockchip,pins = <0x00 0x09 0x00 0xd4>;
 				phandle = <0xf2>;
 			};
 		};
@@ -3285,7 +3286,7 @@
 		gnss {
 
 			gnss-pwr-pin {
-				rockchip,pins = <0x03 0x19 0x00 0xbd>;
+				rockchip,pins = <0x03 0x19 0x00 0xd4>;
 				phandle = <0xf3>;
 			};
 		};
