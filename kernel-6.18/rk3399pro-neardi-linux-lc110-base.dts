@@ -1688,7 +1688,28 @@
 		pinctrl-0 = <0x87>;
 		#address-cells = <0x01>;
 		#size-cells = <0x00>;
-		status = "disabled";
+		status = "okay";
+		i2c-scl-rising-time-ns = <0x159>;
+		i2c-scl-falling-time-ns = <0x0b>;
+		clock-frequency = <0x186a0>;
+		phandle = <0x1a3>;
+
+		aw9523@5a {
+			compatible = "awinic,aw9523";
+			reg = <0x5a>;
+			status = "okay";
+			reset-gpios = <0x81 0x0a 0x01>;
+			pinctrl-names = "default";
+			pinctrl-0 = <0x1a5>;
+			phandle = <0x1a4>;
+
+			gpio {
+				compatible = "awinic,aw9523-gpio";
+				gpio-controller;
+				#gpio-cells = <0x02>;
+				phandle = <0x1a6>;
+			};
+		};
 	};
 
 	pwm@ff420000 {
@@ -3291,6 +3312,14 @@
 			};
 		};
 
+		aw9523 {
+
+			aw9523-reset {
+				rockchip,pins = <0x01 0x0a 0x00 0xd4>;
+				phandle = <0x1a5>;
+			};
+		};
+
 		pmic {
 
 			pmic-int-l {
@@ -3506,7 +3535,6 @@
 		regulator-always-on;
 		vin-supply = <0x83>;
 		enable-active-high;
-		gpio = <0x3d 0x19 0x00>;
 		phandle = <0x90>;
 	};
 
