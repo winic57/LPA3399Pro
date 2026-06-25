@@ -330,7 +330,6 @@
 		resets = <0x08 0x82 0x08 0x83 0x08 0x84 0x08 0x85 0x08 0x86 0x08 0x81 0x08 0x80>;
 		reset-names = "core\0mgmt\0mgmt-sticky\0pipe\0pm\0pclk\0aclk";
 		status = "okay";
-		ep-gpios = <0x19 0x0c 0x00>;
 		num-lanes = <0x04>;
 		pinctrl-0 = <0x1a>;
 		pinctrl-names = "default";
@@ -3286,7 +3285,7 @@
 			};
 
 			pci-clkreqnb-cpm {
-				rockchip,pins = <0x04 0x18 0x00 0xb5>;
+				rockchip,pins = <0x02 0x1a 0x00 0xb5>;
 				phandle = <0x1a>;
 			};
 
@@ -3506,8 +3505,8 @@
 
 	sdio-pwrseq {
 		compatible = "mmc-pwrseq-simple";
-		clocks = <0xc3 0x01>;
-		clock-names = "ext_clock";
+		clocks = <0xc3 0x01 0x08 0x08>;
+		clock-names = "ext_clock\0wifi_pmu";
 		pinctrl-names = "default";
 		pinctrl-0 = <0xbb>;
 		reset-gpios = <0xbc 0x1b 0x01>;
