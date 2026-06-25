@@ -2547,6 +2547,8 @@
 		#address-cells = <0x02>;
 		#size-cells = <0x02>;
 		ranges;
+		pinctrl-names = "default";
+		pinctrl-0 = <0xf4>;
 
 		gpio@ff720000 {
 			compatible = "rockchip,gpio-bank";
@@ -2606,6 +2608,14 @@
 			interrupt-controller;
 			#interrupt-cells = <0x02>;
 			phandle = <0x3d>;
+		};
+
+		npu {
+
+			npu-ref-clk {
+				rockchip,pins = <0x00 0x02 0x01 0xb5>;
+				phandle = <0xf4>;
+			};
 		};
 
 		pcfg-pull-up {
