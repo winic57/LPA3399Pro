@@ -1,0 +1,2 @@
+[  127.107333] systemd-journald[116]: Received client request to flush runtime journal.
+[  127.501703] systemd-journald[116]: Received client request to relinquish /var/log/journal/63f6b85b0c1e8dbfdd4367466a1d5eef access.
