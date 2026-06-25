@@ -84,6 +84,16 @@ else
   echo "No patches found in ${PATCH_DIR}"
 fi
 
+echo "=== Copying custom DTS ==="
+if [ -f "${PATCH_DIR}/rk3399pro-neardi-linux-lc110-base.dts" ]; then
+  cp -v "${PATCH_DIR}/rk3399pro-neardi-linux-lc110-base.dts" arch/arm64/boot/dts/rockchip/
+  if ! grep -q "rk3399pro-neardi-linux-lc110-base.dtb" arch/arm64/boot/dts/rockchip/Makefile; then
+    echo "Adding rk3399pro-neardi-linux-lc110-base.dtb to Makefile..."
+    echo 'dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399pro-neardi-linux-lc110-base.dtb' >> arch/arm64/boot/dts/rockchip/Makefile
+  fi
+fi
+
+
 echo "=== Configuring kernel ==="
 # Use our full config-6.18 (matches kernel 6.18.33 exactly)
 CUSTOM_CONFIG="${BUILDER_DIR}/kernel-6.18/config-6.18"
