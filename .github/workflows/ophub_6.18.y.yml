@@ -68,8 +68,8 @@ jobs:
           curl '${{ secrets.WECHAT_WORK_WEBHOOK }}' \
             -H 'Content-Type: application/json' \
             -d '{
-              "msgtype": "markdown",
-              "markdown": {
-                "content": "### GitHub Action Build Notification\n- **Project**: LPA3399Pro\n- **Workflow**: ${{ github.workflow }}\n- **Status**: **${{ job.status }}**\n- **Commit**: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n- **Triggered By**: ${{ github.actor }}"
+              "msgtype": "text",
+              "text": {
+                "content": "GitHub Action Build Notification\nProject: LPA3399Pro\nWorkflow: ${{ github.workflow }}\nStatus: ${{ job.status }}\nCommit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}\nTriggered By: ${{ github.actor }}"
               }
             }'
