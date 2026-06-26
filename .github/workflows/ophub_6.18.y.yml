@@ -61,3 +61,15 @@ jobs:
             LPA3399Pro kernel 6.18.33 build
             - Custom config with RTW88 WiFi + PPP/QMI 4G modem support
             - GMAC v4e DMA SWR workaround patch applied
+
+      - name: Notify WeChat Webhook
+        if: always()
+        run: |
+          curl '${{ secrets.WECHAT_WORK_WEBHOOK }}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "msgtype": "markdown",
+              "markdown": {
+                "content": "### GitHub Action Build Notification\n- **Project**: LPA3399Pro\n- **Workflow**: ${{ github.workflow }}\n- **Status**: **${{ job.status }}**\n- **Commit**: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n- **Triggered By**: ${{ github.actor }}"
+              }
+            }'
