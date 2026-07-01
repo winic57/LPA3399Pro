@@ -329,8 +329,7 @@
 		ranges = <0x82000000 0x00 0xfa000000 0x00 0xfa000000 0x00 0x1e00000 0x81000000 0x00 0xfbe00000 0x00 0xfbe00000 0x00 0x100000>;
 		resets = <0x08 0x82 0x08 0x83 0x08 0x84 0x08 0x85 0x08 0x86 0x08 0x81 0x08 0x80>;
 		reset-names = "core\0mgmt\0mgmt-sticky\0pipe\0pm\0pclk\0aclk";
-		status = "okay";
-		ep-gpios = <0x19 0x0c 0x00>;
+		status = "disabled";
 		num-lanes = <0x04>;
 		pinctrl-0 = <0x1a>;
 		pinctrl-names = "default";
@@ -1688,7 +1687,28 @@
 		pinctrl-0 = <0x87>;
 		#address-cells = <0x01>;
 		#size-cells = <0x00>;
-		status = "disabled";
+		status = "okay";
+		i2c-scl-rising-time-ns = <0x159>;
+		i2c-scl-falling-time-ns = <0x0b>;
+		clock-frequency = <0x186a0>;
+		phandle = <0x1a3>;
+
+		aw9523@5a {
+			compatible = "awinic,aw9523";
+			reg = <0x5a>;
+			status = "okay";
+			reset-gpios = <0x81 0x0a 0x01>;
+			pinctrl-names = "default";
+			pinctrl-0 = <0x1a5>;
+			phandle = <0x1a4>;
+
+			gpio {
+				compatible = "awinic,aw9523-gpio";
+				gpio-controller;
+				#gpio-cells = <0x02>;
+				phandle = <0x1a6>;
+			};
+		};
 	};
 
 	pwm@ff420000 {
@@ -2587,6 +2607,14 @@
 			phandle = <0x3d>;
 		};
 
+		npu {
+
+			npu-ref-clk {
+				rockchip,pins = <0x00 0x02 0x01 0xb5>;
+				phandle = <0xf4>;
+			};
+		};
+
 		pcfg-pull-up {
 			bias-pull-up;
 			phandle = <0xb8>;
@@ -3253,11 +3281,11 @@
 		pcie {
 
 			pci-clkreqn-cpm {
-				rockchip,pins = <0x02 0x1a 0x00 0xb5>;
+				rockchip,pins = <0x02 0x1a 0x02 0xb5>;
 			};
 
 			pci-clkreqnb-cpm {
-				rockchip,pins = <0x04 0x18 0x00 0xb5>;
+				rockchip,pins = <0x02 0x1a 0x02 0xb5>;
 				phandle = <0x1a>;
 			};
 
@@ -3288,6 +3316,14 @@
 			gnss-pwr-pin {
 				rockchip,pins = <0x03 0x19 0x00 0xd4>;
 				phandle = <0xf3>;
+			};
+		};
+
+		aw9523 {
+
+			aw9523-reset {
+				rockchip,pins = <0x01 0x0a 0x00 0xd4>;
+				phandle = <0x1a5>;
 			};
 		};
 
@@ -3469,8 +3505,8 @@
 
 	sdio-pwrseq {
 		compatible = "mmc-pwrseq-simple";
-		clocks = <0xc3 0x01>;
-		clock-names = "ext_clock";
+		clocks = <0xc3 0x01 0x08 0x08>;
+		clock-names = "ext_clock\0wifi_pmu";
 		pinctrl-names = "default";
 		pinctrl-0 = <0xbb>;
 		reset-gpios = <0xbc 0x1b 0x01>;
@@ -3506,7 +3542,6 @@
 		regulator-always-on;
 		vin-supply = <0x83>;
 		enable-active-high;
-		gpio = <0x3d 0x19 0x00>;
 		phandle = <0x90>;
 	};
 
@@ -3568,7 +3603,7 @@
 		regulator-boot-on;
 		gpio = <0x19 0x09 0x00>;
 		pinctrl-names = "default";
-		pinctrl-0 = <0xf2>;
+		pinctrl-0 = <0xf2 0xf4>;
 		regulator-name = "n4_pwren";
 		phandle = <0x1a1>;
 	};
