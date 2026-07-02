@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LPA3399Pro Maintainers <noreply@example.com>
+Date: Thu, 2 Jul 2026 21:35:00 +0800
+Subject: [PATCH] rk3399pro_npu: configure USB/RNDIS static IP on eMMC boot
+
+The NPU should be validated through normal eMMC self boot after
+npu_powerctrl reset, not through upgrade_tool db/rs loader mode.
+Configure a deterministic USB/RNDIS address so the host can verify
+192.168.180.8 after cold boot.
+---
+ .../fs-overlay-64/etc/init.d/S51usb-rndis-ip | 34 +++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+ create mode 100755 buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51usb-rndis-ip
+
+diff --git a/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51usb-rndis-ip b/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51usb-rndis-ip
+new file mode 100755
+index 0000000..5ad3384
+--- /dev/null
++++ b/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51usb-rndis-ip
+@@ -0,0 +1,34 @@
++#!/bin/sh
++# Ensure the RK3399Pro NPU ramboot exposes a deterministic USB/RNDIS IP.
++# The host side uses 192.168.180.1/24; NPU side is 192.168.180.8/24.
++
++case "$1" in
++  start)
++    for i in $(seq 1 30); do
++      for dev in usb0 rndis0 eth0; do
++        if [ -d "/sys/class/net/$dev" ]; then
++          ifconfig "$dev" 192.168.180.8 netmask 255.255.255.0 up || true
++          route add default gw 192.168.180.1 "$dev" 2>/dev/null || true
++          echo "Configured NPU USB/RNDIS network: $dev=192.168.180.8/24"
++          exit 0
++        fi
++      done
++      sleep 1
++    done
++    echo "No USB/RNDIS network interface found for NPU static IP" >&2
++    ;;
++  stop)
++    for dev in usb0 rndis0 eth0; do
++      [ -d "/sys/class/net/$dev" ] && ifconfig "$dev" down || true
++    done
++    ;;
++  restart|reload)
++    "$0" stop
++    "$0" start
++    ;;
++  *)
++    echo "Usage: $0 {start|stop|restart}"
++    exit 1
++    ;;
++esac
++
++exit 0
+--
+2.34.1

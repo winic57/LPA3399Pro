@@ -1,0 +1,51 @@
+name: NPU kernel / ramboot build
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_targets:
+        description: 'SDK build targets, e.g. "kernel" or "kernel ramboot firmware updateimg"'
+        required: false
+        default: 'kernel'
+      npu_sdk_url:
+        description: 'Optional URL to SDK tarball containing LPA3399Pro-SDK-Linux-V3.0/npu'
+        required: false
+        default: ''
+  repository_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build-npu:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare workspace
+        run: |
+          sudo mkdir -p /builder
+          sudo chown -R runner:runner /builder
+          rsync -a --delete "$GITHUB_WORKSPACE/" /builder/
+
+      - name: Build in Ubuntu 18.04 container
+        working-directory: /builder
+        env:
+          BUILD_TARGETS: ${{ github.event.inputs.build_targets || 'kernel' }}
+          NPU_SDK_URL: ${{ github.event.inputs.npu_sdk_url || '' }}
+        run: |
+          sudo docker run --rm --privileged \
+            -v /builder:/workspace \
+            -w /workspace \
+            -e BUILD_TARGETS="${BUILD_TARGETS}" \
+            -e NPU_SDK_URL="${NPU_SDK_URL}" \
+            ubuntu:18.04 \
+            bash -lc 'chmod +x /workspace/kdevbuild/npu_kernel.sh && /workspace/kdevbuild/npu_kernel.sh'
+
+      - name: Upload NPU artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: npu-build-artifacts
+          path: /builder/release-npu/**
+          if-no-files-found: error
