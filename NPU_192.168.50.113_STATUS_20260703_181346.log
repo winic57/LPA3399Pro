@@ -1,0 +1,119 @@
+# NPU status check for 192.168.50.113
+# time: 2026-07-03T18:13:46+08:00
+
+== remote uname/os ==
+Linux armbian 6.18.33 #1 SMP PREEMPT Fri Jun 26 05:37:52 UTC 2026 aarch64 GNU/Linux
+PRETTY_NAME="Armbian OS 26.05.0 trixie"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.5
+ID=debian
+HOME_URL="https://www.armbian.com"
+SUPPORT_URL="https://forum.armbian.com"
+BUG_REPORT_URL="https://www.armbian.com/bugs"
+ARMBIAN_PRETTY_NAME="Armbian OS 26.05.0 trixie"
+
+== remote lsusb Rockchip/NPU ==
+-- full lsusb --
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 005 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 006 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 007 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 007 Device 002: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 007 Device 004: ID 2c7c:6005 Quectel Wireless Solutions Co., Ltd. Android
+Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+
+== remote NPU/RKNN processes ==
+
+== remote npu_transfer_proxy devices ==
+List of ntb devices attached
+
+== remote NPU tools/files ==
+-rwxr-xr-x 1 root root 180 Jun 25 20:10 /usr/bin/npu_powerctrl
+-rwxr-xr-x 1 root root 70K Jun 25 20:08 /usr/local/bin/npu_boot
+-rwxr-xr-x 1 root root 3.0M Jun 25 20:09 /usr/bin/upgrade_tool
+-rwxr-xr-x 1 root root 311K Jun 25 20:09 /usr/bin/npu_transfer_proxy
+-rwxr-xr-x 1 root root 157K Jul  2 20:22 /usr/share/npu_fw/MiniLoaderAll.bin
+-rwxr-xr-x 1 root root 399 Jul  2 20:22 /usr/share/npu_fw/parameter.txt
+-rwxr-xr-x 1 root root 2.0M Jul  2 20:22 /usr/share/npu_fw/uboot.img
+-rwxr-xr-x 1 root root 2.0M Jul  2 20:22 /usr/share/npu_fw/trust.img
+-rwxr-xr-x 1 root root 30M Jul  2 20:22 /usr/share/npu_fw/boot.img
+
+== remote /usr/share/npu_fw listing and sha256 ==
+160078 /usr/share/npu_fw/MiniLoaderAll.bin
+160078 /usr/share/npu_fw/MiniLoaderAll_factory.bin
+20318208 /usr/share/npu_fw/boot_factory.img
+2097152 /usr/share/npu_fw/trust.img
+2097152 /usr/share/npu_fw/trust_factory.img
+2097152 /usr/share/npu_fw/uboot.img
+2097152 /usr/share/npu_fw/uboot_factory.img
+31260672 /usr/share/npu_fw/boot.img
+399 /usr/share/npu_fw/parameter.txt
+678 /usr/share/npu_fw/ystemctl start npu_transfer_proxy.service
+a8d55129dbc6974c653f009229e6d37d22e4a696e6ca28c500df3e3f0acfceba  /usr/share/npu_fw/MiniLoaderAll.bin
+ad01fbeddcdd390ef14e7683be085facd8b474aca81e42ee2e40dda5340292f4  /usr/share/npu_fw/MiniLoaderAll_factory.bin
+ec166636ef320ce290863f15d50c2102fbe97efbf1d5a2e06ff3beba629a8cae  /usr/share/npu_fw/boot.img
+385ba14c3b69af60240b6d541c20d464c995df2e2e588a03d7e4c1efd7fc169c  /usr/share/npu_fw/boot_factory.img
+fedaf45f8c22a94b25271844757d3c303c2d7987ef0e4b3533b0503fdcdd6b03  /usr/share/npu_fw/parameter.txt
+524f987049c3f3c27c64a6b5b3d29de711513d23acd2ce9ea1eb390677ab4827  /usr/share/npu_fw/trust.img
+92d650fe50a9a53e638ebd80d25d793fc298201675ab8cd1370d7593c59a5be2  /usr/share/npu_fw/trust_factory.img
+dcd5e01afb31868b001e12764639ff60e2c679c1fcf76c42feda54377d4cc33d  /usr/share/npu_fw/uboot.img
+4dc50c3f463c00f0585bf313cbdfc0943abc08d0c3565d6cef122a6fa7b7fbae  /usr/share/npu_fw/uboot_factory.img
+642bb17c70bad5cd0936d8f43a1dc7de3f6ce3728d447afb02df495e5c7e7427  /usr/share/npu_fw/ystemctl start npu_transfer_proxy.service
+
+== remote npu_powerctrl strings interesting ==
+
+== remote npu_boot strings interesting ==
+=== Starting NPU Power-up and Reset Sequence ===
+Enabled clk_wifi_pmu. Register 0xff750100: 0x%08x
+Releasing NPU from reset...
+NPU Boot sequence completed successfully.
+npu_boot.c
+__do_global_dtors_aux
+__do_global_dtors_aux_fini_array_entry
+.gnu.version
+.gnu.version_r
+
+== remote USB/NPU/PCIe dmesg tail ==
+[    0.563044] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.869872] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    0.997223] xhci-hcd xhci-hcd.8.auto: Host supports USB 3.0 SuperSpeed
+[   22.167290] input: rk805 pwrkey as /devices/platform/ff3c0000.i2c/i2c-0/0-0020/rk805-pwrkey.3.auto/input/input0
+[   27.638364] usb 7-1.1: USB disconnect, device number 3
+
+== remote clock debug values ==
+-- /sys/kernel/debug/clk/clk_wifi_pmu --
+clk_rate=24000000
+clk_enable_count=0
+-- /sys/kernel/debug/clk/rk808-clkout2 --
+clk_rate=32768
+clk_enable_count=1
+
+== remote PCIe related sysfs ==
+/sys/devices/platform/pinctrl/consumer:platform:regulator-vcc-pcie
+/sys/devices/platform/pinctrl/ff790000.gpio/consumer:platform:regulator-vcc-pcie
+/sys/devices/platform/regulator-vcc-pcie
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.3
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.1
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.4
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.2
+/sys/devices/platform/regulator-vcc5v0-sys/consumer:platform:regulator-vcc-pcie
+
+== remote network interfaces ==
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0             UP             192.168.50.113/24 2409:8a20:9625:7984:e7cc:3e65:5026:46b6/64 fe80::18d:fea4:678d:77e9/64
+wlan0            UP             192.168.50.254/24 2409:8a20:9625:7984:c6f9:ac05:e571:f11a/64 fe80::f83d:d267:41c4:226c/64
+usb0             UP
+
+== remote loaded modules matching npu/galcore/pcie/usb ==
+usb_wwan               20480  1 option
+cdc_ether              16384  0
+usbserial              32768  2 usb_wwan,option
+usbnet                 36864  1 cdc_ether
+onboard_usb_dev        24576  0

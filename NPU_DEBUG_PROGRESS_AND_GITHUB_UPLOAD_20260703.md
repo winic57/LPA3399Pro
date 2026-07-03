@@ -504,3 +504,76 @@ clk_wifi_pmu: 24000000
 ```
 
 这个结果修正了本轮判断：同型号官方系统可工作状态下 `npu_transfer_proxy devices` 显示的是 `PCIE`，所以后续主控 DTS/电源/clock 仍需要保留 PCIe 分支验证；但无论 USB NTB 还是 PCIe，第一验证标准仍是 `npu_transfer_proxy devices`。
+
+---
+
+## 12. 192.168.50.113 最新 NPU 固件测试前建议与执行计划
+
+当前可以在 `192.168.50.113` 上测试 NPU，但不建议一开始就直接刷写或替换最新 NPU firmware。原因是同型号官方 4.4 对照机器 `192.168.50.129` 的可工作状态为：
+
+```text
+lsusb: 2207:1005
+npu_transfer_proxy devices: PCIE
+clk_wifi_pmu: 24000000
+```
+
+这说明 LPA3399Pro 官方路径很可能是 PCIe NPU，而不是单纯 USB NTB。因此在 `192.168.50.113` 上应先做无破坏性状态检查，确认当前链路类型和固件状态，再决定是否测试或替换最新固件。
+
+建议检查命令：
+
+```bash
+uname -a
+lsusb | grep -Ei '2207|rockchip|rk3xxx' || true
+ps -ef | grep -Ei 'npu|rknn|transfer' | grep -v grep || true
+/usr/bin/npu_transfer_proxy devices || true
+ls -lh /usr/share/npu_fw/ || true
+sha256sum /usr/share/npu_fw/* 2>/dev/null || true
+dmesg | grep -Ei '2207|180a|1808|0019|1005|npu|rknn|ntb|pcie|firmware changed|SuperSpeed|error -71|disconnect' | tail -150
+cat /sys/kernel/debug/clk/clk_wifi_pmu/clk_rate 2>/dev/null || true
+cat /sys/kernel/debug/clk/rk808-clkout2/clk_rate 2>/dev/null || true
+```
+
+判断标准：
+
+- 如果 `npu_transfer_proxy devices` 显示 `PCIE` 或 `USB_DEVICE`，说明 NPU 链路已通，优先测试 RKNN demo，不要急着刷固件；
+- 如果停留在 `2207:180a`，再考虑使用主线 USB NTB 拉起路径；
+- 如果官方 4.4 系统上显示 `PCIE`，应优先沿 vendor PCIe 路线排查 DTS、clock、GPIO、PCIe reset 和 `npu_powerctrl`；
+- 无论 PCIe 还是 USB NTB，第一成功标准都是 `npu_transfer_proxy devices`，不是单独依赖 `ping 192.168.180.8`。
+
+本轮计划先对 `192.168.50.113` 执行上述只读检查并保存结果。
+
+### 12.1 192.168.50.113 只读检查结果记录
+
+已执行只读 SSH 检查，完整日志保存到：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_192.168.50.113_STATUS_20260703_181346.log
+```
+
+后续应基于该日志判断 `192.168.50.113` 当前是 `PCIE`、`USB_DEVICE`、`2207:1005` 还是停留在 `2207:180a`，再决定是否替换最新 NPU firmware。
+
+### 12.2 192.168.50.113 只读检查结论
+
+根据日志 `NPU_192.168.50.113_STATUS_20260703_181346.log`，`192.168.50.113` 当前状态如下：
+
+```text
+系统: Armbian 26.05.0 trixie / Linux 6.18.33
+lsusb: 未发现 2207:* Rockchip NPU 设备
+npu_transfer_proxy devices: 仅打印表头，无 PCIE / USB_DEVICE 设备
+NPU tools: npu_powerctrl / npu_boot / upgrade_tool / npu_transfer_proxy 均存在
+NPU firmware: /usr/share/npu_fw/ 下存在 MiniLoaderAll.bin、uboot.img、trust.img、boot.img、parameter.txt
+clk_wifi_pmu: 24000000, 但 clk_enable_count=0
+rk808-clkout2: 32768, clk_enable_count=1
+PCIe sysfs: 只看到 regulator / pcie-phy，未看到可工作的 f8000000.pcie host 或 pcie_reset_ep
+usb0: UP，但该机器同时有 Quectel 4G 模块，usb0 不能直接等价为 NPU RNDIS
+```
+
+结论：**目前不适合直接在 `192.168.50.113` 上刷写或替换最新 NPU firmware。** 当前 NPU 链路没有被 `npu_transfer_proxy` 识别，`lsusb` 也没有出现 `2207:*`，所以优先问题不是 firmware 版本，而是 NPU 上电/复位/clock/PCIe 或 USB 枚举链路未通。
+
+下一步建议：
+
+1. 先确认 `/usr/bin/npu_powerctrl` 的脚本内容和 `/usr/local/bin/npu_boot` 的实际执行效果；
+2. 手动执行一次 `npu_powerctrl` 或 `npu_boot` 后立即观察 `lsusb`、`dmesg`、`npu_transfer_proxy devices`；
+3. 若仍无 `2207:*`，优先修主控 DTS/clock/GPIO/PCIe reset，不要先刷 NPU firmware；
+4. 若出现 `2207:180a`，再考虑 USB firmware 拉起路径；
+5. 若出现 `2207:1005` 或 `npu_transfer_proxy devices` 显示 `PCIE` / `USB_DEVICE`，再进入 RKNN demo 或 firmware 替换测试。
