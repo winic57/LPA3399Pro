@@ -629,18 +629,25 @@ npu_transfer_proxy 日志：服务可启动，但未发现 NTB 设备
 
 根据 `NPU_192.168.50.113_RAMBOOT_TEST_20260703_182211.log`，本次 RAM boot 验证结果如下：
 
-
+```text
+初始/上电后：2207:180a，upgrade_tool LD 显示 Mode=Maskrom
+db MiniLoaderAll.bin：成功，db_rc=0
+DB 后：2207:180a USB-MSC，upgrade_tool LD 显示 Mode=Loader
+rs 0x00200000 0x08400000 0x02000000 uboot/trust/boot：超过约 2 分钟未返回，已终止 SSH 会话并清理远端可能残留的 upgrade_tool
+终止后：仍停留 2207:180a USB-MSC / Mode=Loader
+npu_transfer_proxy devices：仍无 PCIE / USB_DEVICE
+```
 
 结论：
 
-1.  能把 NPU 拉到 Maskrom：；
-2.  能成功把 NPU 从 Maskrom 推到 Loader： / ；
-3. 当前  参数或 firmware 组合未能成功跳转到 NPU 运行态；
-4. NPU 未重新枚举为  /  / ；
-5.  仍无设备。
+1. `npu_powerctrl` 能把 NPU 拉到 Maskrom：`2207:180a`；
+2. `upgrade_tool db MiniLoaderAll.bin` 能成功把 NPU 从 Maskrom 推到 Loader：`2207:180a USB-MSC` / `Mode=Loader`；
+3. 当前 `upgrade_tool rs` 参数或 firmware 组合未能成功跳转到 NPU 运行态；
+4. NPU 未重新枚举为 `2207:1005` / `2207:1808` / `2207:0019`；
+5. `npu_transfer_proxy devices` 仍无设备。
 
-下一步不应刷写 eMMC，而应优先确认官方  地址和 firmware 组合：
+下一步不应刷写 eMMC，而应优先确认官方 `rs` 地址和 firmware 组合：
 
-- 从同型号 4.4 工作机器或官方脚本中提取  具体参数；
-- 对比  和官方工作机器  的 sha256，必要时先用 factory 组固件做同样 RAM boot 测试；
+- 从同型号 4.4 工作机器或官方脚本中提取 `upgrade_tool rs` 具体参数；
+- 对比 `/usr/share/npu_fw/*` 和官方工作机器 `/usr/share/npu_fw/*` 的 sha256，必要时先用 factory 组固件做同样 RAM boot 测试；
 - 检查 6.18.33 主控侧 USB3/PCIe/DTS 是否缺少 NPU 运行态重新枚举所需链路。
