@@ -651,3 +651,24 @@ npu_transfer_proxy devices：仍无 PCIE / USB_DEVICE
 - 从同型号 4.4 工作机器或官方脚本中提取 `upgrade_tool rs` 具体参数；
 - 对比 `/usr/share/npu_fw/*` 和官方工作机器 `/usr/share/npu_fw/*` 的 sha256，必要时先用 factory 组固件做同样 RAM boot 测试；
 - 检查 6.18.33 主控侧 USB3/PCIe/DTS 是否缺少 NPU 运行态重新枚举所需链路。
+
+---
+
+## 15. RS 参数/固件对比与 factory RAM boot 验证
+
+已按上一节建议继续执行：
+
+1. 从同型号工作机器 `192.168.50.129` 和当前测试机器 `192.168.50.113` 搜索 `upgrade_tool rs/db`、`npu_boot`、systemd/init、shell history 等引用；
+2. 对比两台机器 `/usr/share/npu_fw/*` 的文件大小与 sha256；
+3. 在 `192.168.50.113` 上使用 `*_factory` 固件组执行一次非写入 RAM boot 测试；
+4. `rs` 使用 `timeout 90s` 限制，避免再次无限挂起；
+5. 未执行 `upgrade_tool wl`、`upgrade_tool uf` 或任何写入 eMMC/分区的命令。
+
+完整日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_RS_PARAMS_AND_FW_COMPARE_20260703_183332.log
+/mnt/sdb3/LPA3399Pro/NPU_192.168.50.113_FACTORY_RAMBOOT_TEST_20260703_183332.log
+```
+
+后续结论应基于上述日志判断：当前问题更像是 `rs` 地址/固件组合问题，还是 6.18.33 主控侧 USB3/PCIe/DTS 运行态链路问题。

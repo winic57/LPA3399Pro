@@ -1,0 +1,2170 @@
+# NPU RS parameter and firmware comparison
+# time: 2026-07-03T18:33:32+08:00
+
+================ HOST 192.168.50.129 ================
+== uname ==
+Linux LPA3399Pro 4.4.194 #1 SMP Thu Jun 12 08:43:20 UTC 2025 aarch64 GNU/Linux
+\n== npu_transfer_proxy devices ==
+List of ntb devices attached
+0123456789ABCDEF    cfbc0c55    PCIE
+\n== lsusb rockchip ==
+Bus 001 Device 009: ID 2207:1005 Fuzhou Rockchip Electronics Company
+\n== /usr/share/npu_fw listing/sha256 ==
+160078 /usr/share/npu_fw/MiniLoaderAll.bin
+2097152 /usr/share/npu_fw/trust.img
+2097152 /usr/share/npu_fw/uboot.img
+35387392 /usr/share/npu_fw/boot.img
+399 /usr/share/npu_fw/parameter.txt
+521aa944983bd0492fbbaa922ed2957915a516ed5a28443c9b67953b41ed6c27  /usr/share/npu_fw/MiniLoaderAll.bin
+0fdb5013f851de968ae8aa53dcae7c582a8ebb199e2c561f6ce29cef81970f26  /usr/share/npu_fw/boot.img
+fedaf45f8c22a94b25271844757d3c303c2d7987ef0e4b3533b0503fdcdd6b03  /usr/share/npu_fw/parameter.txt
+524f987049c3f3c27c64a6b5b3d29de711513d23acd2ce9ea1eb390677ab4827  /usr/share/npu_fw/trust.img
+4f3f63bb6377baae850a778b83ccecd314d49c841f3bd26e55ab2c5368ceb21a  /usr/share/npu_fw/uboot.img
+\n== search upgrade_tool rs/db/npu_boot references ==
+/etc/rc6.d/K02udev:162:    udevadm info --cleanup-db
+/etc/rcS.d/S02udev:162:    udevadm info --cleanup-db
+/etc/Powermanager/01npu:9:	       npu_powerctrl -s
+/etc/Powermanager/01npu:12:	       npu_powerctrl -r
+/etc/Powermanager/02npu:9:	       npu_powerctrl -s
+/etc/Powermanager/02npu:12:	       npu_powerctrl -r
+/etc/rc0.d/K02udev:162:    udevadm info --cleanup-db
+/etc/init.d/udev:162:    udevadm info --cleanup-db
+/etc/cron.daily/dpkg:11:    for db in $dbfiles ; do
+/etc/cron.daily/dpkg:12:        if ! cmp -s "dpkg.${db}.0" "$dbdir/$db"; then
+/etc/cron.daily/dpkg:18:        for db in $dbfiles ; do
+/etc/cron.daily/dpkg:19:            [ -e "$dbdir/$db" ] || continue
+/etc/cron.daily/dpkg:20:            cp -p "$dbdir/$db" "dpkg.$db"
+/etc/cron.daily/dpkg:21:            savelog -c 7 "dpkg.$db" >/dev/null
+/etc/nsswitch.conf:15:protocols:      db files
+/etc/nsswitch.conf:16:services:       db files
+/etc/nsswitch.conf:17:ethers:         db files
+/etc/nsswitch.conf:18:rpc:            db files
+/etc/services:294:gds-db		3050/tcp	gds_db		# InterBase server
+/etc/services:295:gds-db		3050/udp	gds_db
+/etc/services:440:db-lsp		17500/tcp			# Dropbox LanSync Protocol
+/etc/services:491:moira-db	775/tcp		moira_db	# Moira database
+/usr/include/rpcsvc/rex.h:104:#define LITOUT 0x00200000
+/usr/include/rpcsvc/rex.h:108:#define L001000 0x02000000
+/usr/include/rpcsvc/yp.x:174:	YPPUSH_YPERR	= -6,	/* YP server/map db error */
+/usr/include/rpcsvc/rex.x:131:const LITOUT = 0x00200000; /* literal output */
+/usr/include/rpcsvc/rex.x:135:const L001000 = 0x02000000;
+/usr/include/rpcsvc/yp_prot.h:310:  YPPUSH_YPERR = -6,		/* NIS server/map db error */
+/usr/include/aarch64-linux-gnu/sys/inotify.h:66:#define IN_DONT_FOLLOW	 0x02000000	/* Do not follow a sym link.  */
+/usr/include/aarch64-linux-gnu/sys/mtio.h:217:/* #define GMT_ ? 		((x) & 0x02000000) */
+/usr/include/aarch64-linux-gnu/sys/mtio.h:221:#define GMT_D_800(x)            ((x) & 0x00200000)
+/usr/include/aarch64-linux-gnu/bits/sched.h:58:# define CLONE_CHILD_CLEARTID 0x00200000 /* Register exit futex and memory
+/usr/include/aarch64-linux-gnu/bits/sched.h:65:# define CLONE_NEWCGROUP    0x02000000	/* New cgroup namespace.  */
+/usr/include/aarch64-linux-gnu/bits/ptrace-shared.h:37:  PTRACE_O_SUSPEND_SECCOMP = 0x00200000,
+/usr/include/aarch64-linux-gnu/bits/mman-linux.h:38:#define PROT_GROWSUP	0x02000000	/* Extend change to start of
+/usr/include/reglib/regdb.h:31:/* db file starts with a struct regdb_file_header */
+/usr/include/reglib/reglib.h:59: * @fd: file descriptor of the db
+/usr/include/reglib/reglib.h:61: * @db: mmap() of the db of @real_dblen
+/usr/include/reglib/reglib.h:78:	uint8_t *db;
+/usr/include/reglib/reglib.h:129:reglib_get_file_ptr(uint8_t *db, size_t dblen, size_t structlen, uint32_t ptr);
+/usr/include/reglib/reglib.h:130:int reglib_verify_db_signature(uint8_t *db, size_t dblen, size_t siglen);
+/usr/include/reglib/reglib.h:139: * to let you query the db within different contexts in your program and
+/usr/include/paths.h:44:#define	_PATH_DEVDB	"/var/run/dev.db"
+/usr/include/asm-generic/mman-common.h:16:#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
+/usr/include/rockchip/mpp_frame.h:185:#define MPP_FRAME_FBC_AFBC_V2       (0x00200000)
+/usr/include/rockchip/rk_mpi_cmd.h:28:#define CMD_MODULE_MPP                  (0x00200000)
+/usr/include/rockchip/vpu_api.h:51:#define VPU_OUTPUT_FORMAT_COLORSPACE_BT2020         (0x00200000)
+/usr/include/rockchip/vpu_api.h:55:#define VPU_OUTPUT_FORMAT_DYNCRANGE_HDR_HLG         (0x02000000)
+/usr/include/linux/genwqe/genwqe_card.h:218:#define IO_APP_UNITCFG			0x02000000
+/usr/include/linux/capability.h:60:#define VFS_CAP_REVISION_2	0x02000000
+/usr/include/linux/in_route.h:18:#define RTCF_FAST	0x00200000 /* unused */
+/usr/include/linux/sched.h:21:#define CLONE_CHILD_CLEARTID	0x00200000	/* clear the TID in the child */
+/usr/include/linux/sched.h:25:#define CLONE_NEWCGROUP		0x02000000	/* New cgroup namespace */
+/usr/include/linux/tcp.h:75:	TCP_FLAG_URG = __constant_cpu_to_be32(0x00200000),
+/usr/include/linux/fs.h:353:#define FS_EA_INODE_FL			0x00200000 /* Inode used for large EA */
+/usr/include/linux/ipv6_route.h:27:#define RTF_NONEXTHOP	0x00200000	/* route with no nexthop	*/
+/usr/include/linux/ipv6_route.h:33:#define RTF_FLOW	0x02000000	/* flow significant route	*/
+/usr/include/linux/videodev2.h:458:#define V4L2_CAP_EXT_PIX_FORMAT		0x00200000  /* Supports the extended pixel format */
+/usr/include/linux/videodev2.h:463:#define V4L2_CAP_ASYNCIO                0x02000000  /* async I/O */
+/usr/include/linux/videodev2.h:1158:#define V4L2_STD_SECAM_K1       ((v4l2_std_id)0x00200000)
+/usr/include/linux/videodev2.h:1164:#define V4L2_STD_ATSC_16_VSB    ((v4l2_std_id)0x02000000)
+/usr/include/linux/videodev2.h:1541:#define V4L2_IN_ST_NO_ACCESS   0x02000000  /* Conditional access denied */
+/usr/include/linux/ppp-ioctl.h:41:#define	SC_SYNC		0x00200000	/* synchronous serial mode */
+/usr/include/linux/ppp-ioctl.h:49:#define SC_RCV_B7_1	0x02000000	/* have rcvd char with bit 7 = 1 */
+/usr/include/linux/i2o-dev.h:263:#define I2O_EVT_IND_EVT_MASK_MODIFIED		0x02000000
+/usr/include/linux/inotify.h:54:#define IN_DONT_FOLLOW		0x02000000	/* don't follow a sym link */
+/usr/include/linux/lirc.h:18:#define LIRC_MODE2_FREQUENCY 0x02000000
+/usr/include/linux/lirc.h:82:#define LIRC_CAN_MEASURE_CARRIER          0x02000000
+/usr/include/linux/kvm.h:1110:#define KVM_REG_SIZE_U32	0x0020000000000000ULL
+/usr/include/linux/gfs2_ondisk.h:428:#define GFS2_LFC_MAKE_FS_RO		0x00200000
+/usr/include/linux/gfs2_ondisk.h:432:#define GFS2_LFC_LOGD_JFLUSH_REQD	0x02000000
+/usr/include/linux/elf.h:290:#define SHF_RO_AFTER_INIT	0x00200000
+/usr/include/linux/i2c.h:102:#define I2C_FUNC_SMBUS_READ_WORD_DATA	0x00200000
+/usr/include/linux/i2c.h:106:#define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
+/usr/include/linux/pci_regs.h:539:#define  PCI_EXP_LNKCAP_LBNC	0x00200000 /* Link Bandwidth Notification Capability */
+/usr/include/linux/pci_regs.h:645:#define PCI_EXP_DEVCAP2_EE_PREFIX	0x00200000 /* End-End TLP Prefix */
+/usr/include/linux/pci_regs.h:732:#define  PCI_ERR_UNC_ACSV	0x00200000	/* ACS Violation */
+/usr/include/linux/pci_regs.h:736:#define  PCI_ERR_UNC_TLPPRE	0x02000000	/* TLP prefix blocked */
+/usr/include/linux/synclink.h:40:#define BIT21	0x00200000
+/usr/include/linux/synclink.h:44:#define BIT25	0x02000000
+/usr/include/linux/mtio.h:146:/* #define GMT_ ? 		((x) & 0x02000000) */
+/usr/include/linux/mtio.h:150:#define GMT_D_800(x)            ((x) & 0x00200000)
+/usr/include/resolv.h:131:#define RES_SNGLKUP	0x00200000	/* one outstanding request at a time */
+/usr/include/resolv.h:137:#define RES_NORELOAD    0x02000000 /* No automatic configuration reload.  */
+/usr/include/sound/tlv.h:86:/* Accessor offsets for min, max items in db-minmax types of TLV. */
+/usr/include/sound/tlv.h:98:/* Accessor offsets for min, max items in db-linear type of TLV. */
+/usr/include/sound/asound.h:289:#define SNDRV_PCM_INFO_JOINT_DUPLEX	0x00200000	/* playback and capture stream are somewhat correlated */
+/usr/include/sound/asound.h:294:#define SNDRV_PCM_INFO_HAS_LINK_ABSOLUTE_ATIME     0x02000000  /* report absolute hardware link audio time, not reset on startup */
+/usr/include/sound/emu10k1.h:254:#define EMU10K1_DBG_SATURATION_OCCURED	0x02000000	/* saturation control */
+/usr/include/sound/emu10k1.h:265:#define TANKMEMADDRREG_WRITE	 0x00200000	/* Write to tank memory				*/
+/usr/include/net/route.h:96:#define RTF_NONEXTHOP	0x00200000	/* route with no nexthop	*/
+/usr/include/net/route.h:99:#define RTF_FLOW	0x02000000	/* flow significant route	*/
+/usr/include/net/route.h:102:#define RTCF_VALVE	0x00200000
+/usr/include/net/route.h:106:#define RTCF_LOG	0x02000000
+/usr/include/net/if_ppp.h:100:#define SC_RCV_B7_1	0x02000000	/* have rcvd char with bit 7 = 1 */
+/usr/include/elf.h:979:#define	DF_1_EDITED	0x00200000	/* Object is modified after built.  */
+/usr/include/elf.h:983:#define	DF_1_SINGLETON	0x02000000	/* Singleton symbols are used.  */
+/usr/include/elf.h:1639:#define SHF_MIPS_NAMES		0x02000000
+/usr/include/elf.h:2212:#define PF_HP_FAR_SHARED	0x00200000
+/usr/include/elf.h:2215:#define PF_HP_MODIFY		0x02000000
+/usr/include/elf.h:2610:#define EF_ARM_EABI_VER2	0x02000000
+/usr/share/lintian/overrides/libpam0g:8:libpam0g: postinst-uses-db-input
+/usr/share/perl5/LWP/media.types:187:application/rls-services+xml			rs
+/usr/share/perl5/Dpkg/Source/Package/V3/Quilt.pm:54:        name => '--allow-version-of-quilt-db=<version>',
+/usr/share/perl5/Dpkg/Source/Package/V3/Quilt.pm:76:    } elsif ($opt =~ /^--allow-version-of-quilt-db=(.*)$/) {
+/usr/share/perl5/Dpkg/Source/Package/V3/Quilt.pm:127:    # Always create the quilt db so that if the maintainer calls quilt to
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:861:rs.gov.br
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6154:// rs : https://www.rnids.rs/en/domains/national-domains
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6155:rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6156:ac.rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6157:co.rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6158:edu.rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6159:gov.rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6160:in.rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:6161:org.rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:7203:// https://www.rnids.rs/en/domains/national-domains
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:12020:blogspot.rs
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:12097:rs.leg.br
+/usr/share/perl5/IO/Socket/SSL/PublicSuffix.pm:12351:nom.rs
+/usr/share/perl5/Debconf/DbDriver.pm:80:		debug "db $this->{name}" => "reject $name";
+/usr/share/perl5/Debconf/Db.pm:43:	debug db => "making DbDriver of type $type";
+/usr/share/perl5/Debconf/DbDriver/Cache.pm:77:		debug "db $this->{name}" => "cache miss on $item";
+/usr/share/perl5/Debconf/DbDriver/Cache.pm:115:		debug "db $this->{name}" => "creating in-cache $item";
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:12:use fields qw(db);
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:18:	if (! ref $this->{db}) {
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:19:		$this->{db}=$this->driver($this->{db});
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:20:		unless (defined $this->{db}) {
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:21:			$this->error("could not find db");
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:32:	debug "db $this->{name}" => "running $command(".join(",", map { "'$_'" } @_).") ..";
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:34:		my @ret=$this->{db}->$command(@_);
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:35:		debug "db $this->{name}" => "$command returned (".join(", ", @ret).")";
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:39:		my $ret=$this->{db}->$command(@_);
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:41:			debug "db $this->{name}" => "$command returned \'$ret\'";
+/usr/share/perl5/Debconf/DbDriver/Debug.pm:45:			debug "db $this->{name}" => "$command returned undef";
+/usr/share/perl5/Debconf/DbDriver/Pipe.pm:42:	debug "db $this->{name}" => "loading database";
+/usr/share/perl5/Debconf/DbDriver/Directory.pm:43:	debug "db $this->{name}" => "started; directory is $this->{directory}";
+/usr/share/perl5/Debconf/DbDriver/Directory.pm:61:	debug "db $this->{name}" => "loading $item";
+/usr/share/perl5/Debconf/DbDriver/Directory.pm:79:	debug "db $this->{name}" => "saving $item";
+/usr/share/perl5/Debconf/DbDriver/Directory.pm:102:			debug "db $this->{name}" => "rename failed: $!";
+/usr/share/perl5/Debconf/DbDriver/Directory.pm:133:	debug "db $this->{name}" => "removing $name";
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:24:				$this->error("could not find a db named \"$name\" to use in the stack (it should be defined before the stack in the config file)");
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:89:	debug "db $this->{name}" => "trying to $command(@_) ..";
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:93:			debug "db $this->{name}" => "$command done by $driver->{name}" if @ret;
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:98:			debug "db $this->{name}" => "$command done by $driver->{name}" if defined $ret;
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:111:	debug "db $this->{name}" => "trying to $command($item @_) ..";
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:116:			debug "db $this->{name}" => "passing to $driver->{name} ..";
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:127:				debug "db $this->{name}" => "skipped $command($item) as it would have no effect";
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:157:		debug "db $this->{name}" => "FAILED $command";
+/usr/share/perl5/Debconf/DbDriver/Stack.pm:165:	debug "db $this->{name}" => "passing to $writer->{name} ..";
+/usr/share/perl5/Debconf/DbDriver/File.pm:49:	debug "db $this->{name}" => "started; filename is $this->{filename}";
+/usr/share/perl5/Debconf/DbDriver/File.pm:81:	debug "db $this->{name}" => "loading database";
+/usr/share/perl5/Debconf/DbDriver/File.pm:99:		debug "db $this->{name}" => "saving database";
+/usr/share/perl5/Debconf/DbDriver/File.pm:102:		debug "db $this->{name}" => "no database changes, not saving";
+/usr/share/perl5/Debconf/DbDriver/File.pm:130:			debug "db $this->{name}" => "rename failed: $!";
+/usr/share/perl5/Debconf/DbDriver/Copy.pm:17:	debug "db $this->{name}" => "copying $item from $src->{name} to $dest->{name}";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:24:	debug "db $this->{name}" => "talking to $this->{server}, data under $this->{basedn}";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:34:		debug "db $this->{name}" => "binding anonymously; hope that's OK";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:37:		debug "db $this->{name}" => "binding as $this->{binddn}";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:59:		debug "db $this->{name}" => "will get database data key by key";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:62:		debug "db $this->{name}" => "getting database data";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:69:		debug "db $this->{name}" => "Read ".$data->count()." entries";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:85:		debug "db $this->{name}" => "saving changes";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:87:		debug "db $this->{name}" => "no database changes, not saving";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:101:		debug "db $this->{name}" => "writing out to $entry_dn";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:126:				debug "db $item" => "reject $field";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:136:		debug "db $this->{name}" => "owners is ".join("  ", @owners);
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:181:	debug "db $this->{name}" => "Read entry for $entry_cn";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:222:		debug "db $this->{name}" => "Reading data from $dn";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:238:			debug "db $this->{name}" => "Setting data for $attr";
+/usr/share/perl5/Debconf/DbDriver/LDAP.pm:240:				debug "db $this->{name}" => "$attr = $val";
+/usr/share/perl5/Debconf/DbDriver/PackageDir.pm:37:	debug "db $this->{name}" => "loading $file";
+/usr/share/perl5/Debconf/DbDriver/PackageDir.pm:130:			debug "db $this->{name}" => "removing $file";
+/usr/share/perl5/Debconf/DbDriver/PackageDir.pm:140:			debug "db $this->{name}" => "saving $file";
+/usr/share/perl5/Debconf/DbDriver/PackageDir.pm:158:					debug "db $this->{name}" => "rename failed: $!";
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:12:use fields qw(db backupdb);
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:18:	foreach my $f (qw(db backupdb)) {
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:20:			my $db=$this->driver($this->{$f});
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:22:				$this->error("could not find a db named \"$this->{$f}\"");
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:24:			$this->{$f}=$db;
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:34:	$this->SUPER::copy($item, $this->{db}, $this->{backupdb});
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:42:	$this->{db}->shutdown(@_);
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:50:	return $this->{db}->$command(@_);
+/usr/share/perl5/Debconf/DbDriver/Backup.pm:58:	my $ret=$this->{db}->$command(@_);
+/usr/share/perl5/Git.pm:554:	my ($fh, $rs) = @_;
+/usr/share/perl5/Git.pm:555:	local $/ = $rs;
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:381:rs = Serbian (Cyrillic)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:382:rs(alternatequotes) = Serbian (Cyrillic with guillemets)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:383:rs(latin) = Serbian (Latin)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:384:rs(latinalternatequotes) = Serbian (Latin with guillemets)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:385:rs(latinunicode) = Serbian (Latin Unicode)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:386:rs(latinunicodeyz) = Serbian (Latin Unicode qwerty)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:387:rs(latinyz) = Serbian (Latin qwerty)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:388:rs(rue) = Pannonian Rusyn (homophonic)
+/usr/share/lxpanel/xkeyboardconfig/layouts.cfg:389:rs(yz) = Serbian (Cyrillic, Z and ZHE swapped)
+/usr/share/bash-completion/completions/tc:263:        db|delay|evict_timeout|interval|latency|perturb|rehash|reset_timeout|\
+/usr/share/bash-completion/completions/tc:338:            _tc_once_attr 'rehash db limit max target increment decrement \
+/usr/share/bash-completion/completions/udevadm:51:                [INFO_STANDALONE]='-r --root -a --attribute-walk -x --export -e --export-db -c --cleanup-db'
+/usr/share/bash-completion/completions/debconf-show:8:        COMPREPLY=($( compgen -W '--listowners --listdbs --db=' -- $cur ) \
+/usr/share/bash-completion/completions/debconf:8:        COMPREPLY=($( compgen -W '--listowners --listdbs --db=' -- $cur ) \
+/usr/share/gtksourceview-3.0/language-specs/cobol.lang:217:      <keyword>db</keyword>
+/usr/share/gtksourceview-3.0/language-specs/rust.lang:38:    <property name="globs">*.rs</property>
+/usr/share/pulseaudio/alsa-mixer/profile-sets/default.conf:85:; db-values = ...                           # The option value consists of pairs of step numbers and decibel values.
+/usr/share/zsh/vendor-completions/_udevadm:15:        '--export-db[Export the content of the udev database.]' \
+/usr/share/zsh/vendor-completions/_udevadm:16:        '--cleanup-db[Cleanup the udev database.]'
+/usr/share/X11/xkb/symbols/me:8:  include "rs(latin)"
+/usr/share/X11/xkb/symbols/me:17:  include "rs(basic)"
+/usr/share/X11/xkb/symbols/me:23:  include "rs(yz)"
+/usr/share/X11/xkb/symbols/me:29:  include "rs(latinunicode)"
+/usr/share/X11/xkb/symbols/me:38:  include "rs(latinyz)"
+/usr/share/X11/xkb/symbols/me:47:  include "rs(latinunicodeyz)"
+/usr/share/X11/xkb/symbols/me:55:  include "rs(alternatequotes)"
+/usr/share/X11/xkb/symbols/me:60:  include "rs(latinalternatequotes)"
+/usr/share/X11/xkb/symbols/rs:20:    include "rs(cyrlevel3)"
+/usr/share/X11/xkb/symbols/rs:21:    include "rs(common)"
+/usr/share/X11/xkb/symbols/rs:22:    include "rs(cyralpha)"
+/usr/share/X11/xkb/symbols/rs:32:    include "rs(latalpha)"
+/usr/share/X11/xkb/symbols/rs:33:    include "rs(latlevel3)"
+/usr/share/X11/xkb/symbols/rs:34:    include "rs(common)"
+/usr/share/X11/xkb/symbols/rs:41:    include "rs(basic)"
+/usr/share/X11/xkb/symbols/rs:242:    include "rs(latin)"
+/usr/share/X11/xkb/symbols/rs:245:    include "rs(twoletter)"
+/usr/share/X11/xkb/symbols/rs:252:    include "rs(latin)"
+/usr/share/X11/xkb/symbols/rs:263:    include "rs(latinunicode)"
+/usr/share/X11/xkb/symbols/rs:273:    include "rs(basic)"
+/usr/share/X11/xkb/symbols/rs:283:    include "rs(latin)"
+/usr/share/X11/xkb/symbols/rs:297:    include "rs(basic)"
+/usr/share/X11/xkb/symbols/rs:320:    include "rs(basic)"
+/usr/share/X11/xkb/symbols/hr:4:    include "rs(latin)"
+/usr/share/X11/xkb/symbols/hr:50:    include "rs(latinalternatequotes)"
+/usr/share/X11/xkb/symbols/hr:57:    include "rs(latinunicode)"
+/usr/share/X11/xkb/symbols/hr:64:    include "rs(latinunicodeyz)"
+/usr/share/X11/xkb/symbols/ba:4:    include "rs(latin)"
+/usr/share/X11/xkb/symbols/ba:11:    include "rs(latinyz)"
+/usr/share/X11/xkb/symbols/ba:18:    include "rs(latinalternatequotes)"
+/usr/share/X11/xkb/symbols/ba:25:    include "rs(latinunicode)"
+/usr/share/X11/xkb/symbols/ba:32:    include "rs(latinunicodeyz)"
+/usr/share/X11/xkb/symbols/si:4:    include "rs(latin)"
+/usr/share/X11/xkb/symbols/si:14:    include "rs(latinyz)"
+/usr/share/X11/xkb/symbols/si:24:    include "rs(latinalternatequotes)"
+/usr/share/X11/xkb/rules/xfree86:280:  *		cs			=	pc+rs
+/usr/share/X11/xkb/rules/xfree86:396:  *		cs			=	pc+rs%(v[1])
+/usr/share/X11/xkb/rules/xfree86:539:  *		cs		=	+rs%(v[2]):2
+/usr/share/X11/xkb/rules/xfree86:620:  *		cs		=	+rs%(v[3]):3
+/usr/share/X11/xkb/rules/xfree86:701:  *		cs		=	+rs%(v[4]):4
+/usr/share/X11/xkb/rules/xorg:280:  *		cs			=	pc+rs
+/usr/share/X11/xkb/rules/xorg:396:  *		cs			=	pc+rs%(v[1])
+/usr/share/X11/xkb/rules/xorg:539:  *		cs		=	+rs%(v[2]):2
+/usr/share/X11/xkb/rules/xorg:620:  *		cs		=	+rs%(v[3]):3
+/usr/share/X11/xkb/rules/xorg:701:  *		cs		=	+rs%(v[4]):4
+/usr/share/X11/xkb/rules/xfree86.xml:4748:        <name>rs</name>
+/usr/share/X11/xkb/rules/evdev.xml:4748:        <name>rs</name>
+/usr/share/X11/xkb/rules/xorg.xml:4748:        <name>rs</name>
+/usr/share/X11/xkb/rules/xorg.lst:255:  rs              Serbian
+/usr/share/X11/xkb/rules/xorg.lst:632:  yz              rs: Serbian (Cyrillic, ZE and ZHE swapped)
+/usr/share/X11/xkb/rules/xorg.lst:633:  latin           rs: Serbian (Latin)
+/usr/share/X11/xkb/rules/xorg.lst:634:  latinunicode    rs: Serbian (Latin, Unicode)
+/usr/share/X11/xkb/rules/xorg.lst:635:  latinyz         rs: Serbian (Latin, QWERTY)
+/usr/share/X11/xkb/rules/xorg.lst:636:  latinunicodeyz  rs: Serbian (Latin, Unicode, QWERTY)
+/usr/share/X11/xkb/rules/xorg.lst:637:  alternatequotes rs: Serbian (Cyrillic with guillemets)
+/usr/share/X11/xkb/rules/xorg.lst:638:  latinalternatequotes rs: Serbian (Latin with guillemets)
+/usr/share/X11/xkb/rules/xorg.lst:639:  rue             rs: Pannonian Rusyn
+/usr/share/X11/xkb/rules/base.xml:4748:        <name>rs</name>
+/usr/share/X11/xkb/rules/evdev.extras.xml:523:        <name>rs</name>
+/usr/share/X11/xkb/rules/base.extras.xml:523:        <name>rs</name>
+/usr/share/X11/xkb/rules/evdev.lst:255:  rs              Serbian
+/usr/share/X11/xkb/rules/evdev.lst:632:  yz              rs: Serbian (Cyrillic, ZE and ZHE swapped)
+/usr/share/X11/xkb/rules/evdev.lst:633:  latin           rs: Serbian (Latin)
+/usr/share/X11/xkb/rules/evdev.lst:634:  latinunicode    rs: Serbian (Latin, Unicode)
+/usr/share/X11/xkb/rules/evdev.lst:635:  latinyz         rs: Serbian (Latin, QWERTY)
+/usr/share/X11/xkb/rules/evdev.lst:636:  latinunicodeyz  rs: Serbian (Latin, Unicode, QWERTY)
+/usr/share/X11/xkb/rules/evdev.lst:637:  alternatequotes rs: Serbian (Cyrillic with guillemets)
+/usr/share/X11/xkb/rules/evdev.lst:638:  latinalternatequotes rs: Serbian (Latin with guillemets)
+/usr/share/X11/xkb/rules/evdev.lst:639:  rue             rs: Pannonian Rusyn
+/usr/share/X11/xkb/rules/xfree86.lst:255:  rs              Serbian
+/usr/share/X11/xkb/rules/xfree86.lst:632:  yz              rs: Serbian (Cyrillic, ZE and ZHE swapped)
+/usr/share/X11/xkb/rules/xfree86.lst:633:  latin           rs: Serbian (Latin)
+/usr/share/X11/xkb/rules/xfree86.lst:634:  latinunicode    rs: Serbian (Latin, Unicode)
+/usr/share/X11/xkb/rules/xfree86.lst:635:  latinyz         rs: Serbian (Latin, QWERTY)
+/usr/share/X11/xkb/rules/xfree86.lst:636:  latinunicodeyz  rs: Serbian (Latin, Unicode, QWERTY)
+/usr/share/X11/xkb/rules/xfree86.lst:637:  alternatequotes rs: Serbian (Cyrillic with guillemets)
+/usr/share/X11/xkb/rules/xfree86.lst:638:  latinalternatequotes rs: Serbian (Latin with guillemets)
+/usr/share/X11/xkb/rules/xfree86.lst:639:  rue             rs: Pannonian Rusyn
+/usr/share/X11/xkb/rules/evdev:218:  *		cs			=	pc+rs
+/usr/share/X11/xkb/rules/evdev:334:  *		cs			=	pc+rs%(v[1])
+/usr/share/X11/xkb/rules/evdev:477:  *		cs		=	+rs%(v[2]):2
+/usr/share/X11/xkb/rules/evdev:558:  *		cs		=	+rs%(v[3]):3
+/usr/share/X11/xkb/rules/evdev:639:  *		cs		=	+rs%(v[4]):4
+/usr/share/X11/xkb/rules/base.lst:255:  rs              Serbian
+/usr/share/X11/xkb/rules/base.lst:632:  yz              rs: Serbian (Cyrillic, ZE and ZHE swapped)
+/usr/share/X11/xkb/rules/base.lst:633:  latin           rs: Serbian (Latin)
+/usr/share/X11/xkb/rules/base.lst:634:  latinunicode    rs: Serbian (Latin, Unicode)
+/usr/share/X11/xkb/rules/base.lst:635:  latinyz         rs: Serbian (Latin, QWERTY)
+/usr/share/X11/xkb/rules/base.lst:636:  latinunicodeyz  rs: Serbian (Latin, Unicode, QWERTY)
+/usr/share/X11/xkb/rules/base.lst:637:  alternatequotes rs: Serbian (Cyrillic with guillemets)
+/usr/share/X11/xkb/rules/base.lst:638:  latinalternatequotes rs: Serbian (Latin with guillemets)
+/usr/share/X11/xkb/rules/base.lst:639:  rue             rs: Pannonian Rusyn
+/usr/share/X11/xkb/rules/base:280:  *		cs			=	pc+rs
+/usr/share/X11/xkb/rules/base:396:  *		cs			=	pc+rs%(v[1])
+/usr/share/X11/xkb/rules/base:539:  *		cs		=	+rs%(v[2]):2
+/usr/share/X11/xkb/rules/base:620:  *		cs		=	+rs%(v[3]):3
+\n== systemd/init npu units ==
+--- /lib/systemd/system/ssh@.service ---
+[Unit]
+Description=OpenBSD Secure Shell server per-connection daemon
+Documentation=man:sshd(8) man:sshd_config(5)
+After=auditd.service
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStart=-/usr/sbin/sshd -i $SSHD_OPTS
+StandardInput=socket
+RuntimeDirectory=sshd
+RuntimeDirectoryMode=0755
+--- /lib/systemd/system/rescue.service ---
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Rescue Shell
+Documentation=man:sulogin(8)
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=sysinit.target plymouth-start.service
+Before=shutdown.target
+
+[Service]
+Environment=HOME=/root
+WorkingDirectory=-/root
+ExecStartPre=-/bin/plymouth --wait quit
+ExecStart=-/lib/systemd/systemd-sulogin-shell rescue
+Type=idle
+StandardInput=tty-force
+StandardOutput=inherit
+StandardError=inherit
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+--- /lib/systemd/system/triggerhappy.service ---
+[Unit]
+Description=triggerhappy global hotkey daemon
+After=local-fs.target
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/thd --triggers /etc/triggerhappy/triggers.d/ --socket /run/thd.socket --user root --deviceglob /dev/input/event*
+
+[Install]
+WantedBy=multi-user.target
+--- /lib/systemd/system/acpid.service ---
+[Unit]
+Description=ACPI event daemon
+Requires=acpid.socket
+ConditionVirtualization=!container
+
+[Service]
+StandardInput=socket
+EnvironmentFile=/etc/default/acpid
+ExecStart=/usr/sbin/acpid $OPTIONS
+
+[Install]
+WantedBy=multi-user.target
+--- /lib/systemd/system/debug-shell.service ---
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Early root shell on /dev/tty9 FOR DEBUGGING ONLY
+Documentation=man:sushell(8)
+Documentation=man:systemd-debug-generator(8)
+DefaultDependencies=no
+IgnoreOnIsolate=yes
+ConditionPathExists=/dev/tty9
+
+[Service]
+Environment=TERM=linux
+ExecStart=/bin/bash
+Restart=always
+RestartSec=0
+StandardInput=tty
+TTYPath=/dev/tty9
+TTYReset=yes
+TTYVHangup=yes
+KillMode=process
+IgnoreSIGPIPE=no
+# bash ignores SIGTERM
+KillSignal=SIGHUP
+
+# Unset locale for the console getty since the console has problems
+# displaying some internationalized messages.
+UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
+
+[Install]
+WantedBy=sysinit.target
+--- /lib/systemd/system/emergency.service ---
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Emergency Shell
+Documentation=man:sulogin(8)
+DefaultDependencies=no
+Conflicts=shutdown.target
+Conflicts=rescue.service
+Before=shutdown.target
+Before=rescue.service
+
+[Service]
+Environment=HOME=/root
+WorkingDirectory=-/root
+ExecStartPre=-/bin/plymouth --wait quit
+ExecStart=-/lib/systemd/systemd-sulogin-shell emergency
+Type=idle
+StandardInput=tty-force
+StandardOutput=inherit
+StandardError=inherit
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+--- /etc/init.d/rockchip.sh ---
+#!/bin/bash -e
+### BEGIN INIT INFO
+# Provides:          rockchip
+# Required-Start:
+# Required-Stop:
+# Default-Start:
+# Default-Stop:
+# Short-Description:
+# Description:       Setup rockchip platform environment
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+install_mali() {
+    case $1 in
+        rk3288)
+            MALI=midgard-t76x-r18p0-r0p0
+
+            # 3288w
+            cat /sys/devices/platform/*gpu/gpuinfo | grep -q r1p0 && \
+                MALI=midgard-t76x-r18p0-r1p0
+            ;;
+        rk3399|rk3399pro)
+            MALI=midgard-t86x-r18p0
+            ;;
+        rk3328)
+            MALI=utgard-450
+            ;;
+        rk3326|px30)
+            MALI=bifrost-g31
+            ;;
+        rk3128|rk3036)
+            MALI=utgard-400
+            ;;
+        rk3568|rk3566)
+            MALI=bifrost-g52-g2p0
+            ;;
+    esac
+
+    apt install -f /packages/libmali/libmali-*$MALI*-x11*.deb
+}
+
+function update_npu_fw() {
+    /usr/bin/npu-image.sh
+    sleep 1
+    /usr/bin/npu_transfer_proxy&
+}
+
+COMPATIBLE=$(cat /proc/device-tree/compatible)
+if [[ $COMPATIBLE =~ "rk3288" ]];
+then
+    CHIPNAME="rk3288"
+elif [[ $COMPATIBLE =~ "rk3328" ]]; then
+    CHIPNAME="rk3328"
+elif [[ $COMPATIBLE =~ "rk3399" && $COMPATIBLE =~ "rk3399pro" ]]; then
+    CHIPNAME="rk3399pro"
+    update_npu_fw
+elif [[ $COMPATIBLE =~ "rk3399" ]]; then
+    CHIPNAME="rk3399"
+elif [[ $COMPATIBLE =~ "rk3326" ]]; then
+    CHIPNAME="rk3326"
+elif [[ $COMPATIBLE =~ "px30" ]]; then
+    CHIPNAME="px30"
+elif [[ $COMPATIBLE =~ "rk3128" ]]; then
+    CHIPNAME="rk3128"
+elif [[ $COMPATIBLE =~ "rk3566" ]]; then
+    CHIPNAME="rk3566"
+elif [[ $COMPATIBLE =~ "rk3568" ]]; then
+    CHIPNAME="rk3568"
+else
+    CHIPNAME="rk3036"
+fi
+COMPATIBLE=${COMPATIBLE#rockchip,}
+BOARDNAME=${COMPATIBLE%%rockchip,*}
+
+# first boot configure
+if [ ! -e "/usr/local/first_boot_flag" ] ;
+then
+    echo "It's the first time booting."
+    echo "The rootfs will be configured."
+
+    # Force rootfs synced
+    mount -o remount,sync /
+
+    install_mali ${CHIPNAME}
+    setcap CAP_SYS_ADMIN+ep /usr/bin/gst-launch-1.0
+
+    # Cannot open pixbuf loader module file
+    if [ -e "/usr/lib/arm-linux-gnueabihf" ] ;
+    then
+	/usr/lib/arm-linux-gnueabihf/gdk-pixbuf-2.0/gdk-pixbuf-query-loaders > /usr/lib/arm-linux-gnueabihf/gdk-pixbuf-2.0/2.10.0/loaders.cache
+	update-mime-database /usr/share/mime/
+    elif [ -e "/usr/lib/aarch64-linux-gnu" ];
+    then
+	/usr/lib/aarch64-linux-gnu/gdk-pixbuf-2.0/gdk-pixbuf-query-loaders > /usr/lib/aarch64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache
+    fi
+
+    rm -rf /packages
+
+    # The base target does not come with lightdm
+    systemctl restart lightdm.service || true
+
+    touch /usr/local/first_boot_flag
+fi
+
+# enable adbd service
+if [ -e "/etc/init.d/adbd.sh" ] ;
+then
+    cd /etc/rcS.d
+    if [ ! -e "S01adbd.sh" ] ;
+    then
+        ln -s ../init.d/adbd.sh S01adbd.sh
+    fi
+    cd /etc/rc6.d
+    if [ ! -e "K01adbd.sh" ] ;
+    then
+        ln -s ../init.d/adbd.sh K01adbd.sh
+    fi
+
+    service adbd.sh start
+fi
+
+# support power management
+if [ -e "/usr/sbin/pm-suspend" -a -e /etc/Powermanager ] ;
+then
+    mv /etc/Powermanager/power-key.sh /usr/bin/
+    mv /etc/Powermanager/power-key.conf /etc/triggerhappy/triggers.d/
+    if [[ "$CHIPNAME" == "rk3399pro" ]];
+    then
+        mv /etc/Powermanager/01npu /usr/lib/pm-utils/sleep.d/
+        mv /etc/Powermanager/02npu /lib/systemd/system-sleep/
+    fi
+    mv /etc/Powermanager/triggerhappy /etc/init.d/triggerhappy
+
+    rm /etc/Powermanager -rf
+    service triggerhappy restart
+fi
+
+# Create dummy video node for chromium V4L2 VDA/VEA with rkmpp plugin
+echo dec > /dev/video-dec0
+echo enc > /dev/video-enc0
+chmod 660 /dev/video-*
+chown root.video /dev/video-*
+
+# The chromium using fixed pathes for libv4l2.so
+ln -rsf /usr/lib/*/libv4l2.so /usr/lib/
+[ -e /usr/lib/aarch64-linux-gnu/ ] && ln -Tsf lib /usr/lib64
+
+# read mac-address from efuse
+# if [ "$BOARDNAME" == "rk3288-miniarm" ]; then
+#     MAC=`xxd -s 16 -l 6 -g 1 /sys/bus/nvmem/devices/rockchip-efuse0/nvmem | awk '{print $2$3$4$5$6$7 }'`
+#     ifconfig eth0 hw ether $MAC
+# fi
+--- /etc/init.d/bluetooth ---
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides: bluetooth
+# Required-Start:    $local_fs $syslog $remote_fs dbus
+# Required-Stop:     $local_fs $syslog $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start bluetooth daemons
+### END INIT INFO
+#
+# bluez    Bluetooth subsystem starting and stopping
+#
+# originally from bluez's scripts/bluetooth.init
+#
+# Edd Dumbill <ejad@debian.org>
+# LSB 3.0 compilance and enhancements by Filippo Giunchedi <filippo@debian.org>
+#
+# Updated for bluez 4.7 by Mario Limonciello <mario_limonciello@dell.com>
+# Updated for bluez 5.5 by Nobuhiro Iwamatsu <iwamatsu@debian.org>
+#
+# Note: older daemons like dund pand hidd are now shipped inside the
+# bluez-compat package
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DESC=bluetooth
+
+DAEMON=/usr/sbin/bluetoothd
+HCIATTACH=/usr/bin/hciattach
+
+HID2HCI_ENABLED=1
+HID2HCI_UNDO=1
+
+SDPTOOL=/usr/bin/sdptool
+
+# If you want to be ignore error of "org.freedesktop.hostname1",
+# please enable NOPLUGIN_OPTION.
+# NOPLUGIN_OPTION="--noplugin=hostname"
+NOPLUGIN_OPTION=""
+SSD_OPTIONS="--oknodo --quiet --exec $DAEMON -- $NOPLUGIN_OPTION"
+
+test -f $DAEMON || exit 0
+
+# FIXME: any of the sourced files may fail if/with syntax errors
+test -f /etc/default/bluetooth && . /etc/default/bluetooth
+test -f /etc/default/rcS && . /etc/default/rcS
+
+. /lib/lsb/init-functions
+
+set -e
+
+# FIXME: this function is possibly a no-op
+run_sdptool()
+{
+	# declaring IFS local in this function, removes the need to
+	# save/restore it
+	local IFS o
+
+	test -x $SDPTOOL || return 1
+
+# FIXME: where does SDPTOOL_OPTIONS come from?
+	if ! test -z "$SDPTOOL_OPTIONS" ; then
+		IFS=";"
+		for o in $SDPTOOL_OPTIONS ; do
+			#echo "execing $SDPTOOL $o"
+			IFS=" "
+			if [ "$VERBOSE" != no ]; then
+				$SDPTOOL $o
+			else
+				$SDPTOOL $o >/dev/null 2>&1
+			fi
+		done
+	fi
+}
+
+hci_input()
+{
+    log_progress_msg "switching to HID/HCI no longer done in init script, see /usr/share/doc/bluez/NEWS.Debian.gz" || :
+}
+alias enable_hci_input=hci_input
+alias disable_hci_input=hci_input
+
+case $1 in
+  start)
+	log_daemon_msg "Starting $DESC"
+
+	if test "$BLUETOOTH_ENABLED" = 0; then
+		log_progress_msg "disabled. see /etc/default/bluetooth"
+		log_end_msg 0
+		exit 0
+	fi
+
+	start-stop-daemon --start --background $SSD_OPTIONS
+	log_progress_msg "${DAEMON##*/}"
+
+	run_sdptool || :
+
+	if test "$HID2HCI_ENABLED" = 1; then
+		enable_hci_input
+	fi
+
+	log_end_msg 0
+  ;;
+  stop)
+	log_daemon_msg "Stopping $DESC"
+	if test "$BLUETOOTH_ENABLED" = 0; then
+		log_progress_msg "disabled."
+		log_end_msg 0
+		exit 0
+	fi
+	if test "$HID2HCI_UNDO" = 1; then
+		disable_hci_input
+	fi
+	start-stop-daemon --stop $SSD_OPTIONS
+	log_progress_msg "${DAEMON}"
+	log_end_msg 0
+  ;;
+  restart|force-reload)
+	$0 stop
+	sleep 1
+	$0 start
+  ;;
+  status)
+	status_of_proc "$DAEMON" "$DESC" && exit 0 || exit $?
+  ;;
+  *)
+	N=/etc/init.d/bluetooth
+	echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
+
+# vim:noet
+\n== shell history npu snippets ==
+--- /root/.bash_history ---
+import{L as q,N as V,bL as A,d as J,l as Q,a as W,q as Y,s as Z,O as ee,H as ae,k as u,bK as te,p as se,u as oe,bJ as re,r as ne,c as l,y as f,w as o,e as j,f as h,g as k,h as d,t as i,i as p,F as H,C as ce,x as m,R as ue,ah as le,U as C,Q as de,aV as ie,an as pe,I as M,bF as ge,j as _,a1 as $,G as he}from"./index-u-ppHw0H.js";import{_ as ke}from"./CreateEdit.vue_vue_type_script_setup_true_lang-laCwQI-Q.js";class me extends q{id=0;url="";thumb="";info={};blurHash="";constructor(t){super(),this.assignData(t)}}class ve extends V{constructor(){super({getAll:"/backgrounds/unsplash/search",update:"/projects/{projectId}/backgrounds/unsplash"})}modelFactory(t){return new me(t)}modelUpdateFactory(t){return new A(t)}async thumb(t){const n=await this.http({url:`/backgrounds/unsplash/images/${t.id}/thumb`,method:"GET",responseType:"blob"});return window.URL.createObjectURL(new Blob([n.data]))}}class be extends V{constructor(){super({create:"/projects/{projectId}/backgrounds/upload"})}useCreateInterceptor(){return!1}modelCreateFactory(t){return new A(t)}create(t,n){return this.uploadFile(this.getReplacedRoute(this.paths.create,{projectId:t}),n,"background")}}const fe={key:0,class:"mbe-4"},je=["placeholder"],_e={class:"unsplash-credit"},Be={class:"image-search__result-list"},we=["src"],ye=300,Se=J({name:"ProjectSettingBackground",__name:"ProjectSettingsBackground",setup(B){const{t}=Q({useScope:"global"}),n=W(),P=Y(),D=Z();ee(()=>t("project.background.title"));const c=ae(new ve),w=u(""),g=u([]),v=u({}),U=u({}),I=u(1),O=ge(T,ye),R=u(new be),x=u(new te),y=se(),F=oe(),S=_(()=>F.enabledBackgroundProviders.includes("unsplash")),E=_(()=>F.enabledBackgroundProviders.includes("upload")),N=_(()=>n.currentProject),z=_(()=>!!(N.value&&N.value.backgroundInformation));T();function T(){S.value&&(g.value=[],v.value={},L())}async function L(e=1){I.value=e;const s=await c.getAll({},{s:w.value,p:e});g.value=g.value.concat(s),s.forEach(r=>{re(r.blurHash).then(a=>{U.value[r.id]=window.URL.createObjectURL(a)}),c.thumb(r).then(a=>{v.value[r.id]=a})})}async function G(e){if(c.loading)return;const s=await c.update({id:e,projectId:P.params.projectId});await n.handleSetCurrentProject({project:s,forceUpdate:!0}),y.setProject(s),$({message:t("project.background.success")})}const b=u(null);async function K(){if(b.value?.files?.length===0)return;const e=await R.value.create(P.params.projectId,b.value?.files[0]);await n.handleSetCurrentProject({project:e,forceUpdate:!0}),y.setProject(e),$({message:t("project.background.success")})}async function X(){const e=await x.value.removeBackground(N.value);await n.handleSetCurrentProject({project:e,forceUpdate:!0}),y.setProject(e),$({message:t("project.background.removeSuccess")}),D.back()}return(e,s)=>{const r=ne("XButton");return E.value||S.value?(l(),f(ke,{key:0,title:e.$t("project.background.title"),loading:m(c).loading,class:"project-background-setting",wide:!0},{footer:o(()=>[z.value?(l(),f(r,{key:0,shadow:!1,variant:"tertiary",danger:"",onClick:M(X,["prevent","stop"])},{default:o(()=>[d(i(e.$t("project.background.remove")),1)]),_:1})):p("",!0),k(r,{variant:"secondary",onClick:s[4]||(s[4]=M(a=>e.$router.back(),["prevent","stop"]))},{default:o(()=>[d(i(e.$t("misc.close")),1)]),_:1})]),default:o(()=>[E.value?(l(),j("div",fe,[h("input",{ref_key:"backgroundUploadInput",ref:b,accept:"image/*",class:"is-hidden",type:"file",onChange:K},null,544),k(r,{loading:R.value.loading,variant:"primary",onClick:s[0]||(s[0]=a=>b.value?.click())},{default:o(()=>[d(i(e.$t("project.background.upload")),1)]),_:1},8,["loading"])])):p("",!0),S.value?(l(),j(H,{key:1},[ce(h("input",{"onUpdate:modelValue":s[1]||(s[1]=a=>w.value=a),class:ue([{"is-loading":m(c).loading},"input is-expanded"]),placeholder:e.$t("project.background.searchPlaceholder"),type:"text",onKeyup:s[2]||(s[2]=a=>m(O)())},null,42,je),[[le,w.value]]),h("p",_e,[k(C,{class:"unsplash-credit__link",href:"https://unsplash.com"},{default:o(()=>[d(i(e.$t("project.background.poweredByUnsplash")),1)]),_:1})]),h("ul",Be,[(l(!0),j(H,null,de(g.value,a=>(l(),j("li",{key:a.id,class:"image-search__result-item",style:ie({"background-image":`url(${U.value[a.id]})`})},[k(pe,{name:"fade"},{default:o(()=>[v.value[a.id]?(l(),f(C,{key:0,class:"image-search__image-button",onClick:Ce=>G(a.id)},{default:o(()=>[h("img",{class:"image-search__image",src:v.value[a.id],alt:""},null,8,we)]),_:2},1032,["onClick"])):p("",!0)]),_:2},1024),k(C,{href:`https://unsplash.com/@${a.info.author}?utm_source=vikunja&utm_medium=referral`,class:"image-search__info"},{default:o(()=>[d(i(a.info.authorName),1)]),_:2},1032,["href"])],4))),128))]),g.value.length>0?(l(),f(r,{key:0,disabled:m(c).loading,class:"is-load-more-button mbs-4",shadow:!1,variant:"secondary",onClick:s[3]||(s[3]=a=>L(I.value+1))},{default:o(()=>[d(i(m(c).loading?e.$t("misc.loading"):e.$t("project.background.loadMore")),1)]),_:1},8,["disabled"])):p("",!0)],64)):p("",!0)]),_:1},8,["title","loading"])):p("",!0)}}}),Ue=he(Se,[["__scopeId","data-v-cf1d5bd2"]]);export{Ue as default};
+dpkg -l | grep -E 'rockchip|rk3399|rknpu|mpp|rk|neardi|libmali|glmark'
+root@LPA3399Pro:~# dpkg -l | grep -E 'rockchip|rk3399|rknpu|mpp|rk|neardi|libmali|glmark'
+ii  libinput-bin                          1.12.6-2+deb10u1                        arm64        input device management and event handling library - udev quirks
+--- /home/neardi/.bash_history ---
+\n== upgrade_tool help strings relevant ==
+Not found config.ini
+Program Data in /usr/bin
+
+---------------------Tool Usage ---------------------
+Help:             H
+Version:          V
+------------------SPI Upgrade Command ------------------
+SPI DownloadBoot:		SDB <Loader>
+SPI DownloadImage:		SDI <-b|-t|-u> <Image> [Offset] [speed]
+SPI RunSystem:		SRS
+SPI AutoTest:		SAT [transfer_size_k] [transfer_count] [speed]
+------------------USB Upgrade Command ------------------
+ListDevice:		    LD
+DownloadBoot:		DB <Loader>
+TestDevice:		TD
+WriteLBA:		WL  <BeginSec> <File>
+RunSystem:		RS <uboot_addr> <trust_addr> <boot_addr> <uboot> <trust> <boot>
+-------------------------------------------------------
+
+================ HOST 192.168.50.113 ================
+== uname ==
+Linux armbian 6.18.33 #1 SMP PREEMPT Fri Jun 26 05:37:52 UTC 2026 aarch64 GNU/Linux
+\n== npu_transfer_proxy devices ==
+List of ntb devices attached
+\n== lsusb rockchip ==
+Bus 003 Device 005: ID 2207:180a Fuzhou Rockchip Electronics Company USB-MSC
+\n== /usr/share/npu_fw listing/sha256 ==
+160078 /usr/share/npu_fw/MiniLoaderAll.bin
+160078 /usr/share/npu_fw/MiniLoaderAll_factory.bin
+20318208 /usr/share/npu_fw/boot_factory.img
+2097152 /usr/share/npu_fw/trust.img
+2097152 /usr/share/npu_fw/trust_factory.img
+2097152 /usr/share/npu_fw/uboot.img
+2097152 /usr/share/npu_fw/uboot_factory.img
+31260672 /usr/share/npu_fw/boot.img
+399 /usr/share/npu_fw/parameter.txt
+678 /usr/share/npu_fw/ystemctl start npu_transfer_proxy.service
+a8d55129dbc6974c653f009229e6d37d22e4a696e6ca28c500df3e3f0acfceba  /usr/share/npu_fw/MiniLoaderAll.bin
+ad01fbeddcdd390ef14e7683be085facd8b474aca81e42ee2e40dda5340292f4  /usr/share/npu_fw/MiniLoaderAll_factory.bin
+ec166636ef320ce290863f15d50c2102fbe97efbf1d5a2e06ff3beba629a8cae  /usr/share/npu_fw/boot.img
+385ba14c3b69af60240b6d541c20d464c995df2e2e588a03d7e4c1efd7fc169c  /usr/share/npu_fw/boot_factory.img
+fedaf45f8c22a94b25271844757d3c303c2d7987ef0e4b3533b0503fdcdd6b03  /usr/share/npu_fw/parameter.txt
+524f987049c3f3c27c64a6b5b3d29de711513d23acd2ce9ea1eb390677ab4827  /usr/share/npu_fw/trust.img
+92d650fe50a9a53e638ebd80d25d793fc298201675ab8cd1370d7593c59a5be2  /usr/share/npu_fw/trust_factory.img
+dcd5e01afb31868b001e12764639ff60e2c679c1fcf76c42feda54377d4cc33d  /usr/share/npu_fw/uboot.img
+4dc50c3f463c00f0585bf313cbdfc0943abc08d0c3565d6cef122a6fa7b7fbae  /usr/share/npu_fw/uboot_factory.img
+642bb17c70bad5cd0936d8f43a1dc7de3f6ce3728d447afb02df495e5c7e7427  /usr/share/npu_fw/ystemctl start npu_transfer_proxy.service
+\n== search upgrade_tool rs/db/npu_boot references ==
+/etc/cron.weekly/man-db:3:# man-db cron weekly
+/etc/mime.types:417:application/rls-services+xml			rs
+/etc/mime.types:1075:application/vnd.maxmind.maxmind-db		mmdb
+/etc/mime.types:1444:application/vnd.rs-274x
+/etc/oh-my-zsh/plugins/zsh-navigation-tools/n-history:147:local most_frequent_db="$HOME/.config/znt/mostfrequent.db"
+/etc/oh-my-zsh/plugins/zsh-navigation-tools/n-history:170:local private_history_db="$HOME/.config/znt/privhist.db"
+/etc/oh-my-zsh/plugins/zsh-navigation-tools/n-functions:45:        print -rs "zed -f -- \"$selected\""
+/etc/oh-my-zsh/plugins/zsh-navigation-tools/n-functions:49:        print -rs "vared functions\\[$selected\\]"
+/etc/oh-my-zsh/plugins/zsh-navigation-tools/n-aliases:43:    print -rs "vared aliases\\[$selected\\]"
+/etc/oh-my-zsh/plugins/zsh-navigation-tools/n-env:43:    print -rs "vared \"$selected\""
+/etc/oh-my-zsh/plugins/drush/drush.plugin.zsh:65:    drush site-install standard --db-url=$DB_URL --site-name=$WEBSITE_NAME
+/etc/oh-my-zsh/plugins/timer/README.md:16:    0000020 f9 1f 7e b9 6f 2c ae dd cf 40 6d 64 a8 fb d3 db
+/etc/oh-my-zsh/plugins/gitfast/git-completion.bash:3637:	__git_cmds[main]="add add--interactive am annotate apply archimport archive bisect bisect--helper blame branch bugreport bundle cat-file check-attr check-ignore check-mailmap check-ref-format checkout checkout--worker checkout-index cherry cherry-pick citool clean clone column commit commit-graph commit-tree config count-objects credential credential-cache credential-cache--daemon credential-store cvsexportcommit cvsimport cvsserver daemon describe diff diff-files diff-index diff-tree difftool difftool--helper env--helper fast-export fast-import fetch fetch-pack filter-branch fmt-merge-msg for-each-ref for-each-repo format-patch fsck fsck-objects fsmonitor--daemon gc get-tar-commit-id grep gui gui--askpass hash-object help hook http-backend http-fetch http-push imap-send index-pack init init-db instaweb interpret-trailers legacy-rebase legacy-stash log ls-files ls-remote ls-tree mailinfo mailsplit maintenance merge merge-base merge-file merge-index merge-octopus merge-one-file merge-ours merge-recursive merge-recursive-ours merge-recursive-theirs merge-resolve merge-subtree merge-tree mergetool mktag mktree multi-pack-index mv name-rev notes p4 pack-objects pack-redundant pack-refs patch-id pickaxe prune prune-packed pull push quiltimport range-diff read-tree rebase rebase--helper receive-pack reflog relink remote remote-ext remote-fd remote-ftp remote-ftps remote-http remote-https remote-testsvn repack replace request-pull rerere reset restore rev-list rev-parse revert rm send-email send-pack serve sh-i18n--envsubst shell shortlog show show-branch show-index show-ref sparse-checkout stage stash status stripspace submodule submodule--helper svn switch symbolic-ref tag unpack-file unpack-objects update-index update-ref update-server-info upload-archive upload-archive--writer upload-pack var verify-commit verify-pack verify-tag version web--browse whatchanged worktree write-tree"
+/etc/oh-my-zsh/plugins/gitfast/git-completion.bash:3639:	__git_cmds[parseopt]="add am apply archive bisect--helper blame branch bugreport cat-file check-attr check-ignore check-mailmap checkout checkout--worker checkout-index cherry cherry-pick clean clone column commit commit-graph config count-objects credential-cache credential-cache--daemon credential-store describe difftool env--helper fast-export fetch fmt-merge-msg for-each-ref for-each-repo format-patch fsck fsck-objects fsmonitor--daemon gc grep hash-object help hook init init-db interpret-trailers log ls-files ls-remote ls-tree merge merge-base merge-file mktree multi-pack-index mv name-rev notes pack-objects pack-refs pickaxe prune prune-packed pull push range-diff read-tree rebase receive-pack reflog remote repack replace rerere reset restore revert rm send-pack shortlog show show-branch show-index show-ref sparse-checkout stage stash status stripspace switch symbolic-ref tag update-index update-ref update-server-info upload-pack verify-commit verify-pack verify-tag version whatchanged write-tree "
+/etc/oh-my-zsh/plugins/deno/README.md:9:| db    | deno bundle         |
+/etc/oh-my-zsh/plugins/deno/deno.plugin.zsh:2:alias db='deno bundle'
+/etc/oh-my-zsh/plugins/suse/README.md:87:| zrs   | `sudo zypper rs`   | remove specified repository index service from the system      |
+/etc/oh-my-zsh/plugins/suse/suse.plugin.zsh:52:alias zrs='sudo zypper rs'
+/etc/oh-my-zsh/plugins/zeus/README.md:45:| _zdbr_       | `zeus rake db:reset db:test:prepare`                               |
+/etc/oh-my-zsh/plugins/zeus/README.md:46:| _zdbreset_   | `zeus rake db:reset db:test:prepare`                               |
+/etc/oh-my-zsh/plugins/zeus/README.md:47:| _zdbm_       | `zeus rake db:migrate db:test:prepare`                             |
+/etc/oh-my-zsh/plugins/zeus/README.md:48:| _zdbmigrate_ | `zeus rake db:migrate db:test:prepare`                             |
+/etc/oh-my-zsh/plugins/zeus/README.md:49:| _zdbc_       | `zeus rake db:create`                                              |
+/etc/oh-my-zsh/plugins/zeus/README.md:50:| _zdbcm_      | `zeus rake db:create db:migrate db:test:prepare`                   |
+/etc/oh-my-zsh/plugins/zeus/zeus.plugin.zsh:59:alias zdbr='zeus rake db:reset db:test:prepare'
+/etc/oh-my-zsh/plugins/zeus/zeus.plugin.zsh:60:alias zdbreset='zeus rake db:reset db:test:prepare'
+/etc/oh-my-zsh/plugins/zeus/zeus.plugin.zsh:63:alias zdbm='zeus rake db:migrate db:test:prepare'
+/etc/oh-my-zsh/plugins/zeus/zeus.plugin.zsh:64:alias zdbmigrate='zeus rake db:migrate db:test:prepare'
+/etc/oh-my-zsh/plugins/zeus/zeus.plugin.zsh:67:alias zdbc='zeus rake db:create'
+/etc/oh-my-zsh/plugins/zeus/zeus.plugin.zsh:70:alias zdbcm='zeus rake db:create db:migrate db:test:prepare'
+/etc/oh-my-zsh/plugins/macos/_security:30:  'create-db:Create a db using the DL'
+/etc/oh-my-zsh/plugins/emoji/update_emoji.py:153:# https://raw.githubusercontent.com/github/gemoji/master/db/emoji.json
+/etc/oh-my-zsh/plugins/starship/README.md:3:Initializes [starship prompt](https://starship.rs) - a minimal, blazing-fast and infinitely customizable cross-shell prompt.
+/etc/oh-my-zsh/plugins/starship/README.md:11:**Note:** you have to [install starship](https://starship.rs/guide/#%F0%9F%9A%80-installation) first.
+/etc/oh-my-zsh/plugins/starship/starship.plugin.zsh:7:  echo '[oh-my-zsh] starship not found, please install it from https://starship.rs'
+/etc/oh-my-zsh/plugins/repo/README.md:18:| `rs`    | `repo sync`                            |
+/etc/oh-my-zsh/plugins/repo/repo.plugin.zsh:3:alias rs='repo sync'
+/etc/oh-my-zsh/plugins/hanami/README.md:32:| hdc   | `hanami db create`          | Create application database                             |
+/etc/oh-my-zsh/plugins/hanami/README.md:33:| hdd   | `hanami db drop`            | Delete application database                             |
+/etc/oh-my-zsh/plugins/hanami/README.md:34:| hdp   | `hanami db prepare`         | Prepare database for the current environment            |
+/etc/oh-my-zsh/plugins/hanami/README.md:35:| hda   | `hanami db apply`           | Recreates a fresh schema after migrations (destructive) |
+/etc/oh-my-zsh/plugins/hanami/README.md:36:| hdv   | `hanami db version`         | Print current database version                          |
+/etc/oh-my-zsh/plugins/hanami/README.md:44:$ HED hdd # equivalent to 'HANAMI_ENV=development hanami db drop'
+/etc/oh-my-zsh/plugins/hanami/hanami.plugin.zsh:12:alias hdc='hanami db create'
+/etc/oh-my-zsh/plugins/hanami/hanami.plugin.zsh:13:alias hdd='hanami db drop'
+/etc/oh-my-zsh/plugins/hanami/hanami.plugin.zsh:14:alias hdp='hanami db prepare'
+/etc/oh-my-zsh/plugins/hanami/hanami.plugin.zsh:15:alias hda='hanami db apply'
+/etc/oh-my-zsh/plugins/hanami/hanami.plugin.zsh:16:alias hdv='hanami db version'
+/etc/oh-my-zsh/plugins/kubectl/README.md:76:| kgrs    | `kubectl get replicaset`            | List all ReplicaSets `rs` created by the deployment                                              |
+/etc/oh-my-zsh/plugins/dotnet/README.md:25:| db    | dotnet build     | Build a .NET project                                              |
+/etc/oh-my-zsh/plugins/dotnet/dotnet.plugin.zsh:34:alias db='dotnet build'
+/etc/oh-my-zsh/plugins/rails/README.md:21:| `rdb`   | `rails dbconsole`                | Interact with your db from the console                 |
+/etc/oh-my-zsh/plugins/rails/README.md:22:| `rdc`   | `rails db:create`                | Create the database                                    |
+/etc/oh-my-zsh/plugins/rails/README.md:23:| `rdd`   | `rails db:drop`                  | Delete the database                                    |
+/etc/oh-my-zsh/plugins/rails/README.md:24:| `rdm`   | `rails db:migrate`               | Run pending db migrations                              |
+/etc/oh-my-zsh/plugins/rails/README.md:25:| `rdmd`  | `rails db:migrate:down`          | Undo specific db migration                             |
+/etc/oh-my-zsh/plugins/rails/README.md:26:| `rdmr`  | `rails db:migrate:redo`          | Redo specific db migration                             |
+/etc/oh-my-zsh/plugins/rails/README.md:27:| `rdms`  | `rails db:migrate:status`        | Show current db migration status                       |
+/etc/oh-my-zsh/plugins/rails/README.md:28:| `rdmtc` | `rails db:migrate db:test:clone` | Run pending migrations and clone db into test database |
+/etc/oh-my-zsh/plugins/rails/README.md:29:| `rdmu`  | `rails db:migrate:up`            | Run specific db migration                              |
+/etc/oh-my-zsh/plugins/rails/README.md:30:| `rdr`   | `rails db:rollback`              | Roll back the last migration                           |
+/etc/oh-my-zsh/plugins/rails/README.md:31:| `rdrs`  | `rails db:reset`                 | Delete the database and set it up again                |
+/etc/oh-my-zsh/plugins/rails/README.md:32:| `rds`   | `rails db:seed`                  | Seed the database                                      |
+/etc/oh-my-zsh/plugins/rails/README.md:33:| `rdsl`  | `rails db:schema:load`           | Load the database schema                               |
+/etc/oh-my-zsh/plugins/rails/README.md:34:| `rdtc`  | `rails db:test:clone`            | Clone the database into the test database              |
+/etc/oh-my-zsh/plugins/rails/README.md:35:| `rdtp`  | `rails db:test:prepare`          | Duplicate the db schema into your test database        |
+/etc/oh-my-zsh/plugins/rails/README.md:37:| `rgm`   | `rails generate migration`       | Generate a db migration                                |
+/etc/oh-my-zsh/plugins/rails/README.md:44:| `rs`    | `rails server`                   | Launch a web server                                    |
+/etc/oh-my-zsh/plugins/rails/README.md:76:separately. For example: `REP rake db:migrate` will migrate the production db.
+/etc/oh-my-zsh/plugins/rails/README.md:89:| `rkdc`   | `rake db:create`                | Create the database                                    |
+/etc/oh-my-zsh/plugins/rails/README.md:90:| `rkdd`   | `rake db:drop`                  | Delete the database                                    |
+/etc/oh-my-zsh/plugins/rails/README.md:91:| `rkdm`   | `rake db:migrate`               | Run pending db migrations                              |
+/etc/oh-my-zsh/plugins/rails/README.md:92:| `rkdms`  | `rake db:migrate:status`        | Show current db migration status                       |
+/etc/oh-my-zsh/plugins/rails/README.md:93:| `rkdmtc` | `rake db:migrate db:test:clone` | Run pending migrations and clone db into test database |
+/etc/oh-my-zsh/plugins/rails/README.md:94:| `rkdr`   | `rake db:rollback`              | Roll back the last migration                           |
+/etc/oh-my-zsh/plugins/rails/README.md:95:| `rkdrs`  | `rake db:reset`                 | Delete the database and set it up again                |
+/etc/oh-my-zsh/plugins/rails/README.md:96:| `rkds`   | `rake db:seed`                  | Seed the database                                      |
+/etc/oh-my-zsh/plugins/rails/README.md:97:| `rkdsl`  | `rake db:schema:load`           | Load the database schema                               |
+/etc/oh-my-zsh/plugins/rails/README.md:98:| `rkdtc`  | `rake db:test:clone`            | Clone the database into the test database              |
+/etc/oh-my-zsh/plugins/rails/README.md:99:| `rkdtp`  | `rake db:test:prepare`          | Duplicate the db schema into your test database        |
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:50:alias rdc='rails db:create'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:51:alias rdd='rails db:drop'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:52:alias rdm='rails db:migrate'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:53:alias rdmd='rails db:migrate:down'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:54:alias rdmr='rails db:migrate:redo'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:55:alias rdms='rails db:migrate:status'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:56:alias rdmtc='rails db:migrate db:test:clone'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:57:alias rdmu='rails db:migrate:up'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:58:alias rdr='rails db:rollback'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:59:alias rdrs='rails db:reset'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:60:alias rds='rails db:seed'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:61:alias rdsl='rails db:schema:load'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:62:alias rdtc='rails db:test:clone'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:63:alias rdtp='rails db:test:prepare'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:72:alias rs='rails server'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:85:alias rkdc='rake db:create'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:86:alias rkdd='rake db:drop'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:87:alias rkdm='rake db:migrate'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:88:alias rkdmd='rake db:migrate:down'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:89:alias rkdmr='rake db:migrate:redo'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:90:alias rkdms='rake db:migrate:status'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:91:alias rkdmtc='rake db:migrate db:test:clone'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:92:alias rkdmu='rake db:migrate:up'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:93:alias rkdr='rake db:rollback'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:94:alias rkdrs='rake db:reset'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:95:alias rkds='rake db:seed'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:96:alias rkdsl='rake db:schema:load'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:97:alias rkdtc='rake db:test:clone'
+/etc/oh-my-zsh/plugins/rails/rails.plugin.zsh:98:alias rkdtp='rake db:test:prepare'
+/etc/oh-my-zsh/plugins/rails/_rails:75:          {dbconsole,db}'[Start a console for the database specified in config/database.yml]'
+/etc/oh-my-zsh/plugins/rust/_rustc:228:    '::files:_files -g "*.rs"'
+/etc/oh-my-zsh/plugins/wp-cli/README.md:29:| `wpcudb`  | `wp core update-db`         |
+/etc/oh-my-zsh/plugins/wp-cli/README.md:36:| `wpdbe`   | `wp db export`              |
+/etc/oh-my-zsh/plugins/wp-cli/README.md:37:| `wpdbi`   | `wp db import`              |
+/etc/oh-my-zsh/plugins/wp-cli/README.md:38:| `wpdbcr`  | `wp db create`              |
+/etc/oh-my-zsh/plugins/wp-cli/README.md:39:| `wpdbs`   | `wp db search`              |
+/etc/oh-my-zsh/plugins/wp-cli/README.md:40:| `wpdbch`  | `wp db check`               |
+/etc/oh-my-zsh/plugins/wp-cli/README.md:41:| `wpdbr`   | `wp db repair`              |
+/etc/oh-my-zsh/plugins/wp-cli/wp-cli.plugin.zsh:13:alias wpcudb='wp core update-db'
+/etc/oh-my-zsh/plugins/wp-cli/wp-cli.plugin.zsh:22:alias wpdbe='wp db export'
+/etc/oh-my-zsh/plugins/wp-cli/wp-cli.plugin.zsh:23:alias wpdbi='wp db import'
+/etc/oh-my-zsh/plugins/wp-cli/wp-cli.plugin.zsh:24:alias wpdbcr='wp db create'
+/etc/oh-my-zsh/plugins/wp-cli/wp-cli.plugin.zsh:25:alias wpdbs='wp db search'
+/etc/oh-my-zsh/plugins/wp-cli/wp-cli.plugin.zsh:26:alias wpdbch='wp db check'
+/etc/oh-my-zsh/plugins/wp-cli/wp-cli.plugin.zsh:27:alias wpdbr='wp db repair'
+/etc/oh-my-zsh/plugins/laravel/README.md:22:| `pads`  |  `php artisan db:seed` |
+/etc/oh-my-zsh/plugins/laravel/laravel.plugin.zsh:13:alias pads='php artisan db:seed'
+/etc/oh-my-zsh/plugins/archlinux/archlinux.plugin.zsh:35:  local tmp db fs
+/etc/oh-my-zsh/plugins/archlinux/archlinux.plugin.zsh:37:  db=$tmp/db
+/etc/oh-my-zsh/plugins/archlinux/archlinux.plugin.zsh:43:  pacman -Qlq | sort -u > "$db"
+/etc/oh-my-zsh/plugins/archlinux/archlinux.plugin.zsh:48:  comm -23 "$fs" "$db"
+/etc/manpath.config:3:# This file is used by the man-db package to configure the man and cat paths.
+/etc/logrotate.d/wtmpdb:1:/var/log.hdd/wtmp.db {
+/etc/cron.daily/man-db:3:# man-db cron daily
+/etc/cron.daily/dpkg:8:/usr/libexec/dpkg/dpkg-db-backup
+/etc/services:198:gds-db		3050/tcp	gds_db		# InterBase server
+/etc/services:279:db-lsp		17500/tcp			# Dropbox LanSync Protocol
+/etc/services:314:moira-db	775/tcp		moira_db	# Moira database
+/etc/nsswitch.conf:15:protocols:      db files
+/etc/nsswitch.conf:16:services:       db files
+/etc/nsswitch.conf:17:ethers:         db files
+/etc/nsswitch.conf:18:rpc:            db files
+/etc/mc/filehighlight.ini:43:    extensions=cdx;dat;db;dbf;dbi;dbx;fox;mdb;mdn;mdx;msql;mssql;pgsql;sql;ssql
+/etc/mc/mc.ext.ini:1077:[sqlite3.db]
+/etc/systemd/system/timers.target.wants/man-db.timer:2:Description=Daily man-db regeneration
+/usr/libexec/dpkg/dpkg-db-backup:53:  for db in $dbfiles ; do
+/usr/libexec/dpkg/dpkg-db-backup:54:    if ! [ -s "dpkg.${db}.0" ] && ! [ -s "$dbdir/$db" ]; then
+/usr/libexec/dpkg/dpkg-db-backup:57:    elif ! cmp -s "dpkg.${db}.0" "$dbdir/$db"; then
+/usr/libexec/dpkg/dpkg-db-backup:63:    for db in $dbfiles ; do
+/usr/libexec/dpkg/dpkg-db-backup:64:      if [ -e "$dbdir/$db" ]; then
+/usr/libexec/dpkg/dpkg-db-backup:65:        cp -p "$dbdir/$db" "dpkg.$db"
+/usr/libexec/dpkg/dpkg-db-backup:67:        touch "dpkg.$db"
+/usr/libexec/dpkg/dpkg-db-backup:69:      savelog -c "$ROTATE" "dpkg.$db" >/dev/null
+/usr/libexec/dpkg/dpkg-db-keeper:30:# ,--- /etc/dpkg/dpkg.cfg.d/db-keeper ---
+/usr/libexec/dpkg/dpkg-db-keeper:31:# post-invoke "/usr/libexec/dpkg/dpkg-db-keeper"
+/usr/libexec/dpkg/dpkg-db-keeper:54:git commit -m 'Commit dpkg db updates'
+/usr/local/bin/npu_startup.sh:3:/usr/local/bin/npu_boot
+/usr/lib/udev/hwdb.d/60-sensor.hwdb:34:#   udevadm info --export-db
+/usr/lib/udev/hwdb.d/20-OUI.hwdb:88368: ID_OUI_FROM_DATABASE=db Broadcast Products Ltd
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:31:IMPORT{db}="ID_FS_TYPE"
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:32:IMPORT{db}="ID_FS_USAGE"
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:33:IMPORT{db}="ID_FS_UUID_ENC"
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:34:IMPORT{db}="ID_FS_LABEL_ENC"
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:35:IMPORT{db}="ID_PART_ENTRY_NAME"
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:36:IMPORT{db}="ID_PART_ENTRY_UUID"
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:37:IMPORT{db}="ID_PART_ENTRY_SCHEME"
+/usr/lib/udev/rules.d/60-persistent-storage-dm.rules:38:IMPORT{db}="ID_PART_GPT_AUTO_ROOT"
+/usr/lib/udev/rules.d/99-systemd.rules:31:SUBSYSTEM=="block", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=="1", ENV{SYSTEMD_READY}=="", IMPORT{db}="SYSTEMD_READY"
+/usr/lib/udev/rules.d/55-dm.rules:17:#      should try to import relevant properties from the udev db.
+/usr/lib/udev/rules.d/55-dm.rules:67:# in the udev db. DM_UDEV_DISABLE_OTHER_RULES_FLAG will be or'd with other
+/usr/lib/udev/rules.d/55-dm.rules:77:IMPORT{db}="DM_UDEV_DISABLE_DM_RULES_FLAG"
+/usr/lib/udev/rules.d/55-dm.rules:78:IMPORT{db}="DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG"
+/usr/lib/udev/rules.d/55-dm.rules:79:IMPORT{db}="DM_UDEV_DISABLE_DISK_RULES_FLAG"
+/usr/lib/udev/rules.d/55-dm.rules:80:IMPORT{db}="DM_COOKIE_DISABLE_OTHER_RULES_FLAG"
+/usr/lib/udev/rules.d/55-dm.rules:81:IMPORT{db}="DM_UDEV_LOW_PRIORITY_FLAG"
+/usr/lib/udev/rules.d/55-dm.rules:82:IMPORT{db}="DM_UDEV_DISABLE_LIBRARY_FALLBACK_FLAG"
+/usr/lib/udev/rules.d/55-dm.rules:83:IMPORT{db}="DM_UDEV_PRIMARY_SOURCE_FLAG"
+/usr/lib/udev/rules.d/55-dm.rules:84:IMPORT{db}="DM_UDEV_FLAG7"
+/usr/lib/udev/rules.d/55-dm.rules:85:IMPORT{db}="DM_UDEV_RULES_VSN"
+/usr/lib/mime/packages/man-db:20:# only a Suggests of man-db and so may not be available.
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/ndarraytypes.h:1120:#define NPY_ITER_CONTIG                     0x00200000
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/ndarraytypes.h:1128:#define NPY_ITER_NO_SUBTYPE                 0x02000000
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/_numpyconfig.h:28:#define NPY_ABI_VERSION 0x02000000
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/npy_2_compat.h:20: *         #if NPY_ABI_VERSION < 0x02000000
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/npy_2_compat.h:53:#if NPY_ABI_VERSION < 0x02000000
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/npy_2_compat.h:113:#elif NPY_ABI_VERSION < 0x02000000
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/npy_2_compat.h:142:#if NPY_FEATURE_VERSION >= NPY_2_0_API_VERSION || NPY_ABI_VERSION < 0x02000000
+/usr/lib/aarch64-linux-gnu/python3-numpy/numpy/_core/include/numpy/npy_2_compat.h:227:#elif NPY_ABI_VERSION < 0x02000000
+/usr/lib/aarch64-linux-gnu/perl-base/re.pm:18:    eval    => 0x00200000, # HINT_RE_EVAL
+/usr/lib/aarch64-linux-gnu/perl-base/re.pm:21:my $flags_hint = 0x02000000; # HINT_RE_FLAGS
+/usr/lib/aarch64-linux-gnu/perl-base/Config_heavy.pl:1125:libswanted='gdbm gdbm_compat db dl m pthread c crypt gdbm_compat'
+/usr/lib/aarch64-linux-gnu/perl-base/Config_heavy.pl:1488:libswanted_nolargefiles='gdbm gdbm_compat db dl m pthread c crypt gdbm_compat'
+/usr/lib/aarch64-linux-gnu/perl/5.40/B/Concise.pm:418:     v} ca wa di rs ;; ;  ;d }{ {  }  {} f{ it {l l} rt }l }n }r dm }g }e ^o
+/usr/lib/aarch64-linux-gnu/perl/5.40/B/Concise.pm:419:     ^c ^| ^# um bm t~ u~ ~d DB db ^s se ^g ^r {w }w pf pr ^O ^K ^R ^W ^d ^v
+/usr/lib/aarch64-linux-gnu/perl/5.40/re.pm:18:    eval    => 0x00200000, # HINT_RE_EVAL
+/usr/lib/aarch64-linux-gnu/perl/5.40/re.pm:21:my $flags_hint = 0x02000000; # HINT_RE_FLAGS
+/usr/lib/aarch64-linux-gnu/perl/5.40/Config_heavy.pl:1125:libswanted='gdbm gdbm_compat db dl m pthread c crypt gdbm_compat'
+/usr/lib/aarch64-linux-gnu/perl/5.40/Config_heavy.pl:1488:libswanted_nolargefiles='gdbm gdbm_compat db dl m pthread c crypt gdbm_compat'
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:507:    croak "Usage: \$db->find_dup(key,value)\n"
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:510:    my $db        = shift ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:515:    for ($status = $db->seq($key, $value, R_CURSOR() ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:517:         $status = $db->seq($key, $value, R_NEXT() ) ) {
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:527:    croak "Usage: \$db->del_dup(key,value)\n"
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:530:    my $db        = shift ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:532:    my ($status) = $db->find_dup($key, $value) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:535:    $status = $db->del($key, R_CURSOR() ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:541:    croak "Usage: \$db->get_dup(key [,flag])\n"
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:544:    my $db        = shift ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:557:    for ($status = $db->seq($key, $value, R_CURSOR()) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:559:         $status = $db->seq($key, $value, R_NEXT()) ) {
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:629: $old_filter = $db->filter_store_key  ( sub { ... } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:630: $old_filter = $db->filter_store_value( sub { ... } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:631: $old_filter = $db->filter_fetch_key  ( sub { ... } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:632: $old_filter = $db->filter_fetch_value( sub { ... } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1013:are truly the same. (note: in versions of the db library prior to
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1628:        $db = tie %hash, "DB_File", "filename" ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1633:        $db->put($key, $value, R_NOOVERWRITE) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1641:    $db = tie %hash, "DB_File", "filename"
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1644:    undef $db ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1875:    my $db = tie %hash, 'DB_File', $filename, O_CREAT|O_RDWR, 0666, $DB_HASH
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1879:    $db->filter_fetch_key  ( sub { s/\0$//    } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1880:    $db->filter_store_key  ( sub { $_ .= "\0" } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1881:    $db->filter_fetch_value( sub { s/\0$//    } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1882:    $db->filter_store_value( sub { $_ .= "\0" } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1887:    undef $db ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1918:    my $db = tie %hash, 'DB_File', $filename, O_CREAT|O_RDWR, 0666, $DB_HASH
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1921:    $db->filter_fetch_key  ( sub { $_ = unpack("i", $_) } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1922:    $db->filter_store_key  ( sub { $_ = pack ("i", $_) } ) ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1925:    undef $db ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1945:    $db = tie(%db, 'DB_File', 'foo.db', O_CREAT|O_RDWR, 0644)
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1946:        || die "dbcreat foo.db $!";
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1947:    $fd = $db->fd;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1951:    $db{"Tom"} = "Jerry" ;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1954:    undef $db;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:1955:    untie %db;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:2065:This is usually stored in the file F<~/.netscape/history.db>. The key
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:2085:    $HISTORY = "$dotdir/.netscape/history.db";
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:2223:    my $db = tie %h, 'DB_File', '/tmp/try.db', O_CREAT|O_RDWR, 0666, $DB_BTREE;
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:2224:    $db->Filter_Key_Push('utf8');
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:2225:    $db->Filter_Value_Push('utf8');
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:2320:The official web site for Berkeley DB is L<http://www.oracle.com/technology/products/berkeley-db/db/index.html>.
+/usr/lib/aarch64-linux-gnu/perl/5.40/DB_File.pm:2324:archive in F<src/misc/db.1.85.tar.gz>.
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/charclass_invlists.h:433812:	"db",
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/regnodes.h:2873:	"USE_INTUIT_NOML",  /* 0x00200000 */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/regnodes.h:2877:	"COPY_DONE",        /* 0x02000000 */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/perliol.h:97:#define PERLIO_F_OPEN		0x00200000
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/perliol.h:101:#define PERLIO_F_CLEARED        0x02000000 /* layer cleared but not freed */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/intrpvar.h:312:PERLVAR(I, rs,		SV *)		/* input record separator $/ */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/uni_keywords.h:492:  {     0,  7011,  1905,  24,   2, UNI_CCC__DB }   /* canonicalcombiningclass=db */,
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/uni_keywords.h:3266:  {     5,   339,  1905,   4,   2, UNI_CCC__DB }   /* ccc=db */,
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/perl.h:4842:#define DEBUG_C_FLAG		0x00200000 /*2097152 */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/perl.h:4846:#define DEBUG_B_FLAG		0x02000000 /*33554432*/
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/perl.h:5965:#define HINT_RE_EVAL		0x00200000 /* re pragma */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/perl.h:5972:#define HINT_RE_FLAGS		0x02000000 /* re '/xism' pragma */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/perl.h:6013:/* Various states of the input record separator SV (rs) */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/sv.h:444:#define SVs_GMG		0x00200000  /* has magical get method */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/sv.h:460:#define SVf_OOK		0x02000000  /* has valid offset value */
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/config.h:3687: *	in the <db.h> header file.  In older versions of DB, it was
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/config.h:3692: *	in the <db.h> header file.  In older versions of DB, it was
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/config.h:3697: *	Berkeley DB found in the <db.h> header when Perl was configured.
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/config.h:3701: *	Berkeley DB found in the <db.h> header when Perl was configured.
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/config.h:3706: *	Berkeley DB found in the <db.h> header when Perl was configured.
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/XSUB.h:430:        if (db->type) {						\
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/XSUB.h:431:            if (db->filtering) {				\
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/XSUB.h:436:            SAVEINT(db->filtering) ;				\
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/XSUB.h:437:            db->filtering = TRUE ;				\
+/usr/lib/aarch64-linux-gnu/perl/5.40/CORE/XSUB.h:445:            (void) perl_call_sv(db->type, G_DISCARD); 		\
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:10:    [$db =] tie %hash, 'GDBM_File', $filename, GDBM_WRCREAT, 0640
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:14:    $e = $db->errno;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:15:    $e = $db->syserrno;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:16:    $str = $db->strerror;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:17:    $bool = $db->needs_recovery;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:19:    $db->clear_error;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:21:    $db->reorganize;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:22:    $db->sync;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:24:    $n = $db->count;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:26:    $n = $db->flags;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:28:    $str = $db->dbname;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:30:    $db->cache_size;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:31:    $db->cache_size($newsize);
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:33:    $n = $db->block_size;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:35:    $bool = $db->sync_mode;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:36:    $db->sync_mode($bool);
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:38:    $bool = $db->centfree;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:39:    $db->centfree($bool);
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:41:    $bool = $db->coalesce;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:42:    $db->coalesce($bool);
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:44:    $bool = $db->mmap;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:46:    $size = $db->mmapsize;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:47:    $db->mmapsize($newsize);
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:49:    $db->recover(%args);
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:211:    $db->close;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:218:    $db = tie %hash, 'GDBM_File', $filename, GDBM_WRCREAT, 0640;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:219:    # Do something with %hash or $db...
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:221:    $db->close;
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:224:would remain referenced by B<$db>, and, as a consequence, the database file
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:225:would remain locked.  Calling B<$db-E<gt>close> ensures the database file is
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:230:    $db->errno
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:238:    $db->syserrno
+/usr/lib/aarch64-linux-gnu/perl/5.40/GDBM_File.pm:245:    $db->strerror
+\n== systemd/init npu units ==
+--- /etc/systemd/system/npu_transfer_proxy.service ---
+[Unit]
+Description=Rockchip NPU Transfer Proxy
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/npu_startup.sh
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+--- /lib/systemd/system/systemd-storagetm.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Storage Target Mode (NVMe-TCP)
+Documentation=man:systemd-storagetm.service(8)
+ConditionVirtualization=!container
+DefaultDependencies=no
+Wants=modprobe@nvmet_tcp.service modprobe@thunderbolt_net.service sys-kernel-config.mount
+After=modprobe@nvmet_tcp.service modprobe@thunderbolt_net.service sys-kernel-config.mount plymouth-start.service
+Conflicts=shutdown.target
+Before=shutdown.target
+FailureAction=reboot
+SuccessAction=reboot
+
+[Service]
+Type=notify
+RemainAfterExit=yes
+StandardInput=tty
+StandardOutput=tty
+ExecStart=/usr/lib/systemd/systemd-storagetm --all
+--- /lib/systemd/system/console-getty.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Console Getty
+Documentation=man:agetty(8) man:systemd-getty-generator(8)
+After=systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
+After=rc-local.service
+Before=getty.target
+
+# OCI containers may be run without a console
+ConditionPathExists=/dev/console
+
+[Service]
+# The '-o' option value tells agetty to replace 'login' arguments with '--' for
+# safety, and then the entered username.
+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear --keep-baud 115200,57600,38400,9600 - ${TERM}
+Type=idle
+Restart=always
+UtmpIdentifier=cons
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/console
+TTYReset=yes
+TTYVHangup=yes
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+ImportCredential=tty.console.agetty.*:agetty.
+ImportCredential=tty.console.login.*:login.
+ImportCredential=agetty.*
+ImportCredential=login.*
+ImportCredential=shell.*
+
+[Install]
+WantedBy=getty.target
+--- /lib/systemd/system/systemd-udev-trigger.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Coldplug All udev Devices
+Documentation=man:udev(7) man:systemd-udevd.service(8)
+DefaultDependencies=no
+Wants=systemd-udevd.service
+After=systemd-udevd-kernel.socket systemd-udevd-control.socket
+Before=sysinit.target
+ConditionPathIsReadWrite=/sys
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=-udevadm trigger --type=all --action=add --prioritized-subsystem=module,block,tpmrm,net,tty,input
+--- /lib/systemd/system/systemd-firstboot.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=First Boot Wizard
+Documentation=man:systemd-firstboot(1)
+
+ConditionPathIsReadWrite=/etc
+ConditionFirstBoot=yes
+
+DefaultDependencies=no
+# This service may need to write to the file system:
+After=systemd-remount-fs.service
+# Both systemd-sysusers and systemd-tmpfiles may create the root account
+# (via factory files or credentials), obviating the need for us to do that:
+After=systemd-sysusers.service systemd-tmpfiles-setup.service
+# Let vconsole-setup do its setup before starting user interaction:
+After=systemd-vconsole-setup.service
+
+Wants=first-boot-complete.target
+Before=first-boot-complete.target sysinit.target
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=systemd-firstboot --prompt-locale --prompt-keymap --prompt-timezone --prompt-root-password
+StandardOutput=tty
+StandardInput=tty
+StandardError=tty
+
+# Optionally, pick up basic fields from credentials passed to the service
+# manager. This is useful for importing this data from nspawn's
+# --set-credential= switch.
+ImportCredential=passwd.hashed-password.root
+ImportCredential=passwd.plaintext-password.root
+ImportCredential=passwd.shell.root
+ImportCredential=firstboot.*
+--- /lib/systemd/system/systemd-logind.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=User Login Management
+Documentation=man:sd-login(3)
+Documentation=man:systemd-logind.service(8)
+Documentation=man:logind.conf(5)
+Documentation=man:org.freedesktop.login1(5)
+
+Wants=user.slice modprobe@drm.service
+After=nss-user-lookup.target user.slice modprobe@drm.service
+
+# Ask for the dbus socket.
+Wants=dbus.socket
+After=dbus.socket
+
+[Service]
+BusName=org.freedesktop.login1
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_MAC_ADMIN CAP_AUDIT_CONTROL CAP_CHOWN CAP_DAC_READ_SEARCH CAP_DAC_OVERRIDE CAP_FOWNER CAP_SYS_TTY_CONFIG CAP_LINUX_IMMUTABLE
+DeviceAllow=block-* r
+DeviceAllow=char-/dev/console rw
+DeviceAllow=char-drm rw
+DeviceAllow=char-hidraw rw
+DeviceAllow=char-hvc rw
+DeviceAllow=char-input rw
+DeviceAllow=char-tty rw
+DeviceAllow=char-vcs rw
+ExecStart=/usr/lib/systemd/systemd-logind
+FileDescriptorStoreMax=768
+IPAddressDeny=any
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+# We don't use ProtectProc= since we need to look for usernames and tty for wall messages
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectSystem=strict
+ReadWritePaths=/etc /run
+Restart=always
+RestartSec=0
+RestrictAddressFamilies=AF_UNIX AF_NETLINK
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RuntimeDirectory=systemd/sessions systemd/seats systemd/users systemd/inhibit systemd/shutdown
+RuntimeDirectoryPreserve=yes
+StateDirectory=systemd/linger
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service
+Type=notify-reload
+WatchdogSec=3min
+
+# Increase the default a bit in order to allow many simultaneous logins since
+# we keep one fd open per session.
+LimitNOFILE=524288
+--- /lib/systemd/system/rescue.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Rescue Shell
+Documentation=man:sulogin(8)
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=sysinit.target plymouth-start.service
+Before=shutdown.target
+
+[Service]
+Environment=HOME=/root
+WorkingDirectory=-/root
+ExecStartPre=-plymouth --wait quit
+ExecStart=-/usr/lib/systemd/systemd-sulogin-shell rescue
+Type=idle
+StandardInput=tty-force
+StandardOutput=inherit
+StandardError=inherit
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+--- /lib/systemd/system/getty@.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Getty on %I
+Documentation=man:agetty(8) man:systemd-getty-generator(8)
+Documentation=https://0pointer.de/blog/projects/serial-console.html
+After=systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
+After=rc-local.service
+
+# If additional gettys are spawned during boot then we should make
+# sure that this is synchronized before getty.target, even though
+# getty.target didn't actually pull it in.
+Before=getty.target
+IgnoreOnIsolate=yes
+
+# IgnoreOnIsolate causes issues with sulogin, if someone isolates
+# rescue.target or starts rescue.service from multi-user.target or
+# graphical.target.
+Conflicts=rescue.service
+Before=rescue.service
+
+# On systems without virtual consoles, don't start any getty. Note
+# that serial gettys are covered by serial-getty@.service, not this
+# unit.
+ConditionPathExists=/dev/tty0
+
+[Service]
+# The '-o' option value tells agetty to replace 'login' arguments with '--' for
+# safety, and then the entered username.
+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear - ${TERM}
+Type=idle
+Restart=always
+RestartSec=0
+UtmpIdentifier=%I
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/%I
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+ImportCredential=tty.virtual.%I.agetty.*:agetty.
+ImportCredential=tty.virtual.%I.login.*:login.
+ImportCredential=agetty.*
+ImportCredential=login.*
+ImportCredential=shell.*
+
+# Unset locale for the console getty since the console has problems
+# displaying some internationalized messages.
+UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
+
+[Install]
+WantedBy=getty.target
+DefaultInstance=tty1
+--- /lib/systemd/system/debug-shell.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Early root shell on /dev/tty9 FOR DEBUGGING ONLY
+Documentation=man:systemd-debug-generator(8)
+DefaultDependencies=no
+IgnoreOnIsolate=yes
+ConditionPathExists=/dev/tty9
+After=systemd-vconsole-setup.service
+
+[Service]
+Environment=TERM=linux
+ExecStart=/usr/bin/bash
+Restart=always
+RestartSec=0
+StandardInput=tty
+TTYPath=/dev/tty9
+TTYReset=yes
+TTYVHangup=yes
+KillMode=process
+IgnoreSIGPIPE=no
+# bash ignores SIGTERM
+KillSignal=SIGHUP
+
+# Unset locale for the console getty since the console has problems
+# displaying some internationalized messages.
+UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
+
+[Install]
+WantedBy=sysinit.target
+--- /lib/systemd/system/container-getty@.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Container Getty on /dev/pts/%I
+Documentation=man:agetty(8) man:systemd-getty-generator(8)
+Documentation=man:machinectl(1)
+After=systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
+After=rc-local.service
+Before=getty.target
+IgnoreOnIsolate=yes
+ConditionPathExists=/dev/pts/%I
+
+# IgnoreOnIsolate is an issue: when someone isolates rescue.target,
+# tradition expects that we shut down all but the main console.
+Conflicts=rescue.service
+Before=rescue.service
+
+[Service]
+# The '-o' option value tells agetty to replace 'login' arguments with '--' for
+# safety, and then the entered username.
+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear - ${TERM}
+Type=idle
+Restart=always
+RestartSec=0
+UtmpIdentifier=pts/%I
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/pts/%I
+TTYReset=yes
+TTYVHangup=yes
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+ImportCredential=tty.container.%I.agetty.*:agetty.
+ImportCredential=tty.container.%I.login.*:login.
+ImportCredential=agetty.*
+ImportCredential=login.*
+ImportCredential=shell.*
+--- /lib/systemd/system/sshd@.service ---
+[Unit]
+Description=OpenBSD Secure Shell server per-connection daemon
+Documentation=man:sshd(8) man:sshd_config(5)
+After=nss-user-lookup.target auditd.service
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStart=-/usr/sbin/sshd -i $SSHD_OPTS
+StandardInput=socket
+RuntimeDirectory=sshd
+RuntimeDirectoryPreserve=yes
+RuntimeDirectoryMode=0755
+--- /lib/systemd/system/emergency.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Emergency Shell
+Documentation=man:sulogin(8)
+DefaultDependencies=no
+Conflicts=shutdown.target
+Conflicts=rescue.service
+Before=shutdown.target
+Before=rescue.service
+
+[Service]
+Environment=HOME=/root
+WorkingDirectory=-/root
+ExecStartPre=-plymouth --wait quit
+ExecStart=-/usr/lib/systemd/systemd-sulogin-shell emergency
+Type=idle
+StandardInput=tty-force
+StandardOutput=inherit
+StandardError=inherit
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+--- /lib/systemd/system/plymouth-switch-root.service ---
+[Unit]
+Description=Plymouth switch root service
+DefaultDependencies=no
+ConditionPathExists=/etc/initrd-release
+Before=initrd-switch-root.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=-/usr/bin/plymouth update-root-fs --new-root-dir=/sysroot
+StandardInput=null
+StandardOutput=null
+StandardError=null
+--- /lib/systemd/system/serial-getty@.service ---
+#  SPDX-License-Identifier: LGPL-2.1-or-later
+#
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Serial Getty on %I
+Documentation=man:agetty(8) man:systemd-getty-generator(8)
+Documentation=https://0pointer.de/blog/projects/serial-console.html
+BindsTo=dev-%i.device
+After=dev-%i.device systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
+After=rc-local.service
+
+# If additional gettys are spawned during boot then we should make
+# sure that this is synchronized before getty.target, even though
+# getty.target didn't actually pull it in.
+Before=getty.target
+IgnoreOnIsolate=yes
+
+# IgnoreOnIsolate causes issues with sulogin, if someone isolates
+# rescue.target or starts rescue.service from multi-user.target or
+# graphical.target.
+Conflicts=rescue.service
+Before=rescue.service
+
+[Service]
+# The '-o' option value tells agetty to replace 'login' arguments with '--' for
+# safety, and then the entered username.
+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear --keep-baud 115200,57600,38400,9600 - ${TERM}
+Type=idle
+Restart=always
+UtmpIdentifier=%I
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/%I
+TTYReset=yes
+TTYVHangup=yes
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+ImportCredential=tty.serial.%I.agetty.*:agetty.
+ImportCredential=tty.serial.%I.login.*:login.
+ImportCredential=agetty.*
+ImportCredential=login.*
+ImportCredential=shell.*
+
+[Install]
+WantedBy=getty.target
+--- /etc/init.d/bluetooth ---
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides: bluetooth
+# Required-Start:    $local_fs $syslog $remote_fs dbus
+# Required-Stop:     $local_fs $syslog $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start bluetooth daemons
+### END INIT INFO
+#
+# bluez    Bluetooth subsystem starting and stopping
+#
+# originally from bluez's scripts/bluetooth.init
+#
+# Edd Dumbill <ejad@debian.org>
+# LSB 3.0 compilance and enhancements by Filippo Giunchedi <filippo@debian.org>
+#
+# Updated for bluez 4.7 by Mario Limonciello <mario_limonciello@dell.com>
+# Updated for bluez 5.5 by Nobuhiro Iwamatsu <iwamatsu@debian.org>
+#
+# Note: older daemons like dund pand hidd are now shipped inside the
+# bluez-compat package
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DESC=bluetooth
+
+DAEMON=/usr/sbin/bluetoothd
+HCIATTACH=/usr/bin/hciattach
+
+HID2HCI_ENABLED=1
+HID2HCI_UNDO=1
+
+SDPTOOL=/usr/bin/sdptool
+
+# If you want to be ignore error of "org.freedesktop.hostname1",
+# please enable NOPLUGIN_OPTION.
+# NOPLUGIN_OPTION="--noplugin=hostname"
+NOPLUGIN_OPTION=""
+SSD_OPTIONS="--oknodo --quiet --exec $DAEMON -- $NOPLUGIN_OPTION"
+
+test -f $DAEMON || exit 0
+
+# FIXME: any of the sourced files may fail if/with syntax errors
+test -f /etc/default/bluetooth && . /etc/default/bluetooth
+test -f /etc/default/rcS && . /etc/default/rcS
+
+. /lib/lsb/init-functions
+
+set -e
+
+# FIXME: this function is possibly a no-op
+run_sdptool()
+{
+	# declaring IFS local in this function, removes the need to
+	# save/restore it
+	local IFS o
+
+	test -x $SDPTOOL || return 1
+
+# FIXME: where does SDPTOOL_OPTIONS come from?
+	if ! test -z "$SDPTOOL_OPTIONS" ; then
+		IFS=";"
+		for o in $SDPTOOL_OPTIONS ; do
+			#echo "execing $SDPTOOL $o"
+			IFS=" "
+			if [ "$VERBOSE" != no ]; then
+				$SDPTOOL $o
+			else
+				$SDPTOOL $o >/dev/null 2>&1
+			fi
+		done
+	fi
+}
+
+hci_input()
+{
+    log_progress_msg "switching to HID/HCI no longer done in init script, see /usr/share/doc/bluez/NEWS.Debian.gz" || :
+}
+alias enable_hci_input=hci_input
+alias disable_hci_input=hci_input
+
+case $1 in
+  start)
+	log_daemon_msg "Starting $DESC"
+
+	if test "$BLUETOOTH_ENABLED" = 0; then
+		log_progress_msg "disabled. see /etc/default/bluetooth"
+		log_end_msg 0
+		exit 0
+	fi
+
+	start-stop-daemon --start --background $SSD_OPTIONS
+	log_progress_msg "${DAEMON##*/}"
+
+	run_sdptool || :
+
+	if test "$HID2HCI_ENABLED" = 1; then
+		enable_hci_input
+	fi
+
+	log_end_msg 0
+  ;;
+  stop)
+	log_daemon_msg "Stopping $DESC"
+	if test "$BLUETOOTH_ENABLED" = 0; then
+		log_progress_msg "disabled."
+		log_end_msg 0
+		exit 0
+	fi
+	if test "$HID2HCI_UNDO" = 1; then
+		disable_hci_input
+	fi
+	start-stop-daemon --stop $SSD_OPTIONS
+	log_progress_msg "${DAEMON}"
+	log_end_msg 0
+  ;;
+  restart|force-reload)
+	$0 stop
+	sleep 1
+	$0 start
+  ;;
+  status)
+	status_of_proc "$DAEMON" "$DESC" && exit 0 || exit $?
+  ;;
+  *)
+	N=/etc/init.d/bluetooth
+	echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
+
+# vim:noet
+--- /etc/init.d/rng-tools-debian ---
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          rng-tools-debian rng-tools
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: rng-tools (Debian variant)
+# Description:       The rng-tools daemon bridges between a hardware
+#                    TRNG and the kernel PRNG, verifying input data.
+### END INIT INFO
+
+# absolute basics
+LC_ALL=C PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export LC_ALL PATH
+unset LANGUAGE
+
+# exit cleanly if disabled or not installed
+test -x /usr/sbin/rngd || exit 0
+# same if removed but not purged
+test -s /usr/share/rng-tools-debian/init-system-common || exit 0
+
+# Debian/LSB init script foobar
+DESC='Hardware RNG entropy gatherer daemon'
+NAME=rngd
+. /lib/init/vars.sh
+test -t 0 && VERBOSE=yes
+. /lib/lsb/init-functions
+
+# functions shared with other inits
+. /usr/share/rng-tools-debian/init-system-common
+# read options
+readoptions
+
+# prepare for actions
+case $1 in
+(start|restart|try-restart|force-reload)
+	hrngselect
+	if ! finddevice; then
+		logger -t rng-tools-debian \
+		    "not starting: no hardware RNG device found"
+		log_daemon_msg "Configuring $DESC"
+		log_progress_msg "no hardware RNG device found!"
+		log_end_msg 1
+		test -e /run/rngd.installing || exit 0
+		# during postinst run, inform user more
+		cat <<-\EOF
+
+			!!! no hardware RNG device found !!!
+			rng-tools-debian will SILENTLY not start the daemon!
+
+			To fix this, edit /etc/default/rng-tools-debian to
+			set options suitable for your hardware random device;
+			possibly load some kernel module first, ideally from
+			initramfs (add to /etc/initramfs-tools/modules), so
+			it is available early enough during boot.
+
+		EOF
+		exit 0
+	fi
+	if skipdevice; then
+		logger -t rng-tools-debian \
+		    "not starting: /dev/hwrng is used by the kernel automatically"
+		exit 0
+	fi
+	;;
+(stop|status)
+	;;
+(reload|*)
+	# not supported
+	echo >&2 "Usage: $0 {start|stop|restart|try-restart|force-reload|status}"
+	exit 3
+	;;
+esac
+
+# take action
+rv=0
+case $1 in
+(status)
+	status_of_proc -p /var/run/rngd.pid /usr/sbin/rngd rngd
+	exit $?
+	;;
+(start)
+	test x"$VERBOSE" = x"no" || log_daemon_msg "Starting $DESC"
+	if start-stop-daemon --start --quiet \
+	    --pidfile /var/run/rngd.pid \
+	    --startas /usr/sbin/rngd --name rngd \
+	    --exec /usr/sbin/rngd --test; then
+		test x"$VERBOSE" = x"no" || log_progress_msg "rngd"
+		start-stop-daemon --start --quiet \
+		    --pidfile /var/run/rngd.pid \
+		    --startas /usr/sbin/rngd --name rngd \
+		    --exec /usr/sbin/rngd -- -r $HRNGDEVICE $RNGDOPTIONS
+		rv=$?
+	else
+		test x"$VERBOSE" = x"no" || \
+		    log_progress_msg "rngd already running"
+	fi
+	;;
+(stop)
+	test x"$VERBOSE" = x"no" || log_daemon_msg "Stopping $DESC"
+	test x"$VERBOSE" = x"no" || log_progress_msg "rngd"
+	start-stop-daemon --stop --quiet --retry=10 \
+	    --pidfile /var/run/rngd.pid \
+	    --name rngd --exec /usr/sbin/rngd
+	rc=$?
+	if test $rc -gt 1; then
+		rv=$rc
+	else
+		start-stop-daemon --stop --quiet --oknodo \
+		    --retry=0/30/KILL/5 --exec /usr/sbin/rngd
+		rc=$?
+		test $rc -gt 1 && test $rv -lt $rc && rv=$rc
+	fi
+	rm -f /var/run/rngd.pid
+	;;
+(restart|force-reload)
+	test x"$VERBOSE" = x"no" || log_daemon_msg "Restarting $DESC"
+	test x"$VERBOSE" = x"no" || log_progress_msg "rngd"
+	start-stop-daemon --stop --quiet --retry=10 \
+	    --pidfile /var/run/rngd.pid \
+	    --name rngd --exec /usr/sbin/rngd
+	if test $? -lt 2; then
+		start-stop-daemon --stop --quiet --oknodo \
+		    --retry=0/30/KILL/5 --exec /usr/sbin/rngd
+	fi
+	rm -f /var/run/rngd.pid
+	start-stop-daemon --start --quiet \
+	    --pidfile /var/run/rngd.pid \
+	    --startas /usr/sbin/rngd --name rngd \
+	    --exec /usr/sbin/rngd -- -r $HRNGDEVICE $RNGDOPTIONS
+	rv=$?
+	;;
+(try-restart)
+	test x"$VERBOSE" = x"no" || log_daemon_msg "Trying to restart $DESC"
+	if ! status_of_proc -p /var/run/rngd.pid \
+	    /usr/sbin/rngd rngd >/dev/null 2>&1; then
+		test x"$VERBOSE" = x"no" || log_progress_msg "is not running."
+		test x"$VERBOSE" = x"no" || log_end_msg 1
+		exit 0
+	fi
+	test x"$VERBOSE" = x"no" || log_progress_msg "rngd"
+	start-stop-daemon --stop --quiet --retry=10 \
+	    --pidfile /var/run/rngd.pid \
+	    --name rngd --exec /usr/sbin/rngd
+	if test $? -lt 2; then
+		start-stop-daemon --stop --quiet --oknodo \
+		    --retry=0/30/KILL/5 --exec /usr/sbin/rngd
+	fi
+	rm -f /var/run/rngd.pid
+	start-stop-daemon --start --quiet \
+	    --pidfile /var/run/rngd.pid \
+	    --startas /usr/sbin/rngd --name rngd \
+	    --exec /usr/sbin/rngd -- -r $HRNGDEVICE $RNGDOPTIONS
+	rv=$?
+	;;
+esac
+test x"$VERBOSE" = x"no" || log_end_msg $rv
+exit $rv
+\n== shell history npu snippets ==
+--- /root/.bash_history ---
+find / -name "*npu*" -o -name "*rkboot*" -o -name "*upgrade_tool*" 2>/dev/null | grep -iE "bin|usr|opt|etc|home|root"
+find / -name "*MiniLoader*" -o -name "*npu_fw*" 2>/dev/null
+cat /usr/local/bin/npu_startup.sh
+systemctl status npu_transfer_proxy.service
+ls -la /usr/share/npu_fw
+systemctl stop npu_transfer_proxy.service
+npu_upgrade
+npu_upgrade /usr/share/npu_fw/MiniLoaderAll.bin /usr/share/npu_fw/uboot.img /usr/share/npu_fw/trust.img /usr/share/npu_fw/boot.img
+cd /usr/share/npu_fw
+npu_upgrade MiniLoaderAll.bin uboot.img trust.img boot.img
+dmesg | grep -iE "2207|usb 3-1" | tail -n 25
+npu_powerctrl on
+dmesg | grep -iE "2207|usb 3-1" | tail -n 15
+npu_boot
+dmesg | grep -iE "2207|usb 3-1" | tail -n 15
+upgrade_tool TD
+upgrade_tool RD
+upgrade_tool LD
+upgrade_tool UF MiniLoaderAll.bin
+upgrade_tool DI -b boot.img
+upgrade_tool DI -t trust.img
+upgrade_tool DI -u uboot.img
+upgrade_tool RD
+upgrade_tool -h
+cat /usr/bin/npu_upgrade
+npu_upgrade MiniLoaderAll.bin uboot.img trust.img boot.img
+cat /tmp/npu.log
+systemctl start npu_transfer_proxy.service
+systemctl status npu_transfer_proxy.service
+systemctl status npu_transfer_proxy.service
+npu_boot
+upgrade_tool ld
+cat /tmp/npu.log
+systemctl stop npu_transfer_proxy.service
+npu_upgrade MiniLoaderAll.bin uboot.img trust.img boot.img
+cat /tmp/npu.log
+dmesg | grep -iE "2207|usb 3-1" | tail -n 15
+/usr/bin/npu_powerctrl -i
+/usr/bin/npu_powerctrl -o
+upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
+npu_upgrade MiniLoaderAll.bin uboot.img trust.img boot.img
+cat /tmp/npu.log
+dmesg | grep -iE "2207|usb 3-1" | tail -n 25
+npu_boot
+rknn_server &
+toybrick_rknn_test 2>&1
+find / -name "*rknn*" -o -name "*npu*" 2>/dev/null | grep -iE "example|demo|test" | head -n 30
+find / -name "*rknn*" 2>/dev/null
+pip list 2>/dev/null | grep -i rknn
+python3 -c "import rknn" 2>/dev/null || python -c "import rknn" 2>/dev/null
+dpkg -l | grep -iE "rknn|npu"
+find / -name "*rknn*" 2>/dev/null | grep -v "/sys/"
+python3 -c "import rknn_toolkit" 2>/dev/null
+python3 -c "from rknnlite.api import RKNNLite" 2>/dev/null
+find / -iname "*rknn*" -o -iname "*librknn*" 2>/dev/null
+find / -name "*npudemo*" -o -name "*galcore*" 2>/dev/null
+ls -la /usr/lib/ /usr/local/lib/ | grep -iE "rknn|npu"
+find / -name "*rknn*" 2>/dev/null
+find / -name "*npu*" 2>/dev/null
+wget -qO- https://github.com/rockchip-linux/rknn-toolkit/raw/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl > /dev/null && echo 'Check OK' || echo 'Check Failed'
+virtualenv -p python3.9 /opt/rknn_py39
+virtualenv -p python3.8 /opt/rknn_py38
+virtualenv -p python3.7 /opt/rknn_py37
+wget -qO- https://raw.githubusercontent.com/rockchip-linux/rknn-toolkit/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl > /dev/null && echo '1.7.5 CP39 OK' || echo '1.7.5 CP39 Failed'
+wget -qO- https://github.com/rockchip-linux/rknn-toolkit2/raw/master/rknn-toolkit-lite2/packages/rknn_toolkit_lite2-2.3.0-cp39-cp39-linux_aarch64.whl > /dev/null && echo '2.3.0 CP39 OK' || echo '2.3.0 CP39 Failed'
+virtualenv -p /opt/py39_standalone/python/bin/python3 /opt/rknn_py39
+source /opt/rknn_py39/bin/activate
+pip3 install https://raw.githubusercontent.com/rockchip-linux/rknn-toolkit/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl
+virtualenv -p /opt/py39_standalone/python/bin/python3 /opt/rknn_py39
+source /opt/rknn_py39/bin/activate
+pip3 install https://raw.githubusercontent.com/rockchip-linux/rknn-toolkit/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl
+virtualenv -p /opt/py39_standalone/python/bin/python3 /opt/rknn_py39
+source /opt/rknn_py39/bin/activate
+pip3 install https://raw.githubusercontent.com/rockchip-linux/rknn-toolkit/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl
+python3 -c "from rknnlite.api import RKNNLite; print('RKNNLite Imported OK')"
+virtualenv -p /opt/py39_standalone/python/bin/python3 /opt/rknn_py39
+source /opt/rknn_py39/bin/activate
+pip3 install https://raw.githubusercontent.com/rockchip-linux/rknn-toolkit/raw/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl
+python3 -c "from rknnlite.api import RKNNLite; print('RKNNLite Imported OK')"
+virtualenv -p /opt/py39_standalone/python/bin/python3 /opt/rknn_py39
+source /opt/rknn_py39/bin/activate
+pip3 install https://raw.githubusercontent.com/rockchip-linux/rknn-toolkit/raw/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl
+python3 -c "from rknnlite.api import RKNNLite; print('RKNNLite Imported OK')"
+pip3 install https://raw.githubusercontent.com/rockchip-linux/rknn-toolkit/raw/master/rknn-toolkit-lite/packages/rknn_toolkit_lite-1.7.5-cp39-cp39-linux_aarch64.whl
+python3 -c "from rknnlite.api import RKNNLite; print('RKNNLite Imported OK')"
+ls -la /dev/rknn*
+from rknnlite.api import RKNNLite
+rknn = RKNNLite()
+print('RKNN SDK version:', rknn.get_sdk_version())
+systemctl status npu_transfer_proxy.service
+systemctl start npu_transfer_proxy.service
+systemctl status npu_transfer_proxy.service --no-pager
+dmesg | grep -iE "usb|rknn|npu" | tail -n 30
+systemctl stop npu_transfer_proxy.service
+cat /usr/local/bin/npu_startup.sh
+npu_upgrade -h 2>/dev/null || find / -name "npu_upgrade" 2>/dev/null
+ls -la /usr/share/npu_fw/
+dmesg | grep -iE "pcie|pcie-npu" | tail -n 25
+upgrade_tool -h 2>/dev/null || find / -name "upgrade_tool" 2>/dev/null
+upgrade_tool ld
+upgrade_tool DB MiniLoaderAll.bin
+upgrade_tool ld
+upgrade_tool RS 0 0 0 uboot.img trust.img boot.img
+which npu_upgrade
+cat $(which npu_upgrade)
+upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
+npu_upgrade MiniLoaderAll.bin uboot.img trust.img boot.img
+cat /tmp/npu.log 2>/dev/null || echo "No npu log yet"
+systemctl start npu_transfer_proxy.service
+systemctl status npu_transfer_proxy.service --no-pager
+systemctl stop npu_transfer_proxy.service
+upgrade_tool ld
+upgrade_tool DB MiniLoaderAll.bin
+upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
+# Let's check the npu.log again to see what upgrade_tool DB/RS parameters npu_upgrade script really ran.
+cat /tmp/npu.log
+npu_upgrade MiniLoaderAll.bin uboot.img trust.img boot.img
+# Enable PCIe driver again to check NPU boot. We need to mount boot block or check DTB first.
+# Let's search for "pcie-npu" or any other pcie occurrences in DTS to ensure status is correctly enabled.
+grep -n -C 5 "pcie-npu" /tmp/current_dtb.dts
+\n== upgrade_tool help strings relevant ==
+Not found config.ini
+Program Data in /usr/bin
+
+---------------------Tool Usage ---------------------
+Help:             H
+Version:          V
+------------------SPI Upgrade Command ------------------
+SPI DownloadBoot:		SDB <Loader>
+SPI DownloadImage:		SDI <-b|-t|-u> <Image> [Offset] [speed]
+SPI RunSystem:		SRS
+SPI AutoTest:		SAT [transfer_size_k] [transfer_count] [speed]
+------------------USB Upgrade Command ------------------
+ListDevice:		    LD
+DownloadBoot:		DB <Loader>
+TestDevice:		TD
+WriteLBA:		WL  <BeginSec> <File>
+RunSystem:		RS <uboot_addr> <trust_addr> <boot_addr> <uboot> <trust> <boot>
+-------------------------------------------------------
+
+SPI DownloadBoot:		SDB <Loader>
+SPI RunSystem:		SRS
+------------------USB Upgrade Command ------------------
+DownloadBoot:		DB <Loader>
+RunSystem:		RS <uboot_addr> <trust_addr> <boot_addr> <uboot> <trust> <boot>
+List of rockusb connected
+No found rockusb,Rescan press <R>,Quit press <Q>:
+Found %d rockusb,Select input DevNo,Rescan press <R>,Quit press <Q>:
+parse_parameter_file failed,err=%d,can't open file: %s
+parse_parameter_file failed,err=%d,read=%d,total=%d
+download_gpt_parameter-->parse_parameter failed
+Error:download_gpt_parameter-->read flashinfo failed,RKU_ReadFlashInfo err=%d
+Error:download_gpt_parameter failed,RKU_WriteLBA master gpt err=%d
+Error:download_gpt_parameter failed,RKU_WriteLBA backup gpt err=%d
+Error:download_gpt_parameter failed,RKU_ReadLBA master gpt err=%d
+Error:download_gpt_parameter failed,memcmp master gpt
+Error:download_gpt_parameter failed,RKU_ReadLBA backup gpt err=%d
+Error:download_gpt_parameter failed,memcmp backup gpt
+Creating parameter buffer failed!
+ERROR:download_parameter-->RKU_TestDeviceReady failed,RetCode(%d)
+ERROR:download_parameter-->RKU_TestDeviceReady failed,Total=%d,Current=%d
+ERROR:download_parameter-->RKU_TestDeviceReady failed,Total is zero
+Write parameter ...(%d%%)
+Writing data to flash failed in writing,exit download parameter!
+ERROR:download_parameter-->RKU_WriteLBA failed,Written(%d),RetCode(%d)
+Download parameter ok.
+Reading data from flash failed in checking,exit download parameter!
+ERROR:download_parameter-->RKU_ReadLBA failed,Read(%d),RetCode(%d)
+ERROR:download_parameter-->memcmp failed,Checked(%dK)
+Compare data  failed in checking,exit download parameter!
+Download parameter quit,Creating comm object failed!
+rockusb_id
+parameter
+get_parameter_loader->pParameter is null!
+get_parameter_loader->Creating comm object failed!
+get_parameter_loader->Read parameter head failed,err=%d!
+get_parameter_loader->Check parameter tag failed!
+get_parameter_loader->Memory is not enough to save parameter!
+get_parameter_loader->Read parameter file failed,err=%d!
+get_parameter_device->Creating comm object failed!
+get_parameter_device-->During checking gpt or parameter RKU_ReadLBA failed,err=%d
+get_parameter_device-->parse_gpt failed
+get_parameter_device-->get_parameter_loader size failed
+get_parameter_device-->get_parameter_loader failed
+get_parameter_device-->parse_parameter failed
+Partition Info(parameter):
+Error:RKU_MscToRockusb failed,err=%d
+Parameter is invalid!
+List of rockusb connected(%d)
+Parameter of [SDB] command is invalid,please check help!
+Parameter of [SRS] command is invalid,please check help!
+Parameter of [SAT] command is invalid,please check help!
+Parameter of [SDI] command is invalid,please check help!
+Parameter of [SSS] command is invalid,please check help!
+No found any rockusb device,please plug device in!
+Getting information of rockusb device failed!
+No found specific rockusb device!
+Parameter of [RD] command is invalid,please check help!
+Parameter of [DB] command is invalid,please check help!
+Parameter of [WL] command is invalid,please check help!
+Parameter of [RS] command is invalid,please check help!
+Error:libusb_init failed,err=%d
+10CRKUsbComm
+Error:InitializeUsb-->open device failed,err=%d
+Error:InitializeUsb-->get device config descriptor failed,err=%d
+Error:libusb_claim_interface failed,err=%d
+Error:RKU_MscToRockusb failed,device not support
+Error:libusb_kernel_driver_active failed,err=%d
+Error:libusb_detach_kernel_driver failed,err=%d
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKDevice; ValueType = ENUM_RKUSB_TYPE; int nPropType = 3]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKDevice; ValueType = ENUM_RKUSB_TYPE; int nPropType = 3]
+<LAYER %s> ERROR:DownloadBoot-->GetEntry471Property failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->GetEntry471Data failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->Boot_VendorRequest471 failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->GetEntry472Property failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->GetEntry472Data failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->Boot_VendorRequest472 failed,index(%d)
+<LAYER %s> ERROR:PrepareIDB-->UsbType is invalid
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKDevice; ValueType = ENUM_RKUSB_TYPE; int nPropType = 3]
+<LAYER %s> ERROR:RKA_Gpt_Download-->parse_parameter failed)
+<LAYER %s> ERROR:DownloadImage-->No Found Parameter file
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKDevice; ValueType = ENUM_RKUSB_TYPE; int nPropType = 3]
+Error:EnumerateUsbDevice-->get_device_list failed,err=%d!
+Error:EnumerateUsbDevice-->get_device_descriptor failed,err=%d!
+Error:EnumerateUsbDevice-->get_string_descriptor failed,err=%d!
+Error:EnumerateUsbDevice-->get_string_descriptor open failed,err=%d!
+ValueType property<Container, ValueType, nPropType>::operator=(const ValueType&) [with Container = CRKDevice; ValueType = ENUM_RKUSB_TYPE; int nPropType = 3]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKDevice; ValueType = ENUM_RKUSB_TYPE; int nPropType = 3]
+usbi_sanitize_device
+libusb_get_port_numbers
+libusb_get_max_packet_size
+libusb_get_max_iso_packet_size
+libusb_unref_device
+libusb_get_device_list
+usbi_signal_event
+usbi_clear_event
+libusb_open
+libusb_close
+libusb_get_configuration
+libusb_set_configuration
+libusb_claim_interface
+libusb_release_interface
+libusb_set_interface_alt_setting
+libusb_clear_halt
+libusb_reset_device
+libusb_alloc_streams
+libusb_free_streams
+libusb_kernel_driver_active
+libusb_detach_kernel_driver
+libusb_attach_kernel_driver
+libusb_init
+libusb_exit
+LIBUSB_DEBUG
+[%2d.%06d] [%08x] libusb: %s [%s]
+libusb: %s [%s]
+libusb v%u.%u.%u.%u%s
+some libusb_devices were leaked
+LIBUSB_ERROR_OTHER
+LIBUSB_ERROR_NOT_SUPPORTED
+LIBUSB_ERROR_NO_MEM
