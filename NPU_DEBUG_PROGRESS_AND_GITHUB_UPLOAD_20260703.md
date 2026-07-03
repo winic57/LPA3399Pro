@@ -726,3 +726,15 @@ upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
 ```text
 /mnt/sdb3/LPA3399Pro/NPU_PCIE_ENABLE_DTB_PATH_RECOVERY_20260703_184602.log
 ```
+
+---
+
+## 18.2 挂载 BOOT 分区后继续最小化 PCIe host DTB 验证
+
+上轮失败原因已定位：`/boot` 为空，但 `lsblk` 显示 `/dev/mmcblk1p1` 是未挂载的 BOOT 分区。本轮已尝试挂载 BOOT 分区并定位 DTB，然后基于 `current_dtb.dts` 生成只启用 `pcie@f8000000`、保持 `pcie-ep@f8000000` 禁用的候选 DTB。安装前备份远端原 DTB，重启后采集 live DT、PCIe sysfs、`lspci`、clock、`npu_powerctrl`、`npu_transfer_proxy devices` 和 dmesg。
+
+完整日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_PCIE_ENABLE_BOOTPART_DTB_TEST_20260703_184719.log
+```
