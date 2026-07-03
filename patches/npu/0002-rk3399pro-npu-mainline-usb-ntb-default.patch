@@ -1,0 +1,67 @@
+From b4565785846c591bb45af1ba95790c4f29572039 Mon Sep 17 00:00:00 2001
+From: LPA3399Pro Maintainers <noreply@example.com>
+Date: Fri, 3 Jul 2026 17:54:08 +0800
+Subject: [PATCH] rk3399pro_npu: add USB NTB RKNN ramboot overlay
+
+---
+ .../fs-overlay-64/etc/init.d/.usb_config      |  1 +
+ .../fs-overlay-64/etc/init.d/S51npu-ntb-rknn  | 42 +++++++++++++++++++
+ 2 files changed, 43 insertions(+)
+ create mode 100644 buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/.usb_config
+ create mode 100755 buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51npu-ntb-rknn
+
+diff --git a/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/.usb_config b/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/.usb_config
+new file mode 100644
+index 0000000..8bacf37
+--- /dev/null
++++ b/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/.usb_config
+@@ -0,0 +1 @@
++usb_ntb_en
+diff --git a/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51npu-ntb-rknn b/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51npu-ntb-rknn
+new file mode 100755
+index 0000000..cbb16eb
+--- /dev/null
++++ b/buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51npu-ntb-rknn
+@@ -0,0 +1,42 @@
++#!/bin/sh
++# Default RK3399Pro NPU ramboot gadget path: expose FunctionFS NTB and start rknn_server.
++# Host-side validation should use npu_transfer_proxy devices; RNDIS IP is not primary.
++
++case "$1" in
++  start)
++    if [ -x /etc/init.d/S50usbdevice ]; then
++      /etc/init.d/S50usbdevice start || true
++    fi
++
++    for i in $(seq 1 20); do
++      if mount | grep -q '/dev/usb-ffs/ntb'; then
++        break
++      fi
++      if [ -d /dev/usb-ffs/ntb ] && [ -d /sys/kernel/config/usb_gadget/rockchip/functions/ffs.ntb ]; then
++        break
++      fi
++      sleep 1
++    done
++
++    if command -v start_rknn.sh >/dev/null 2>&1; then
++      pgrep rknn_server >/dev/null 2>&1 || start_rknn.sh &
++      echo "Started RK3399Pro NPU NTB/RKNN service for npu_transfer_proxy"
++    else
++      echo "WARN: start_rknn.sh not found; NTB gadget may enumerate but RKNN service will not run" >&2
++    fi
++    ;;
++  stop)
++    killall start_rknn.sh rknn_server 2>/dev/null || true
++    ;;
++  restart|reload)
++    "$0" stop
++    sleep 1
++    "$0" start
++    ;;
++  *)
++    echo "Usage: $0 {start|stop|restart}"
++    exit 1
++    ;;
++esac
++
++exit 0

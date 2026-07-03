@@ -32,6 +32,32 @@ fi
 test -x "${NPU_DIR}/build.sh" || chmod +x "${NPU_DIR}/build.sh"
 cd "${NPU_DIR}"
 
+# Apply repository-maintained NPU SDK patches. 0001 kept the earlier RNDIS
+# experiment; later patches can supersede it (for mainline USB NTB, etc.).
+PATCH_DIR="${WORKDIR}/patches/npu"
+if [ -d "${PATCH_DIR}" ]; then
+  for patch in "${PATCH_DIR}"/*.patch; do
+    [ -e "${patch}" ] || continue
+    echo "Applying NPU SDK patch: ${patch}"
+    if git apply --check "${patch}"; then
+      git apply "${patch}"
+    elif patch -p1 --dry-run < "${patch}" >/dev/null; then
+      patch -p1 < "${patch}"
+    else
+      echo "ERROR: failed to apply ${patch}" >&2
+      exit 3
+    fi
+  done
+fi
+
+# If a later patch selects the official FunctionFS NTB/RKNN gadget path,
+# remove the earlier RNDIS-only experiment from the final overlay. The RK3399Pro
+# NPU firmware normally communicates with the host through npu_transfer_proxy,
+# not by requiring a 192.168.180.8 RNDIS address.
+if [ -f "buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/.usb_config" ] &&    grep -q '^usb_ntb_en$' "buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/.usb_config"; then
+  rm -f "buildroot/board/rockchip/rk3399pro_npu/fs-overlay-64/etc/init.d/S51usb-rndis-ip"
+fi
+
 # The RK SDK build.sh reads device/rockchip/.BoardConfig.mk by default.
 for target in ${BUILD_TARGETS}; do
   ./build.sh "${target}"
