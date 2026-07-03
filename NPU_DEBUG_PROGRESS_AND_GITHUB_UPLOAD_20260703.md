@@ -714,3 +714,15 @@ upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
 ```text
 /mnt/sdb3/LPA3399Pro/NPU_MAINLINE_LINK_MISSING_CHECK_20260703_184215.log
 ```
+
+---
+
+## 18.1 最小化启用 PCIe host 测试中止：未找到远端启动 DTB
+
+首次生成最小化 PCIe host DTB 成功，但在 `192.168.50.113` 上没有从 `/boot`、`armbianEnv.txt`、`extlinux.conf` 或常见启动配置中定位到当前启动 DTB，因此没有安装 DTB、没有重启，也没有改动远端启动文件。
+
+补充排查日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_PCIE_ENABLE_DTB_PATH_RECOVERY_20260703_184602.log
+```
