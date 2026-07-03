@@ -1179,3 +1179,98 @@ LABEL pcie_npu_test_20260703_202826
 /mnt/sdb3/LPA3399Pro/NPU_SAFE_PCIE_TEST_DTB_EXTLINUX_SECOND_ENTRY_20260703_202826.log
 ```
 
+
+---
+
+## 23. 串口直接启动 PCIe/NPU 测试 DTB 结果
+
+### 23.1 测试对象
+
+测试 DTB：
+
+```text
+/dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+sha256: c7be50af103a74befc9f071b53e2974e2dee34a7b3dbc083246dfd15e3774a48
+```
+
+完整串口日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_PCIE_TEST_SERIAL_UBOOT_DIRECT_BOOT_20260703_202826_20260703_204421.log
+```
+
+结果检查日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_PCIE_TEST_RESULT_AND_RECOVERY_NOTE_20260703_205437.log
+```
+
+### 23.2 第一次尝试：等待 extlinux 菜单选择第二项
+
+自动脚本重启后尝试在 extlinux 菜单中选择：
+
+```text
+pcie_npu_test_20260703_202826
+```
+
+但 U-Boot 只打印：
+
+```text
+1: Armbian
+Retrieving file: /dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+```
+
+没有显示/选择第二项。因此第一次实际仍启动默认稳定 DTB，系统恢复 SSH，live DT 仍为：
+
+```text
+/sys/firmware/devicetree/base/pcie@f8000000/status = disabled
+```
+
+该次不算测试 DTB 启动。
+
+### 23.3 第二次尝试：串口中断 U-Boot，直接加载测试 DTB 启动
+
+通过串口中断 autoboot，进入 U-Boot prompt 后执行：
+
+```text
+mmc dev 1
+ext4load mmc 1:1 0x00280000 /Image
+ext4load mmc 1:1 0x08300000 /dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+setenv bootargs root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0 clk_ignore_unused
+booti 0x00280000 - 0x08300000
+```
+
+确认测试 DTB 已被加载：
+
+```text
+62445 bytes read ... /dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+Booting using the fdt blob at 0x8300000
+Starting kernel ...
+```
+
+但之后等待 80 次 SSH 轮询，系统未恢复：
+
+```text
+SSH DID NOT RETURN AFTER DIRECT TEST BOOT
+END prompt=True interrupted=True saw_test_load=True saw_kernel=True ssh_ok=False
+```
+
+### 23.4 当前结论
+
+1. 测试 DTB 确实被 U-Boot 直接加载并进入 kernel。
+2. 系统未恢复 SSH，说明这个“非 status-only”的 PCIe/NPU 测试 DTB 仍不可用。
+3. 与上轮 status-only DTB 一样，启用 PCIe host 后仍会导致系统无法正常启动到可联网状态。
+4. 本轮新增的 `ranges=0x83000000`、`linux,pci-domain`、`busno`、`rockchip,deferred`、`rockchip,dma_trx_enabled` 没有解决启动问题。
+5. 默认 extlinux 仍指向稳定 DTB，理论上断电重启后会回到默认稳定系统；但当前直接 boot 测试 DTB 后系统未恢复，需要进行一次物理断电/复位。
+
+### 23.5 下一步建议
+
+1. 先物理断电/复位开发板，让它从默认 `Armbian` 项启动回稳定 DTB。
+2. 恢复 SSH 后验证：`pcie@f8000000/status = disabled`，且 `192.168.50.113` 可 ping/SSH。
+3. 不再继续基于当前 4-lane host enable 方案微调。
+4. 下一轮应改为更小粒度验证：
+   - 先确认官方 4.4 的实际 PCIe reset/power GPIO 与主线板级 pinctrl 是否一致；
+   - 尝试构建 `num-lanes = <2>` 的测试 DTB，因为官方 lspci 实际链路为 x2；
+   - 检查 `vpcie3v3-supply` 对应 regulator 是否在启用 PCIe 时拉低/冲突；
+   - 检查主线 PCIe PHY lane binding 是否应只引用 lane0/lane1。
+

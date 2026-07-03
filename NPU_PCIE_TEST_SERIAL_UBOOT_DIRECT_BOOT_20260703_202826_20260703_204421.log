@@ -1,0 +1,460 @@
+
+
+===== 2026-07-03 20:44:21 UBOOT DIRECT PCIe TEST BOOT START =====
+
+
+===== 2026-07-03 20:44:21 PORT=/dev/ttyUSB0 BAUD=1500000 TARGET=192.168.50.113 TEST_DTB=/dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb =====
+
+
+===== 2026-07-03 20:44:21 PREFLIGHT =====
+Warning: Permanently added '192.168.50.113' (ED25519) to the list of known hosts.
+SSH_OK
+ 20:44:22 up 1 min,  3 users,  load average: 1.20, 0.60, 0.22
+disabled
+-rwxr-xr-x 1 root root 62445 Jul  3 20:28 /mnt/dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+
+
+===== 2026-07-03 20:44:22 ISSUE REBOOT =====
+
+
+===== 2026-07-03 20:44:22 WAIT U-BOOT AND INTERRUPT AUTOBOOT =====
+[   90.253759] EXT4-fs (mmcblk1p1): mounted filesystem 955919d4-e37d-4c44-99d6-c0a5552f798c r/w with ordered data mode. Quota mode: none.
+[   90.286954] EXT4-fs (mmcblk1p1): unmounting filesystem 955919d4-e37d-4c44-99d6-c0a5552f798c.
+
+Broadcast message from root@armbian (Fri 2026-07-03 20:44:23 CST):
+
+The system will reboot now!
+
+[?2004l[?2004h[?2004l
+[!p]104[?7h[6n[32766;32766H[6n[   92.260369] wlan0: deauthenticating from 50:64:2b:14:77:6d by local choice (Reason: 3=DEAUTH_LEAVING)
+[   92.877939] systemd-shutdown[1]: Syncing filesystems and block devices.
+[   93.056238] systemd-shutdown[1]: Sending SIGTERM to remaining processes...
+[   93.089211] systemd-journald[116]: Received SIGTERM from PID 1 (systemd-shutdow).
+[   93.101986] systemd-shutdown[1]: Sending SIGKILL to remaining processes...
+[   93.131544] systemd-shutdown[1]: Unmounting file systems.
+[   93.135511] (sd-umount)[1381]: Unmounting '/run/credentials/systemd-journald.service'.
+[   93.140101] (sd-remount)[1382]: Remounting '/' read-only with options 'data=writeback'.
+[   93.296042] EXT4-fs (mmcblk1p2): re-mounted d52f7f8b-fa0e-4c9f-a552-d6df4329ac87 ro.
+[   93.311759] systemd-shutdown[1]: All filesystems unmounted.
+[   93.312407] systemd-shutdown[1]: Deactivating swaps.
+[   93.312979] systemd-shutdown[1]: All swaps deactivated.
+[   93.313481] systemd-shutdown[1]: Detaching loop devices.
+[   93.323451] systemd-shutdown[1]: All loop devices detached.
+[   93.324071] systemd-shutdown[1]: Stopping MD devices.
+[   93.325164] systemd-shutdown[1]: All MD devices stopped.
+[   93.325680] systemd-shutdown[1]: Detaching DM devices.
+[   93.326649] systemd-shutdown[1]: All DM devices detached.
+[   93.327170] systemd-shutdown[1]: All filesystems, swaps, loop devices, MD devices and DM devices detached.
+[   93.331768] systemd-shutdown[1]: Syncing filesystems and block devices.
+[   93.334338] systemd-shutdown[1]: Rebooting.
+[   93.402038] xhci-hcd xhci-hcd.0.auto: Host halt failed, -110
+[   93.412628] xhci-hcd xhci-hcd.8.auto: remove, state 1
+[   93.413151] usb usb6: USB disconnect, device number 1
+[   93.414918] xhci-hcd xhci-hcd.8.auto: USB bus 6 deregistered
+[   93.415474] xhci-hcd xhci-hcd.8.auto: remove, state 1
+[   93.415954] usb usb5: USB disconnect, device number 1
+[   93.417968] xhci-hcd xhci-hcd.8.auto: USB bus 5 deregistered
+[   93.419494] xhci-hcd xhci-hcd.0.auto: remove, state 1
+[   93.420195] usb usb2: USB disconnect, device number 1
+[   93.422127] xhci-hcd xhci-hcd.0.auto: USB bus 2 deregistered
+[   93.422691] xhci-hcd xhci-hcd.0.auto: remove, state 1
+[   93.423171] usb usb1: USB disconnect, device number 1
+[   93.471480] xhci-hcd xhci-hcd.0.auto: Host halt failed, -110
+[   93.472018] xhci-hcd xhci-hcd.0.auto: Host controller not halted, aborting reset.
+[   93.473132] xhci-hcd xhci-hcd.0.auto: USB bus 1 deregistered
+[   93.475309] kvm: exiting hardware virtualization
+[   93.475867] reboot: Restarting system
+DDR Version 1.24 20191016
+In
+Channel 0: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+Channel 1: LPDDR3, 800MHz
+CS = 0
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+CS = 1
+MR0=0x58
+MR1=0x58
+MR2=0x58
+MR3=0x58
+MR4=0x3
+MR5=0x1
+MR6=0x16
+MR7=0x0
+MR8=0x1F
+MR9=0x1F
+MR10=0x1F
+MR11=0x1F
+MR12=0x1F
+MR13=0x1F
+MR14=0x1F
+MR15=0x1F
+MR16=0x1F
+Bus Width=32 Col=10 Bank=8 Row=15/15 CS=2 Die Bus-Width=32 Size=2048MB
+256B stride
+ch 0 ddrconfig = 0x101, ddrsize = 0x2020
+ch 1 ddrconfig = 0x101, ddrsize = 0x2020
+pmugrf_os_reg[2] = 0x3AA0DAA0, stride = 0xD
+OUT
+Boot1 Release Time: May 29 2020 17:36:36, version: 1.26
+CPUId = 0x0
+ChipType = 0x10, 340
+SdmmcInit=2 0
+BootCapSize=100000
+UserCapSize=15028MB
+FwPartOffset=2000 , 100000
+mmc0:cmd5,20
+SdmmcInit=0 0
+BootCapSize=0
+UserCapSize=14748MB
+FwPartOffset=2000 , 0
+StorageInit ok = 134570
+SecureMode = 0
+SecureInit read PBA: 0x4
+SecureInit read PBA: 0x404
+SecureInit read PBA: 0x804
+SecureInit read PBA: 0xc04
+SecureInit read PBA: 0x1004
+SecureInit read PBA: 0x1404
+SecureInit read PBA: 0x1804
+SecureInit read PBA: 0x1c04
+SecureInit ret = 0, SecureMode = 0
+atags_set_bootdev: ret:(0)
+GPT part:  0, name:          primary, start:0x8000, size:0xff800
+GPT part:  1, name:          primary, start:0x108000, size:0x1bc5fdf
+no find partition:uboot.
+Trust Addr:0x4000, 0x58334c42
+No find bl30.bin
+Load uboot, ReadLba = 2000
+Load OK, addr=0x200000, size=0xfc8c0
+RunBL31 0x40000 @ 311245 us
+NOTICE:  BL31: v1.3(release):845ee93
+NOTICE:  BL31: Built : 15:51:11, Jul 22 2020
+NOTICE:  BL31: Rockchip release version: v1.1
+INFO:    GICv3 with legacy support detected. ARM GICV3 driver initialized in EL3
+INFO:    Using opteed sec cpu_context!
+INFO:    boot cpu mask: 0
+INFO:    plat_rockchip_pmu_init(1196): pd status 3e
+INFO:    BL31: Initializing runtime services
+INFO:    BL31: Initializing BL32
+INF [0x0] TEE-CORE:init_primary_helper:337: Initializing (1.1.0-266-gee81607c #1 Mon Aug 17 09:23:30 UTC 2020 aarch64)
+
+INF [0x0] TEE-CORE:init_primary_helper:338: Release version: 1.2
+
+INF [0x0] TEE-CORE:init_teecore:83: teecore inits done
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0x200000
+INFO:    SPSR = 0x3c9
+
+
+U-Boot 2017.09 (Jun 06 2026 - 14:10:22 +0000)
+
+Model: Rockchip RK3399 Evaluation Board
+PreSerial: 2, raw, 0xff1a0000
+DRAM:  3.8 GiB
+Sysmem: init
+Relocation Offset: f5bc7000, fdt: f3dbb358 
+no mmc device at slot 1
+Found IDB in SDcard
+dwmmc@fe320000: 1 (SD), sdhci@fe330000: 0
+Bootdev(atags): mmc 1
+MMC1: Legacy, 50Mhz
+PartType: EFI
+No resource partition
+Failed to load DTB
+Failed to get kernel dtb, ret=-19
+io-domain: OK
+*** Warning - bad CRC, using default environment
+
+Model: Rockchip RK3399 Evaluation Board
+rockchip_set_serialno: could not find efuse/otp device
+No misc partition
+boot mode: None
+CLK: (uboot. arml: enter 400000 KHz, init 816000 KHz, kernel 0N/A)
+CLK: (uboot. armb: enter 24000 KHz, init 816000 KHz, kernel 0N/A)
+  aplll 816000 KHz
+  apllb 816000 KHz
+  dpll 800000 KHz
+  cpll 24000 KHz
+  gpll 800000 KHz
+  npll 600000 KHz
+  vpll 24000 KHz
+  aclk_perihp 133333 KHz
+  hclk_perihp 66666 KHz
+  pclk_perihp 33333 KHz
+  aclk_perilp0 266666 KHz
+  hclk_perilp0 88888 KHz
+  pclk_perilp0 44444 KHz
+  hclk_perilp1 100000 KHz
+  pclk_perilp1 50000 KHz
+EC20_PWREN = -2
+EC20_RESET = -2
+------ ec20_init  ------
+EC20_PWRKEY = -2
+EC20_PWRKEY = -2
+Net:   No ethernet found.
+Hit key to stop autoboot('CTRL+C'):  5 
+[HOST_SENT_CTRL_C]
+ 0 
+=> 
+
+===== 2026-07-03 20:44:27 U-BOOT PROMPT ACQUIRED; BOOT TEST DTB DIRECTLY =====
+
+[HOST_SEND] mmc dev 1
+mmc dev 1
+switch to partitions #0, OK
+mmc1 is current device
+=> 
+[HOST_SEND] ext4load mmc 1:1 0x00280000 /Image
+ext4load mmc 1:1 0x00280000 /Image
+49465856 bytes read in 13796 ms (3.4 MiB/s)
+=> 
+[HOST_SEND] ext4load mmc 1:1 0x08300000 /dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+ext4load mmc 1:1 0x08300000 /dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+62445 bytes read in 109 ms (558.6 KiB/s)
+=> 
+[HOST_SEND] setenv bootargs root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0 clk_ignore_unused
+setenv bootargs root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0 clk_ignore_unused
+setenv - set environment variables
+
+Usage:
+setenv [-f] name value ...
+    - [forcibly] set environment variable 'name' to 'value ...'
+setenv [-f] name
+    - [forcibly] delete environment variable 'name'
+=> 
+[HOST_SEND] booti 0x00280000 - 0x08300000
+booti 0x00280000 - 0x08300000
+Fdt Ramdisk skip relocation
+## Flattened Device Tree blob at 08300000
+   Booting using the fdt blob at 0x8300000
+   Using Device Tree in place at 0000000008300000, end 00000000083123ec
+can't found rockchip,drm-logo, use rockchip,fb-logo
+WARNING: could not set reg FDT_ERR_BADOFFSET.
+failed to reserve fb-loader-logo memory
+Adding bank: 0x00200000 - 0x08400000 (size: 0x08200000)
+Adding bank: 0x0a200000 - 0xf8000000 (size: 0xede00000)
+Total: 43529.657 ms
+
+Starting kernel ...
+
+
+
+===== 2026-07-03 20:45:10 WAIT SSH AFTER DIRECT BOOT saw_test_load=True saw_kernel=True =====
+
+[wait ssh direct boot 1]
+
+[wait ssh direct boot 2]
+
+[wait ssh direct boot 3]
+
+[wait ssh direct boot 4]
+
+[wait ssh direct boot 5]
+
+[wait ssh direct boot 6]
+
+[wait ssh direct boot 7]
+
+[wait ssh direct boot 8]
+
+[wait ssh direct boot 9]
+
+[wait ssh direct boot 10]
+
+[wait ssh direct boot 11]
+
+[wait ssh direct boot 12]
+
+[wait ssh direct boot 13]
+
+[wait ssh direct boot 14]
+
+[wait ssh direct boot 15]
+
+[wait ssh direct boot 16]
+
+[wait ssh direct boot 17]
+
+[wait ssh direct boot 18]
+
+[wait ssh direct boot 19]
+
+[wait ssh direct boot 20]
+
+[wait ssh direct boot 21]
+
+[wait ssh direct boot 22]
+
+[wait ssh direct boot 23]
+
+[wait ssh direct boot 24]
+
+[wait ssh direct boot 25]
+
+[wait ssh direct boot 26]
+
+[wait ssh direct boot 27]
+
+[wait ssh direct boot 28]
+
+[wait ssh direct boot 29]
+
+[wait ssh direct boot 30]
+
+[wait ssh direct boot 31]
+
+[wait ssh direct boot 32]
+
+[wait ssh direct boot 33]
+
+[wait ssh direct boot 34]
+
+[wait ssh direct boot 35]
+
+[wait ssh direct boot 36]
+
+[wait ssh direct boot 37]
+
+[wait ssh direct boot 38]
+
+[wait ssh direct boot 39]
+
+[wait ssh direct boot 40]
+
+[wait ssh direct boot 41]
+
+[wait ssh direct boot 42]
+
+[wait ssh direct boot 43]
+
+[wait ssh direct boot 44]
+
+[wait ssh direct boot 45]
+
+[wait ssh direct boot 46]
+
+[wait ssh direct boot 47]
+
+[wait ssh direct boot 48]
+
+[wait ssh direct boot 49]
+
+[wait ssh direct boot 50]
+
+[wait ssh direct boot 51]
+
+[wait ssh direct boot 52]
+
+[wait ssh direct boot 53]
+
+[wait ssh direct boot 54]
+
+[wait ssh direct boot 55]
+
+[wait ssh direct boot 56]
+
+[wait ssh direct boot 57]
+
+[wait ssh direct boot 58]
+
+[wait ssh direct boot 59]
+
+[wait ssh direct boot 60]
+
+[wait ssh direct boot 61]
+
+[wait ssh direct boot 62]
+
+[wait ssh direct boot 63]
+
+[wait ssh direct boot 64]
+
+[wait ssh direct boot 65]
+
+[wait ssh direct boot 66]
+
+[wait ssh direct boot 67]
+
+[wait ssh direct boot 68]
+
+[wait ssh direct boot 69]
+
+[wait ssh direct boot 70]
+
+[wait ssh direct boot 71]
+
+[wait ssh direct boot 72]
+
+[wait ssh direct boot 73]
+
+[wait ssh direct boot 74]
+
+[wait ssh direct boot 75]
+
+[wait ssh direct boot 76]
+
+[wait ssh direct boot 77]
+
+[wait ssh direct boot 78]
+
+[wait ssh direct boot 79]
+
+[wait ssh direct boot 80]
+
+
+===== 2026-07-03 20:53:18 SSH DID NOT RETURN AFTER DIRECT TEST BOOT =====
+
+
+===== 2026-07-03 20:53:18 END prompt=True interrupted=True saw_test_load=True saw_kernel=True ssh_ok=False =====
