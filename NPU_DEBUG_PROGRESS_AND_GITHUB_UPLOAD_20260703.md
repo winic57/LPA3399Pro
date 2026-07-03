@@ -1051,3 +1051,39 @@ npu_dt_diff_20260703_201038/mainline6_18_live.dts.relevant.txt
 
 实机验证必须采用独立测试 DTB + extlinux 第二菜单项，默认启动项继续指向稳定 DTB，避免再次拔卡恢复。
 
+
+---
+
+## 21. 修正官方 4.4 live DT 导出失败并重新生成有效 diff
+
+上一轮提交 `e78a1c1` 中，`192.168.50.129` 官方 4.4 live DT 的 SCP 传输被 reset，导致 `npu_dt_diff_20260703_201038/official4_4_live.dts` 只有 4 行，不能作为官方 DT 对比依据。本轮改用 SSH cat 成功拉取官方 live DT tar，在本地反编译并生成新的有效对比目录。
+
+### 21.1 新工作目录与日志
+
+```text
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_official_fixed_20260703_201315
+/mnt/sdb3/LPA3399Pro/NPU_OFFICIAL_4_4_LIVE_DT_EXPORT_FIXED_CONTINUE_20260703_201403.log
+```
+
+### 21.2 新产物
+
+```text
+npu_dt_diff_official_fixed_20260703_201315/official4_4_live.dts
+npu_dt_diff_official_fixed_20260703_201315/mainline6_18_live.dts
+npu_dt_diff_official_fixed_20260703_201315/mainline_vs_official_live_pcie_npu.filtered.diff
+npu_dt_diff_official_fixed_20260703_201315/stable_vs_bad_pcie.filtered.diff
+npu_dt_diff_official_fixed_20260703_201315/DECISIVE_SUMMARY.md
+npu_dt_diff_official_fixed_20260703_201315/SUMMARY.md
+```
+
+### 21.3 当前可靠结论
+
+1. 官方 4.4 运行态：`pcie@f8000000/status = okay`，`lspci` 可见 RK3399 root port 与 RK1808 endpoint，`npu_transfer_proxy devices` 为 `PCIE`。
+2. 主线 6.18 稳定状态：`pcie@f8000000/status = disabled`，无 root port/endpoint 枚举。
+3. 上一轮失败 DTB 的 stable-vs-bad diff 仍确认是 status-only：只把 `pcie@f8000000/status` 从 `disabled` 改成 `okay`，该方案不可启动/不可联网。
+4. 后续应以新目录 `npu_dt_diff_official_fixed_20260703_201315` 为准审阅官方 4.4 与主线的 PCIe/NPU 差异，不再使用上一轮 4 行的 broken official DTS。
+
+### 21.4 下一步建议
+
+基于 `npu_dt_diff_official_fixed_20260703_201315/mainline_vs_official_live_pcie_npu.filtered.diff` 和 `npu_dt_diff_official_fixed_20260703_201315/DECISIVE_SUMMARY.md`，整理一个最小但非 status-only 的测试 DTB patch。测试时仍采用独立 DTB + extlinux 第二菜单项，默认项保持稳定 DTB。
+

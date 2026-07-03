@@ -1,0 +1,23 @@
+## official4_4 pcie@f8000000
+- status = "okay"
+- compatible = "rockchip,rk3399-pcie"
+- num-lanes = <0x04>
+- max-link-speed = <0x01>
+- pinctrl-0 = <0x98>
+- phys = <0x97>
+- phy-names = "pcie-phy"
+- ranges = <0x83000000 0x00 0xfa000000 0x00 0xfa000000 0x00 0x1e00000 0x81000000 0x00 0xfbe00000 0x00 0xfbe00000 0x00 0x100000>
+- reset-names = "core\0mgmt\0mgmt-sticky\0pipe\0pm\0pclk\0aclk"
+## mainline6_18 pcie@f8000000
+- status = "disabled"
+- compatible = "rockchip,rk3399-pcie"
+- num-lanes = <0x04>
+- max-link-speed = <0x01>
+- vpcie3v3-supply = <0x1d>
+- vpcie1v8-supply = <0x1c>
+- vpcie0v9-supply = <0x1b>
+- pinctrl-0 = <0x1a>
+- phys = <0x18 0x00 0x18 0x01 0x18 0x02 0x18 0x03>
+- phy-names = "pcie-phy-0", "pcie-phy-1", "pcie-phy-2", "pcie-phy-3"
+- ranges = <0x82000000 0x00 0xfa000000 0x00 0xfa000000 0x00 0x1e00000 0x81000000 0x00 0xfbe00000 0x00 0xfbe00000 0x00 0x100000>
+- reset-names = "core", "mgmt", "mgmt-sticky", "pipe", "pm", "pclk", "aclk"
