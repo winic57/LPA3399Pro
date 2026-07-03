@@ -1087,3 +1087,95 @@ npu_dt_diff_official_fixed_20260703_201315/SUMMARY.md
 
 基于 `npu_dt_diff_official_fixed_20260703_201315/mainline_vs_official_live_pcie_npu.filtered.diff` 和 `npu_dt_diff_official_fixed_20260703_201315/DECISIVE_SUMMARY.md`，整理一个最小但非 status-only 的测试 DTB patch。测试时仍采用独立 DTB + extlinux 第二菜单项，默认项保持稳定 DTB。
 
+
+---
+
+## 22. 按建议执行：创建独立 PCIe/NPU 测试 DTB 与 extlinux 第二菜单项（未重启）
+
+本轮按第 21 节建议执行，但继续保持安全策略：**没有覆盖默认稳定 DTB，也没有重启开发板**。
+
+### 22.1 目标
+
+基于有效官方 4.4 live DT diff，创建一个“非 status-only”的主线测试 DTB，并作为 extlinux 第二菜单项安装到 BOOT 分区。默认启动项保持稳定 DTB，避免再次拔卡恢复。
+
+### 22.2 测试 DTB
+
+本地工作目录：
+
+```text
+/mnt/sdb3/LPA3399Pro/npu_safe_pcie_test_20260703_202826
+```
+
+测试 DTB：
+
+```text
+rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+```
+
+安装路径：
+
+```text
+/dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+```
+
+### 22.3 与上轮 status-only 失败方案的区别
+
+上轮失败 DTB 只做：
+
+```diff
+- status = "disabled";
++ status = "okay";
+```
+
+本轮测试 DTB 除启用 host 外，还加入/调整了来自官方 4.4 工作配置中较保守的属性：
+
+```text
+status = "okay"
+ranges = <0x83000000 ...>
+linux,pci-domain = <0x00>
+busno = <0x00>
+rockchip,deferred = <0x01>
+rockchip,dma_trx_enabled = <0x01>
+```
+
+同时保留主线 6.18 的 PCIe PHY binding：
+
+```text
+phys = <lane0 lane1 lane2 lane3>
+phy-names = "pcie-phy-0", "pcie-phy-1", "pcie-phy-2", "pcie-phy-3"
+```
+
+没有直接搬运官方 4.4 的单 PHY binding，避免 4.4/6.18 binding 不兼容。
+
+### 22.4 extlinux 安全策略
+
+已备份远端 extlinux：
+
+```text
+/extlinux/extlinux.conf.bak_pcie_test_20260703_202826
+```
+
+已追加第二菜单项：
+
+```text
+LABEL pcie_npu_test_20260703_202826
+  MENU LABEL PCIe/NPU test DTB 20260703_202826 (manual only)
+  FDT /dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test-20260703_202826.dtb
+```
+
+默认启动项未切换到测试 DTB。当前开发板仍在线，live DT 仍为稳定状态：
+
+```text
+/sys/firmware/devicetree/base/pcie@f8000000/status = disabled
+```
+
+### 22.5 下一步
+
+下一步如果需要实机验证，应通过串口/键盘在 U-Boot/extlinux 菜单中**手动选择** `pcie_npu_test_20260703_202826`。不要直接设置为默认项。若测试项无法启动，断电重启应继续进入默认稳定项。
+
+完整日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_SAFE_PCIE_TEST_DTB_EXTLINUX_SECOND_ENTRY_20260703_202826.log
+```
+
