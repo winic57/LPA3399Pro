@@ -738,3 +738,316 @@ upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
 ```text
 /mnt/sdb3/LPA3399Pro/NPU_PCIE_ENABLE_BOOTPART_DTB_TEST_20260703_184719.log
 ```
+
+---
+
+## 19. SD 卡离线恢复 DTB 与开发板恢复启动验证
+
+### 19.1 背景
+
+上一轮“最小化启用 PCIe host”的 DTB 测试中，将 BOOT 分区内：
+
+```text
+dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+```
+
+替换为只把 `pcie@f8000000` 从 `disabled` 改为 `okay` 的候选 DTB 后，开发板 `192.168.50.113` 重启后 SSH 长时间未恢复。该测试证明：在当前主线 6.18.33 + 当前 DTS 组合下，单独启用 PCIe host 不可作为可启动方案。
+
+安装候选 DTB 前已保留原始备份：
+
+```text
+rk3399pro-neardi-linux-lc110-base.dtb.bak_npu_pcie_20260703_184719
+```
+
+### 19.2 SD 卡离线恢复操作
+
+用户将系统 SD 卡从开发板取出并插入电脑。电脑侧识别为：
+
+```text
+/dev/sdc
+├─/dev/sdc1  ext4  BOOT
+└─/dev/sdc2  ext4  ROOTFS
+```
+
+在电脑侧直接挂载 BOOT 分区并恢复 DTB：
+
+```bash
+sudo mount -o rw /dev/sdc1 /tmp/sdcard_boot_restore
+sudo cp -a \
+  /tmp/sdcard_boot_restore/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb \
+  /tmp/sdcard_boot_restore/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bad_pcie_enable_20260703_193545
+sudo cp -f \
+  /tmp/sdcard_boot_restore/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_npu_pcie_20260703_184719 \
+  /tmp/sdcard_boot_restore/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+sync
+sudo umount /tmp/sdcard_boot_restore
+```
+
+恢复后校验：
+
+```text
+当前 DTB:
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af  rk3399pro-neardi-linux-lc110-base.dtb
+
+原始备份:
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af  rk3399pro-neardi-linux-lc110-base.dtb.bak_npu_pcie_20260703_184719
+
+失败候选 DTB:
+c34c58e25dfb15514bd81d00fa90328b0cfe8976d196f221b9d318f294c290bb  rk3399pro-neardi-linux-lc110-base.dtb.bad_pcie_enable_20260703_193545
+```
+
+最终确认 SD 卡所有 `/dev/sdc*` 分区均已卸载：
+
+```text
+OK: no /dev/sdc partitions mounted.
+```
+
+### 19.3 开发板恢复启动验证
+
+SD 卡插回开发板后，执行目标机验证：
+
+日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_AFTER_RESTORE_TARGETED_CHECK_20260703_194425.log
+```
+
+关键结果：
+
+```text
+PING 192.168.50.113: 0% packet loss
+SSH 192.168.50.113:22: succeeded
+Linux armbian 6.18.33 #1 SMP PREEMPT Fri Jun 26 05:37:52 UTC 2026 aarch64 GNU/Linux
+eth0  UP  192.168.50.113/24
+wlan0 UP  192.168.50.254/24
+```
+
+live DT 身份：
+
+```text
+model: Radxa ROCK Pi N10
+compatible:
+  radxa,rockpi-n10
+  vamrs,rk3399pro-vmarc-som
+  rockchip,rk3399pro
+```
+
+live DT PCIe 状态已恢复为原始状态：
+
+```text
+/sys/firmware/devicetree/base/pcie@f8000000/status     = disabled
+/sys/firmware/devicetree/base/pcie-ep@f8000000/status  = disabled
+/sys/firmware/devicetree/base/syscon@ff770000/pcie-phy/status = okay
+```
+
+BOOT 分区 DTB 再次校验：
+
+```text
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af  rk3399pro-neardi-linux-lc110-base.dtb
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af  rk3399pro-neardi-linux-lc110-base.dtb.bak_npu_pcie_20260703_184719
+c34c58e25dfb15514bd81d00fa90328b0cfe8976d196f221b9d318f294c290bb  rk3399pro-neardi-linux-lc110-base.dtb.bad_pcie_enable_20260703_193545
+```
+
+当前 PCIe/NPU 运行态：
+
+```text
+/sys/devices/platform/f8000000.pcie 不存在
+lspci 无 PCIe 枚举
+upgrade_tool LD: List of rockusb connected(0)
+npu_transfer_proxy devices: List of ntb devices attached
+clk_wifi_pmu clk_enable_count=0
+clk_pcie_core clk_enable_count=0
+aclk_pcie clk_enable_count=0
+pclk_pcie clk_enable_count=0
+```
+
+### 19.4 本轮结论
+
+1. SD 卡离线恢复成功，开发板已恢复启动和 SSH 访问。
+2. 失败的 PCIe enable DTB 已保留为 `.bad_pcie_enable_20260703_193545`，可用于后续反编译对比。
+3. 当前系统已回到“可启动但 PCIe host disabled”的稳定状态。
+4. “只把 `pcie@f8000000` 改成 `okay`”不是可行修复，会导致开发板无法正常联网启动。
+5. NPU 运行态链路缺失仍成立：主线 live DT 中 PCIe host disabled，系统无 `/sys/devices/platform/f8000000.pcie`，无 `lspci` root port，`npu_transfer_proxy devices` 无 `PCIE`。
+
+### 19.5 下一步建议
+
+不要继续盲目启用 `pcie@f8000000`。建议按以下顺序推进：
+
+1. **先做 DTB 精确 diff，而不是继续实机盲改**
+   - 对比三份 DTB/DTS：
+     - 当前可启动主线 DTB：`rk3399pro-neardi-linux-lc110-base.dtb`，sha256 `3408265d...`
+     - 失败候选 DTB：`.bad_pcie_enable_20260703_193545`，sha256 `c34c58e...`
+     - 官方 4.4 工作机 DTB/live DT：`192.168.50.129`，该机器 `npu_transfer_proxy devices` 显示 `PCIE`
+   - 重点 diff：`pcie@f8000000`、`pcie-phy`、`pinctrl/pcie`、NPU ref clock、reset GPIO、regulator、assigned clocks、GRF/PMU 相关属性。
+
+2. **从工作机导出 live DT 并反编译**
+   - 在 `192.168.50.129` 导出 `/sys/firmware/devicetree/base` 或 `/proc/device-tree`，用 `dtc -I fs -O dts` 转成 DTS。
+   - 与 `192.168.50.113` 当前 live DTS 做结构化对比。
+   - 目标是找出官方 4.4 成功枚举 NPU PCIE 所需的完整节点集合，而不是单点改 status。
+
+3. **优先寻找“板级 PCIe reset / power sequencing”差异**
+   - 目前主线直接启用 PCIe 会导致启动失败，通常说明存在电源、reset、clock 或 lane 配置不完整。
+   - 应检查是否缺少或误配：
+     - `ep-gpios` / reset GPIO；
+     - `vpcie3v3-supply` 实际控制脚；
+     - `clk_wifi_pmu` / `rk808-clkout2` 用法；
+     - `num-lanes` 是否应为 1 而不是 4；
+     - `max-link-speed`；
+     - pinctrl 是否与 GMAC/SDIO/USB 冲突。
+
+4. **下一次实机 DTB 测试必须保留救援策略**
+   - 每次替换 DTB 前保留 `.bak_*`；
+   - 最好准备一个 extlinux 双启动条目：默认启动稳定 DTB，手动选择测试 DTB；
+   - 或添加 watchdog/自动回滚脚本，避免再次需要拔卡恢复。
+
+5. **推荐下一轮最小风险实验**
+   - 不再直接替换默认 DTB；
+   - 新增一个测试 DTB 文件，例如：
+     `dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test.dtb`
+   - 在 `extlinux.conf` 添加第二个菜单项，而默认项仍指向稳定 DTB。
+   - 这样如果测试 DTB 不启动，断电重启仍可默认回到稳定系统。
+
+
+---
+
+## 20. 按建议执行：导出官方 4.4 与主线 6.18 live DT 并做 PCIe/NPU 精确 diff
+
+本轮按上一节建议执行了**非破坏性**分析：没有替换默认 DTB，也没有重启开发板。
+
+### 20.1 采集对象
+
+- 官方 4.4 工作机：`192.168.50.129`，目标状态为 `npu_transfer_proxy devices` 可见 `PCIE`。
+- 主线 6.18.33 测试机：`192.168.50.113`，已恢复稳定 DTB，`pcie@f8000000/status = disabled`。
+
+### 20.2 本轮产物
+
+工作目录：
+
+```text
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038
+```
+
+完整日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_LIVE_DT_DIFF_4_4_VS_MAINLINE_20260703_201038.log
+```
+
+关键文件：
+
+```text
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/official4_4_live.dts
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline6_18_live.dts
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_stable_boot.dts
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_bad_pcie_boot.dts
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_vs_official_live.diff
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_vs_official_live_pcie_npu.filtered.diff
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/stable_vs_bad_pcie.diff
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/stable_vs_bad_pcie.filtered.diff
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/SUMMARY.md
+```
+
+### 20.3 已完成动作
+
+1. 从 `192.168.50.129` 与 `192.168.50.113` 导出 live device tree 并反编译为 DTS。
+2. 从 `192.168.50.113` 的 BOOT 分区提取当前稳定 DTB 与上轮失败的 status-only PCIe enable DTB。
+3. 生成 normalized DTS 并做 diff。
+4. 生成面向 PCIe/NPU/clock/regulator/reset/pinctrl 的过滤 diff 与上下文摘录。
+5. 再次采集两台机器的 runtime PCIe/NPU/clock 状态。
+
+### 20.4 当前判断
+
+主线下 NPU 运行态链路缺失的直接表现仍是 PCIe host 没有启用/没有枚举。但上轮实验证明，**只改 PCIe host status 为 okay 会导致系统不可用**。因此后续必须从官方 4.4 live DT 中移植完整的板级 PCIe/NPU 配套配置，而不能单点改 status。
+
+### 20.5 下一步建议
+
+1. 人工审阅：
+
+```text
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_vs_official_live_pcie_npu.filtered.diff
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/official4_4_live.dts.relevant.txt
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline6_18_live.dts.relevant.txt
+```
+
+2. 根据 diff 形成**独立测试 DTB**，不要覆盖默认稳定 DTB。
+3. 在 BOOT 分区中新增测试 DTB，例如：`dtb/rockchip/rk3399pro-neardi-linux-lc110-base-pcie-test.dtb`。
+4. 修改 `extlinux.conf` 时保持默认启动项仍指向稳定 DTB，仅增加一个手动选择的测试菜单项。
+5. 优先检查并移植：官方 4.4 的 PCIe reset GPIO / ep reset、NPU ref clock、`clk_wifi_pmu`/`rk808-clkout2`、`num-lanes`、`max-link-speed`、`vpcie3v3-supply`、pinctrl 冲突项。
+
+
+---
+
+## 20. 按建议执行：官方 4.4 与主线 6.18 live DT 导出/diff 修正完成
+
+上一轮自动导出中，官方 4.4 机器远端缺少 `dtc`，直接 tar `/sys/firmware/devicetree/base` 时 SSH 被 reset，导致首次生成的 `official4_4_live.dts` 无效。本轮改用远端 Python 逐文件读取 live DT 并打包，再在本地用 `dtc -I fs -O dts` 反编译，已完成非破坏性对比。
+
+### 20.1 工作目录与日志
+
+```text
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038
+/mnt/sdb3/LPA3399Pro/NPU_LIVE_DT_DIFF_FIX_AND_SUMMARY_20260703_201159.log
+```
+
+### 20.2 关键运行态对照
+
+官方 4.4 工作机 `192.168.50.129`：
+
+- kernel: `4.4.194`
+- live DT: `pcie@f8000000/status = okay`
+- `lspci` 枚举：
+  - `00:00.0 RK3399 PCI Express Root Port [1d87:0100]`
+  - `01:00.0 RK1808 Neural Network Processor Card [1d87:1808]`
+- link: 2.5GT/s, width x2
+- `npu_transfer_proxy devices`: `PCIE`
+
+主线 6.18.33 测试机 `192.168.50.113`：
+
+- kernel: `6.18.33`
+- live DT: `pcie@f8000000/status = disabled`
+- 无 `/sys/devices/platform/f8000000.pcie`
+- 无 `lspci` 枚举
+- `npu_transfer_proxy devices`: 空 ntb 列表
+
+### 20.3 已生成文件
+
+```text
+npu_dt_diff_20260703_201038/official4_4_live.dts
+npu_dt_diff_20260703_201038/mainline6_18_live.dts
+npu_dt_diff_20260703_201038/mainline_stable_boot.dts
+npu_dt_diff_20260703_201038/mainline_bad_pcie_boot.dts
+npu_dt_diff_20260703_201038/mainline_vs_official_live.diff
+npu_dt_diff_20260703_201038/mainline_vs_official_live_pcie_npu.filtered.diff
+npu_dt_diff_20260703_201038/stable_vs_bad_pcie.diff
+npu_dt_diff_20260703_201038/stable_vs_bad_pcie.filtered.diff
+npu_dt_diff_20260703_201038/official4_4_live.dts.relevant.txt
+npu_dt_diff_20260703_201038/mainline6_18_live.dts.relevant.txt
+npu_dt_diff_20260703_201038/SUMMARY.md
+```
+
+### 20.4 新确认结论
+
+1. 失败的 `.bad_pcie_enable_20260703_193545` DTB 与稳定 DTB 的关键差异就是把 `pcie@f8000000/status` 从 `disabled` 改为 `okay`。
+2. 官方 4.4 工作机不仅 host 为 `okay`，还成功训练到 x2 链路，并枚举 RK1808 endpoint `1d87:1808`。
+3. 因此主线修复不能继续做 status-only 修改，必须从官方 4.4 live DT 中迁移完整的 board-level PCIe/NPU 时序和资源配置。
+
+### 20.5 下一步建议
+
+下一步应该人工审阅：
+
+```text
+npu_dt_diff_20260703_201038/mainline_vs_official_live_pcie_npu.filtered.diff
+npu_dt_diff_20260703_201038/official4_4_live.dts.relevant.txt
+npu_dt_diff_20260703_201038/mainline6_18_live.dts.relevant.txt
+```
+
+重点查找并形成新的测试 DTB：
+
+- `num-lanes`：官方链路实际为 x2，不要默认假设 x4；
+- reset/ep reset GPIO；
+- `vpcie3v3-supply` / PCIe power regulator；
+- `clk_wifi_pmu`、`rk808-clkout2`、`clk_pciephy_ref`；
+- pinctrl 是否与 GMAC/SDIO/USB 冲突；
+- `max-link-speed`、ASPM、assigned clocks、GRF/PMU 相关属性。
+
+实机验证必须采用独立测试 DTB + extlinux 第二菜单项，默认启动项继续指向稳定 DTB，避免再次拔卡恢复。
+

@@ -1,0 +1,3 @@
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_stable_boot.dts: Warning (unit_address_vs_reg): /usb@fe800000: node has a unit name, but no reg or ranges property
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_stable_boot.dts: Warning (unit_address_vs_reg): /usb@fe900000: node has a unit name, but no reg or ranges property
+/mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_stable_boot.dts: Warning (unique_unit_address): /pcie@f8000000: duplicate unit-address (also used in node /pcie-ep@f8000000)

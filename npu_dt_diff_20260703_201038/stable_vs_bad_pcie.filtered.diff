@@ -1,0 +1,8 @@
+2:+++ mainline_bad_pcie_boot.norm.dts	2026-07-03 20:12:01.414070300 +0800
+5: 		resets = <0x08 0x82 0x08 0x83 0x08 0x84 0x08 0x85 0x08 0x86 0x08 0x81 0x08 0x80>;
+6: 		reset-names = "core\0mgmt\0mgmt-sticky\0pipe\0pm\0pclk\0aclk";
+7:-		status = "disabled";
+8:+		status = "okay";
+9: 		num-lanes = <0x04>;
+10: 		pinctrl-0 = <0x1a>;
+11: 		pinctrl-names = "default";

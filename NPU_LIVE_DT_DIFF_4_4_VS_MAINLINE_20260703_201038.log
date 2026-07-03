@@ -1,0 +1,336 @@
+# NPU live DT diff official 4.4 vs mainline 6.18.33
+# time: 2026-07-03T20:10:38+08:00
+# outdir: /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038
+
+================ identity and runtime quick check ================
+---- 192.168.50.129 ----
+PING 192.168.50.129 (192.168.50.129) 56(84) bytes of data.
+64 bytes from 192.168.50.129: icmp_seq=1 ttl=64 time=0.669 ms
+
+--- 192.168.50.129 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.669/0.669/0.669/0.000 ms
+Linux LPA3399Pro 4.4.194 #1 SMP Thu Jun 12 08:43:20 UTC 2025 aarch64 GNU/Linux
+ 12:10:39 up 7 days, 10:48,  1 user,  load average: 0.45, 0.15, 0.11
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+dummy0           DOWN           
+can0             DOWN           
+eth0             UP             192.168.50.129/24 2409:8a20:9625:7984:1f0c:70b0:1f05:a998/64 fe80::5cb:b928:c2b8:90be/64 
+tunl0@NONE       DOWN           
+ip_vti0@NONE     DOWN           
+ip6_vti0@NONE    DOWN           
+sit0@NONE        DOWN           
+ip6tnl0@NONE     DOWN           
+ip6gre0@NONE     DOWN           
+usb0             UP             
+br-9288f7d696b8  UP             172.20.0.1/16 fe80::42:7dff:fefe:7c09/64 
+docker0          UP             172.17.0.1/16 fe80::42:64ff:fe18:e363/64 
+br-0fe4cdc70bb2  DOWN           172.29.0.1/16 
+br-53106937dd8a  UP             172.18.0.1/16 fe80::42:11ff:fe4f:655e/64 
+br-756e7a528cd6  DOWN           172.25.0.1/16 
+br-87cbd58f7e99  DOWN           172.24.0.1/16 
+br-8f9bb20b46d0  UP             172.28.0.1/16 fe80::42:7dff:fe40:a7ba/64 
+br-0f21b12056e2  DOWN           172.27.0.1/16 
+br-2be4628f0d15  UP             172.21.0.1/16 fe80::42:3aff:fef6:93b0/64 
+br-f2c17fd994a7  UP             172.22.0.1/16 fe80::42:ceff:fed8:5fe9/64 
+br-0be918a0ae0a  DOWN           172.19.0.1/16 
+br-a2198e3f029c  UP             172.23.0.1/16 fe80::42:2eff:fe81:356b/64 
+br-ab4081247876  UP             172.26.0.1/16 fe80::42:9cff:fed1:580f/64 
+veth0b78236@if25 UP             fe80::1cb6:8eff:fedb:efe0/64 
+veth95ad9dd@if27 UP             fe80::807b:6ff:fe91:d901/64 
+vethee4bfb6@if31 UP             fe80::181e:28ff:fe05:48b/64 
+veth250644d@if33 UP             fe80::4469:b9ff:fec8:257c/64 
+vethc789c63@if35 UP             fe80::b8a2:c9ff:fe51:c30a/64 
+veth3a29133@if37 UP             fe80::382d:61ff:fef2:a0ca/64 
+veth32ec76f@if39 UP             fe80::a038:3bff:fee8:b13b/64 
+wlan0            DOWN           
+p2p0             UP             192.168.50.201/24 2409:8a20:9625:7984:6b74:c177:b269:3df4/64 fe80::c9e3:7fdb:c20b:5a94/64 
+veth164bc0a@if45 UP             fe80::947c:5dff:feac:9d81/64 
+vethd4315d4@if47 UP             fe80::7469:d8ff:fe31:307c/64 
+veth3d1f683@if49 UP             fe80::38f6:a3ff:fe6f:8800/64 
+vethd146aa8@if51 UP             fe80::d4fb:c5ff:fe3b:7675/64 
+vetha3131f4@if53 UP             fe80::ec7a:38ff:fed6:b6c3/64 
+veth611e5f3@if55 UP             fe80::4c05:38ff:fef6:821e/64 
+veth2411be4@if57 UP             fe80::9051:1ff:feb2:b991/64 
+model=Rockchip RK3399pro evb v13 linux board with multi camera
+compatible=rockchip,rk3399pro-evb-v13-linux,rockchip,rk3399pro,
+List of ntb devices attached
+0123456789ABCDEF    cfbc0c55    PCIE
+Bus 001 Device 009: ID 2207:1005 Fuzhou Rockchip Electronics Company 
+---- 192.168.50.113 ----
+PING 192.168.50.113 (192.168.50.113) 56(84) bytes of data.
+64 bytes from 192.168.50.113: icmp_seq=1 ttl=64 time=1.00 ms
+
+--- 192.168.50.113 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 1.002/1.002/1.002/0.000 ms
+Linux armbian 6.18.33 #1 SMP PREEMPT Fri Jun 26 05:37:52 UTC 2026 aarch64 GNU/Linux
+ 20:10:40 up 29 min,  3 users,  load average: 0.17, 0.10, 0.06
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eth0             UP             192.168.50.113/24 2409:8a20:9625:7984:e7cc:3e65:5026:46b6/64 fe80::18d:fea4:678d:77e9/64 
+wlan0            UP             192.168.50.254/24 2409:8a20:9625:7984:c6f9:ac05:e571:f11a/64 fe80::f83d:d267:41c4:226c/64 
+usb0             UP             
+model=Radxa ROCK Pi N10
+compatible=radxa,rockpi-n10,vamrs,rk3399pro-vmarc-som,rockchip,rk3399pro,
+List of ntb devices attached
+================ export live DT ================
+---- export official4_4 from 192.168.50.129 ----
+remote dtc missing on 192.168.50.129; using tar+local dtc fallback
+4 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/official4_4_live.dts
+6474c9f03f5e2ac6ac904a660035a0e5fa0f01d6fb39c84ef02e70f83360212d  /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/official4_4_live.dts
+---- export mainline6_18 from 192.168.50.113 ----
+3635 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline6_18_live.dts
+2df079ed3dd78baa44e39b259a5adc2381385da51d0461003e5a99abfd7aadb3  /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline6_18_live.dts
+================ collect mainline boot DTBs ================
+-rw-r--r-- 1 root root  62319 Jul  3 19:35 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+-rw-r--r-- 1 root root  62315 Jul  3 18:47 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bad_pcie_enable_20260703_193545
+-rw-r--r-- 1 root root  62695 Jun 25 16:29 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_162947
+-rw-r--r-- 1 root root  62559 Jun 25 19:54 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_195440
+-rw-r--r-- 1 root root  62527 Jun 25 20:03 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_200306
+-rw-r--r-- 1 root root  62543 Jun 25 20:11 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_201120
+-rw-r--r-- 1 root root  62506 Jun 25 21:55 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_215556
+-rw-r--r-- 1 root root  62510 Jun 26 10:57 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260626
+-rw-r--r-- 1 root root  62510 Jun 26 12:03 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_2026062602
+-rw-r--r-- 1 root root  62510 Jun 26 13:01 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_2026062603
+-rw-r--r-- 1 root root  62510 Jun 26 12:50 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_2026062604
+-rw-r--r-- 1 root root  62514 Jul  3 11:32 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_before_uart_fix
+-rw-r--r-- 1 1000 1000  62510 Jun 26 18:14 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_new_orig
+-rw-r--r-- 1 root root  62319 Jul  3 11:32 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_npu_pcie_20260703_184719
+-rw-r--r-- 1 root root  60186 Jun 18 07:44 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.gmac_pcie_disabled.bak
+-rw-r--r-- 1 root root  60122 Jun 18 07:26 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.mainline_pre_disable.bak
+-rw-r--r-- 1 root root  60182 Jun 24 20:16 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.pre-4g-fix
+-rw-r--r-- 1 root root 102365 Jun 18 07:18 /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.vendor.bak
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+c34c58e25dfb15514bd81d00fa90328b0cfe8976d196f221b9d318f294c290bb  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bad_pcie_enable_20260703_193545
+82e99bc7ac784238318554cc3df6d2a723311a78a6107eb899e95272e5f6f1a1  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_162947
+aae8040e94ac380c7ef038b78a21c77bcc579eb26030a393fa4c329362dbd199  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_195440
+e5b95f61571bc3c3810e1389c457abbf1a1546ff150f47f99a0a2a106d635b33  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_200306
+aa14ea633d76a9c8dda01b393261017c056a3f7ae156fa081558c7ac11acb687  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_201120
+444c254c00026048d8218a6a52fcc527e14818747aeac93fa1760d36799816ef  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260625_215556
+92b4979095dc5ff9e88fba89cf45431bd65cfaaad63518fa9f453e47784cdcd2  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_20260626
+92b4979095dc5ff9e88fba89cf45431bd65cfaaad63518fa9f453e47784cdcd2  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_2026062602
+92b4979095dc5ff9e88fba89cf45431bd65cfaaad63518fa9f453e47784cdcd2  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_2026062603
+5e008f7a4177707bed66d3bfce0c2334517a94561359a8f433de1483cc75ec87  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_2026062604
+0865a7cf9774ef6a697844e92230c7d3afe5829c8e6425a521cc6a9ca6d3a6a0  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_before_uart_fix
+5e008f7a4177707bed66d3bfce0c2334517a94561359a8f433de1483cc75ec87  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_new_orig
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.bak_npu_pcie_20260703_184719
+8e33f3364e22318740be373ec43a2675af40c9ad6cdedcb9d1e818ed43e08811  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.gmac_pcie_disabled.bak
+0d1f35edfb68c0757e56ced04cc500a7d76ac8fd53c7926e94da2cf4d4451742  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.mainline_pre_disable.bak
+9d2cd47c2e4ca3b3c1034fb792be1fdf8cbe0f2e11971fc9ff8f252de4d5f63a  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.pre-4g-fix
+d7b3b29688d4c80af309056d596a9d02fcfe3199374a41c845f9353da86c632e  /mnt/bootpart_npu_diff/dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb.vendor.bak
+c34c58e25dfb15514bd81d00fa90328b0cfe8976d196f221b9d318f294c290bb  /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_bad_pcie_boot.dtb
+b351c9386d0b70539c6dd3f402838b299878d1ae0e19b0d356512d2062eead81  /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_bad_pcie_boot.dts
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af  /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_stable_boot.dtb
+939c19362aea63030124a733381b96a8ecdde68fbdbe12895b6b884ebd1c3120  /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_stable_boot.dts
+================ generate relevant extracts and diffs ================
+  3638 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_vs_official_live.diff
+   816 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_vs_official_live_pcie_npu.filtered.diff
+    11 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/stable_vs_bad_pcie.diff
+     8 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/stable_vs_bad_pcie.filtered.diff
+   816 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/mainline_vs_official_live_pcie_npu.filtered.diff
+     8 /mnt/sdb3/LPA3399Pro/npu_dt_diff_20260703_201038/stable_vs_bad_pcie.filtered.diff
+  5297 total
+================ runtime targeted comparison ================
+---- runtime 192.168.50.129 ----
+==status==
+/sys/firmware/devicetree/base/pcie@f8000000/status=okay
+==pci==
+00:00.0 PCI bridge [0604]: Fuzhou Rockchip Electronics Co., Ltd RK3399 PCI Express Root Port [1d87:0100] (prog-if 00 [Normal decode])
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Interrupt: pin A routed to IRQ 262
+	Bus: primary=00, secondary=00, subordinate=00, sec-latency=0
+	I/O behind bridge: 00000000-00000fff
+	Memory behind bridge: 00000000-000fffff
+	Prefetchable memory behind bridge: 00000000-000fffff
+	Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- <SERR- <PERR-
+	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+		PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+	Capabilities: [80] Power Management version 3
+		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0+,D1+,D2-,D3hot+,D3cold-)
+		Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [90] MSI: Enable- Count=1/1 Maskable+ 64bit+
+		Address: 0000000000000000  Data: 0000
+		Masking: 00000000  Pending: 00000000
+	Capabilities: [b0] MSI-X: Enable- Count=1 Masked-
+		Vector table: BAR=0 offset=00000000
+		PBA: BAR=0 offset=00000008
+	Capabilities: [c0] Express (v2) Root Port (Slot+), MSI 00
+		DevCap:	MaxPayload 256 bytes, PhantFunc 0
+			ExtTag- RBE+
+		DevCtl:	Report errors: Correctable- Non-Fatal- Fatal- Unsupported-
+			RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop+
+			MaxPayload 128 bytes, MaxReadReq 512 bytes
+		DevSta:	CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr- TransPend-
+		LnkCap:	Port #0, Speed 2.5GT/s, Width x4, ASPM L1, Exit Latency L0s <256ns, L1 <8us
+			ClockPM- Surprise- LLActRep- BwNot+ ASPMOptComp+
+		LnkCtl:	ASPM Disabled; RCB 64 bytes Disabled- CommClk+
+			ExtSynch- ClockPM- AutWidDis- BWInt+ AutBWInt+
+		LnkSta:	Speed 2.5GT/s, Width x2, TrErr- Train- SlotClk- DLActive- BWMgmt- ABWMgmt-
+		SltCap:	AttnBtn- PwrCtrl- MRL- AttnInd- PwrInd- HotPlug- Surprise-
+			Slot #0, PowerLimit 0.000W; Interlock- NoCompl-
+		SltCtl:	Enable: AttnBtn- PwrFlt- MRL- PresDet- CmdCplt- HPIrq- LinkChg-
+			Control: AttnInd Off, PwrInd Off, Power+ Interlock-
+		SltSta:	Status: AttnBtn- PowerFlt- MRL+ CmdCplt- PresDet- Interlock-
+			Changed: MRL- PresDet- LinkState-
+		RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal- PMEIntEna- CRSVisible-
+		RootCap: CRSVisible-
+		RootSta: PME ReqID 0000, PMEStatus- PMEPending-
+		DevCap2: Completion Timeout: Range B, TimeoutDis+, LTR+, OBFF Via message ARIFwd+
+		DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR-, OBFF Disabled ARIFwd-
+		LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance- SpeedDis-
+			 Transmit Margin: Normal Operating Range, EnterModifiedCompliance- ComplianceSOS-
+			 Compliance De-emphasis: -6dB
+		LnkSta2: Current De-emphasis Level: -6dB, EqualizationComplete-, EqualizationPhase1-
+			 EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
+	Capabilities: [100 v2] Advanced Error Reporting
+		UESta:	DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+		UEMsk:	DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+		UESvrt:	DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF+ MalfTLP+ ECRC- UnsupReq- ACSViol-
+		CESta:	RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFatalErr-
+		CEMsk:	RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFatalErr+
+		AERCap:	First Error Pointer: 00, GenCap+ CGenEn- ChkCap+ ChkEn-
+	Capabilities: [274 v1] Transaction Processing Hints
+		Interrupt vector mode supported
+		Device specific mode supported
+		Steering table in TPH capability structure
+	Kernel driver in use: pcieport
+
+01:00.0 Non-VGA unclassified device [0000]: Fuzhou Rockchip Electronics Co., Ltd RK1808 Neural Network Processor Card [1d87:1808] (rev 01)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 261
+	Region 0: Memory at <ignored> (32-bit, non-prefetchable) [size=512M]
+	Region 1: Memory at <unassigned> (32-bit, non-prefetchable) [size=512M]
+	Region 2: Memory at <unassigned> (32-bit, non-prefetchable) [size=512M]
+	Region 3: Memory at <unassigned> (32-bit, non-prefetchable) [size=512M]
+	Region 4: Memory at <unassigned> (32-bit, non-prefetchable) [size=128M]
+	Region 5: Memory at <unassigned> (32-bit, non-prefetchable) [size=128M]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [40] Power Management version 3
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2-,D3hot+,D3cold-)
+		Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [50] MSI: Enable- Count=1/32 Maskable+ 64bit+
+		Address: 0000000000000000  Data: 0000
+		Masking: 00000000  Pending: 00000000
+	Capabilities: [70] Express (v2) Endpoint, MSI 08
+		DevCap:	MaxPayload 128 bytes, PhantFunc 0, Latency L0s unlimited, L1 unlimited
+			ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset- SlotPowerLimit 0.000W
+		DevCtl:	Report errors: Correctable- Non-Fatal- Fatal- Unsupported-
+			RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop-
+			MaxPayload 128 bytes, MaxReadReq 512 bytes
+		DevSta:	CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr- TransPend-
+		LnkCap:	Port #0, Speed 8GT/s, Width x2, ASPM L0s L1, Exit Latency L0s unlimited, L1 <64us
+			ClockPM- Surprise- LLActRep- BwNot- ASPMOptComp+
+		LnkCtl:	ASPM Disabled; RCB 64 bytes Disabled- CommClk-
+			ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+		LnkSta:	Speed 2.5GT/s, Width x2, TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
+		DevCap2: Completion Timeout: Not Supported, TimeoutDis+, LTR+, OBFF Via message/WAKE#
+		DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR-, OBFF Disabled
+		LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDis-
+			 Transmit Margin: Normal Operating Range, EnterModifiedCompliance- ComplianceSOS-
+			 Compliance De-emphasis: -6dB
+		LnkSta2: Current De-emphasis Level: -3.5dB, EqualizationComplete-, EqualizationPhase1-
+			 EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
+	Capabilities: [b0] MSI-X: Enable- Count=64 Masked-
+		Vector table: BAR=4 offset=00000000
+		PBA: BAR=4 offset=00002800
+	Capabilities: [100 v2] Advanced Error Reporting
+		UESta:	DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+		UEMsk:	DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+		UESvrt:	DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF+ MalfTLP+ ECRC- UnsupReq- ACSViol-
+		CESta:	RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFatalErr-
+		CEMsk:	RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFatalErr+
+		AERCap:	First Error Pointer: 00, GenCap+ CGenEn- ChkCap+ ChkEn-
+	Capabilities: [148 v1] #19
+	Capabilities: [158 v1] Latency Tolerance Reporting
+		Max snoop latency: 0ns
+		Max no snoop latency: 0ns
+	Capabilities: [160 v1] L1 PM Substates
+		L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+			  PortCommonModeRestoreTime=150us PortTPowerOnTime=150us
+		L1SubCtl1: PCI-PM_L1.2- PCI-PM_L1.1- ASPM_L1.2- ASPM_L1.1-
+			   T_CommonMode=0us LTR1.2_Threshold=0ns
+		L1SubCtl2: T_PwrOn=10us
+	Capabilities: [170 v1] #16
+	Capabilities: [1a0 v1] Vendor Specific Information: ID=0002 Rev=4 Len=100 <?>
+	Capabilities: [2a0 v1] #15
+
+/sys/devices/platform/f8000000.pcie
+/sys/devices/platform/f8000000.pcie/pci0000:00/0000:00:00.0/0000:00:00.0:pcie01
+/sys/devices/platform/f8000000.pcie/pci0000:00/0000:00:00.0/0000:00:00.0:pcie02
+/sys/devices/platform/f8000000.pcie/pcie_deferred
+/sys/devices/platform/f8000000.pcie/pcie_reset_ep
+/sys/devices/platform/ff3c0000.i2c/i2c-0/0-0020/input
+/sys/devices/platform/ff3c0000.i2c/i2c-0/0-0020/input/input0
+/sys/devices/platform/pcie-phy
+/sys/devices/platform/pcie-phy/phy/phy-pcie-phy.7
+/sys/devices/platform/rk809-sound/sound/card0/input1
+/sys/devices/platform/rk_headset/input
+/sys/devices/platform/rk_headset/input/input2
+==clocks==
+--/sys/kernel/debug/clk/clk_wifi_pmu--
+clk_rate=24000000
+clk_enable_count=1
+--/sys/kernel/debug/clk/rk808-clkout2--
+clk_rate=32768
+clk_enable_count=7
+--/sys/kernel/debug/clk/clk_pciephy_ref--
+clk_rate=24000000
+clk_enable_count=1
+--/sys/kernel/debug/clk/clk_pcie_core--
+clk_rate=0
+clk_enable_count=0
+--/sys/kernel/debug/clk/aclk_pcie--
+clk_rate=133333334
+clk_enable_count=1
+--/sys/kernel/debug/clk/pclk_pcie--
+clk_rate=33333334
+clk_enable_count=1
+==npu==
+List of ntb devices attached
+0123456789ABCDEF    cfbc0c55    PCIE
+Bus 001 Device 009: ID 2207:1005 Fuzhou Rockchip Electronics Company 
+---- runtime 192.168.50.113 ----
+==status==
+/sys/firmware/devicetree/base/pcie@f8000000/status=disabled
+/sys/firmware/devicetree/base/pcie-ep@f8000000/status=disabled
+/sys/firmware/devicetree/base/syscon@ff770000/pcie-phy/status=okay
+==pci==
+/sys/devices/platform/ff3c0000.i2c/i2c-0/0-0020/rk805-pwrkey.3.auto/input
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.1
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.2
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.3
+/sys/devices/platform/ff770000.syscon/ff770000.syscon:pcie-phy/phy/phy-ff770000.syscon:pcie-phy.4
+/sys/devices/platform/pinctrl/consumer:platform:regulator-vcc-pcie
+/sys/devices/platform/pinctrl/ff790000.gpio/consumer:platform:regulator-vcc-pcie
+/sys/devices/platform/regulator-vcc5v0-sys/consumer:platform:regulator-vcc-pcie
+/sys/devices/platform/regulator-vcc-pcie
+==clocks==
+--/sys/kernel/debug/clk/clk_wifi_pmu--
+clk_rate=24000000
+clk_enable_count=0
+--/sys/kernel/debug/clk/rk808-clkout2--
+clk_rate=32768
+clk_enable_count=1
+--/sys/kernel/debug/clk/clk_pciephy_ref--
+clk_rate=24000000
+clk_enable_count=1
+--/sys/kernel/debug/clk/clk_pcie_core--
+clk_rate=0
+clk_enable_count=0
+--/sys/kernel/debug/clk/aclk_pcie--
+clk_rate=148500000
+clk_enable_count=0
+--/sys/kernel/debug/clk/pclk_pcie--
+clk_rate=37125000
+clk_enable_count=0
+==npu==
+List of ntb devices attached
+[    0.561854] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.942374] rk808-rtc rk808-rtc.4.auto: registered as rtc0
+[    0.943712] rk808-rtc rk808-rtc.4.auto: setting system clock to 2017-08-05T09:00:21 UTC (1501923621)
+[   11.240437] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: reset control not ready
+[   16.695422] input: rk805 pwrkey as /devices/platform/ff3c0000.i2c/i2c-0/0-0020/rk805-pwrkey.3.auto/input/input0
