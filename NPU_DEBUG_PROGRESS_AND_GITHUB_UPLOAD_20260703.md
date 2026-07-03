@@ -672,3 +672,28 @@ npu_transfer_proxy devices：仍无 PCIE / USB_DEVICE
 ```
 
 后续结论应基于上述日志判断：当前问题更像是 `rs` 地址/固件组合问题，还是 6.18.33 主控侧 USB3/PCIe/DTS 运行态链路问题。
+
+---
+
+## 16. 192.168.50.113 使用历史 RS 地址执行 RAM boot 验证
+
+已按上一节建议在 `192.168.50.113` 上尝试历史记录中出现过的 RS 地址组合：
+
+```bash
+upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
+```
+
+本轮只执行：
+
+- `npu_powerctrl`；
+- `upgrade_tool db`；
+- `upgrade_tool rs`；
+- `npu_transfer_proxy devices` 与 `lsusb/dmesg/upgrade_tool LD` 状态采集。
+
+未执行 `upgrade_tool wl`、`upgrade_tool uf`、`upgrade_tool di` 或任何 eMMC/分区写入命令。
+
+完整日志保存到：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_192.168.50.113_RS_0x20000_TEST_20260703_183809.log
+```
