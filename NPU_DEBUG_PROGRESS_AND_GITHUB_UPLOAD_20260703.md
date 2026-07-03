@@ -1274,3 +1274,16 @@ END prompt=True interrupted=True saw_test_load=True saw_kernel=True ssh_ok=False
    - 检查 `vpcie3v3-supply` 对应 regulator 是否在启用 PCIe 时拉低/冲突；
    - 检查主线 PCIe PHY lane binding 是否应只引用 lane0/lane1。
 
+
+---
+
+## 24. PCIe/NPU 测试失败后物理重启恢复验证
+
+用户已对开发板执行物理重启/复位。本轮验证日志：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_AFTER_PCIE_TEST_POWER_RESET_VERIFY_20260703_205823.log
+```
+
+验证目标：确认默认 extlinux 仍启动稳定 DTB，开发板恢复 SSH，并确认 PCIe host 回到 disabled 状态。
+
