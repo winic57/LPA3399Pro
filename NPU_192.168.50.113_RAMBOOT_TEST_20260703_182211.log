@@ -1,0 +1,349 @@
+# NPU RAM boot / USB loader test for 192.168.50.113
+# time: 2026-07-03T18:22:11+08:00
+# scope: npu_powerctrl + upgrade_tool db/rs only; no wl/uf/partition write commands
+
+== uname/os ==
+Linux armbian 6.18.33 #1 SMP PREEMPT Fri Jun 26 05:37:52 UTC 2026 aarch64 GNU/Linux
+PRETTY_NAME="Armbian OS 26.05.0 trixie"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.5
+ID=debian
+HOME_URL="https://www.armbian.com"
+SUPPORT_URL="https://forum.armbian.com"
+BUG_REPORT_URL="https://www.armbian.com/bugs"
+ARMBIAN_PRETTY_NAME="Armbian OS 26.05.0 trixie"
+\n== firmware files ==
+total 58M
+-rwxr-xr-x 1 root root 157K Jul  2 20:22 MiniLoaderAll.bin
+-rwxr-xr-x 1 root root 157K Jul  2 19:43 MiniLoaderAll_factory.bin
+-rwxr-xr-x 1 root root  30M Jul  2 20:22 boot.img
+-rwxr-xr-x 1 root root  20M Jul  2 19:42 boot_factory.img
+-rwxr-xr-x 1 root root  399 Jul  2 20:22 parameter.txt
+-rwxr-xr-x 1 root root 2.0M Jul  2 20:22 trust.img
+-rwxr-xr-x 1 root root 2.0M Jul  2 19:43 trust_factory.img
+-rwxr-xr-x 1 root root 2.0M Jul  2 20:22 uboot.img
+-rwxr-xr-x 1 root root 2.0M Jul  2 19:43 uboot_factory.img
+-rw-r--r-- 1 root root  678 Jul  1 19:10 ystemctl start npu_transfer_proxy.service
+a8d55129dbc6974c653f009229e6d37d22e4a696e6ca28c500df3e3f0acfceba  /usr/share/npu_fw/MiniLoaderAll.bin
+ad01fbeddcdd390ef14e7683be085facd8b474aca81e42ee2e40dda5340292f4  /usr/share/npu_fw/MiniLoaderAll_factory.bin
+ec166636ef320ce290863f15d50c2102fbe97efbf1d5a2e06ff3beba629a8cae  /usr/share/npu_fw/boot.img
+385ba14c3b69af60240b6d541c20d464c995df2e2e588a03d7e4c1efd7fc169c  /usr/share/npu_fw/boot_factory.img
+fedaf45f8c22a94b25271844757d3c303c2d7987ef0e4b3533b0503fdcdd6b03  /usr/share/npu_fw/parameter.txt
+524f987049c3f3c27c64a6b5b3d29de711513d23acd2ce9ea1eb390677ab4827  /usr/share/npu_fw/trust.img
+92d650fe50a9a53e638ebd80d25d793fc298201675ab8cd1370d7593c59a5be2  /usr/share/npu_fw/trust_factory.img
+dcd5e01afb31868b001e12764639ff60e2c679c1fcf76c42feda54377d4cc33d  /usr/share/npu_fw/uboot.img
+4dc50c3f463c00f0585bf313cbdfc0943abc08d0c3565d6cef122a6fa7b7fbae  /usr/share/npu_fw/uboot_factory.img
+642bb17c70bad5cd0936d8f43a1dc7de3f6ce3728d447afb02df495e5c7e7427  /usr/share/npu_fw/ystemctl start npu_transfer_proxy.service
+\n== upgrade_tool help/version safe output ==
+Not found config.ini
+Program Data in /usr/bin
+
+---------------------Tool Usage ---------------------
+Help:             H
+Version:          V
+------------------SPI Upgrade Command ------------------
+SPI DownloadBoot:		SDB <Loader>
+SPI DownloadImage:		SDI <-b|-t|-u> <Image> [Offset] [speed]
+SPI RunSystem:		SRS
+SPI AutoTest:		SAT [transfer_size_k] [transfer_count] [speed]
+------------------USB Upgrade Command ------------------
+ListDevice:		    LD
+DownloadBoot:		DB <Loader>
+TestDevice:		TD
+WriteLBA:		WL  <BeginSec> <File>
+RunSystem:		RS <uboot_addr> <trust_addr> <boot_addr> <uboot> <trust> <boot>
+-------------------------------------------------------
+
+Not found config.ini
+Program Data in /usr/bin
+
+---------------------Tool Usage ---------------------
+Help:             H
+Version:          V
+------------------SPI Upgrade Command ------------------
+SPI DownloadBoot:		SDB <Loader>
+SPI DownloadImage:		SDI <-b|-t|-u> <Image> [Offset] [speed]
+SPI RunSystem:		SRS
+SPI AutoTest:		SAT [transfer_size_k] [transfer_count] [speed]
+------------------USB Upgrade Command ------------------
+ListDevice:		    LD
+DownloadBoot:		DB <Loader>
+TestDevice:		TD
+WriteLBA:		WL  <BeginSec> <File>
+RunSystem:		RS <uboot_addr> <trust_addr> <boot_addr> <uboot> <trust> <boot>
+-------------------------------------------------------
+
+spi_download_boot
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = ENUM_RKDEVICE_TYPE; int nPropType = 1]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = unsigned int; int nPropType = 1]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = STRUCT_RKTIME; int nPropType = 1]
+Download Boot Start
+Download Boot Fail
+Download Boot Success
+Download IDB Start
+Download IDB Fail
+Download IDB Success
+Erase IDB Start
+Erase IDB Fail
+Erase IDB Success
+ Prepare IDB Start
+Prepare IDB Fail
+Prepare IDB Success
+---------------------Tool Usage ---------------------
+SPI DownloadBoot:		SDB <Loader>
+SPI RunSystem:		SRS
+DownloadBoot:		DB <Loader>
+RunSystem:		RS <uboot_addr> <trust_addr> <boot_addr> <uboot> <trust> <boot>
+ERROR:%s-->FlashBoot not found
+FlashBoot
+Boot Req Addr=0x%08x
+SPI Download boot ok.
+Open loader failed,exit download boot!
+Download boot...
+Download boot ok.
+Download boot failed!
+Failed to get size of uboot!
+Failed to get size of trust!
+Failed to get size of boot!
+parse_parameter_file failed,err=%d,can't open file: %s
+parse_parameter_file failed,err=%d,read=%d,total=%d
+Creating download idb step failed!
+download_gpt_parameter-->parse_parameter failed
+Error:download_gpt_parameter-->read flashinfo failed,RKU_ReadFlashInfo err=%d
+Error:download_gpt_parameter failed,RKU_WriteLBA master gpt err=%d
+Error:download_gpt_parameter failed,RKU_WriteLBA backup gpt err=%d
+Error:download_gpt_parameter failed,RKU_ReadLBA master gpt err=%d
+Error:download_gpt_parameter failed,memcmp master gpt
+Error:download_gpt_parameter failed,RKU_ReadLBA backup gpt err=%d
+Error:download_gpt_parameter failed,memcmp backup gpt
+Creating parameter buffer failed!
+ERROR:download_parameter-->RKU_TestDeviceReady failed,RetCode(%d)
+ERROR:download_parameter-->RKU_TestDeviceReady failed,Total=%d,Current=%d
+ERROR:download_parameter-->RKU_TestDeviceReady failed,Total is zero
+Write parameter ...(%d%%)
+Writing data to flash failed in writing,exit download parameter!
+ERROR:download_parameter-->RKU_WriteLBA failed,Written(%d),RetCode(%d)
+Download parameter ok.
+Reading data from flash failed in checking,exit download parameter!
+ERROR:download_parameter-->RKU_ReadLBA failed,Read(%d),RetCode(%d)
+ERROR:download_parameter-->memcmp failed,Checked(%dK)
+Compare data  failed in checking,exit download parameter!
+Download parameter quit,Creating comm object failed!
+parameter
+boot
+uboot
+trust
+get_parameter_loader->pParameter is null!
+get_parameter_loader->Creating comm object failed!
+get_parameter_loader->Read parameter head failed,err=%d!
+get_parameter_loader->Check parameter tag failed!
+get_parameter_loader->Memory is not enough to save parameter!
+get_parameter_loader->Read parameter file failed,err=%d!
+get_parameter_device->Creating comm object failed!
+get_parameter_device-->During checking gpt or parameter RKU_ReadLBA failed,err=%d
+get_parameter_device-->parse_gpt failed
+get_parameter_device-->get_parameter_loader size failed
+get_parameter_device-->get_parameter_loader failed
+get_parameter_device-->parse_parameter failed
+Partition Info(parameter):
+Parameter is invalid!
+Parameter of [SDB] command is invalid,please check help!
+Parameter of [SRS] command is invalid,please check help!
+Parameter of [SAT] command is invalid,please check help!
+Parameter of [SDI] command is invalid,please check help!
+Parameter of [SSS] command is invalid,please check help!
+Parameter of [RD] command is invalid,please check help!
+Parameter of [DB] command is invalid,please check help!
+Parameter of [WL] command is invalid,please check help!
+Address of uboot is invalid,please check!
+Address of trust is invalid,please check!
+Address of boot is invalid,please check!
+Parameter of [RS] command is invalid,please check help!
+command is invalid,please press upgrade_tool -h to check usage!
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = bool; int nPropType = 1]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = unsigned char; int nPropType = 1]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = STRUCT_RKTIME; int nPropType = 1]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = unsigned int; int nPropType = 1]
+<LAYER %s> ERROR:GetOldDiskSize-->IDB did not exist
+<LAYER %s> ERROR:DownloadBoot-->GetEntry471Property failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->GetEntry471Data failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->Boot_VendorRequest471 failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->GetEntry472Property failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->GetEntry472Data failed,index(%d)
+<LAYER %s> ERROR:DownloadBoot-->Boot_VendorRequest472 failed,index(%d)
+<LAYER %s> ERROR:ReadCustomData-->IDB did not exist
+<LAYER %s> ERROR:ReadSN-->IDB did not exist
+<LAYER %s> ERROR:ReadAllInfo-->IDB did not exist
+<LAYER %s> ERROR:ReadMac-->IDB did not exist
+<LAYER %s> ERROR:ReadImei-->IDB did not exist
+<LAYER %s> ERROR:ReadBTAddr-->IDB did not exist
+<LAYER %s> ERROR:ReadUID-->IDB did not exist
+<LAYER %s> ERROR:CalcIDBCount-->No found old idb data
+<LAYER %s> ERROR:CheckIDBData-->Check Bootcode data failed !
+<LAYER %s> ERROR:CheckIDBData-->Boot Offset is wrong !
+<LAYER %s> ERROR:WriteSN-->IDB did not exist
+<LAYER %s> ERROR:WriteMac-->IDB did not exist
+<LAYER %s> ERROR:WriteCustomData-->IDB did not exist
+<LAYER %s> ERROR:WriteImei-->IDB did not exist
+<LAYER %s> ERROR:WriteBTAddr-->IDB did not exist
+<LAYER %s> ERROR:WriteAllInfo-->IDB did not exist
+<LAYER %s> ERROR:PrepareIDB-->Check PhyBlokcPerIDB failed
+ERROR:EraseIDB-->EraseEmmcIDB failed
+ERROR:EraseIDB-->EraseEmmcIDB failed 2
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = bool; int nPropType = 1]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = unsigned char; int nPropType = 1]
+property<Container, ValueType, nPropType>::operator ValueType() [with Container = CRKBoot; ValueType = STRUCT_RKTIME; int nPropType = 1]
+\n================ BEFORE ================
+2026-07-03T18:22:13+08:00
+\n== lsusb rockchip/full ==
+Bus 003 Device 003: ID 2207:180a Fuzhou Rockchip Electronics Company
+-- full lsusb --
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 003 Device 003: ID 2207:180a Fuzhou Rockchip Electronics Company
+Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 005 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 006 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 007 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 007 Device 002: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 007 Device 004: ID 2c7c:6005 Quectel Wireless Solutions Co., Ltd. Android
+Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+\n== upgrade_tool LD/list ==
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(1)
+DevNo=1	Vid=0x2207,Pid=0x180a,LocationID=301	Mode=Maskrom
+\n== npu_transfer_proxy devices ==
+List of ntb devices attached
+\n== related processes ==
+\n== recent USB/NPU/PCIe dmesg ==
+[    0.563044] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.869872] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    0.997223] xhci-hcd xhci-hcd.8.auto: Host supports USB 3.0 SuperSpeed
+[    1.272575] usb 7-1: new high-speed USB device number 2 using ehci-platform
+[   22.167290] input: rk805 pwrkey as /devices/platform/ff3c0000.i2c/i2c-0/0-0020/rk805-pwrkey.3.auto/input/input0
+[   27.072482] usb 7-1.1: new high-speed USB device number 3 using ehci-platform
+[   27.638364] usb 7-1.1: USB disconnect, device number 3
+[   35.004336] usb 7-1.1: new high-speed USB device number 4 using ehci-platform
+[   35.207955] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB0
+[   35.211160] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB1
+[   35.214045] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB2
+[15167.494146] usb 3-1: new high-speed USB device number 2 using ehci-platform
+[15172.410285] usb 3-1: USB disconnect, device number 2
+[15172.722329] usb 3-1: new high-speed USB device number 3 using ehci-platform
+\n================ POWER NPU TO 2207:180a ================
+=== Starting NPU Power-up and Reset Sequence ===
+Enabled clk_wifi_pmu. Register 0xff750100: 0x00000a00
+Powering up rails...
+Releasing NPU from reset...
+NPU Boot sequence completed successfully.
+\n================ AFTER npu_powerctrl ================
+2026-07-03T18:22:17+08:00
+\n== lsusb rockchip/full ==
+Bus 003 Device 004: ID 2207:180a Fuzhou Rockchip Electronics Company
+-- full lsusb --
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 003 Device 004: ID 2207:180a Fuzhou Rockchip Electronics Company
+Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 005 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 006 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 007 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 007 Device 002: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 007 Device 004: ID 2c7c:6005 Quectel Wireless Solutions Co., Ltd. Android
+Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+\n== upgrade_tool LD/list ==
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(1)
+DevNo=1	Vid=0x2207,Pid=0x180a,LocationID=301	Mode=Maskrom
+\n== npu_transfer_proxy devices ==
+List of ntb devices attached
+\n== related processes ==
+\n== recent USB/NPU/PCIe dmesg ==
+[    0.563044] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.869872] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    0.997223] xhci-hcd xhci-hcd.8.auto: Host supports USB 3.0 SuperSpeed
+[    1.272575] usb 7-1: new high-speed USB device number 2 using ehci-platform
+[   22.167290] input: rk805 pwrkey as /devices/platform/ff3c0000.i2c/i2c-0/0-0020/rk805-pwrkey.3.auto/input/input0
+[   27.072482] usb 7-1.1: new high-speed USB device number 3 using ehci-platform
+[   27.638364] usb 7-1.1: USB disconnect, device number 3
+[   35.004336] usb 7-1.1: new high-speed USB device number 4 using ehci-platform
+[   35.207955] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB0
+[   35.211160] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB1
+[   35.214045] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB2
+[15167.494146] usb 3-1: new high-speed USB device number 2 using ehci-platform
+[15172.410285] usb 3-1: USB disconnect, device number 2
+[15172.722329] usb 3-1: new high-speed USB device number 3 using ehci-platform
+[15418.480055] usb 3-1: USB disconnect, device number 3
+[15418.801317] usb 3-1: new high-speed USB device number 4 using ehci-platform
+\n================ upgrade_tool db MiniLoaderAll.bin ================
+Not found config.ini
+Program Data in /usr/bin
+Download boot...
+Waiting for loader...
+Download boot ok.
+db_rc=0
+\n================ AFTER db ================
+2026-07-03T18:22:21+08:00
+\n== lsusb rockchip/full ==
+Bus 003 Device 005: ID 2207:180a Fuzhou Rockchip Electronics Company USB-MSC
+-- full lsusb --
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 003 Device 005: ID 2207:180a Fuzhou Rockchip Electronics Company USB-MSC
+Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 005 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 006 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 007 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 007 Device 002: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 007 Device 004: ID 2c7c:6005 Quectel Wireless Solutions Co., Ltd. Android
+Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+\n== upgrade_tool LD/list ==
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(1)
+DevNo=1	Vid=0x2207,Pid=0x180a,LocationID=301	Mode=Loader	SerialNo=rockchip
+\n== npu_transfer_proxy devices ==
+List of ntb devices attached
+\n== related processes ==
+\n== recent USB/NPU/PCIe dmesg ==
+[    0.563044] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[    0.869872] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[    0.997223] xhci-hcd xhci-hcd.8.auto: Host supports USB 3.0 SuperSpeed
+[    1.272575] usb 7-1: new high-speed USB device number 2 using ehci-platform
+[   22.167290] input: rk805 pwrkey as /devices/platform/ff3c0000.i2c/i2c-0/0-0020/rk805-pwrkey.3.auto/input/input0
+[   27.072482] usb 7-1.1: new high-speed USB device number 3 using ehci-platform
+[   27.638364] usb 7-1.1: USB disconnect, device number 3
+[   35.004336] usb 7-1.1: new high-speed USB device number 4 using ehci-platform
+[   35.207955] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB0
+[   35.211160] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB1
+[   35.214045] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB2
+[15167.494146] usb 3-1: new high-speed USB device number 2 using ehci-platform
+[15172.410285] usb 3-1: USB disconnect, device number 2
+[15172.722329] usb 3-1: new high-speed USB device number 3 using ehci-platform
+[15418.480055] usb 3-1: USB disconnect, device number 3
+[15418.801317] usb 3-1: new high-speed USB device number 4 using ehci-platform
+[15423.065429] usb 3-1: reset high-speed USB device number 4 using ehci-platform
+[15423.405571] usb 3-1: device descriptor read/64, error -71
+[15423.654072] usb 3-1: device firmware changed
+[15423.654948] usb 3-1: USB disconnect, device number 4
+[15423.781239] usb 3-1: new high-speed USB device number 5 using ehci-platform
+\n================ upgrade_tool rs uboot/trust/boot ================
+Trying known RK3399Pro ramboot argument order: rs 0x00200000 0x08400000 0x02000000 uboot trust boot
+
+================ LOCAL ABORT / RECOVERY NOTE ================
+The remote upgrade_tool rs command did not return within about 2 minutes after:
+  rs 0x00200000 0x08400000 0x02000000 uboot.img trust.img boot.img
+The local ssh/sshpass session was terminated. A follow-up SSH cleanup killed possible remote upgrade_tool processes.
+Post-hang state remained:
+  lsusb: 2207:180a USB-MSC
+  upgrade_tool LD: Mode=Loader
+  npu_transfer_proxy devices: no PCIE / USB_DEVICE rows
+No upgrade_tool wl/uf/partition-write command was executed.

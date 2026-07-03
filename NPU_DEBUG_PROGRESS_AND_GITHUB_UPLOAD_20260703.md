@@ -624,3 +624,23 @@ npu_transfer_proxy 日志：服务可启动，但未发现 NTB 设备
 4. 再用 `npu_transfer_proxy devices` 判断是否出现 `PCIE` 或 `USB_DEVICE`。
 
 如果 RAM boot 成功，再考虑是否要写入或替换持久化 firmware；如果 RAM boot 都失败，应先修主控 USB3/PCIe/reset/clock/DTS，而不是刷写。
+
+### 14.1 192.168.50.113 RAM boot 验证结论
+
+根据 `NPU_192.168.50.113_RAMBOOT_TEST_20260703_182211.log`，本次 RAM boot 验证结果如下：
+
+
+
+结论：
+
+1.  能把 NPU 拉到 Maskrom：；
+2.  能成功把 NPU 从 Maskrom 推到 Loader： / ；
+3. 当前  参数或 firmware 组合未能成功跳转到 NPU 运行态；
+4. NPU 未重新枚举为  /  / ；
+5.  仍无设备。
+
+下一步不应刷写 eMMC，而应优先确认官方  地址和 firmware 组合：
+
+- 从同型号 4.4 工作机器或官方脚本中提取  具体参数；
+- 对比  和官方工作机器  的 sha256，必要时先用 factory 组固件做同样 RAM boot 测试；
+- 检查 6.18.33 主控侧 USB3/PCIe/DTS 是否缺少 NPU 运行态重新枚举所需链路。
