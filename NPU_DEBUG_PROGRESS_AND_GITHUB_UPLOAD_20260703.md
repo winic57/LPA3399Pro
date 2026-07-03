@@ -697,3 +697,20 @@ upgrade_tool rs 0x20000 0x20800 0x21000 uboot.img trust.img boot.img
 ```text
 /mnt/sdb3/LPA3399Pro/NPU_192.168.50.113_RS_0x20000_TEST_20260703_183809.log
 ```
+
+---
+
+## 17. 检查主线 6.18.33 下 NPU 运行态链路是否缺失
+
+已按要求检查“是否是主线下链路缺失”。本轮对比了：
+
+- 工作机 `192.168.50.129`：官方 4.4，`npu_transfer_proxy devices` 显示 `PCIE`；
+- 测试机 `192.168.50.113`：主线 6.18.33，NPU 只能到 `2207:180a USB-MSC / Mode=Loader`；
+- 本地 `current_dtb.dts` / `baseline_dtb.dts` 中的 NPU、PCIe、USB、clock、reset 相关节点；
+- 两台机器的 live device tree、PCIe 枚举、USB controller、clock/regulator、kernel config/module、dmesg。
+
+完整日志保存到：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_MAINLINE_LINK_MISSING_CHECK_20260703_184215.log
+```
