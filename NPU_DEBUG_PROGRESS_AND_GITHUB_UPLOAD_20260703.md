@@ -577,3 +577,50 @@ usb0: UP，但该机器同时有 Quectel 4G 模块，usb0 不能直接等价为 
 3. 若仍无 `2207:*`，优先修主控 DTS/clock/GPIO/PCIe reset，不要先刷 NPU firmware；
 4. 若出现 `2207:180a`，再考虑 USB firmware 拉起路径；
 5. 若出现 `2207:1005` 或 `npu_transfer_proxy devices` 显示 `PCIE` / `USB_DEVICE`，再进入 RKNN demo 或 firmware 替换测试。
+
+---
+
+## 13. 192.168.50.113 执行 npu_powerctrl / npu_boot 非刷写验证
+
+已按上一节建议对 `192.168.50.113` 执行非刷写验证：
+
+- 检查 `/usr/bin/npu_powerctrl`；
+- 检查 `/usr/local/bin/npu_boot`；
+- 执行 `/usr/bin/npu_powerctrl`；
+- 执行 `/usr/local/bin/npu_boot`；
+- 每一步后采集 `lsusb`、`dmesg`、`npu_transfer_proxy devices`、clock 状态。
+
+完整日志保存到：
+
+```text
+/mnt/sdb3/LPA3399Pro/NPU_192.168.50.113_POWER_BOOT_TEST_20260703_181800.log
+```
+
+本次操作未执行 `upgrade_tool db/rs/uf/wl` 等固件下载或写入命令。
+
+### 13.1 192.168.50.113 npu_powerctrl / npu_boot 验证结论
+
+根据 `NPU_192.168.50.113_POWER_BOOT_TEST_20260703_181800.log`：
+
+```text
+执行前：lsusb 无 2207:*，npu_transfer_proxy devices 无设备
+执行 /usr/bin/npu_powerctrl 后：lsusb 出现 2207:180a
+执行 /usr/local/bin/npu_boot 后：仍为 2207:180a
+npu_transfer_proxy devices：仍只有表头，无 PCIE / USB_DEVICE
+npu_transfer_proxy 日志：服务可启动，但未发现 NTB 设备
+```
+
+这说明当前 `192.168.50.113` 上的 `npu_powerctrl` / `npu_boot` 只完成了 NPU 上电、24MHz clock 设置和 reset release，使 NPU 进入 Rockchip Maskrom/Loader USB 设备状态：
+
+```text
+2207:180a
+```
+
+但它没有继续把 NPU firmware 推送并跳转到可被 `npu_transfer_proxy` 识别的运行态。因此现在仍不建议直接刷写/覆盖 NPU 固件。下一步更合适的是“RAM boot / USB 拉起验证”：
+
+1. 使用当前 `/usr/share/npu_fw/` 下的 `MiniLoaderAll.bin`、`uboot.img`、`trust.img`、`boot.img`；
+2. 通过 `upgrade_tool db/rs` 将 NPU 从 `2207:180a` 拉起；
+3. 观察是否从 `2207:180a` 断开并重新枚举为 `2207:1005` / `2207:1808` / `2207:0019`；
+4. 再用 `npu_transfer_proxy devices` 判断是否出现 `PCIE` 或 `USB_DEVICE`。
+
+如果 RAM boot 成功，再考虑是否要写入或替换持久化 firmware；如果 RAM boot 都失败，应先修主控 USB3/PCIe/reset/clock/DTS，而不是刷写。
