@@ -46,6 +46,26 @@ NPU_SUSPEND_ACK_SLEEP_VALUE=${NPU_SUSPEND_ACK_SLEEP_VALUE:-1}
 NPU_SUSPEND_ACK_AWAKE_VALUE=${NPU_SUSPEND_ACK_AWAKE_VALUE:-0}
 NPU_SUSPEND_TIMEOUT_MS=${NPU_SUSPEND_TIMEOUT_MS:-1000}
 GPIO_HOLD_DIR=${GPIO_HOLD_DIR:-/run/npu_powerctrl_gpiod}
+GPIO_HOLD_SETTLE_MS=${GPIO_HOLD_SETTLE_MS:-50}
+GPIO_HOLD_RELEASE_SETTLE_MS=${GPIO_HOLD_RELEASE_SETTLE_MS:-50}
+NPU_PRECISE_POWERUP_PROFILE=${NPU_PRECISE_POWERUP_PROFILE:-}
+NPU_PRECISE_STEP_DELAY_MS=${NPU_PRECISE_STEP_DELAY_MS:-2}
+NPU_PRECISE_FINAL_DELAY_MS=${NPU_PRECISE_FINAL_DELAY_MS:-25}
+NPU_PRECISE_POST_POWER_DELAY_MS=${NPU_PRECISE_POST_POWER_DELAY_MS:-1500}
+NPU_PRECISE_PRE_CLK_WIFI_PMU_TARGET=${NPU_PRECISE_PRE_CLK_WIFI_PMU_TARGET:-0}
+NPU_PRECISE_PRE_RK808_CLKOUT2_TARGET=${NPU_PRECISE_PRE_RK808_CLKOUT2_TARGET:-1}
+NPU_PRECISE_STAGE1_CLK_WIFI_PMU_TARGET=${NPU_PRECISE_STAGE1_CLK_WIFI_PMU_TARGET:-1}
+NPU_PRECISE_STAGE1_RK808_CLKOUT2_TARGET=${NPU_PRECISE_STAGE1_RK808_CLKOUT2_TARGET:-}
+NPU_PRECISE_LOW_GLOBALS=${NPU_PRECISE_LOW_GLOBALS:-56,55,54,11,4,10,36,32}
+NPU_PRECISE_RISE_STAGE1_GLOBALS=${NPU_PRECISE_RISE_STAGE1_GLOBALS:-4,10,11}
+NPU_PRECISE_RISE_STAGE2_GLOBALS=${NPU_PRECISE_RISE_STAGE2_GLOBALS:-54,55,56}
+NPU_PRECISE_FINAL_GLOBAL=${NPU_PRECISE_FINAL_GLOBAL:-32}
+NPU_PRECISE_INPUT_GLOBALS=${NPU_PRECISE_INPUT_GLOBALS:-35}
+NPU_PRECISE_HELPER_CMD=${NPU_PRECISE_HELPER_CMD:-}
+NPU_PRECISE_HELPER_STAGE=${NPU_PRECISE_HELPER_STAGE:-after_stage1}
+NPU_PRECISE_POWER_GPIO_STAGE=${NPU_PRECISE_POWER_GPIO_STAGE:-before_low}
+NPU_PRECISE_KEEP_RESET_GPIO=${NPU_PRECISE_KEEP_RESET_GPIO:-0}
+NPU_PRECISE_KEEP_PCIE_RESET_EP=${NPU_PRECISE_KEEP_PCIE_RESET_EP:-0}
 
 TRANSFER_PROXY=${TRANSFER_PROXY:-/usr/bin/npu_transfer_proxy}
 UPGRADE_TOOL=${UPGRADE_TOOL:-/usr/bin/upgrade_tool}
@@ -68,9 +88,9 @@ mount_debugfs() {
 write_clk_target() {
   local path="$1"
   local value="$2"
-  if [ -w "$path" ]; then
-    printf '%s\n' "$value" > "$path" || true
-  fi
+  [ -n "$value" ] || return 0
+  [ -e "$path" ] || return 0
+  ( printf '%s\n' "$value" > "$path" ) 2>/dev/null || true
 }
 
 read_clk_value() {
@@ -96,11 +116,15 @@ gpioset_write() {
       oldpid="$(cat "$pidfile" 2>/dev/null || true)"
       [ -n "$oldpid" ] && kill "$oldpid" 2>/dev/null || true
       rm -f "$pidfile"
-      sleep 0.05
+      if [ "${GPIO_HOLD_RELEASE_SETTLE_MS}" -gt 0 ]; then
+        sleep_ms "${GPIO_HOLD_RELEASE_SETTLE_MS}"
+      fi
     fi
     nohup gpioset -c "$chip" "$line=$value" >/dev/null 2>&1 &
     echo $! > "$pidfile"
-    sleep 0.05
+    if [ "${GPIO_HOLD_SETTLE_MS}" -gt 0 ]; then
+      sleep_ms "${GPIO_HOLD_SETTLE_MS}"
+    fi
   elif gpioset --help 2>&1 | grep -q -- '--mode'; then
     gpioset --mode=exit "$chip" "$line=$value"
   else
@@ -116,7 +140,9 @@ release_gpio_hold() {
     oldpid="$(cat "$pidfile" 2>/dev/null || true)"
     [ -n "$oldpid" ] && kill "$oldpid" 2>/dev/null || true
     rm -f "$pidfile"
-    sleep 0.05
+    if [ "${GPIO_HOLD_RELEASE_SETTLE_MS}" -gt 0 ]; then
+      sleep_ms "${GPIO_HOLD_RELEASE_SETTLE_MS}"
+    fi
   fi
 }
 
@@ -198,6 +224,50 @@ init_global_lines() {
   done
 }
 
+set_globals_csv() {
+  local csv="$1" value="$2"
+  [ -n "$csv" ] || return 0
+  local global
+  IFS=',' read -r -a _globals <<< "$csv"
+  for global in "${_globals[@]}"; do
+    global="${global//[[:space:]]/}"
+    [ -n "$global" ] || continue
+    set_global_gpio "$global" "$value"
+  done
+}
+
+set_globals_csv_input() {
+  local csv="$1"
+  [ -n "$csv" ] || return 0
+  local global
+  IFS=',' read -r -a _globals <<< "$csv"
+  for global in "${_globals[@]}"; do
+    global="${global//[[:space:]]/}"
+    [ -n "$global" ] || continue
+    set_global_gpio_input "$global"
+  done
+}
+
+run_precise_helper() {
+  local stage="$1"
+  [ -n "$NPU_PRECISE_HELPER_CMD" ] || return 0
+  [ "$NPU_PRECISE_HELPER_STAGE" = "$stage" ] || return 0
+  if [ -x "$NPU_PRECISE_HELPER_CMD" ]; then
+    log "run precise helper at stage=${stage}: ${NPU_PRECISE_HELPER_CMD}"
+    "$NPU_PRECISE_HELPER_CMD" || true
+  else
+    log "precise helper missing or not executable: ${NPU_PRECISE_HELPER_CMD}"
+  fi
+}
+
+run_precise_power_gpio_stage() {
+  local stage="$1"
+  [ "$NPU_PWR_GPIO_ENABLED" = "1" ] || return 0
+  [ "$NPU_PRECISE_POWER_GPIO_STAGE" = "$stage" ] || return 0
+  log "precise power gpio stage=${stage}: ${NPU_PWR_CHIP}:${NPU_PWR_LINE} -> ${NPU_PWR_ACTIVE}"
+  set_power_gpio "$NPU_PWR_ACTIVE" || true
+}
+
 set_power_gpio() {
   [ "$NPU_PWR_GPIO_ENABLED" = "1" ] || return 0
   gpioset_write "$NPU_PWR_CHIP" "$NPU_PWR_LINE" "$1"
@@ -242,6 +312,21 @@ status_report() {
   echo "npu_init_global_lines=${NPU_INIT_GLOBAL_LINES:-unset}"
   echo "npu_suspend_trigger_global_line=${NPU_SUSPEND_TRIGGER_GLOBAL_LINE:-unset}"
   echo "npu_suspend_ack_global_line=${NPU_SUSPEND_ACK_GLOBAL_LINE:-unset}"
+  echo "gpio_hold_settle_ms=${GPIO_HOLD_SETTLE_MS}"
+  echo "gpio_hold_release_settle_ms=${GPIO_HOLD_RELEASE_SETTLE_MS}"
+  echo "npu_precise_powerup_profile=${NPU_PRECISE_POWERUP_PROFILE:-unset}"
+  echo "npu_precise_power_gpio_stage=${NPU_PRECISE_POWER_GPIO_STAGE:-unset}"
+  echo "npu_precise_pre_clk_wifi_pmu_target=${NPU_PRECISE_PRE_CLK_WIFI_PMU_TARGET}"
+  echo "npu_precise_pre_rk808_clkout2_target=${NPU_PRECISE_PRE_RK808_CLKOUT2_TARGET}"
+  echo "npu_precise_stage1_clk_wifi_pmu_target=${NPU_PRECISE_STAGE1_CLK_WIFI_PMU_TARGET}"
+  echo "npu_precise_stage1_rk808_clkout2_target=${NPU_PRECISE_STAGE1_RK808_CLKOUT2_TARGET:-unset}"
+  echo "npu_precise_low_globals=${NPU_PRECISE_LOW_GLOBALS:-unset}"
+  echo "npu_precise_rise_stage1_globals=${NPU_PRECISE_RISE_STAGE1_GLOBALS:-unset}"
+  echo "npu_precise_rise_stage2_globals=${NPU_PRECISE_RISE_STAGE2_GLOBALS:-unset}"
+  echo "npu_precise_final_global=${NPU_PRECISE_FINAL_GLOBAL:-unset}"
+  echo "npu_precise_input_globals=${NPU_PRECISE_INPUT_GLOBALS:-unset}"
+  echo "npu_precise_helper_cmd=${NPU_PRECISE_HELPER_CMD:-unset}"
+  echo "npu_precise_helper_stage=${NPU_PRECISE_HELPER_STAGE:-unset}"
   if command -v lsusb >/dev/null 2>&1; then
     lsusb | grep -Ei '2207:|1d87:' || true
   fi
@@ -258,7 +343,60 @@ init_only() {
   init_global_lines || true
 }
 
+power_on_precise_golden129() {
+  log "run precise holder profile=golden129"
+  mount_debugfs
+  write_clk_target "$RK808_CLKOUT2_ENABLE" "$NPU_PRECISE_PRE_RK808_CLKOUT2_TARGET"
+  write_clk_target "$CLK_WIFI_PMU_ENABLE" "$NPU_PRECISE_PRE_CLK_WIFI_PMU_TARGET"
+  run_precise_power_gpio_stage before_low
+  set_globals_csv_input "$NPU_PRECISE_INPUT_GLOBALS"
+  set_globals_csv "$NPU_PRECISE_LOW_GLOBALS" 0
+  run_precise_helper before_stage1
+  sleep_ms "$NPU_PRECISE_STEP_DELAY_MS"
+
+  local global
+  IFS=',' read -r -a _stage1 <<< "$NPU_PRECISE_RISE_STAGE1_GLOBALS"
+  for global in "${_stage1[@]}"; do
+    global="${global//[[:space:]]/}"
+    [ -n "$global" ] || continue
+    set_global_gpio "$global" 1
+    sleep_ms "$NPU_PRECISE_STEP_DELAY_MS"
+  done
+
+  run_precise_power_gpio_stage after_stage1
+  write_clk_target "$RK808_CLKOUT2_ENABLE" "$NPU_PRECISE_STAGE1_RK808_CLKOUT2_TARGET"
+  write_clk_target "$CLK_WIFI_PMU_ENABLE" "$NPU_PRECISE_STAGE1_CLK_WIFI_PMU_TARGET"
+  run_precise_helper after_stage1
+
+  IFS=',' read -r -a _stage2 <<< "$NPU_PRECISE_RISE_STAGE2_GLOBALS"
+  for global in "${_stage2[@]}"; do
+    global="${global//[[:space:]]/}"
+    [ -n "$global" ] || continue
+    set_global_gpio "$global" 1
+    sleep_ms "$NPU_PRECISE_STEP_DELAY_MS"
+  done
+
+  run_precise_power_gpio_stage after_stage2
+  run_precise_helper after_stage2
+  sleep_ms "$NPU_PRECISE_FINAL_DELAY_MS"
+  [ -n "$NPU_PRECISE_FINAL_GLOBAL" ] && set_global_gpio "$NPU_PRECISE_FINAL_GLOBAL" 1
+  run_precise_power_gpio_stage after_final
+  run_precise_helper after_final
+
+  if [ "$NPU_PRECISE_KEEP_PCIE_RESET_EP" = "1" ]; then
+    pulse_pcie_reset_ep || true
+  fi
+  if [ "$NPU_PRECISE_KEEP_RESET_GPIO" = "1" ]; then
+    pulse_reset_gpio || true
+  fi
+  sleep_ms "$NPU_PRECISE_POST_POWER_DELAY_MS"
+}
+
 power_on() {
+  if [ "$NPU_PRECISE_POWERUP_PROFILE" = "golden129" ]; then
+    power_on_precise_golden129
+    return 0
+  fi
   log "enable clocks"
   enable_clocks
   init_only

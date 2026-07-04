@@ -62,6 +62,15 @@ echo "== optional operator hint =="
 cat <<'EOF'
 If you already know the vendor-equivalent GPIO init values, set them before restarting service, e.g.
   sed -i "s|^# NPU_INIT_GLOBAL_LINES=.*|NPU_INIT_GLOBAL_LINES=4=1,10=1,11=1,32=1,35=in,36=0,54=1,55=1,56=1|" /etc/default/npu-usb-workflow
+For precise .129-like holder timing tests on .113, also consider:
+  cat >> /etc/default/npu-usb-workflow <<CONF
+NPU_PRECISE_POWERUP_PROFILE=golden129
+GPIO_HOLD_SETTLE_MS=0
+GPIO_HOLD_RELEASE_SETTLE_MS=0
+NPU_PRECISE_POWER_GPIO_STAGE=before_low
+NPU_PRECISE_HELPER_CMD=/usr/local/bin/npu_boot
+NPU_PRECISE_HELPER_STAGE=after_stage1
+CONF
 and then restart the service again.
 EOF
 

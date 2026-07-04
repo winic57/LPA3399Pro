@@ -3597,7 +3597,7 @@
 		regulator-boot-on;
 		gpio = <0x19 0x09 0x00>;
 		pinctrl-names = "default";
-		pinctrl-0 = <0xf2>;
+		pinctrl-0 = <0xf2 0xf4>;
 		regulator-name = "n4_pwren";
 		phandle = <0x1a1>;
 	};
