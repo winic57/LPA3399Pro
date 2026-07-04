@@ -1,0 +1,17 @@
+=== after_wrapper ===
+2026-07-05T07:16:47,091053123+08:00
+--- uptime ---
+ 07:16:47 up 1 min,  3 users,  load average: 1.20, 0.54, 0.20
+--- ps npu_transfer_proxy ---
+--- upgrade_tool LD ---
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(0)
+--- lsusb filtered ---
+--- lspci -nn ---
+00:00.0 PCI bridge [0604]: Rockchip Electronics Co., Ltd RK3399 PCI Express Root Port [1d87:0100]
+--- lspci endpoint verbose ---
+--- npu_transfer_proxy devices ---
+List of ntb devices attached
+--- driver bindings ---
+lrwxrwxrwx 1 root root 0 Jul  5 07:16 /sys/bus/platform/drivers/rockchip-pcie/f8000000.pcie -> ../../../../devices/platform/f8000000.pcie

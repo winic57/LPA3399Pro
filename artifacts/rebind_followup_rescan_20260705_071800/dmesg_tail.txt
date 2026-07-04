@@ -1,0 +1,200 @@
+[   22.837581] coresight-cpu-debug fe432000.debug: Coresight debug-CPU1 initialized
+[   22.838503] coresight-cpu-debug fe434000.debug: Coresight debug-CPU2 initialized
+[   22.839418] coresight-cpu-debug fe436000.debug: Coresight debug-CPU3 initialized
+[   22.840328] coresight-cpu-debug fe610000.debug: CPU4 debug arch init failed
+[   22.841156] coresight-cpu-debug fe710000.debug: CPU5 debug arch init failed
+[   22.848013] mc: Linux media interface: v0.10
+[   22.862542] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   22.863502] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   22.864103] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[   22.865252] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[   22.896533] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   22.897238] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   22.897917] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[   22.898475] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[   22.946950] videodev: Linux video capture interface: v2.00
+[   22.985797] usbcore: registered new device driver onboard-usb-dev
+[   23.255930] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[   23.256634] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[   23.257248] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[   23.260752] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[   23.261827] dwmmc_rockchip fe310000.mmc: allocated mmc-pwrseq
+[   23.262389] mmc_host mmc2: card is non-removable.
+[   23.277718] mmc_host mmc2: Bus speed = 400000Hz (req 400000Hz, actual 400000HZ div = 0)
+[   23.287892] rockchip-rga ff680000.rga: HW Version: 0x03.02
+[   23.288853] rockchip-rga ff680000.rga: Registered rockchip-rga as /dev/video0
+[   23.297167] dwmmc_rockchip fe310000.mmc: card claims to support voltages below defined range
+[   23.328125] mmc_host mmc2: Bus speed = 100000000Hz (req 100000000Hz, actual 100000000HZ div = 0)
+[   23.565585] rk3288-crypto ff8b0000.crypto: will run requests pump with realtime priority
+[   23.566413] rk3288-crypto ff8b0000.crypto: Register ecb(aes) as ecb-aes-rk
+[   23.567080] rk3288-crypto ff8b0000.crypto: Register cbc(aes) as cbc-aes-rk
+[   23.567807] rk3288-crypto ff8b0000.crypto: Register ecb(des) as ecb-des-rk
+[   23.568463] rk3288-crypto ff8b0000.crypto: Register cbc(des) as cbc-des-rk
+[   23.568477] rk3288-crypto ff8b0000.crypto: Register ecb(des3_ede) as ecb-des3-ede-rk
+[   23.568487] rk3288-crypto ff8b0000.crypto: Register cbc(des3_ede) as cbc-des3-ede-rk
+[   23.568498] rk3288-crypto ff8b0000.crypto: Register sha1 as rk-sha1
+[   23.568511] rk3288-crypto ff8b0000.crypto: Register sha256 as rk-sha256
+[   23.568522] rk3288-crypto ff8b0000.crypto: Register md5 as rk-md5
+[   23.597871] rk3288-crypto ff8b8000.crypto: will run requests pump with realtime priority
+[   23.742330] hantro-vpu ff650000.video-codec: registered rockchip,rk3399-vpu-enc as /dev/video2
+[   23.743698] hantro-vpu ff650000.video-codec: registered rockchip,rk3399-vpu-dec as /dev/video3
+[   23.829618] dwmmc_rockchip fe310000.mmc: Successfully tuned phase to 222
+[   23.831263] mmc2: new UHS-I speed SDR50 SDIO card at address 0001
+[   23.876469] rtc-hym8563 2-0051: could not init device, -110
+[   23.877067] rtc-hym8563 2-0051: probe with driver rtc-hym8563 failed with error -110
+[   24.430531] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+[   24.451529] Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+[   24.452723] Loaded X.509 cert 'wens: 61c038651aabdcf94bd0ac7ff06c7248db18c600'
+[   25.213525] random: crng init done
+[   25.430092] rtw88_8821cs mmc2:0001:1: sdio read32 failed (0xf0): -110
+[   25.432890] rtw88_8821cs mmc2:0001:1: sdio write8 failed (0x1c): -110
+[   25.466813] rtw88_8821cs mmc2:0001:1: Firmware version 24.11.0, H2C version 12
+[   26.021720] usb 7-1.1: new high-speed USB device number 3 using ehci-platform
+[   26.591373] usb 7-1.1: USB disconnect, device number 3
+[   26.899043] systemd-journald[115]: Received client request to relinquish /var/log/journal/63f6b85b0c1e8dbfdd4367466a1d5eef access.
+[   30.315479] systemd-journald[115]: Received client request to flush runtime journal.
+[   30.686244] systemd-journald[115]: Received client request to relinquish /var/log/journal/63f6b85b0c1e8dbfdd4367466a1d5eef access.
+[   33.208714] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   33.216329] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[   33.225522] rk_gmac-dwmac fe300000.ethernet eth0: No Safety Features support found
+[   33.226970] rk_gmac-dwmac fe300000.ethernet eth0: PTP not supported by HW
+[   33.227615] rk_gmac-dwmac fe300000.ethernet eth0: configuring for phy/rgmii link mode
+[   33.957585] usb 7-1.1: new high-speed USB device number 4 using ehci-platform
+[   34.256463] cdc_ether 7-1.1:1.0 usb0: register 'cdc_ether' at usb-fe3c0000.usb-1.1, CDC Ethernet Device, 02:0c:29:a3:9b:6d
+[   34.257842] usbcore: registered new interface driver cdc_ether
+[   34.285791] usbcore: registered new interface driver option
+[   34.286443] usbserial: USB Serial support registered for GSM modem (1-port)
+[   34.288251] option 7-1.1:1.2: GSM modem (1-port) converter detected
+[   34.290388] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB0
+[   34.291673] option 7-1.1:1.3: GSM modem (1-port) converter detected
+[   34.292896] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB1
+[   34.294513] option 7-1.1:1.4: GSM modem (1-port) converter detected
+[   34.296312] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB2
+[   35.266613] rk_gmac-dwmac fe300000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+[   39.887455] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[   40.417316] wlan0: authenticate with 50:64:2b:14:77:6d (local address=60:fb:00:7e:d2:34)
+[   40.562379] wlan0: send auth to 50:64:2b:14:77:6d (try 1/3)
+[   40.600954] wlan0: authenticated
+[   40.605519] wlan0: associate with 50:64:2b:14:77:6d (try 1/3)
+[   40.647672] wlan0: RX AssocResp from 50:64:2b:14:77:6d (capab=0xc11 status=0 aid=2)
+[   40.657743] wlan0: associated
+[   75.687640] usb 3-1: new high-speed USB device number 2 using ehci-platform
+[   76.434520] usb 3-1: USB disconnect, device number 2
+[   76.751683] usb 3-1: new high-speed USB device number 3 using ehci-platform
+[   78.759502] usb 3-1: reset high-speed USB device number 3 using ehci-platform
+[   79.095704] usb 3-1: device descriptor read/64, error -71
+[   79.344262] usb 3-1: device firmware changed
+[   79.344983] usb 3-1: USB disconnect, device number 3
+[   79.471637] usb 3-1: new high-speed USB device number 4 using ehci-platform
+[   84.750637] usb 3-1: USB disconnect, device number 4
+[   95.167655] pci_bus 0000:01: busn_res: [bus 01] is released
+[   95.168719] pci_bus 0000:00: busn_res: [bus 00-1f] is released
+[   95.169481] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   95.170180] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   95.170871] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   95.171644] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   95.172344] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   95.173035] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   95.173729] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   95.174418] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   96.187201] rockchip-pcie f8000000.pcie: host bridge /pcie@f8000000 ranges:
+[   96.188022] rockchip-pcie f8000000.pcie:      MEM 0x00fa000000..0x00fbdfffff -> 0x00fa000000
+[   96.188820] rockchip-pcie f8000000.pcie:       IO 0x00fbe00000..0x00fbefffff -> 0x00fbe00000
+[   96.190547] rockchip-pcie f8000000.pcie: no vpcie12v regulator found
+[   96.193262] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   96.193969] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   96.194661] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   96.196556] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   96.903513] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[   96.904177] rockchip-pcie f8000000.pcie: Retrying PCIe link training (1/5)...
+[   96.904843] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   96.905537] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   96.906230] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   96.906920] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   96.907677] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   96.908376] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   96.909070] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   96.909763] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   97.111521] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   97.112249] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   97.112940] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   97.113628] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   97.819638] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[   97.820299] rockchip-pcie f8000000.pcie: Retrying PCIe link training (2/5)...
+[   97.820965] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   97.821657] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   97.822346] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   97.823038] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   97.823787] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   97.824488] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   97.825182] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   97.825873] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   98.027606] usb 3-1: new high-speed USB device number 5 using ehci-platform
+[   98.027663] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   98.028969] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   98.029659] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   98.030348] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   98.224051] cdc_acm 3-1:1.0: ttyACM0: USB ACM device
+[   98.224729] usbcore: registered new interface driver cdc_acm
+[   98.225258] cdc_acm: USB Abstract Control Model driver for USB modems and ISDN adapters
+[   98.739599] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[   98.740263] rockchip-pcie f8000000.pcie: Retrying PCIe link training (3/5)...
+[   98.740928] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   98.741619] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   98.742309] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   98.743000] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   98.743738] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   98.744436] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   98.745134] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   98.745829] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   98.947474] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   98.948203] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   98.948894] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   98.949582] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   99.655465] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[   99.656130] rockchip-pcie f8000000.pcie: Retrying PCIe link training (4/5)...
+[   99.656796] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   99.657486] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   99.658176] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   99.658867] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   99.659613] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[   99.660309] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   99.661000] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   99.661689] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   99.863650] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[   99.864377] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[   99.865066] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[   99.865754] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[  100.571610] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[  100.572273] rockchip-pcie f8000000.pcie: Retrying PCIe link training (5/5)...
+[  100.572939] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[  100.573630] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[  100.574318] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[  100.575010] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[  100.575748] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[  100.576446] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[  100.577139] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[  100.577828] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[  100.779658] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[  100.780385] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[  100.781074] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[  100.781763] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[  101.487631] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[  101.488296] rockchip-pcie f8000000.pcie: Ignoring link training timeout to keep REFCLK running
+[  101.489085] rockchip-pcie f8000000.pcie: Link is down, keeping all lanes powered on
+[  101.490407] rockchip-pcie f8000000.pcie: PCI host bridge to bus 0000:00
+[  101.491039] pci_bus 0000:00: root bus resource [bus 00-1f]
+[  101.491956] pci_bus 0000:00: root bus resource [mem 0xfa000000-0xfbdfffff]
+[  101.492612] pci_bus 0000:00: root bus resource [io  0x0000-0xfffff] (bus address [0xfbe00000-0xfbefffff])
+[  101.493527] pci 0000:00:00.0: [1d87:0100] type 01 class 0x060400 PCIe Root Port
+[  101.494228] pci 0000:00:00.0: PCI bridge to [bus 00]
+[  101.494697] pci 0000:00:00.0:   bridge window [mem 0x00000000-0x000fffff]
+[  101.495816] pci 0000:00:00.0: supports D1
+[  101.496203] pci 0000:00:00.0: PME# supported from D0 D1 D3hot
+[  101.501202] pci 0000:00:00.0: bridge configuration invalid ([bus 00-00]), reconfiguring
+[  101.502505] pci_bus 0000:01: busn_res: [bus 01-1f] end is updated to 01
+[  101.503161] pci 0000:00:00.0: PCI bridge to [bus 01]
+[  101.504137] pci_bus 0000:00: resource 4 [mem 0xfa000000-0xfbdfffff]
+[  101.504753] pci_bus 0000:00: resource 5 [io  0x0000-0xfffff]
+[  101.506414] pcieport 0000:00:00.0: PME: Signaling with IRQ 91
+[  101.511545] pcieport 0000:00:00.0: AER: enabled with IRQ 91

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -a
+[ -f /etc/default/npu-usb-workflow ] && . /etc/default/npu-usb-workflow
+set +a
+export FW_DIR=${FW_DIR_OVERRIDE:-/opt/npu_fw_profiles/golden129_usb_current}
+export FW_PROFILE=${FW_PROFILE_OVERRIDE:-normal}
+export UBOOT_ADDR=${UBOOT_ADDR_OVERRIDE:-0x20000}
+export TRUST_ADDR=${TRUST_ADDR_OVERRIDE:-0x20800}
+export BOOT_ADDR=${BOOT_ADDR_OVERRIDE:-0x21000}
+export WRITE_IMAGES_BEFORE_RS=${WRITE_IMAGES_BEFORE_RS_OVERRIDE:-0}
+exec /usr/local/bin/npu_mainline_usb_ntb_boot.sh "$@"

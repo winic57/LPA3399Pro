@@ -1,0 +1,14 @@
+=== after_rescan ===
+2026-07-05T07:18:04,983313337+08:00
+--- upgrade_tool LD ---
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(1)
+DevNo=1	Vid=0x2207,Pid=0x1005,LocationID=301	Mode=Maskrom	SerialNo=2100bbe130c98ff3
+--- lsusb filtered ---
+Bus 003 Device 005: ID 2207:1005 Fuzhou Rockchip Electronics Company rk3xxx
+--- lspci -nn ---
+00:00.0 PCI bridge [0604]: Rockchip Electronics Co., Ltd RK3399 PCI Express Root Port [1d87:0100]
+--- lspci endpoint verbose ---
+--- npu_transfer_proxy devices ---
+List of ntb devices attached
