@@ -1,8 +1,46 @@
 diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
-index ee1822c..f2c6f39 100644
+index ee1822ca0..eba716c4c 100644
 --- a/drivers/pci/controller/pcie-rockchip-host.c
 +++ b/drivers/pci/controller/pcie-rockchip-host.c
-@@ -285,12 +285,21 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
+@@ -209,6 +209,7 @@ static int rockchip_pcie_rd_conf(struct pci_bus *bus, u32 devfn, int where,
+ 				 int size, u32 *val)
+ {
+ 	struct rockchip_pcie *rockchip = bus->sysdata;
++	u32 status;
+ 
+ 	if (!rockchip_pcie_valid_device(rockchip, bus, PCI_SLOT(devfn)))
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+@@ -216,6 +217,10 @@ static int rockchip_pcie_rd_conf(struct pci_bus *bus, u32 devfn, int where,
+ 	if (pci_is_root_bus(bus))
+ 		return rockchip_pcie_rd_own_conf(rockchip, where, size, val);
+ 
++	status = rockchip_pcie_read(rockchip, PCIE_CLIENT_BASIC_STATUS1);
++	if (!PCIE_LINK_UP(status))
++		return PCIBIOS_DEVICE_NOT_FOUND;
++
+ 	return rockchip_pcie_rd_other_conf(rockchip, bus, devfn, where, size,
+ 					   val);
+ }
+@@ -224,6 +229,7 @@ static int rockchip_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
+ 				 int where, int size, u32 val)
+ {
+ 	struct rockchip_pcie *rockchip = bus->sysdata;
++	u32 status;
+ 
+ 	if (!rockchip_pcie_valid_device(rockchip, bus, PCI_SLOT(devfn)))
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+@@ -231,6 +237,10 @@ static int rockchip_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
+ 	if (pci_is_root_bus(bus))
+ 		return rockchip_pcie_wr_own_conf(rockchip, where, size, val);
+ 
++	status = rockchip_pcie_read(rockchip, PCIE_CLIENT_BASIC_STATUS1);
++	if (!PCIE_LINK_UP(status))
++		return PCIBIOS_DEVICE_NOT_FOUND;
++
+ 	return rockchip_pcie_wr_other_conf(rockchip, bus, devfn, where, size,
+ 					   val);
+ }
+@@ -285,12 +295,21 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
  	struct device *dev = rockchip->dev;
  	int err, i = MAX_LANE_NUM;
  	u32 status;
@@ -25,11 +63,11 @@ index ee1822c..f2c6f39 100644
  
  	/* Fix the transmitted FTS count desired to exit from L0s. */
  	status = rockchip_pcie_read(rockchip, PCIE_CORE_CTRL_PLC1);
-@@ -331,6 +340,20 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
- 				 status, PCIE_LINK_UP(status), 20,
+@@ -325,7 +344,20 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
  				 500 * USEC_PER_MSEC);
  	if (err) {
  		dev_err(dev, "PCIe link training gen1 timeout!\n");
+-		goto err_power_off_phy;
 +		if (attempt_counter++ < 5) {
 +			dev_warn(dev, "Retrying PCIe link training (%d/5)...\n", attempt_counter);
 +			i = MAX_LANE_NUM;
@@ -38,18 +76,16 @@ index ee1822c..f2c6f39 100644
 +			i = MAX_LANE_NUM;
 +			while (i--)
 +				phy_exit(rockchip->phys[i]);
-+			i = MAX_LANE_NUM;
 +			msleep(200);
 +			goto err_retry_init;
 +		}
--		goto err_power_off_phy;
 +		dev_warn(dev, "Ignoring link training timeout to keep REFCLK running\n");
 +		link_is_up = false;
 +		err = 0;
  	}
  
  	if (rockchip->link_gen == 2) {
-@@ -377,12 +400,17 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
+@@ -355,12 +387,17 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
  	dev_dbg(dev, "current link width is x%d\n", status);
  
  	/* Power off unused lane(s) */
@@ -58,8 +94,6 @@ index ee1822c..f2c6f39 100644
 -		if (!(rockchip->lanes_map & BIT(i))) {
 -			dev_dbg(dev, "idling lane %d\n", i);
 -			phy_power_off(rockchip->phys[i]);
--		}
--	}
 +	if (link_is_up) {
 +		rockchip->lanes_map = rockchip_pcie_lane_map(rockchip);
 +		for (i = 0; i < MAX_LANE_NUM; i++) {
@@ -67,10 +101,18 @@ index ee1822c..f2c6f39 100644
 +				dev_dbg(dev, "idling lane %d\n", i);
 +				phy_power_off(rockchip->phys[i]);
 +			}
-+		}
+ 		}
 +	} else {
 +		dev_info(dev, "Link is down, keeping all lanes powered on\n");
 +		rockchip->lanes_map = GENMASK(MAX_LANE_NUM - 1, 0);
-+	}
+ 	}
  
  	rockchip_pcie_write(rockchip, PCI_VENDOR_ID_ROCKCHIP,
+@@ -387,6 +424,7 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
+ 	rockchip_pcie_write(rockchip, status, PCIE_RC_CONFIG_CR + PCI_EXP_DEVCTL);
+ 
+ 	return 0;
++
+ err_power_off_phy:
+ 	while (i--)
+ 		phy_power_off(rockchip->phys[i]);

@@ -330,6 +330,7 @@
 		resets = <0x08 0x82 0x08 0x83 0x08 0x84 0x08 0x85 0x08 0x86 0x08 0x81 0x08 0x80>;
 		reset-names = "core\0mgmt\0mgmt-sticky\0pipe\0pm\0pclk\0aclk";
 		status = "okay";
+		ep-gpios = <0x19 0x0c 0x00>;
 		num-lanes = <0x04>;
 		pinctrl-0 = <0x1a>;
 		pinctrl-names = "default";
@@ -853,6 +854,7 @@
 			device-wake-gpios = <0xbc 0x1a 0x00>;
 			enable-gpios = <0xbc 0x1c 0x00>;
 			compatible = "realtek,rtl8821cs-bt\0realtek,rtl8723bs-bt";
+			status = "disabled";
 		};
 	};
 
@@ -2607,14 +2609,6 @@
 			phandle = <0x3d>;
 		};
 
-		npu {
-
-			npu-ref-clk {
-				rockchip,pins = <0x00 0x02 0x01 0xb5>;
-				phandle = <0xf4>;
-			};
-		};
-
 		pcfg-pull-up {
 			bias-pull-up;
 			phandle = <0xb8>;
@@ -3281,11 +3275,11 @@
 		pcie {
 
 			pci-clkreqn-cpm {
-				rockchip,pins = <0x02 0x1a 0x02 0xb5>;
+				rockchip,pins = <0x02 0x1a 0x00 0xb5>;
 			};
 
 			pci-clkreqnb-cpm {
-				rockchip,pins = <0x02 0x1a 0x02 0xb5>;
+				rockchip,pins = <0x04 0x18 0x00 0xb5>;
 				phandle = <0x1a>;
 			};
 
@@ -3505,8 +3499,8 @@
 
 	sdio-pwrseq {
 		compatible = "mmc-pwrseq-simple";
-		clocks = <0xc3 0x01 0x08 0x08>;
-		clock-names = "ext_clock\0wifi_pmu";
+		clocks = <0xc3 0x01>;
+		clock-names = "ext_clock";
 		pinctrl-names = "default";
 		pinctrl-0 = <0xbb>;
 		reset-gpios = <0xbc 0x1b 0x01>;
@@ -3603,7 +3597,7 @@
 		regulator-boot-on;
 		gpio = <0x19 0x09 0x00>;
 		pinctrl-names = "default";
-		pinctrl-0 = <0xf2 0xf4>;
+		pinctrl-0 = <0xf2>;
 		regulator-name = "n4_pwren";
 		phandle = <0x1a1>;
 	};
