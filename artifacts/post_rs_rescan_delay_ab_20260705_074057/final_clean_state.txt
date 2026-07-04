@@ -1,0 +1,14 @@
+Warning: Permanently added '192.168.50.113' (ED25519) to the list of known hosts.
+=== state ===
+2026-07-05T07:48:24,040855564+08:00
+--- uptime ---
+ 07:48:24 up 0 min,  3 users,  load average: 1.98, 0.48, 0.16
+--- LD ---
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(0)
+--- lsusb filtered ---
+--- lspci -nn ---
+00:00.0 PCI bridge [0604]: Rockchip Electronics Co., Ltd RK3399 PCI Express Root Port [1d87:0100]
+--- service ---
+inactive

@@ -1,0 +1,14 @@
+=== pre ===
+2026-07-05T07:45:08,794422704+08:00
+--- uptime ---
+ 07:45:08 up 0 min,  3 users,  load average: 1.61, 0.44, 0.15
+--- upgrade_tool LD ---
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(0)
+--- lsusb filtered ---
+--- lspci -nn ---
+00:00.0 PCI bridge [0604]: Rockchip Electronics Co., Ltd RK3399 PCI Express Root Port [1d87:0100]
+--- lspci endpoint verbose ---
+--- npu_transfer_proxy devices ---
+List of ntb devices attached

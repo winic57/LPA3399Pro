@@ -18,8 +18,6 @@ POWER_INIT_FIRST=${POWER_INIT_FIRST:-1}
 POWER_FORCE_OFF_FIRST=${POWER_FORCE_OFF_FIRST:-0}
 WRITE_IMAGES_BEFORE_RS=${WRITE_IMAGES_BEFORE_RS:-0}
 POST_RS_WAIT_SEC=${POST_RS_WAIT_SEC:-8}
-POST_RS_PCIE_RESCAN=${POST_RS_PCIE_RESCAN:-0}
-POST_RS_PCIE_RESCAN_DELAY_SEC=${POST_RS_PCIE_RESCAN_DELAY_SEC:-0}
 RS_STRICT=${RS_STRICT:-0}
 PCIE_RESCAN_AFTER_POWER=${PCIE_RESCAN_AFTER_POWER:-0}
 PCIE_HOST_REBIND_AFTER_POWER=${PCIE_HOST_REBIND_AFTER_POWER:-0}
@@ -100,16 +98,6 @@ pcie_host_ab_after_power() {
   fi
 }
 
-pcie_host_ab_after_rs() {
-  if [ "$POST_RS_PCIE_RESCAN" = 1 ] && [ -w /sys/bus/pci/rescan ]; then
-    echo "== host PCIe rescan after rs =="
-    echo "POST_RS_PCIE_RESCAN_DELAY_SEC=$POST_RS_PCIE_RESCAN_DELAY_SEC"
-    sleep "$POST_RS_PCIE_RESCAN_DELAY_SEC"
-    echo 1 > /sys/bus/pci/rescan || true
-    sleep 3
-  fi
-}
-
 if [ "$CHECK_ONLY" = 1 ]; then
   run_check
   exit 0
@@ -155,8 +143,6 @@ echo "BOOT=$BOOT"
 echo "ADDRS: uboot=$UBOOT_ADDR trust=$TRUST_ADDR boot=$BOOT_ADDR"
 echo "WRITE_IMAGES_BEFORE_RS=$WRITE_IMAGES_BEFORE_RS"
 echo "POST_RS_WAIT_SEC=$POST_RS_WAIT_SEC"
-echo "POST_RS_PCIE_RESCAN=$POST_RS_PCIE_RESCAN"
-echo "POST_RS_PCIE_RESCAN_DELAY_SEC=$POST_RS_PCIE_RESCAN_DELAY_SEC"
 echo "RS_STRICT=$RS_STRICT"
 echo "PCIE_RESCAN_AFTER_POWER=$PCIE_RESCAN_AFTER_POWER"
 echo "PCIE_HOST_REBIND_AFTER_POWER=$PCIE_HOST_REBIND_AFTER_POWER"
@@ -198,7 +184,6 @@ echo "RS_RC=$RS_RC"
 
 echo "== wait for USB2 Loader disconnect and USB3 NTB gadget re-enumeration =="
 sleep "$POST_RS_WAIT_SEC"
-pcie_host_ab_after_rs
 
 if [ "$START_PROXY" = 1 ] && [ -x "$TRANSFER_PROXY" ]; then
   if ! pgrep -x npu_transfer_proxy >/dev/null 2>&1; then

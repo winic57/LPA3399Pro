@@ -1,0 +1,696 @@
+[Sun Jul  5 07:44:22 2026] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[Sun Jul  5 07:44:22 2026] Linux version 6.18.33 (root@ecac33479106) (aarch64-linux-gnu-gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, GNU ld (GNU Binutils for Ubuntu) 2.38) #1 SMP PREEMPT Sat Jul  4 04:15:32 UTC 2026
+[Sun Jul  5 07:44:22 2026] KASLR disabled due to lack of seed
+[Sun Jul  5 07:44:22 2026] Machine model: Radxa ROCK Pi N10
+[Sun Jul  5 07:44:22 2026] efi: UEFI not found.
+[Sun Jul  5 07:44:22 2026] OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+[Sun Jul  5 07:44:22 2026] NUMA: Faking a node at [mem 0x0000000000200000-0x00000000f7ffffff]
+[Sun Jul  5 07:44:22 2026] NODE_DATA(0) allocated [mem 0xf77f11c0-0xf77f383f]
+[Sun Jul  5 07:44:22 2026] Zone ranges:
+[Sun Jul  5 07:44:22 2026]   DMA      [mem 0x0000000000200000-0x00000000f7ffffff]
+[Sun Jul  5 07:44:22 2026]   DMA32    empty
+[Sun Jul  5 07:44:22 2026]   Normal   empty
+[Sun Jul  5 07:44:22 2026] Movable zone start for each node
+[Sun Jul  5 07:44:22 2026] Early memory node ranges
+[Sun Jul  5 07:44:22 2026]   node   0: [mem 0x0000000000200000-0x00000000083fffff]
+[Sun Jul  5 07:44:22 2026]   node   0: [mem 0x000000000a200000-0x00000000f7ffffff]
+[Sun Jul  5 07:44:22 2026] Initmem setup node 0 [mem 0x0000000000200000-0x00000000f7ffffff]
+[Sun Jul  5 07:44:22 2026] On node 0, zone DMA: 512 pages in unavailable ranges
+[Sun Jul  5 07:44:22 2026] On node 0, zone DMA: 7680 pages in unavailable ranges
+[Sun Jul  5 07:44:22 2026] cma: Reserved 32 MiB at 0x00000000f1800000
+[Sun Jul  5 07:44:22 2026] psci: probing for conduit method from DT.
+[Sun Jul  5 07:44:22 2026] psci: PSCIv1.0 detected in firmware.
+[Sun Jul  5 07:44:22 2026] psci: Using standard PSCI v0.2 function IDs
+[Sun Jul  5 07:44:22 2026] psci: Trusted OS migration not required
+[Sun Jul  5 07:44:22 2026] psci: SMC Calling Convention v1.0
+[Sun Jul  5 07:44:22 2026] percpu: Embedded 25 pages/cpu s63192 r8192 d31016 u102400
+[Sun Jul  5 07:44:22 2026] pcpu-alloc: s63192 r8192 d31016 u102400 alloc=25*4096
+[Sun Jul  5 07:44:22 2026] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 [0] 4 [0] 5 
+[Sun Jul  5 07:44:22 2026] Detected VIPT I-cache on CPU0
+[Sun Jul  5 07:44:22 2026] CPU features: detected: GICv3 CPU interface
+[Sun Jul  5 07:44:22 2026] CPU features: detected: ARM erratum 845719
+[Sun Jul  5 07:44:22 2026] alternatives: applying boot alternatives
+[Sun Jul  5 07:44:22 2026] Kernel command line: root=PARTUUID=61ec8aeb-3d1a-48fa-a9da-54d744ed8bdf rootflags=data=writeback rw rootwait rootdelay=10 rootfstype=ext4 console=ttyS2,1500000 console=tty1 panic=0 usbcore.autosuspend=-1 initcall_blacklist=psci_checker printk.devkmsg=on log_buf_len=16M maxcpus=4 systemd.default_timeout_start_sec=20 plymouth.enable=0 net.ifnames=0 clk_ignore_unused
+[Sun Jul  5 07:44:22 2026] blacklisting initcall psci_checker
+[Sun Jul  5 07:44:22 2026] printk: log buffer data + meta data: 16777216 + 58720256 = 75497472 bytes
+[Sun Jul  5 07:44:22 2026] printk: early log buf free: 128800(98%)
+[Sun Jul  5 07:44:22 2026] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+[Sun Jul  5 07:44:22 2026] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[Sun Jul  5 07:44:22 2026] software IO TLB: SWIOTLB bounce buffer size adjusted to 3MB
+[Sun Jul  5 07:44:22 2026] software IO TLB: area num 8.
+[Sun Jul  5 07:44:22 2026] software IO TLB: mapped [mem 0x00000000ec600000-0x00000000eca00000] (4MB)
+[Sun Jul  5 07:44:22 2026] Fallback order for Node 0: 0 
+[Sun Jul  5 07:44:22 2026] Built 1 zonelists, mobility grouping on.  Total pages: 1007616
+[Sun Jul  5 07:44:22 2026] Policy zone: DMA
+[Sun Jul  5 07:44:22 2026] mem auto-init: stack:off, heap alloc:off, heap free:off
+[Sun Jul  5 07:44:22 2026] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=6, Nodes=1
+[Sun Jul  5 07:44:22 2026] rcu: Preemptible hierarchical RCU implementation.
+[Sun Jul  5 07:44:22 2026] rcu: 	RCU event tracing is enabled.
+[Sun Jul  5 07:44:22 2026] rcu: 	RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=6.
+[Sun Jul  5 07:44:22 2026] 	Trampoline variant of Tasks RCU enabled.
+[Sun Jul  5 07:44:22 2026] 	Tracing variant of Tasks RCU enabled.
+[Sun Jul  5 07:44:22 2026] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[Sun Jul  5 07:44:22 2026] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=6
+[Sun Jul  5 07:44:22 2026] RCU Tasks: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=6.
+[Sun Jul  5 07:44:22 2026] RCU Tasks Trace: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=6.
+[Sun Jul  5 07:44:22 2026] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[Sun Jul  5 07:44:22 2026] GICv3: GIC: Using split EOI/Deactivate mode
+[Sun Jul  5 07:44:22 2026] GICv3: 256 SPIs implemented
+[Sun Jul  5 07:44:22 2026] GICv3: 0 Extended SPIs implemented
+[Sun Jul  5 07:44:22 2026] Root IRQ handler: gic_handle_irq
+[Sun Jul  5 07:44:22 2026] GICv3: GICv3 features: 16 PPIs
+[Sun Jul  5 07:44:22 2026] GICv3: GICD_CTLR.DS=0, SCR_EL3.FIQ=1
+[Sun Jul  5 07:44:22 2026] GICv3: CPU0: found redistributor 0 region 0:0x00000000fef00000
+[Sun Jul  5 07:44:22 2026] ITS [mem 0xfee20000-0xfee3ffff]
+[Sun Jul  5 07:44:22 2026] ITS@0x00000000fee20000: allocated 65536 Devices @3480000 (flat, esz 8, psz 64K, shr 0)
+[Sun Jul  5 07:44:22 2026] ITS: using cache flushing for cmd queue
+[Sun Jul  5 07:44:22 2026] GICv3: using LPI property table @0x0000000003460000
+[Sun Jul  5 07:44:22 2026] GIC: using cache flushing for LPI property table
+[Sun Jul  5 07:44:22 2026] GICv3: CPU0: using allocated LPI pending table @0x0000000003470000
+[Sun Jul  5 07:44:22 2026] GICv3: GIC: PPI partition interrupt-partition-0[0] { /cpus/cpu@0[0] /cpus/cpu@1[1] /cpus/cpu@2[2] /cpus/cpu@3[3] }
+[Sun Jul  5 07:44:22 2026] GICv3: GIC: PPI partition interrupt-partition-1[1] { /cpus/cpu@100[4] /cpus/cpu@101[5] }
+[Sun Jul  5 07:44:22 2026] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[Sun Jul  5 07:44:22 2026] arch_timer: cp15 timer running at 24.00MHz (phys).
+[Sun Jul  5 07:44:22 2026] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
+[Sun Jul  5 07:44:22 2026] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
+[Sun Jul  5 07:44:22 2026] Console: colour dummy device 80x25
+[Sun Jul  5 07:44:22 2026] printk: legacy console [tty1] enabled
+[Sun Jul  5 07:44:22 2026] Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=96000)
+[Sun Jul  5 07:44:22 2026] pid_max: default: 32768 minimum: 301
+[Sun Jul  5 07:44:22 2026] LSM: initializing lsm=capability
+[Sun Jul  5 07:44:22 2026] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[Sun Jul  5 07:44:22 2026] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[Sun Jul  5 07:44:22 2026] rcu: Hierarchical SRCU implementation.
+[Sun Jul  5 07:44:22 2026] rcu: 	Max phase no-delay instances is 1000.
+[Sun Jul  5 07:44:22 2026] Timer migration: 1 hierarchy levels; 8 children per group; 1 crossnode level
+[Sun Jul  5 07:44:22 2026] fsl-mc MSI: msi-controller@fee20000 domain created
+[Sun Jul  5 07:44:22 2026] EFI services will not be available.
+[Sun Jul  5 07:44:22 2026] smp: Bringing up secondary CPUs ...
+[Sun Jul  5 07:44:22 2026] Detected VIPT I-cache on CPU1
+[Sun Jul  5 07:44:22 2026] GICv3: CPU1: found redistributor 1 region 0:0x00000000fef20000
+[Sun Jul  5 07:44:22 2026] GICv3: CPU1: using allocated LPI pending table @0x0000000003500000
+[Sun Jul  5 07:44:22 2026] CPU1: Booted secondary processor 0x0000000001 [0x410fd034]
+[Sun Jul  5 07:44:22 2026] Detected VIPT I-cache on CPU2
+[Sun Jul  5 07:44:22 2026] GICv3: CPU2: found redistributor 2 region 0:0x00000000fef40000
+[Sun Jul  5 07:44:22 2026] GICv3: CPU2: using allocated LPI pending table @0x0000000003510000
+[Sun Jul  5 07:44:22 2026] CPU2: Booted secondary processor 0x0000000002 [0x410fd034]
+[Sun Jul  5 07:44:22 2026] Detected VIPT I-cache on CPU3
+[Sun Jul  5 07:44:22 2026] GICv3: CPU3: found redistributor 3 region 0:0x00000000fef60000
+[Sun Jul  5 07:44:22 2026] GICv3: CPU3: using allocated LPI pending table @0x0000000003520000
+[Sun Jul  5 07:44:22 2026] CPU3: Booted secondary processor 0x0000000003 [0x410fd034]
+[Sun Jul  5 07:44:22 2026] smp: Brought up 1 node, 4 CPUs
+[Sun Jul  5 07:44:22 2026] SMP: Total of 4 processors activated.
+[Sun Jul  5 07:44:22 2026] CPU: All CPU(s) started at EL2
+[Sun Jul  5 07:44:22 2026] CPU features: detected: 32-bit EL0 Support
+[Sun Jul  5 07:44:22 2026] CPU features: detected: 32-bit EL1 Support
+[Sun Jul  5 07:44:22 2026] CPU features: detected: CRC32 instructions
+[Sun Jul  5 07:44:22 2026] CPU features: detected: PMUv3
+[Sun Jul  5 07:44:22 2026] alternatives: applying system-wide alternatives
+[Sun Jul  5 07:44:22 2026] Memory: 3785724K/4030464K available (18240K kernel code, 5450K rwdata, 13044K rodata, 11712K init, 682K bss, 205852K reserved, 32768K cma-reserved)
+[Sun Jul  5 07:44:22 2026] devtmpfs: initialized
+[Sun Jul  5 07:44:22 2026] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[Sun Jul  5 07:44:22 2026] posixtimers hash table entries: 4096 (order: 4, 65536 bytes, linear)
+[Sun Jul  5 07:44:22 2026] futex hash table entries: 2048 (131072 bytes on 1 NUMA nodes, total 128 KiB, linear).
+[Sun Jul  5 07:44:22 2026] 20432 pages in range for non-PLT usage
+[Sun Jul  5 07:44:22 2026] 511952 pages in range for PLT usage
+[Sun Jul  5 07:44:22 2026] pinctrl core: initialized pinctrl subsystem
+[Sun Jul  5 07:44:22 2026] DMI not present or invalid.
+[Sun Jul  5 07:44:22 2026] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[Sun Jul  5 07:44:22 2026] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[Sun Jul  5 07:44:22 2026] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[Sun Jul  5 07:44:22 2026] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[Sun Jul  5 07:44:22 2026] audit: initializing netlink subsys (disabled)
+[Sun Jul  5 07:44:22 2026] audit: type=2000 audit(0.052:1): state=initialized audit_enabled=0 res=1
+[Sun Jul  5 07:44:22 2026] thermal_sys: Registered thermal governor 'step_wise'
+[Sun Jul  5 07:44:22 2026] thermal_sys: Registered thermal governor 'power_allocator'
+[Sun Jul  5 07:44:22 2026] cpuidle: using governor menu
+[Sun Jul  5 07:44:22 2026] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[Sun Jul  5 07:44:22 2026] ASID allocator initialised with 65536 entries
+[Sun Jul  5 07:44:22 2026] Serial: AMBA PL011 UART driver
+[Sun Jul  5 07:44:22 2026] /pcie@f8000000: Fixed dependency cycle(s) with /pcie@f8000000/interrupt-controller
+[Sun Jul  5 07:44:23 2026] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[Sun Jul  5 07:44:23 2026] /mmc@fe330000: Fixed dependency cycle(s) with /syscon@ff770000/phy@f780
+[Sun Jul  5 07:44:23 2026] /syscon@ff770000/phy@f780: Fixed dependency cycle(s) with /mmc@fe330000
+[Sun Jul  5 07:44:23 2026] rockchip-gpio ff720000.gpio: probed /pinctrl/gpio@ff720000
+[Sun Jul  5 07:44:23 2026] rockchip-gpio ff730000.gpio: probed /pinctrl/gpio@ff730000
+[Sun Jul  5 07:44:23 2026] rockchip-gpio ff780000.gpio: probed /pinctrl/gpio@ff780000
+[Sun Jul  5 07:44:23 2026] rockchip-gpio ff788000.gpio: probed /pinctrl/gpio@ff788000
+[Sun Jul  5 07:44:23 2026] rockchip-gpio ff790000.gpio: probed /pinctrl/gpio@ff790000
+[Sun Jul  5 07:44:23 2026] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[Sun Jul  5 07:44:23 2026] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[Sun Jul  5 07:44:23 2026] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[Sun Jul  5 07:44:23 2026] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[Sun Jul  5 07:44:23 2026] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[Sun Jul  5 07:44:23 2026] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[Sun Jul  5 07:44:23 2026] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[Sun Jul  5 07:44:23 2026] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[Sun Jul  5 07:44:23 2026] ACPI: Interpreter disabled.
+[Sun Jul  5 07:44:23 2026] iommu: Default domain type: Translated
+[Sun Jul  5 07:44:23 2026] iommu: DMA domain TLB invalidation policy: strict mode
+[Sun Jul  5 07:44:23 2026] SCSI subsystem initialized
+[Sun Jul  5 07:44:23 2026] libata version 3.00 loaded.
+[Sun Jul  5 07:44:23 2026] usbcore: registered new interface driver usbfs
+[Sun Jul  5 07:44:23 2026] usbcore: registered new interface driver hub
+[Sun Jul  5 07:44:23 2026] usbcore: registered new device driver usb
+[Sun Jul  5 07:44:23 2026] pps_core: LinuxPPS API ver. 1 registered
+[Sun Jul  5 07:44:23 2026] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[Sun Jul  5 07:44:23 2026] PTP clock support registered
+[Sun Jul  5 07:44:23 2026] EDAC MC: Ver: 3.0.0
+[Sun Jul  5 07:44:23 2026] scmi_core: SCMI protocol bus registered
+[Sun Jul  5 07:44:23 2026] FPGA manager framework
+[Sun Jul  5 07:44:23 2026] vgaarb: loaded
+[Sun Jul  5 07:44:23 2026] clocksource: Switched to clocksource arch_sys_counter
+[Sun Jul  5 07:44:23 2026] VFS: Disk quotas dquot_6.6.0
+[Sun Jul  5 07:44:23 2026] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[Sun Jul  5 07:44:23 2026] pnp: PnP ACPI: disabled
+[Sun Jul  5 07:44:23 2026] NET: Registered PF_INET protocol family
+[Sun Jul  5 07:44:23 2026] IP idents hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[Sun Jul  5 07:44:23 2026] tcp_listen_portaddr_hash hash table entries: 2048 (order: 3, 32768 bytes, linear)
+[Sun Jul  5 07:44:23 2026] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[Sun Jul  5 07:44:23 2026] TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[Sun Jul  5 07:44:23 2026] TCP bind hash table entries: 32768 (order: 8, 1048576 bytes, linear)
+[Sun Jul  5 07:44:23 2026] TCP: Hash tables configured (established 32768 bind 32768)
+[Sun Jul  5 07:44:23 2026] UDP hash table entries: 2048 (order: 5, 131072 bytes, linear)
+[Sun Jul  5 07:44:23 2026] UDP-Lite hash table entries: 2048 (order: 5, 131072 bytes, linear)
+[Sun Jul  5 07:44:23 2026] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[Sun Jul  5 07:44:23 2026] RPC: Registered named UNIX socket transport module.
+[Sun Jul  5 07:44:23 2026] RPC: Registered udp transport module.
+[Sun Jul  5 07:44:23 2026] RPC: Registered tcp transport module.
+[Sun Jul  5 07:44:23 2026] RPC: Registered tcp-with-tls transport module.
+[Sun Jul  5 07:44:23 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Sun Jul  5 07:44:23 2026] PCI: CLS 0 bytes, default 64
+[Sun Jul  5 07:44:23 2026] kvm [1]: nv: 568 coarse grained trap handlers
+[Sun Jul  5 07:44:23 2026] kvm [1]: IPA Size Limit: 40 bits
+[Sun Jul  5 07:44:23 2026] kvm [1]: vgic-v2@fff20000
+[Sun Jul  5 07:44:23 2026] kvm [1]: GIC system register CPU interface enabled
+[Sun Jul  5 07:44:23 2026] kvm [1]: vgic interrupt IRQ9
+[Sun Jul  5 07:44:23 2026] kvm [1]: Hyp nVHE mode initialized successfully
+[Sun Jul  5 07:44:23 2026] Initialise system trusted keyrings
+[Sun Jul  5 07:44:23 2026] workingset: timestamp_bits=42 max_order=20 bucket_order=0
+[Sun Jul  5 07:44:23 2026] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[Sun Jul  5 07:44:23 2026] NFS: Registering the id_resolver key type
+[Sun Jul  5 07:44:23 2026] Key type id_resolver registered
+[Sun Jul  5 07:44:23 2026] Key type id_legacy registered
+[Sun Jul  5 07:44:23 2026] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[Sun Jul  5 07:44:23 2026] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[Sun Jul  5 07:44:23 2026] 9p: Installing v9fs 9p2000 file system support
+[Sun Jul  5 07:44:23 2026] Key type asymmetric registered
+[Sun Jul  5 07:44:23 2026] Asymmetric key parser 'x509' registered
+[Sun Jul  5 07:44:23 2026] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+[Sun Jul  5 07:44:23 2026] io scheduler mq-deadline registered
+[Sun Jul  5 07:44:23 2026] io scheduler kyber registered
+[Sun Jul  5 07:44:23 2026] io scheduler bfq registered
+[Sun Jul  5 07:44:23 2026] ledtrig-cpu: registered to indicate activity on CPUs
+[Sun Jul  5 07:44:23 2026] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[Sun Jul  5 07:44:23 2026] dma-pl330 ff6d0000.dma-controller: 	DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[Sun Jul  5 07:44:23 2026] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[Sun Jul  5 07:44:23 2026] dma-pl330 ff6e0000.dma-controller: 	DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[Sun Jul  5 07:44:23 2026] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[Sun Jul  5 07:44:23 2026] ff180000.serial: ttyS0 at MMIO 0xff180000 (irq = 24, base_baud = 1500000) is a 16550A
+[Sun Jul  5 07:44:23 2026] ff1a0000.serial: ttyS2 at MMIO 0xff1a0000 (irq = 25, base_baud = 1500000) is a 16550A
+[Sun Jul  5 07:44:23 2026] printk: legacy console [ttyS2] enabled
+[Sun Jul  5 07:44:23 2026] msm_serial: driver initialized
+[Sun Jul  5 07:44:23 2026] SuperH (H)SCI(F) driver initialized
+[Sun Jul  5 07:44:23 2026] STM32 USART driver initialized
+[Sun Jul  5 07:44:23 2026] platform ff650000.video-codec: Adding to iommu group 0
+[Sun Jul  5 07:44:23 2026] platform ff660000.video-codec: Adding to iommu group 1
+[Sun Jul  5 07:44:23 2026] loop: module loaded
+[Sun Jul  5 07:44:23 2026] megasas: 07.734.00.00-rc1
+[Sun Jul  5 07:44:23 2026] tun: Universal TUN/TAP device driver, 1.6
+[Sun Jul  5 07:44:23 2026] thunder_xcv, ver 1.0
+[Sun Jul  5 07:44:23 2026] thunder_bgx, ver 1.0
+[Sun Jul  5 07:44:23 2026] nicpf, ver 1.0
+[Sun Jul  5 07:44:23 2026] e1000: Intel(R) PRO/1000 Network Driver
+[Sun Jul  5 07:44:23 2026] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[Sun Jul  5 07:44:23 2026] e1000e: Intel(R) PRO/1000 Network Driver
+[Sun Jul  5 07:44:23 2026] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[Sun Jul  5 07:44:23 2026] igb: Intel(R) Gigabit Ethernet Network Driver
+[Sun Jul  5 07:44:23 2026] igb: Copyright (c) 2007-2014 Intel Corporation.
+[Sun Jul  5 07:44:23 2026] igbvf: Intel(R) Gigabit Virtual Function Network Driver
+[Sun Jul  5 07:44:23 2026] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[Sun Jul  5 07:44:23 2026] sky2: driver version 1.30
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: IRQ eth_wake_irq not found
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: IRQ sfty not found
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: PTP uses main clock
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: clock input or output? (output).
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: TX delay(0x21).
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: RX delay(0x15).
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: integrated PHY? (no).
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: rk3399pro test workaround: forcing clock_input=true for external RGMII PHY
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: powerup start: phy_iface=9 clock_input=1 integrated_phy=0 tx=0x21 rx=0x15
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: init for RGMII
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: rk3399 rgmii applied: GRF_SOC_CON5=0x00000208 GRF_SOC_CON6=0x000095a1 tx=0x21 rx=0x15
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: powerup done: phy_iface=9 clock_input=1 integrated_phy=0
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: User ID: 0x10, Synopsys ID: 0x35
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: 	DWMAC1000
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: DMA HW capability register supported
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: Active PHY interface: GMII/MII (0)
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: RX Checksum Offload Engine supported
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: COE Type 2
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: TX Checksum insertion supported
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: Wake-Up On Lan supported
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: Normal descriptors
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: Ring mode enabled
+[Sun Jul  5 07:44:23 2026] rk_gmac-dwmac fe300000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[Sun Jul  5 07:44:23 2026] VFIO - User Level meta-driver version: 0.3
+[Sun Jul  5 07:44:23 2026] usbcore: registered new interface driver usb-storage
+[Sun Jul  5 07:44:23 2026] i2c_dev: i2c /dev entries driver
+[Sun Jul  5 07:44:23 2026] /i2c@ff3c0000/pmic@20: Fixed dependency cycle(s) with /i2c@ff3c0000/pmic@20/regulators/DCDC_REG4
+[Sun Jul  5 07:44:23 2026] /i2c@ff3c0000/pmic@20: Fixed dependency cycle(s) with /i2c@ff3c0000/pmic@20/regulators/DCDC_REG5
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] mmc0: CQHCI version 5.10
+[Sun Jul  5 07:44:23 2026] usbcore: registered new interface driver usbhid
+[Sun Jul  5 07:44:23 2026] usbhid: USB HID core driver
+[Sun Jul  5 07:44:23 2026] hw perfevents: enabled with armv8_cortex_a53 PMU driver, 7 (0,8000003f) counters available
+[Sun Jul  5 07:44:23 2026] armv8-pmu pmu_a72: hw perfevents: failed to probe PMU!
+[Sun Jul  5 07:44:23 2026] mmc0: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[Sun Jul  5 07:44:23 2026] NET: Registered PF_PACKET protocol family
+[Sun Jul  5 07:44:23 2026] 9pnet: Installing 9P2000 support
+[Sun Jul  5 07:44:23 2026] Key type dns_resolver registered
+[Sun Jul  5 07:44:23 2026] registered taskstats version 1
+[Sun Jul  5 07:44:23 2026] Loading compiled-in X.509 certificates
+[Sun Jul  5 07:44:23 2026] Demotion targets for Node 0: null
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:phy@f780.0: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] mmc0: Command Queue Engine enabled
+[Sun Jul  5 07:44:23 2026] mmc0: new HS400 Enhanced strobe MMC card at address 0001
+[Sun Jul  5 07:44:23 2026] mmcblk0: mmc0:0001 DF4016 14.7 GiB
+[Sun Jul  5 07:44:23 2026]  mmcblk0: p1 p2 p3 p4 p5 p6
+[Sun Jul  5 07:44:23 2026] mmcblk0boot0: mmc0:0001 DF4016 4.00 MiB
+[Sun Jul  5 07:44:23 2026] mmcblk0boot1: mmc0:0001 DF4016 4.00 MiB
+[Sun Jul  5 07:44:23 2026] mmcblk0rpmb: mmc0:0001 DF4016 4.00 MiB, chardev (511:0)
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:usb2phy@e450.10: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:usb2phy@e450.10: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[Sun Jul  5 07:44:23 2026] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 1
+[Sun Jul  5 07:44:23 2026] xhci-hcd xhci-hcd.0.auto: hcc params 0x0220fe64 hci version 0x110 quirks 0x0000808002000010
+[Sun Jul  5 07:44:23 2026] xhci-hcd xhci-hcd.0.auto: irq 45, io mem 0xfe800000
+[Sun Jul  5 07:44:23 2026] xhci-hcd xhci-hcd.0.auto: xHCI Host Controller
+[Sun Jul  5 07:44:23 2026] xhci-hcd xhci-hcd.0.auto: new USB bus registered, assigned bus number 2
+[Sun Jul  5 07:44:23 2026] xhci-hcd xhci-hcd.0.auto: Host supports USB 3.0 SuperSpeed
+[Sun Jul  5 07:44:23 2026] hub 1-0:1.0: USB hub found
+[Sun Jul  5 07:44:23 2026] hub 1-0:1.0: 1 port detected
+[Sun Jul  5 07:44:23 2026] usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:usb2phy@e450.9: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] hub 2-0:1.0: USB hub found
+[Sun Jul  5 07:44:23 2026] hub 2-0:1.0: 1 port detected
+[Sun Jul  5 07:44:23 2026] ehci-platform fe380000.usb: EHCI Host Controller
+[Sun Jul  5 07:44:23 2026] ehci-platform fe380000.usb: new USB bus registered, assigned bus number 3
+[Sun Jul  5 07:44:23 2026] ehci-platform fe380000.usb: irq 46, io mem 0xfe380000
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:usb2phy@e450.9: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] ohci-platform fe3a0000.usb: Generic Platform OHCI controller
+[Sun Jul  5 07:44:23 2026] ohci-platform fe3a0000.usb: new USB bus registered, assigned bus number 4
+[Sun Jul  5 07:44:23 2026] ohci-platform fe3a0000.usb: irq 47, io mem 0xfe3a0000
+[Sun Jul  5 07:44:23 2026] ehci-platform fe380000.usb: USB 2.0 started, EHCI 1.00
+[Sun Jul  5 07:44:23 2026] hub 3-0:1.0: USB hub found
+[Sun Jul  5 07:44:23 2026] hub 3-0:1.0: 1 port detected
+[Sun Jul  5 07:44:23 2026] vcc_buck5: Bringing 3300000uV into 2200000-2200000uV
+[Sun Jul  5 07:44:23 2026] vcca_1v8: Bringing 1800000uV into 1850000-1850000uV
+[Sun Jul  5 07:44:23 2026] vdd1v5_dvp: Bringing 1800000uV into 1500000-1500000uV
+[Sun Jul  5 07:44:23 2026] OF: /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG1: Read of boolean property 'regulator-boot-on' with a value.
+[Sun Jul  5 07:44:23 2026] OF: /i2c@ff3c0000/pmic@20/regulators/SWITCH_REG1: Read of boolean property 'regulator-always-on' with a value.
+[Sun Jul  5 07:44:23 2026] hub 4-0:1.0: USB hub found
+[Sun Jul  5 07:44:23 2026] hub 4-0:1.0: 1 port detected
+[Sun Jul  5 07:44:23 2026] rk808-rtc rk808-rtc.4.auto: registered as rtc0
+[Sun Jul  5 07:44:23 2026] rk808-rtc rk808-rtc.4.auto: setting system clock to 2026-07-04T23:44:23 UTC (1783208663)
+[Sun Jul  5 07:44:23 2026] cpu cpu0: EM: created perf domain
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe320000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe320000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe320000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe320000.mmc: DW MMC controller at irq 73,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe320000.mmc: Got CD GPIO
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:23 2026] rockchip-pcie f8000000.pcie: host bridge /pcie@f8000000 ranges:
+[Sun Jul  5 07:44:23 2026] rockchip-pcie f8000000.pcie:      MEM 0x00fa000000..0x00fbdfffff -> 0x00fa000000
+[Sun Jul  5 07:44:23 2026] rockchip-pcie f8000000.pcie:       IO 0x00fbe00000..0x00fbefffff -> 0x00fbe00000
+[Sun Jul  5 07:44:23 2026] rockchip-pcie f8000000.pcie: no vpcie12v regulator found
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:23 2026] mmc_host mmc1: Bus speed = 400000Hz (req 400000Hz, actual 400000HZ div = 0)
+[Sun Jul  5 07:44:24 2026] mmc_host mmc1: Bus speed = 50000000Hz (req 50000000Hz, actual 50000000HZ div = 0)
+[Sun Jul  5 07:44:24 2026] mmc1: new high speed SDHC card at address 0001
+[Sun Jul  5 07:44:24 2026] mmcblk1: mmc1:0001 SD16G 14.4 GiB
+[Sun Jul  5 07:44:24 2026]  mmcblk1: p1 p2
+[Sun Jul  5 07:44:24 2026] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[Sun Jul  5 07:44:24 2026] rockchip-pcie f8000000.pcie: Retrying PCIe link training (1/5)...
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:24 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[Sun Jul  5 07:44:25 2026] rockchip-pcie f8000000.pcie: Retrying PCIe link training (2/5)...
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:25 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[Sun Jul  5 07:44:26 2026] rockchip-pcie f8000000.pcie: Retrying PCIe link training (3/5)...
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:26 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[Sun Jul  5 07:44:27 2026] rockchip-pcie f8000000.pcie: Retrying PCIe link training (4/5)...
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:27 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[Sun Jul  5 07:44:28 2026] rockchip-pcie f8000000.pcie: Retrying PCIe link training (5/5)...
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.1: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.2: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.3: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:28 2026] phy phy-ff770000.syscon:pcie-phy.4: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:29 2026] rockchip-pcie f8000000.pcie: PCIe link training gen1 timeout!
+[Sun Jul  5 07:44:29 2026] rockchip-pcie f8000000.pcie: Ignoring link training timeout to keep REFCLK running
+[Sun Jul  5 07:44:29 2026] rockchip-pcie f8000000.pcie: Link is down, keeping all lanes powered on
+[Sun Jul  5 07:44:29 2026] rockchip-pcie f8000000.pcie: PCI host bridge to bus 0000:00
+[Sun Jul  5 07:44:29 2026] pci_bus 0000:00: root bus resource [bus 00-1f]
+[Sun Jul  5 07:44:29 2026] pci_bus 0000:00: root bus resource [mem 0xfa000000-0xfbdfffff]
+[Sun Jul  5 07:44:29 2026] pci_bus 0000:00: root bus resource [io  0x0000-0xfffff] (bus address [0xfbe00000-0xfbefffff])
+[Sun Jul  5 07:44:29 2026] pci 0000:00:00.0: [1d87:0100] type 01 class 0x060400 PCIe Root Port
+[Sun Jul  5 07:44:29 2026] pci 0000:00:00.0: PCI bridge to [bus 00]
+[Sun Jul  5 07:44:29 2026] pci 0000:00:00.0:   bridge window [mem 0x00000000-0x000fffff]
+[Sun Jul  5 07:44:29 2026] pci 0000:00:00.0: supports D1
+[Sun Jul  5 07:44:29 2026] pci 0000:00:00.0: PME# supported from D0 D1 D3hot
+[Sun Jul  5 07:44:29 2026] pci 0000:00:00.0: bridge configuration invalid ([bus 00-00]), reconfiguring
+[Sun Jul  5 07:44:29 2026] pci_bus 0000:01: busn_res: [bus 01-1f] end is updated to 01
+[Sun Jul  5 07:44:29 2026] pci 0000:00:00.0: PCI bridge to [bus 01]
+[Sun Jul  5 07:44:29 2026] pci_bus 0000:00: resource 4 [mem 0xfa000000-0xfbdfffff]
+[Sun Jul  5 07:44:29 2026] pci_bus 0000:00: resource 5 [io  0x0000-0xfffff]
+[Sun Jul  5 07:44:29 2026] pcieport 0000:00:00.0: PME: Signaling with IRQ 80
+[Sun Jul  5 07:44:29 2026] pcieport 0000:00:00.0: AER: enabled with IRQ 80
+[Sun Jul  5 07:44:29 2026] phy phy-ff770000.syscon:usb2phy@e460.12: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:29 2026] phy phy-ff770000.syscon:usb2phy@e460.12: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:29 2026] xhci-hcd xhci-hcd.8.auto: xHCI Host Controller
+[Sun Jul  5 07:44:29 2026] xhci-hcd xhci-hcd.8.auto: new USB bus registered, assigned bus number 5
+[Sun Jul  5 07:44:29 2026] xhci-hcd xhci-hcd.8.auto: hcc params 0x0220fe64 hci version 0x110 quirks 0x0000808002000010
+[Sun Jul  5 07:44:29 2026] xhci-hcd xhci-hcd.8.auto: irq 81, io mem 0xfe900000
+[Sun Jul  5 07:44:29 2026] xhci-hcd xhci-hcd.8.auto: xHCI Host Controller
+[Sun Jul  5 07:44:29 2026] xhci-hcd xhci-hcd.8.auto: new USB bus registered, assigned bus number 6
+[Sun Jul  5 07:44:29 2026] xhci-hcd xhci-hcd.8.auto: Host supports USB 3.0 SuperSpeed
+[Sun Jul  5 07:44:29 2026] hub 5-0:1.0: USB hub found
+[Sun Jul  5 07:44:29 2026] hub 5-0:1.0: 1 port detected
+[Sun Jul  5 07:44:29 2026] usb usb6: We don't know the algorithms for LPM for this host, disabling LPM.
+[Sun Jul  5 07:44:29 2026] hub 6-0:1.0: USB hub found
+[Sun Jul  5 07:44:29 2026] hub 6-0:1.0: 1 port detected
+[Sun Jul  5 07:44:29 2026] phy phy-ff770000.syscon:usb2phy@e460.11: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:29 2026] ehci-platform fe3c0000.usb: EHCI Host Controller
+[Sun Jul  5 07:44:29 2026] phy phy-ff770000.syscon:usb2phy@e460.11: Runtime PM usage count underflow!
+[Sun Jul  5 07:44:29 2026] ehci-platform fe3c0000.usb: new USB bus registered, assigned bus number 7
+[Sun Jul  5 07:44:29 2026] ohci-platform fe3e0000.usb: Generic Platform OHCI controller
+[Sun Jul  5 07:44:29 2026] ehci-platform fe3c0000.usb: irq 82, io mem 0xfe3c0000
+[Sun Jul  5 07:44:29 2026] ohci-platform fe3e0000.usb: new USB bus registered, assigned bus number 8
+[Sun Jul  5 07:44:29 2026] ohci-platform fe3e0000.usb: irq 83, io mem 0xfe3e0000
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:29 2026] clk: Not disabling unused clocks
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:29 2026] PM: genpd: Disabling unused power domains
+[Sun Jul  5 07:44:29 2026] ehci-platform fe3c0000.usb: USB 2.0 started, EHCI 1.00
+[Sun Jul  5 07:44:29 2026] check access for rdinit=/init failed: -2, ignoring
+[Sun Jul  5 07:44:29 2026] Waiting 10 sec before mounting root device...
+[Sun Jul  5 07:44:29 2026] hub 7-0:1.0: USB hub found
+[Sun Jul  5 07:44:29 2026] hub 7-0:1.0: 1 port detected
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:29 2026] hub 8-0:1.0: USB hub found
+[Sun Jul  5 07:44:29 2026] hub 8-0:1.0: 1 port detected
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:29 2026] usb 7-1: new high-speed USB device number 2 using ehci-platform
+[Sun Jul  5 07:44:29 2026] hub 7-1:1.0: USB hub found
+[Sun Jul  5 07:44:29 2026] hub 7-1:1.0: 4 ports detected
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:29 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:39 2026] platform sdio-pwrseq: deferred probe pending: pwrseq_simple: reset control not ready
+[Sun Jul  5 07:44:39 2026] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to fe310000.mmc
+[Sun Jul  5 07:44:39 2026] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff650000.video-codec
+[Sun Jul  5 07:44:39 2026] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff660000.video-codec
+[Sun Jul  5 07:44:39 2026] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff680000.rga
+[Sun Jul  5 07:44:39 2026] rockchip-pm-domain ff310000.power-management:power-controller: sync_state() pending due to ff940000.hdmi
+[Sun Jul  5 07:44:39 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:39 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:39 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:39 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:39 2026] EXT4-fs (mmcblk1p2): mounted filesystem d52f7f8b-fa0e-4c9f-a552-d6df4329ac87 r/w with writeback data mode. Quota mode: none.
+[Sun Jul  5 07:44:39 2026] VFS: Mounted root (ext4 filesystem) on device 179:98.
+[Sun Jul  5 07:44:39 2026] devtmpfs: mounted
+[Sun Jul  5 07:44:39 2026] Freeing unused kernel memory: 11712K
+[Sun Jul  5 07:44:39 2026] Run /sbin/init as init process
+[Sun Jul  5 07:44:39 2026]   with arguments:
+[Sun Jul  5 07:44:39 2026]     /sbin/init
+[Sun Jul  5 07:44:39 2026]   with environment:
+[Sun Jul  5 07:44:39 2026]     HOME=/
+[Sun Jul  5 07:44:39 2026]     TERM=linux
+[Sun Jul  5 07:44:40 2026] NET: Registered PF_INET6 protocol family
+[Sun Jul  5 07:44:40 2026] Segment Routing with IPv6
+[Sun Jul  5 07:44:40 2026] In-situ OAM (IOAM) with IPv6
+[Sun Jul  5 07:44:40 2026] systemd[1]: systemd 257.13-1~deb13u1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 -IDN +IPTC +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +SYSVINIT +LIBARCHIVE)
+[Sun Jul  5 07:44:40 2026] systemd[1]: Detected architecture arm64.
+[Sun Jul  5 07:44:40 2026] systemd[1]: Hostname set to <armbian>.
+[Sun Jul  5 07:44:41 2026] systemd[1]: bpf-restrict-fs: BPF LSM hook not enabled in the kernel, BPF LSM not supported.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Queued start job for default target multi-user.target.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Created slice system-getty.slice - Slice /system/getty.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Created slice system-serial\x2dgetty.slice - Slice /system/serial-getty.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Created slice user.slice - User and Session Slice.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Started systemd-ask-password-console.path - Dispatch Password Requests to Console Directory Watch.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+[Sun Jul  5 07:44:42 2026] systemd[1]: proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point skipped, unmet condition check ConditionPathExists=/proc/sys/fs/binfmt_misc
+[Sun Jul  5 07:44:42 2026] systemd[1]: Expecting device dev-ttyS2.device - /dev/ttyS2...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Reached target network-pre.target - Preparation for Network.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Reached target nfs-client.target - NFS client services.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Reached target paths.target - Path Units.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Reached target slices.target - Slice Units.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Reached target swap.target - Swaps.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on rpcbind.socket - RPCbind Server Activation Socket.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on syslog.socket - Syslog Socket.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on systemd-creds.socket - Credential Encryption/Decryption.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on systemd-initctl.socket - initctl Compatibility Named Pipe.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-pcrextend.socket - TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-uki
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-pcrlock.socket - Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounting run-lock.mount - Legacy Locks Directory /run/lock...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[Sun Jul  5 07:44:42 2026] systemd[1]: sys-kernel-tracing.mount - Kernel Trace File System skipped, unmet condition check ConditionPathExists=/sys/kernel/tracing
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounting tmp.mount - Temporary Directory /tmp...
+[Sun Jul  5 07:44:42 2026] systemd[1]: auth-rpcgss-module.service - Kernel Module supporting RPCSEC_GSS skipped, unmet condition check ConditionPathExists=/etc/krb5.keytab
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting fake-hwclock-load.service - Restore the current clock...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting modprobe@fuse.service - Load Kernel Module fuse...
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-hwdb-update.service - Rebuild Hardware Database skipped, unmet condition check ConditionNeedsUpdate=/etc
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-pcrmachine.service - TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-uki
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-uki
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-tpm2-setup.service - TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-uki
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounted run-lock.mount - Legacy Locks Directory /run/lock.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounted tmp.mount - Temporary Directory /tmp.
+[Sun Jul  5 07:44:42 2026] fuse: init (API version 7.45)
+[Sun Jul  5 07:44:42 2026] systemd[1]: modprobe@fuse.service: Deactivated successfully.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished modprobe@fuse.service - Load Kernel Module fuse.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+[Sun Jul  5 07:44:42 2026] systemd-journald[118]: Collecting audit messages is disabled.
+[Sun Jul  5 07:44:42 2026] systemd[1]: fake-hwclock-load.service: Deactivated successfully.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished fake-hwclock-load.service - Restore the current clock.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-sysusers.service - Create System Users skipped, no trigger condition checks were met.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Finished systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Reached target local-fs-pre.target - Preparation for Local File Systems.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Reached target local-fs.target - Local File Systems.
+[Sun Jul  5 07:44:42 2026] systemd[1]: Listening on systemd-sysext.socket - System Extension Image Management.
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-binfmt.service - Set Up Additional Binary Formats skipped, unmet condition check ConditionPathIsMountPoint=/proc/sys/fs/binfmt_misc
+[Sun Jul  5 07:44:42 2026] systemd[1]: systemd-machine-id-commit.service - Save Transient machine-id to Disk skipped, unmet condition check ConditionPathIsMountPoint=/etc/machine-id
+[Sun Jul  5 07:44:42 2026] systemd[1]: Starting systemd-udevd.service - Rule-based Manager for Device Events and Files...
+[Sun Jul  5 07:44:42 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Sun Jul  5 07:44:42 2026] systemd-journald[118]: Received client request to flush runtime journal.
+[Sun Jul  5 07:44:45 2026] mc: Linux media interface: v0.10
+[Sun Jul  5 07:44:45 2026] input: rk805 pwrkey as /devices/platform/ff3c0000.i2c/i2c-0/0-0020/rk805-pwrkey.3.auto/input/input0
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:45 2026]  cs_system_cfg: CoreSight Configuration manager initialised
+[Sun Jul  5 07:44:45 2026] videodev: Linux video capture interface: v2.00
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:45 2026] coresight-cpu-debug fe430000.debug: Coresight debug-CPU0 initialized
+[Sun Jul  5 07:44:45 2026] coresight-cpu-debug fe432000.debug: Coresight debug-CPU1 initialized
+[Sun Jul  5 07:44:45 2026] coresight-cpu-debug fe434000.debug: Coresight debug-CPU2 initialized
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:45 2026] coresight-cpu-debug fe436000.debug: Coresight debug-CPU3 initialized
+[Sun Jul  5 07:44:45 2026] coresight-cpu-debug fe610000.debug: CPU4 debug arch init failed
+[Sun Jul  5 07:44:45 2026] coresight-cpu-debug fe710000.debug: CPU5 debug arch init failed
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: IDMAC supports 32-bit address mode.
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Using internal DMA controller.
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: Version ID is 270a
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: DW MMC controller at irq 39,32 bit host data width,256 deep fifo
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: allocated mmc-pwrseq
+[Sun Jul  5 07:44:45 2026] mmc_host mmc2: card is non-removable.
+[Sun Jul  5 07:44:45 2026] mmc_host mmc2: Bus speed = 400000Hz (req 400000Hz, actual 400000HZ div = 0)
+[Sun Jul  5 07:44:45 2026] dwmmc_rockchip fe310000.mmc: card claims to support voltages below defined range
+[Sun Jul  5 07:44:45 2026] usbcore: registered new device driver onboard-usb-dev
+[Sun Jul  5 07:44:45 2026] mmc_host mmc2: Bus speed = 100000000Hz (req 100000000Hz, actual 100000000HZ div = 0)
+[Sun Jul  5 07:44:46 2026] rockchip-rga ff680000.rga: HW Version: 0x03.02
+[Sun Jul  5 07:44:46 2026] rockchip-rga ff680000.rga: Registered rockchip-rga as /dev/video0
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: will run requests pump with realtime priority
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register ecb(aes) as ecb-aes-rk
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register cbc(aes) as cbc-aes-rk
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register ecb(des) as ecb-des-rk
+[Sun Jul  5 07:44:46 2026] dwmmc_rockchip fe310000.mmc: Successfully tuned phase to 223
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register cbc(des) as cbc-des-rk
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register ecb(des3_ede) as ecb-des3-ede-rk
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register cbc(des3_ede) as cbc-des3-ede-rk
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register sha1 as rk-sha1
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register sha256 as rk-sha256
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b0000.crypto: Register md5 as rk-md5
+[Sun Jul  5 07:44:46 2026] mmc2: new UHS-I speed SDR50 SDIO card at address 0001
+[Sun Jul  5 07:44:46 2026] rk3288-crypto ff8b8000.crypto: will run requests pump with realtime priority
+[Sun Jul  5 07:44:46 2026] rtc-hym8563 2-0051: could not init device, -110
+[Sun Jul  5 07:44:46 2026] rtc-hym8563 2-0051: probe with driver rtc-hym8563 failed with error -110
+[Sun Jul  5 07:44:46 2026] hantro-vpu ff650000.video-codec: registered rockchip,rk3399-vpu-enc as /dev/video2
+[Sun Jul  5 07:44:46 2026] hantro-vpu ff650000.video-codec: registered rockchip,rk3399-vpu-dec as /dev/video3
+[Sun Jul  5 07:44:47 2026] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+[Sun Jul  5 07:44:47 2026] Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+[Sun Jul  5 07:44:47 2026] Loaded X.509 cert 'wens: 61c038651aabdcf94bd0ac7ff06c7248db18c600'
+[Sun Jul  5 07:44:47 2026] random: crng init done
+[Sun Jul  5 07:44:47 2026] rtw88_8821cs mmc2:0001:1: sdio read32 failed (0xf0): -110
+[Sun Jul  5 07:44:47 2026] rtw88_8821cs mmc2:0001:1: sdio write8 failed (0x1c): -110
+[Sun Jul  5 07:44:48 2026] rtw88_8821cs mmc2:0001:1: Firmware version 24.11.0, H2C version 12
+[Sun Jul  5 07:44:48 2026] systemd-journald[118]: Received client request to relinquish /var/log/journal/63f6b85b0c1e8dbfdd4367466a1d5eef access.
+[Sun Jul  5 07:44:48 2026] usb 7-1.1: new high-speed USB device number 3 using ehci-platform
+[Sun Jul  5 07:44:49 2026] usb 7-1.1: USB disconnect, device number 3
+[Sun Jul  5 07:44:51 2026] rk_gmac-dwmac fe300000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[Sun Jul  5 07:44:51 2026] rk_gmac-dwmac fe300000.ethernet eth0: PHY [stmmac-0:00] driver [YT8521 Gigabit Ethernet] (irq=POLL)
+[Sun Jul  5 07:44:51 2026] rk_gmac-dwmac fe300000.ethernet eth0: No Safety Features support found
+[Sun Jul  5 07:44:51 2026] rk_gmac-dwmac fe300000.ethernet eth0: PTP not supported by HW
+[Sun Jul  5 07:44:51 2026] rk_gmac-dwmac fe300000.ethernet eth0: configuring for phy/rgmii link mode
+[Sun Jul  5 07:44:53 2026] rk_gmac-dwmac fe300000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+[Sun Jul  5 07:44:57 2026] usb 7-1.1: new high-speed USB device number 4 using ehci-platform
+[Sun Jul  5 07:44:57 2026] cdc_ether 7-1.1:1.0 usb0: register 'cdc_ether' at usb-fe3c0000.usb-1.1, CDC Ethernet Device, 02:0c:29:a3:9b:6d
+[Sun Jul  5 07:44:57 2026] usbcore: registered new interface driver cdc_ether
+[Sun Jul  5 07:44:57 2026] usbcore: registered new interface driver option
+[Sun Jul  5 07:44:57 2026] usbserial: USB Serial support registered for GSM modem (1-port)
+[Sun Jul  5 07:44:57 2026] option 7-1.1:1.2: GSM modem (1-port) converter detected
+[Sun Jul  5 07:44:57 2026] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB0
+[Sun Jul  5 07:44:57 2026] option 7-1.1:1.3: GSM modem (1-port) converter detected
+[Sun Jul  5 07:44:57 2026] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB1
+[Sun Jul  5 07:44:57 2026] option 7-1.1:1.4: GSM modem (1-port) converter detected
+[Sun Jul  5 07:44:57 2026] usb 7-1.1: GSM modem (1-port) converter now attached to ttyUSB2
+[Sun Jul  5 07:44:59 2026] wlan0: authenticate with 50:64:2b:14:77:6d (local address=60:fb:00:7e:d2:34)
+[Sun Jul  5 07:44:59 2026] wlan0: send auth to 50:64:2b:14:77:6d (try 1/3)
+[Sun Jul  5 07:45:00 2026] wlan0: send auth to 50:64:2b:14:77:6d (try 2/3)
+[Sun Jul  5 07:45:00 2026] wlan0: authenticated
+[Sun Jul  5 07:45:00 2026] wlan0: associate with 50:64:2b:14:77:6d (try 1/3)
+[Sun Jul  5 07:45:00 2026] wlan0: RX AssocResp from 50:64:2b:14:77:6d (capab=0xc11 status=0 aid=2)
+[Sun Jul  5 07:45:00 2026] wlan0: associated
+[Sun Jul  5 07:45:02 2026] dw-apb-uart ff1a0000.serial: forbid DMA for kernel console
+[Sun Jul  5 07:45:12 2026] usb 3-1: new high-speed USB device number 2 using ehci-platform
+[Sun Jul  5 07:45:19 2026] usb 3-1: reset high-speed USB device number 2 using ehci-platform
+[Sun Jul  5 07:45:19 2026] usb 3-1: device descriptor read/64, error -71
+[Sun Jul  5 07:45:19 2026] usb 3-1: device firmware changed
+[Sun Jul  5 07:45:19 2026] usb 3-1: USB disconnect, device number 2
+[Sun Jul  5 07:45:19 2026] usb 3-1: new high-speed USB device number 3 using ehci-platform
+[Sun Jul  5 07:45:25 2026] usb 3-1: USB disconnect, device number 3
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: [1d87:1808] type 00 class 0x000000 PCIe Endpoint
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: BAR 0 [mem 0x3c000000-0x3fffffff]
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: BAR 1 [mem 0x00000000-0x1fffffff]
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: BAR 2 [mem 0x00000000-0x1fffffff]
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: BAR 3 [mem 0x00000000-0x1fffffff]
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: BAR 4 [mem 0x00000000-0x07ffffff]
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: BAR 5 [mem 0x00000000-0x07ffffff]
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: ROM [mem 0x00000000-0x0000ffff pref]
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 128 (was 256, max 256)
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: Max Payload Size set to 128 (was 128, max 128)
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: supports D1 D2
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: PME# supported from D0 D1 D3hot
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: 4.000 Gb/s available PCIe bandwidth, limited by 2.5 GT/s PCIe x2 link at 0000:00:00.0 (capable of 15.752 Gb/s with 8.0 GT/s PCIe x2 link)
+[Sun Jul  5 07:45:33 2026] pci 0000:01:00.0: ASPM: default states L1
+[Sun Jul  5 07:45:38 2026] usb 3-1: new high-speed USB device number 4 using ehci-platform
+[Sun Jul  5 07:45:38 2026] cdc_acm 3-1:1.0: ttyACM0: USB ACM device
+[Sun Jul  5 07:45:38 2026] usbcore: registered new interface driver cdc_acm
+[Sun Jul  5 07:45:38 2026] cdc_acm: USB Abstract Control Model driver for USB modems and ISDN adapters
