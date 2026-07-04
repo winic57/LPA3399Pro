@@ -16,6 +16,13 @@ START_PROXY=${START_PROXY:-1}
 CHECK_ONLY=${CHECK_ONLY:-0}
 POWER_INIT_FIRST=${POWER_INIT_FIRST:-1}
 POWER_FORCE_OFF_FIRST=${POWER_FORCE_OFF_FIRST:-0}
+WRITE_IMAGES_BEFORE_RS=${WRITE_IMAGES_BEFORE_RS:-0}
+POST_RS_WAIT_SEC=${POST_RS_WAIT_SEC:-8}
+RS_STRICT=${RS_STRICT:-0}
+PCIE_RESCAN_AFTER_POWER=${PCIE_RESCAN_AFTER_POWER:-0}
+PCIE_HOST_REBIND_AFTER_POWER=${PCIE_HOST_REBIND_AFTER_POWER:-0}
+PCIE_HOST_PLATFORM_DEV=${PCIE_HOST_PLATFORM_DEV:-f8000000.pcie}
+PCIE_HOST_REBIND_WAIT_SEC=${PCIE_HOST_REBIND_WAIT_SEC:-4}
 
 need_file() {
   if [ ! -e "$1" ]; then
@@ -72,6 +79,25 @@ run_power_action() {
   esac
 }
 
+pcie_host_ab_after_power() {
+  if [ "$PCIE_RESCAN_AFTER_POWER" = 1 ] && [ -w /sys/bus/pci/rescan ]; then
+    echo "== host PCIe rescan after power =="
+    echo 1 > /sys/bus/pci/rescan || true
+    sleep 2
+  fi
+
+  if [ "$PCIE_HOST_REBIND_AFTER_POWER" = 1 ] && \
+     [ -w /sys/bus/platform/drivers/rockchip-pcie/unbind ] && \
+     [ -w /sys/bus/platform/drivers/rockchip-pcie/bind ] && \
+     [ -e "/sys/bus/platform/drivers/rockchip-pcie/${PCIE_HOST_PLATFORM_DEV}" ]; then
+    echo "== host PCIe rebind after power (${PCIE_HOST_PLATFORM_DEV}) =="
+    echo "$PCIE_HOST_PLATFORM_DEV" > /sys/bus/platform/drivers/rockchip-pcie/unbind || true
+    sleep 1
+    echo "$PCIE_HOST_PLATFORM_DEV" > /sys/bus/platform/drivers/rockchip-pcie/bind || true
+    sleep "$PCIE_HOST_REBIND_WAIT_SEC"
+  fi
+}
+
 if [ "$CHECK_ONLY" = 1 ]; then
   run_check
   exit 0
@@ -103,6 +129,7 @@ if [ "$SKIP_POWER" != 1 ] && [ -x "$NPU_POWERCTRL" ]; then
   fi
   run_power_action on
   sleep 2
+  pcie_host_ab_after_power
 else
   echo "== skip npu_powerctrl =="
 fi
@@ -114,6 +141,13 @@ echo "UBOOT=$UBOOT"
 echo "TRUST=$TRUST"
 echo "BOOT=$BOOT"
 echo "ADDRS: uboot=$UBOOT_ADDR trust=$TRUST_ADDR boot=$BOOT_ADDR"
+echo "WRITE_IMAGES_BEFORE_RS=$WRITE_IMAGES_BEFORE_RS"
+echo "POST_RS_WAIT_SEC=$POST_RS_WAIT_SEC"
+echo "RS_STRICT=$RS_STRICT"
+echo "PCIE_RESCAN_AFTER_POWER=$PCIE_RESCAN_AFTER_POWER"
+echo "PCIE_HOST_REBIND_AFTER_POWER=$PCIE_HOST_REBIND_AFTER_POWER"
+echo "PCIE_HOST_PLATFORM_DEV=$PCIE_HOST_PLATFORM_DEV"
+echo "PCIE_HOST_REBIND_WAIT_SEC=$PCIE_HOST_REBIND_WAIT_SEC"
 
 echo "== before firmware download =="
 lsusb | grep -Ei '2207:|rockchip|rk3xxx' || true
@@ -127,17 +161,29 @@ if [ "$LOADER_WAIT" = 1 ]; then
   "$UPGRADE_TOOL" td || true
 fi
 
+if [ "$WRITE_IMAGES_BEFORE_RS" = 1 ]; then
+  echo "== vendor-style preload with upgrade_tool wl (PERSISTENT WRITE RISK) =="
+  "$UPGRADE_TOOL" wl "$UBOOT_ADDR" "$UBOOT"
+  "$UPGRADE_TOOL" wl "$TRUST_ADDR" "$TRUST"
+  "$UPGRADE_TOOL" wl "$BOOT_ADDR" "$BOOT"
+fi
+
 echo "== upgrade_tool rs uboot/trust/boot =="
+set +e
 if command -v timeout >/dev/null 2>&1; then
   timeout "${RS_TIMEOUT}s" "$UPGRADE_TOOL" rs "$UBOOT_ADDR" "$TRUST_ADDR" "$BOOT_ADDR" \
     "$UBOOT" "$TRUST" "$BOOT"
+  RS_RC=$?
 else
   "$UPGRADE_TOOL" rs "$UBOOT_ADDR" "$TRUST_ADDR" "$BOOT_ADDR" \
     "$UBOOT" "$TRUST" "$BOOT"
+  RS_RC=$?
 fi
+set -e
+echo "RS_RC=$RS_RC"
 
 echo "== wait for USB2 Loader disconnect and USB3 NTB gadget re-enumeration =="
-sleep 8
+sleep "$POST_RS_WAIT_SEC"
 
 if [ "$START_PROXY" = 1 ] && [ -x "$TRANSFER_PROXY" ]; then
   if ! pgrep -x npu_transfer_proxy >/dev/null 2>&1; then
@@ -148,3 +194,7 @@ if [ "$START_PROXY" = 1 ] && [ -x "$TRANSFER_PROXY" ]; then
 fi
 
 run_check
+
+if [ "$RS_STRICT" = 1 ] && [ "$RS_RC" -ne 0 ]; then
+  exit "$RS_RC"
+fi

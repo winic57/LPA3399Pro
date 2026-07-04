@@ -71,6 +71,15 @@ NPU_PRECISE_POWER_GPIO_STAGE=before_low
 NPU_PRECISE_HELPER_CMD=/usr/local/bin/npu_boot
 NPU_PRECISE_HELPER_STAGE=after_stage1
 CONF
+If you need to mimic SDK `npu_upgrade` exactly, you can additionally set:
+  echo 'WRITE_IMAGES_BEFORE_RS=1' >> /etc/default/npu-usb-workflow
+WARNING: this enables vendor-style `upgrade_tool wl` before `rs`, which carries persistent NPU flash write risk.
+For host-side PCIe re-train A/B (safe, but currently no positive .113 result yet), you can try:
+  cat >> /etc/default/npu-usb-workflow <<CONF
+PCIE_RESCAN_AFTER_POWER=1
+PCIE_HOST_REBIND_AFTER_POWER=1
+PCIE_HOST_REBIND_WAIT_SEC=5
+CONF
 and then restart the service again.
 EOF
 
