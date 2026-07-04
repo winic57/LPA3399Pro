@@ -14,6 +14,8 @@ BOOT_ADDR=${BOOT_ADDR:-0x21000}
 SKIP_POWER=${SKIP_POWER:-0}
 START_PROXY=${START_PROXY:-1}
 CHECK_ONLY=${CHECK_ONLY:-0}
+POWER_INIT_FIRST=${POWER_INIT_FIRST:-1}
+POWER_FORCE_OFF_FIRST=${POWER_FORCE_OFF_FIRST:-0}
 
 need_file() {
   if [ ! -e "$1" ]; then
@@ -58,8 +60,11 @@ run_power_action() {
   local action="$1"
   [ -x "$NPU_POWERCTRL" ] || return 0
   case "$action" in
+    init)
+      "$NPU_POWERCTRL" init 2>/dev/null || "$NPU_POWERCTRL" -i || true
+      ;;
     off)
-      "$NPU_POWERCTRL" off 2>/dev/null || "$NPU_POWERCTRL" -i || true
+      "$NPU_POWERCTRL" off 2>/dev/null || "$NPU_POWERCTRL" -d || true
       ;;
     on)
       "$NPU_POWERCTRL" on 2>/dev/null || "$NPU_POWERCTRL" -o || true
@@ -86,8 +91,16 @@ need_file "$BOOT"
 
 if [ "$SKIP_POWER" != 1 ] && [ -x "$NPU_POWERCTRL" ]; then
   echo "== reset/power NPU through $NPU_POWERCTRL =="
-  run_power_action off
-  sleep 1
+  if [ "$POWER_INIT_FIRST" = 1 ]; then
+    echo "== vendor-compatible gpio init =="
+    run_power_action init
+    sleep 1
+  fi
+  if [ "$POWER_FORCE_OFF_FIRST" = 1 ]; then
+    echo "== forced power down before power up =="
+    run_power_action off
+    sleep 1
+  fi
   run_power_action on
   sleep 2
 else

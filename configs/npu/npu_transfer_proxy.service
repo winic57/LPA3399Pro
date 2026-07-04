@@ -3,14 +3,16 @@ Description=Rockchip NPU Transfer Proxy
 After=local-fs.target network.target
 
 [Service]
-Type=simple
+Type=oneshot
+RemainAfterExit=yes
 Environment=FW_PROFILE=factory
 Environment=NPU_POWERCTRL=/usr/local/bin/npu_powerctrl-gpiod
 Environment=START_PROXY=1
 Environment=RS_TIMEOUT=90
+Environment=POWER_INIT_FIRST=1
+Environment=POWER_FORCE_OFF_FIRST=0
+EnvironmentFile=-/etc/default/npu-usb-workflow
 ExecStart=/usr/local/bin/npu_startup.sh
-Restart=always
-RestartSec=15
 StandardOutput=journal
 StandardError=journal
 
