@@ -1,19 +1,16 @@
-#!/bin/bash
-echo '=== Starting NPU Power-up and Reset ==='
-/usr/local/bin/npu_boot
-sleep 3
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo '=== Triggering PCIe Driver Bind ==='
-if [ ! -d '/sys/bus/platform/drivers/rockchip-pcie/f8000000.pcie' ]; then
-    echo 'f8000000.pcie' > /sys/bus/platform/drivers/rockchip-pcie/bind 2>/dev/null
-    sleep 2
-fi
+export FW_PROFILE="${FW_PROFILE:-factory}"
+export NPU_POWERCTRL="${NPU_POWERCTRL:-/usr/local/bin/npu_powerctrl-gpiod}"
+export START_PROXY="${START_PROXY:-1}"
+export RS_TIMEOUT="${RS_TIMEOUT:-90}"
 
-if [ -d '/sys/bus/platform/drivers/rockchip-pcie/f8000000.pcie' ]; then
-    echo 'PCIe NPU device bound successfully'
-else
-    echo 'Warning: PCIe NPU device failed to bind, proxy may fail to start'
-fi
+BOOT_SCRIPT="${NPU_BOOT_SCRIPT:-/usr/local/bin/npu_mainline_usb_ntb_boot.sh}"
 
-echo '=== Starting NPU Transfer Proxy ==='
-exec /usr/bin/npu_transfer_proxy
+echo '=== RK3399Pro NPU USB ramboot startup ==='
+echo "FW_PROFILE=${FW_PROFILE}"
+echo "NPU_POWERCTRL=${NPU_POWERCTRL}"
+echo "BOOT_SCRIPT=${BOOT_SCRIPT}"
+
+exec "${BOOT_SCRIPT}"
