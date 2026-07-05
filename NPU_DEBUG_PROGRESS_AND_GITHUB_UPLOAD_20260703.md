@@ -1287,3 +1287,133 @@ END prompt=True interrupted=True saw_test_load=True saw_kernel=True ssh_ok=False
 
 验证目标：确认默认 extlinux 仍启动稳定 DTB，开发板恢复 SSH，并确认 PCIe host 回到 disabled 状态。
 
+
+---
+
+## 25. 下一步建议：转向 x2 lane / reset / power sequencing 小粒度实验
+
+基于第 23 节和第 24 节结果，当前结论已经比较明确：
+
+1. `pcie@f8000000` status-only enable 会导致系统无法恢复 SSH/网络。
+2. 加入 `ranges = <0x83000000 ...>`、`linux,pci-domain`、`busno`、`rockchip,deferred`、`rockchip,dma_trx_enabled` 后，测试 DTB 仍会进入 kernel 后失联。
+3. 默认稳定 DTB 恢复正常，说明故障集中在 PCIe host enable 组合，而不是 BOOT 分区或 rootfs 损坏。
+
+因此下一步不建议继续基于当前 4-lane host enable 方案做微调，而应转向更小粒度、可回滚的实验。
+
+### 25.1 优先方向 A：x2 lane 测试
+
+官方 4.4 工作机虽然 DT 中 `num-lanes = <4>`，但实际 `lspci` 链路显示：
+
+```text
+LnkSta: Speed 2.5GT/s, Width x2
+RK1808 endpoint: Width x2
+```
+
+建议构建一个新的独立测试 DTB：
+
+```text
+rk3399pro-neardi-linux-lc110-base-pcie-x2-test.dtb
+```
+
+核心实验点：
+
+```dts
+pcie@f8000000 {
+    status = "okay";
+    num-lanes = <2>;
+    phys = <&pcie_phy 0>, <&pcie_phy 1>;
+    phy-names = "pcie-phy-0", "pcie-phy-1";
+};
+```
+
+注意：实际 phandle 名称需以当前主线反编译 DTS 为准，不应直接复制上面的符号名。目标是验证当前主线 4-lane 初始化是否触发硬件/板级冲突。
+
+### 25.2 优先方向 B：reset / PERST# / NPU ref clock
+
+需要从官方 4.4 live DT 和主线 DTS 中继续比对：
+
+- `pinctrl` 下的 `pcie` group；
+- `pcie-pwr`；
+- `npu-ref-clk`；
+- 是否存在 NPU/RK1808 endpoint reset GPIO；
+- 是否由外部 GPIO expander、PMIC 或固定 regulator 控制 NPU 电源/复位；
+- `clk_wifi_pmu`、`rk808-clkout2`、`clk_pciephy_ref` 在官方 4.4 与主线下的 enable/rate 差异。
+
+建议生成一个专门的 pinctrl/GPIO 对照文件，列出官方 4.4 与主线中所有与以下关键词相关的节点：
+
+```text
+pcie
+npu
+ref-clk
+reset
+perst
+pwr
+gpio
+regulator-vcc-pcie
+clk_wifi_pmu
+rk808-clkout2
+```
+
+### 25.3 优先方向 C：不要再直接默认启动测试 DTB
+
+后续所有实验继续保持当前安全策略：
+
+1. 默认 extlinux 项始终保持：
+
+```text
+DEFAULT Armbian
+FDT /dtb/rockchip/rk3399pro-neardi-linux-lc110-base.dtb
+```
+
+2. 每个测试 DTB 单独命名，例如：
+
+```text
+rk3399pro-neardi-linux-lc110-base-pcie-x2-test-YYYYMMDD_HHMMSS.dtb
+rk3399pro-neardi-linux-lc110-base-pcie-reset-test-YYYYMMDD_HHMMSS.dtb
+```
+
+3. 通过串口 U-Boot 直接加载或手动选择测试项。
+4. 每次测试前确认稳定 DTB sha256：
+
+```text
+3408265d36a5caa96192a51657c4434a766b5c53d5e173731ebe22d003db09af
+```
+
+5. 每次测试失败后物理复位，验证回到稳定项后再继续。
+
+### 25.4 建议的下一轮最小实验顺序
+
+建议按以下顺序推进：
+
+1. **只做静态分析，不改板子**
+   - 生成官方 4.4 vs 主线 6.18 的 PCIe/NPU pinctrl/GPIO/regulator/clock 专项 diff。
+   - 输出一个人工可读的 `PCIE_NPU_PINCTRL_GPIO_CLOCK_DIFF.md`。
+
+2. **构建 x2-lane 测试 DTB，但不自动启动**
+   - 基于当前稳定 DTB；
+   - 改 `status = okay`；
+   - 改 `num-lanes = <2>`；
+   - 只保留 lane0/lane1 的 `phys` 和 `phy-names`；
+   - 不再加入上一轮无效的额外 vendor 属性，避免变量过多。
+
+3. **串口直接加载 x2 测试 DTB**
+   - 如果仍失联，说明问题更可能在 power/reset/refclk，而不是 lane 数。
+   - 如果能启动但无 endpoint，再看 dmesg 的 PCIe link training 失败原因。
+   - 如果能枚举 root port 或 endpoint，再进入 NPU runtime 检查。
+
+4. **如 x2 仍失败，再做 reset/power 专项测试**
+   - 不建议一次性加入多个 GPIO/regulator 修改。
+   - 每次只改一个变量，并保留串口日志。
+
+### 25.5 暂不建议做的事情
+
+暂不建议：
+
+- 把官方 4.4 的 `pcie@f8000000` 整段复制到主线 6.18；
+- 把测试 DTB 设置为默认启动项；
+- 继续 4-lane `status = okay` 方向微调；
+- 在没有串口日志的情况下反复重启测试；
+- 同时修改 lane、power、reset、clock、ranges 等多个变量。
+
+当前最合理的下一步是：先生成 PCIe/NPU pinctrl/GPIO/regulator/clock 专项 diff，然后基于该 diff 构建一个最小 x2-lane 测试 DTB。
+

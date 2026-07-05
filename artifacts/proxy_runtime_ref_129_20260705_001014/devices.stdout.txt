@@ -1,2 +1,0 @@
-List of ntb devices attached
-0123456789ABCDEF    cfbc0c55    PCIE

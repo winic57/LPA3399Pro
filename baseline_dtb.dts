@@ -329,7 +329,8 @@
 		ranges = <0x82000000 0x00 0xfa000000 0x00 0xfa000000 0x00 0x1e00000 0x81000000 0x00 0xfbe00000 0x00 0xfbe00000 0x00 0x100000>;
 		resets = <0x08 0x82 0x08 0x83 0x08 0x84 0x08 0x85 0x08 0x86 0x08 0x81 0x08 0x80>;
 		reset-names = "core\0mgmt\0mgmt-sticky\0pipe\0pm\0pclk\0aclk";
-		status = "disabled";
+		status = "okay";
+		ep-gpios = <0x19 0x0c 0x00>;
 		num-lanes = <0x04>;
 		pinctrl-0 = <0x1a>;
 		pinctrl-names = "default";
@@ -375,35 +376,19 @@
 		reset-names = "stmmaceth";
 		rockchip,grf = <0x1f>;
 		snps,txpbl = <0x04>;
-		status = "okay";
-		assigned-clocks = <0x08 0xa6 0x08 0x69>;
-		assigned-clock-parents = <0x08 0x69>;
-		assigned-clock-rates = <0x00 0x7735940>;
-		clock_in_out = "output";
+		status = "disabled";
+		assigned-clock-parents = <0x20>;
+		clock_in_out = "input";
 		phy-mode = "rgmii";
 		pinctrl-names = "default";
 		pinctrl-0 = <0x21>;
 		snps,reset-active-low;
 		snps,reset-delays-us = <0x00 0x2710 0xc350>;
-		tx_delay = <0x21>;
-		rx_delay = <0x15>;
-		phy-supply = <0xc1>;
+		tx_delay = <0x28>;
+		rx_delay = <0x11>;
+		assigned-clocks = <0x08 0xa6>;
+		phy-supply = <0x22>;
 		snps,reset-gpio = <0x23 0x0f 0x01>;
-		phy-handle = <0xc2>;
-
-		mdio {
-			compatible = "snps,dwmac-mdio";
-			#address-cells = <0x01>;
-			#size-cells = <0x00>;
-
-			ethernet-phy@0 {
-				reg = <0x00>;
-				phandle = <0xc2>;
-				linux,phandle = <0xc2>;
-				motorcomm,keep-pll-enabled;
-				motorcomm,auto-sleep-disabled;
-			};
-		};
 	};
 
 	mmc@fe310000 {
@@ -604,7 +589,7 @@
 		clock-names = "ref_clk\0suspend_clk\0bus_clk\0aclk_usb3_rksoc_axi_perf\0aclk_usb3\0grf_clk";
 		resets = <0x08 0x126>;
 		reset-names = "usb3-otg";
-		status = "okay";
+		status = "disabled";
 
 		usb@fe900000 {
 			compatible = "snps,dwc3";
@@ -612,7 +597,7 @@
 			interrupts = <0x00 0x6e 0x04 0x00>;
 			clocks = <0x08 0x82 0x08 0xf7 0x08 0x84>;
 			clock-names = "ref\0bus_early\0suspend";
-			dr_mode = "host";
+			dr_mode = "otg";
 			phys = <0x34 0x35>;
 			phy-names = "usb2-phy\0usb3-phy";
 			phy_type = "utmi_wide";
@@ -622,7 +607,7 @@
 			snps,dis-del-phy-power-chg-quirk;
 			snps,dis-tx-ipgap-linecheck-quirk;
 			power-domains = <0x1e 0x18>;
-			status = "okay";
+			status = "disabled";
 		};
 	};
 
@@ -1414,7 +1399,6 @@
 		i2c-scl-rising-time-ns = <0xb4>;
 
 		pmic@20 {
-			phandle = <0xc3>;
 			compatible = "rockchip,rk809";
 			reg = <0x20>;
 			interrupt-parent = <0x81>;
@@ -1624,9 +1608,6 @@
 				};
 
 				SWITCH_REG1 {
-					regulator-boot-on = [00];
-					phandle = <0xc4>;
-					regulator-always-on = [00];
 					regulator-name = "vcc5v0_usb2";
 					regulator-min-microvolt = <0x4c4b40>;
 					regulator-max-microvolt = <0x4c4b40>;
@@ -1680,28 +1661,7 @@
 		pinctrl-0 = <0x87>;
 		#address-cells = <0x01>;
 		#size-cells = <0x00>;
-		status = "okay";
-		i2c-scl-rising-time-ns = <0x159>;
-		i2c-scl-falling-time-ns = <0x0b>;
-		clock-frequency = <0x186a0>;
-		phandle = <0x1a3>;
-
-		aw9523@5a {
-			compatible = "awinic,aw9523";
-			reg = <0x5a>;
-			status = "okay";
-			reset-gpios = <0x81 0x0a 0x01>;
-			pinctrl-names = "default";
-			pinctrl-0 = <0x1a5>;
-			phandle = <0x1a4>;
-
-			gpio {
-				compatible = "awinic,aw9523-gpio";
-				gpio-controller;
-				#gpio-cells = <0x02>;
-				phandle = <0x1a6>;
-			};
-		};
+		status = "disabled";
 	};
 
 	pwm@ff420000 {
@@ -1939,22 +1899,20 @@
 			phandle = <0x2e>;
 
 			host-port {
-				phy-supply = <0xd0>;
-				vbus-supply = <0xd0>;
 				#phy-cells = <0x00>;
 				interrupts = <0x00 0x1b 0x04 0x00>;
 				interrupt-names = "linestate";
 				status = "okay";
+				phy-supply = <0x90>;
 				phandle = <0x2f>;
 			};
 
 			otg-port {
-				phy-supply = <0xd1>;
-				vbus-supply = <0xd1>;
 				#phy-cells = <0x00>;
 				interrupts = <0x00 0x67 0x04 0x00 0x00 0x68 0x04 0x00 0x00 0x6a 0x04 0x00>;
 				interrupt-names = "otg-bvalid\0otg-id\0linestate";
 				status = "okay";
+				phy-supply = <0x91>;
 				phandle = <0x32>;
 			};
 		};
@@ -1970,12 +1928,11 @@
 			phandle = <0x30>;
 
 			host-port {
-				phy-supply = <0xc4>;
-				vbus-supply = <0xc4>;
 				#phy-cells = <0x00>;
 				interrupts = <0x00 0x1f 0x04 0x00>;
 				interrupt-names = "linestate";
 				status = "okay";
+				phy-supply = <0x90>;
 				phandle = <0x31>;
 			};
 
@@ -1983,7 +1940,7 @@
 				#phy-cells = <0x00>;
 				interrupts = <0x00 0x6c 0x04 0x00 0x00 0x6d 0x04 0x00 0x00 0x6f 0x04 0x00>;
 				interrupt-names = "otg-bvalid\0otg-id\0linestate";
-				status = "okay";
+				status = "disabled";
 				phandle = <0x34>;
 			};
 		};
@@ -2046,7 +2003,7 @@
 		resets = <0x08 0x9d 0x08 0x9c 0x08 0x14d>;
 		reset-names = "uphy\0uphy-pipe\0uphy-tcphy";
 		rockchip,grf = <0x1f>;
-		status = "okay";
+		status = "disabled";
 
 		dp-port {
 			#phy-cells = <0x00>;
@@ -2600,14 +2557,6 @@
 			phandle = <0x3d>;
 		};
 
-		npu {
-
-			npu-ref-clk {
-				rockchip,pins = <0x00 0x02 0x01 0xb5>;
-				phandle = <0xf4>;
-			};
-		};
-
 		pcfg-pull-up {
 			bias-pull-up;
 			phandle = <0xb8>;
@@ -2692,7 +2641,6 @@
 
 		pcfg-output-high {
 			output-high;
-			phandle = <0xd4>;
 		};
 
 		pcfg-output-low {
@@ -3274,11 +3222,11 @@
 		pcie {
 
 			pci-clkreqn-cpm {
-				rockchip,pins = <0x02 0x1a 0x02 0xb5>;
+				rockchip,pins = <0x02 0x1a 0x00 0xb5>;
 			};
 
 			pci-clkreqnb-cpm {
-				rockchip,pins = <0x02 0x1a 0x02 0xb5>;
+				rockchip,pins = <0x04 0x18 0x00 0xb5>;
 				phandle = <0x1a>;
 			};
 
@@ -3293,30 +3241,6 @@
 			hym8563-int {
 				rockchip,pins = <0x04 0x1e 0x00 0xb8>;
 				phandle = <0x3c>;
-			};
-		};
-
-		n4 {
-
-			n4-pwr-pin {
-				rockchip,pins = <0x00 0x09 0x00 0xd4>;
-				phandle = <0xf2>;
-			};
-		};
-
-		gnss {
-
-			gnss-pwr-pin {
-				rockchip,pins = <0x03 0x19 0x00 0xd4>;
-				phandle = <0xf3>;
-			};
-		};
-
-		aw9523 {
-
-			aw9523-reset {
-				rockchip,pins = <0x01 0x0a 0x00 0xd4>;
-				phandle = <0x1a5>;
 			};
 		};
 
@@ -3349,22 +3273,6 @@
 			usb0-en-oc {
 				rockchip,pins = <0x04 0x1a 0x00 0xb8>;
 				phandle = <0xbf>;
-			};
-		};
-
-		host_vbus_drv {
-
-			host-vbus-drv {
-				rockchip,pins = <0x01 0x0d 0x00 0xb5>;
-				phandle = <0xd2>;
-			};
-		};
-
-		otg_vbus_drv {
-
-			otg-vbus-drv {
-				rockchip,pins = <0x04 0x15 0x00 0xb5>;
-				phandle = <0xd3>;
 			};
 		};
 	};
@@ -3498,8 +3406,8 @@
 
 	sdio-pwrseq {
 		compatible = "mmc-pwrseq-simple";
-		clocks = <0xc3 0x01 0x08 0x08>;
-		clock-names = "ext_clock\0wifi_pmu";
+		clocks = <0xba>;
+		clock-names = "ext_clock";
 		pinctrl-names = "default";
 		pinctrl-0 = <0xbb>;
 		reset-gpios = <0xbc 0x1b 0x01>;
@@ -3535,6 +3443,7 @@
 		regulator-always-on;
 		vin-supply = <0x83>;
 		enable-active-high;
+		gpio = <0x3d 0x19 0x00>;
 		phandle = <0x90>;
 	};
 
@@ -3550,32 +3459,6 @@
 		phandle = <0x91>;
 	};
 
-	regulator-vcc5v0-host {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		gpio = <0x81 0x0d 0x00>;
-		pinctrl-names = "default";
-		pinctrl-0 = <0xd2>;
-		regulator-name = "vcc5v0_host";
-		regulator-always-on;
-		regulator-boot-on;
-		vin-supply = <0x83>;
-		phandle = <0xd0>;
-	};
-
-	regulator-vbus-otg {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		gpio = <0x3d 0x15 0x00>;
-		pinctrl-names = "default";
-		pinctrl-0 = <0xd3>;
-		regulator-name = "vcc_otg_vbus";
-		regulator-always-on;
-		regulator-boot-on;
-		vin-supply = <0x83>;
-		phandle = <0xd1>;
-	};
-
 	regulator-vcc-pcie {
 		compatible = "regulator-fixed";
 		enable-active-high;
@@ -3589,40 +3472,7 @@
 		phandle = <0x1d>;
 	};
 
-	n4-pwren {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		regulator-always-on;
-		regulator-boot-on;
-		gpio = <0x19 0x09 0x00>;
-		pinctrl-names = "default";
-		pinctrl-0 = <0xf2 0xf4>;
-		regulator-name = "n4_pwren";
-		phandle = <0x1a1>;
-	};
-
-	vcc-gnss {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		regulator-boot-on;
-		regulator-always-on;
-		gpio = <0x23 0x19 0x00>;
-		pinctrl-names = "default";
-		pinctrl-0 = <0xf3>;
-		regulator-name = "vcc_gnss";
-		phandle = <0x1a2>;
-	};
-
 	chosen {
 		stdout-path = "serial2:1500000n8";
-	};
-
-	vcc-phy-regulator {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_phy";
-		regulator-always-on;
-		regulator-boot-on;
-		phandle = <0xc1>;
-		linux,phandle = <0xc1>;
 	};
 };

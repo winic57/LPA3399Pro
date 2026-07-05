@@ -4,3 +4,41 @@
 /prebuilts
 /rkbin
 
+# Local logs, captures, build outputs and generated artifacts
+*.log
+logs/
+ttl_logs/
+artifacts/
+build_artifacts/
+downloads/
+tmp_unpack/
+sd_backup_*/
+
+# Common generated firmware/build images and archives
+*.img
+*.iso
+*.wic
+*.wic.*
+*.rootfs
+*.tar
+*.tar.*
+*.tgz
+*.zip
+*.7z
+*.gz
+*.bz2
+*.xz
+*.zst
+
+# Local secret/token files
+.env
+.env.*
+*.secret
+*.token
+github_pat*
+pat_*.txt
+
+
+# Embedded external Git worktrees kept local; add as proper submodules/subtrees if needed
+/LPA3399Pro-SDK-Linux-V3.0/
+/lpa3399pro-armbian/

@@ -1,1 +1,0 @@
-I NPUTransfer: Starting NPU Transfer Proxy, Transfer version 2.0.0 (8f9ebbc@2020-04-03T09:12:43), devid = 0123456789ABCDEF, pid = 1411:1408
