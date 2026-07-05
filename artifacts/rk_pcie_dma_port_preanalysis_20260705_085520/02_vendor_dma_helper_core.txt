@@ -1,0 +1,902 @@
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/drivers/pci/host/rockchip-pcie-dma.c
+1:// SPDX-License-Identifier: GPL-2.0
+2:/*
+3: * Copyright (C) 2018 Rockchip Electronics Co., Ltd.
+4: */
+5:
+6:#include <linux/delay.h>
+7:#include <linux/fs.h>
+8:#include <linux/gpio.h>
+9:#include <linux/init.h>
+10:#include <linux/interrupt.h>
+11:#include <linux/kernel.h>
+12:#include <linux/kthread.h>
+13:#include <linux/list.h>
+14:#include <linux/miscdevice.h>
+15:#include <linux/of_address.h>
+16:#include <linux/of_device.h>
+17:#include <linux/of_gpio.h>
+18:#include <linux/of_pci.h>
+19:#include <linux/platform_device.h>
+20:#include <linux/poll.h>
+21:#include <linux/reset.h>
+22:#include <linux/resource.h>
+23:#include <linux/signal.h>
+24:#include <linux/types.h>
+25:#include <linux/uaccess.h>
+26:#include <uapi/linux/rk-pcie-dma.h>
+27:
+28:#include "rockchip-pcie-dma.h"
+29:
+30:/* dma transfer */
+31:/*
+32: * Write buffer format
+33: * 0	     4               8	       0xc	0x10	SZ_1M
+34: * ------------------------------------------------------
+35: * |0x12345678|local idx(0-7)|data size|reserve	|data	|
+36: * ------------------------------------------------------
+37: *
+38: * Byte 3-0: Receiver check if a valid data package arrived
+39: * Byte 7-4: As a index for data rcv ack buffer
+40: * Byte 11-8: Actual data size
+41: *
+42: * Data rcv ack buffer format
+43: * 0		4B
+44: * --------------
+45: * |0xdeadbeef	|
+46: * --------------
+47: *
+48: * Data free ack buffer format
+49: * 0		4B
+50: * --------------
+51: * |0xcafebabe	|
+52: * --------------
+53: *
+54: *	RC		EP
+55: * -	---------	---------
+56: * |	|  1MB	|	|	|
+57: * |	|------	|	|	|
+58: * |	|	|	|	|
+59: * |	|	|	|	|
+60: * 8MB	|wr buf	|  ->	|rd buf	|
+61: * |	|	|	|	|
+62: * |	|	|	|	|
+63: * |	|	|	|	|
+64: * -	---------	---------
+65: * |	|  1MB	|	|	|
+66: * |	|------	|	|	|
+67: * |	|	|	|	|
+68: * |	|	|	|	|
+69: * 8MB	|rd buf	|  <-	|wr buf	|
+70: * |	|	|	|	|
+71: * |	|	|	|	|
+72: * |	|	|	|	|
+73: * -	---------	---------
+74: * |	|  4B	|	|	|
+75: * |	|------	|	|	|
+76: * |	|	|	|	|
+77: * 32B	|	|	|	|
+78: * |	|scan	|  <-	|data	|
+79: * |	|	|	|rcv	|
+80: * |	|	|	|ack	|
+81: * |	|	|	|send	|
+82: * -	---------	---------
+83: * |	|  4B	|	|	|
+84: * |	|------	|	|	|
+85: * |	|	|	|	|
+86: * 32B	|data	|  ->	|scan	|
+87: * |	|rcv	|	|	|
+88: * |	|ack	|	|	|
+89: * |	|send	|	|	|
+90: * |	|	|	|	|
+91: * -	---------	---------
+92: * |	|  4B	|	|	|
+93: * |	|------	|	|	|
+94: * |	|	|	|	|
+95: * 32B	|	|	|	|
+96: * |	|scan	|  <-	|data	|
+97: * |	|	|	|free	|
+98: * |	|	|	|ack	|
+99: * |	|	|	|send	|
+100: * -	---------	---------
+101: * |	|4B	|	|	|
+102: * |	|------	|	|	|
+103: * |	|	|	|	|
+104: * 32B	|data	|  ->	|scan	|
+105: * |	|free	|	|	|
+106: * |	|ack	|	|	|
+107: * |	|send	|	|	|
+108: * |	|	|	|	|
+109: * -	---------	---------
+110: */
+111:
+112:#define NODE_SIZE		(sizeof(unsigned int))
+113:#define PCIE_DMA_ACK_BLOCK_SIZE		(NODE_SIZE * 8)
+114:
+115:#define PCIE_DMA_BUF_SIZE	SZ_1M
+116:#define PCIE_DMA_BUF_CNT	8
+117:#define PCIE_DMA_RD_BUF_SIZE	(PCIE_DMA_BUF_SIZE * PCIE_DMA_BUF_CNT)
+118:#define PCIE_DMA_WR_BUF_SIZE	(PCIE_DMA_BUF_SIZE * PCIE_DMA_BUF_CNT)
+119:#define PCIE_DMA_ACK_BASE	(PCIE_DMA_RD_BUF_SIZE + PCIE_DMA_WR_BUF_SIZE)
+120:
+121:#define PCIE_DMA_SET_DATA_CHECK_POS	(SZ_1M - 0x4)
+122:#define PCIE_DMA_SET_LOCAL_IDX_POS	(SZ_1M - 0x8)
+123:#define PCIE_DMA_SET_BUF_SIZE_POS	(SZ_1M - 0xc)
+124:
+125:#define PCIE_DMA_DATA_CHECK		0x12345678
+126:#define PCIE_DMA_DATA_ACK_CHECK		0xdeadbeef
+127:#define PCIE_DMA_DATA_FREE_ACK_CHECK	0xcafebabe
+128:
+129:#define PCIE_DMA_PARAM_SIZE		64
+130:#define PCIE_DMA_CHN0			0x0
+131:
+132:struct pcie_misc_dev {
+133:	struct miscdevice dev;
+134:	struct dma_trx_obj *obj;
+135:};
+136:
+137:static inline bool is_rc(struct dma_trx_obj *obj)
+138:{
+139:	return (obj->busno == 0);
+140:}
+141:
+142:static void rk_pcie_prepare_dma(struct dma_trx_obj *obj,
+143:			unsigned int idx, unsigned int bus_idx,
+144:			unsigned int local_idx, size_t buf_size,
+145:			enum transfer_type type)
+146:{
+147:	struct device *dev = obj->dev;
+148:	phys_addr_t local, bus;
+149:	void *virt;
+150:	u32 *desc;
+151:	unsigned long flags;
+152:	struct dma_table *table = NULL;
+153:
+154:	switch (type) {
+155:	case PCIE_DMA_DATA_SND:
+156:		table = obj->table[PCIE_DMA_DATA_SND_TABLE_OFFSET + local_idx];
+157:		table->type = PCIE_DMA_DATA_SND;
+158:		local = obj->mem_start + local_idx * PCIE_DMA_BUF_SIZE;
+159:		virt = obj->mem_base + local_idx * PCIE_DMA_BUF_SIZE;
+160:		bus = obj->mem_start + bus_idx * PCIE_DMA_BUF_SIZE;
+161:
+162:		if (!is_rc(obj)) {
+163:			local += PCIE_DMA_RD_BUF_SIZE;
+164:			virt += PCIE_DMA_RD_BUF_SIZE;
+165:			bus += PCIE_DMA_WR_BUF_SIZE;
+166:		}
+167:
+168:		dma_sync_single_for_device(dev, local, buf_size, DMA_TO_DEVICE);
+169:
+170:		writel(PCIE_DMA_DATA_CHECK, virt + PCIE_DMA_SET_DATA_CHECK_POS);
+171:		writel(local_idx, virt + PCIE_DMA_SET_LOCAL_IDX_POS);
+172:		writel(buf_size, virt + PCIE_DMA_SET_BUF_SIZE_POS);
+173:
+174:		buf_size = SZ_1M;
+175:		break;
+176:	case PCIE_DMA_DATA_RCV_ACK:
+177:		table = obj->table[PCIE_DMA_DATA_RCV_ACK_TABLE_OFFSET + idx];
+178:		table->type = PCIE_DMA_DATA_RCV_ACK;
+179:		local = obj->mem_start + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+180:		virt = obj->mem_base + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+181:
+182:		if (is_rc(obj)) {
+183:			local += PCIE_DMA_ACK_BLOCK_SIZE;
+184:			virt += PCIE_DMA_ACK_BLOCK_SIZE;
+185:		}
+186:		bus = local;
+187:		writel(PCIE_DMA_DATA_ACK_CHECK, virt);
+188:		break;
+189:	case PCIE_DMA_DATA_FREE_ACK:
+190:		table = obj->table[PCIE_DMA_DATA_FREE_ACK_TABLE_OFFSET + idx];
+191:		table->type = PCIE_DMA_DATA_FREE_ACK;
+192:		local = obj->mem_start + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+193:		virt = obj->mem_base + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+194:
+195:		if (is_rc(obj)) {
+196:			local += 3 * PCIE_DMA_ACK_BLOCK_SIZE;
+197:			virt += 3 * PCIE_DMA_ACK_BLOCK_SIZE;
+198:		} else {
+199:			local += 2 * PCIE_DMA_ACK_BLOCK_SIZE;
+200:			virt += 2 * PCIE_DMA_ACK_BLOCK_SIZE;
+201:		}
+202:		bus = local;
+203:		writel(PCIE_DMA_DATA_FREE_ACK_CHECK, virt);
+204:		break;
+205:	default:
+206:		dev_err(dev, "type = %d not support\n", type);
+207:		return;
+208:	}
+209:
+210:	if (is_rc(obj)) {
+211:		desc = table->descs;
+212:		*(desc + 0) = (u32)(local & 0xffffffff);
+213:		*(desc + 1) = (u32)(local >> 32);
+214:		*(desc + 2) = (u32)(bus & 0xffffffff);
+215:		*(desc + 3) = (u32)(bus >> 32);
+216:		*(desc + 4) = 0;
+217:		*(desc + 5) = 0;
+218:		*(desc + 6) = buf_size;
+219:		*(desc + 7) = 0;
+220:		*(desc + 8) = 0;
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/drivers/pci/host/rockchip-pcie-dma.c
+340:		suv = readl(addr);
+341:		if (suv == PCIE_DMA_DATA_FREE_ACK_CHECK) {
+342:			rk_pcie_clear_ack(addr);
+343:			set_bit(i, &obj->remote_write_available);
+344:		}
+345:	}
+346:
+347:	if ((obj->local_write_available && obj->remote_write_available) ||
+348:		obj->local_read_available) {
+349:		wake_up(&obj->event_queue);
+350:	}
+351:
+352:	hrtimer_add_expires(&obj->scan_timer, ktime_set(0, 1 * 1000 * 1000));
+353:
+354:	return HRTIMER_RESTART;
+355:}
+356:
+357:static int rk_pcie_misc_open(struct inode *inode, struct file *filp)
+358:{
+359:	struct miscdevice *miscdev = filp->private_data;
+360:	struct pcie_misc_dev *pcie_misc_dev = container_of(miscdev,
+361:						 struct pcie_misc_dev, dev);
+362:
+363:	filp->private_data = pcie_misc_dev->obj;
+364:
+365:	mutex_lock(&pcie_misc_dev->obj->count_mutex);
+366:	if (pcie_misc_dev->obj->ref_count++)
+367:		goto already_opened;
+368:
+369:	pcie_misc_dev->obj->loop_count = 0;
+370:	pcie_misc_dev->obj->local_read_available = 0x0;
+371:	pcie_misc_dev->obj->local_write_available = 0xff;
+372:	pcie_misc_dev->obj->remote_write_available = 0xff;
+373:	pcie_misc_dev->obj->dma_free = true;
+374:
+375:	pr_info("Open pcie misc device success\n");
+376:
+377:already_opened:
+378:	mutex_unlock(&pcie_misc_dev->obj->count_mutex);
+379:	return 0;
+380:}
+381:
+382:static int rk_pcie_misc_release(struct inode *inode, struct file *filp)
+383:{
+384:	struct dma_trx_obj *obj = filp->private_data;
+385:
+386:	mutex_lock(&obj->count_mutex);
+387:	if (--obj->ref_count)
+388:		goto still_opened;
+389:
+390:	pr_info("Close pcie misc device\n");
+391:
+392:still_opened:
+393:	mutex_unlock(&obj->count_mutex);
+394:	return 0;
+395:}
+396:
+397:static int rk_pcie_misc_mmap(struct file *filp,
+398:				     struct vm_area_struct *vma)
+399:{
+400:	struct dma_trx_obj *obj = filp->private_data;
+401:	size_t size = vma->vm_end - vma->vm_start;
+402:	int err;
+403:
+404:	err = remap_pfn_range(vma, vma->vm_start,
+405:			    __phys_to_pfn(obj->mem_start),
+406:			    size, vma->vm_page_prot);
+407:	if (err)
+408:		return -EAGAIN;
+409:
+410:	return 0;
+411:}
+412:
+413:static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd,
+414:					unsigned long arg)
+415:{
+416:	struct dma_trx_obj *obj = filp->private_data;
+417:	struct device *dev = obj->dev;
+418:	union pcie_dma_ioctl_param msg;
+419:	union pcie_dma_ioctl_param msg_to_user;
+420:	phys_addr_t addr;
+421:	void __user *uarg = (void __user *)arg;
+422:	int ret;
+423:
+424:	if (copy_from_user(&msg, uarg, sizeof(msg)) != 0) {
+425:		dev_err(dev, "failed to copy argument into kernel space\n");
+426:		return -EFAULT;
+427:	}
+428:
+429:	switch (cmd) {
+430:	case PCIE_DMA_START:
+431:		test_and_clear_bit(msg.in.l_widx, &obj->local_write_available);
+432:		test_and_clear_bit(msg.in.r_widx, &obj->remote_write_available);
+433:		obj->loop_count++;
+434:		break;
+435:	case PCIE_DMA_GET_LOCAL_READ_BUFFER_INDEX:
+436:		msg_to_user.lra = obj->local_read_available;
+437:		addr = obj->mem_start;
+438:		if (is_rc(obj))
+439:			addr += PCIE_DMA_WR_BUF_SIZE;
+440:		/* by kernel auto or by user to invalidate cache */
+441:		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_RD_BUF_SIZE,
+442:					DMA_FROM_DEVICE);
+443:		ret = copy_to_user(uarg, &msg_to_user, sizeof(msg));
+444:		if (ret) {
+445:			dev_err(dev, "failed to get read buffer index\n");
+446:			return -EFAULT;
+447:		}
+448:		break;
+449:	case PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX:
+450:		test_and_clear_bit(msg.in.idx, &obj->local_read_available);
+451:		break;
+452:	case PCIE_DMA_GET_LOCAL_REMOTE_WRITE_BUFFER_INDEX:
+453:		msg_to_user.out.lwa = obj->local_write_available;
+454:		msg_to_user.out.rwa = obj->remote_write_available;
+455:		ret = copy_to_user(uarg, &msg_to_user, sizeof(msg));
+456:		if (ret) {
+457:			dev_err(dev, "failed to get write buffer index\n");
+458:			return -EFAULT;
+459:		}
+460:		break;
+461:	case PCIE_DMA_SYNC_BUFFER_FOR_CPU:
+462:		addr = obj->mem_start + msg.in.idx * PCIE_DMA_BUF_SIZE;
+463:		if (is_rc(obj))
+464:			addr += PCIE_DMA_WR_BUF_SIZE;
+465:		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_BUF_SIZE,
+466:					DMA_FROM_DEVICE);
+467:		break;
+468:	case PCIE_DMA_WAIT_TRANSFER_COMPLETE:
+469:		reinit_completion(&obj->done);
+470:		ret = wait_for_completion_interruptible(&obj->done);
+471:		if (WARN_ON(ret)) {
+472:			pr_info("failed to wait complete\n");
+473:			return ret;
+474:		}
+475:
+476:		obj->loop_count = 0;
+477:		break;
+478:	case PCIE_DMA_SET_LOOP_COUNT:
+479:		obj->loop_count_threshold = msg.count;
+480:		pr_info("threshold = %d\n", obj->loop_count_threshold);
+481:		break;
+482:	default:
+483:		pr_info("%s, %d, cmd : %x not support\n", __func__, __LINE__,
+484:			cmd);
+485:		return -EFAULT;
+486:	}
+487:
+488:	if (cmd == PCIE_DMA_START ||
+489:		cmd == PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX) {
+490:		rk_pcie_prepare_dma(obj, msg.in.idx, msg.in.r_widx,
+491:				    msg.in.l_widx, msg.in.size, msg.in.type);
+492:		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
+493:	}
+494:
+495:	return 0;
+496:}
+497:
+498:static unsigned int rk_pcie_misc_poll(struct file *filp,
+499:						poll_table *wait)
+500:{
+501:	struct dma_trx_obj *obj = filp->private_data;
+502:	u32 lwa, rwa, lra;
+503:	u32 ret = 0;
+504:
+505:	poll_wait(filp, &obj->event_queue, wait);
+506:
+507:	lwa = obj->local_write_available;
+508:	rwa = obj->remote_write_available;
+509:	if (lwa && rwa)
+510:		ret = POLLOUT;
+511:
+512:	lra = obj->local_read_available;
+513:	if (lra)
+514:		ret |= POLLIN;
+515:
+516:	return ret;
+517:}
+518:
+519:static const struct file_operations rk_pcie_misc_fops = {
+520:	.open		= rk_pcie_misc_open,
+521:	.release	= rk_pcie_misc_release,
+522:	.mmap		= rk_pcie_misc_mmap,
+523:	.unlocked_ioctl	= rk_pcie_misc_ioctl,
+524:	.poll		= rk_pcie_misc_poll,
+525:};
+526:
+527:static void rk_pcie_delete_misc(struct dma_trx_obj *obj)
+528:{
+529:	misc_deregister(&obj->pcie_dev->dev);
+530:}
+531:
+532:static int rk_pcie_add_misc(struct dma_trx_obj *obj)
+533:{
+534:	int ret;
+535:	struct pcie_misc_dev *pcie_dev;
+536:
+537:	pcie_dev = devm_kzalloc(obj->dev, sizeof(*pcie_dev), GFP_KERNEL);
+538:	if (!pcie_dev)
+539:		return -ENOMEM;
+540:
+541:	pcie_dev->dev.minor = MISC_DYNAMIC_MINOR;
+542:	pcie_dev->dev.name = "pcie-dev";
+543:	pcie_dev->dev.fops = &rk_pcie_misc_fops;
+544:	pcie_dev->dev.parent = NULL;
+545:
+546:	ret = misc_register(&pcie_dev->dev);
+547:	if (ret) {
+548:		pr_err("pcie: failed to register misc device.\n");
+549:		return ret;
+550:	}
+551:
+552:	pcie_dev->obj = obj;
+553:	obj->pcie_dev = pcie_dev;
+554:
+555:	pr_info("register misc device pcie-dev\n");
+556:
+557:	return 0;
+558:}
+559:
+560:static void *rk_pcie_map_kernel(phys_addr_t start, size_t len)
+561:{
+562:	int i;
+563:	void *vaddr;
+564:	pgprot_t pgprot;
+565:	phys_addr_t phys;
+566:	int npages = PAGE_ALIGN(len) / PAGE_SIZE;
+567:	struct page **p = vmalloc(sizeof(struct page *) * npages);
+568:
+569:	if (!p)
+570:		return NULL;
+571:
+572:	pgprot = pgprot_noncached(PAGE_KERNEL);
+573:
+574:	phys = start;
+575:	for (i = 0; i < npages; i++) {
+576:		p[i] = phys_to_page(phys);
+577:		phys += PAGE_SIZE;
+578:	}
+579:
+580:	vaddr = vmap(p, npages, VM_MAP, pgprot);
+581:	vfree(p);
+582:
+583:	return vaddr;
+584:}
+585:
+586:static void rk_pcie_unmap_kernel(void *vaddr)
+587:{
+588:	vunmap(vaddr);
+589:}
+590:
+591:static void rk_pcie_dma_table_free(struct dma_trx_obj *obj, int num)
+592:{
+593:	int i;
+594:	struct dma_table *table;
+595:
+596:	if (num > PCIE_DMA_TABLE_NUM)
+597:		num = PCIE_DMA_TABLE_NUM;
+598:
+599:	for (i = 0; i < num; i++) {
+600:		table = obj->table[i];
+601:		dma_free_coherent(obj->dev, PCIE_DMA_PARAM_SIZE,
+602:			table->descs, table->phys_descs);
+603:		kfree(table);
+604:	}
+605:}
+606:
+607:static int rk_pcie_dma_table_alloc(struct dma_trx_obj *obj)
+608:{
+609:	int i;
+610:	struct dma_table *table;
+611:
+612:	for (i = 0; i < PCIE_DMA_TABLE_NUM; i++) {
+613:		table = kzalloc(sizeof(*table), GFP_KERNEL);
+614:		if (!table)
+615:			goto free_table;
+616:
+617:		table->descs = dma_alloc_coherent(obj->dev, PCIE_DMA_PARAM_SIZE,
+618:				&table->phys_descs, GFP_KERNEL | __GFP_ZERO);
+619:		if (!table->descs) {
+620:			kfree(table);
+621:			goto free_table;
+622:		}
+623:
+624:		if (is_rc(obj))
+625:			table->dir = DMA_TO_BUS;
+626:
+627:		table->chn = PCIE_DMA_CHN0;
+628:		INIT_LIST_HEAD(&table->tbl_node);
+629:		obj->table[i] = table;
+630:	}
+631:
+632:	return 0;
+633:
+634:free_table:
+635:	rk_pcie_dma_table_free(obj, i);
+636:	dev_err(obj->dev, "Failed to alloc dma table\n");
+637:
+638:	return -ENOMEM;
+639:}
+640:
+641:#ifdef CONFIG_DEBUG_FS
+642:static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+643:{
+644:	struct dma_trx_obj *dma_obj = s->private;
+645:	bool list = list_empty(&dma_obj->tbl_list);
+646:
+647:	seq_printf(s, "irq_num = %ld, loop_count = %d,",
+648:			dma_obj->irq_num, dma_obj->loop_count);
+649:	seq_printf(s, "loop_threshold = %d,",
+650:			dma_obj->loop_count_threshold);
+651:	seq_printf(s, "lwa = %lx, rwa = %lx, lra = %lx,",
+652:			dma_obj->local_write_available,
+653:			dma_obj->remote_write_available,
+654:			dma_obj->local_read_available);
+655:	seq_printf(s, "list : (%s), dma chn : (%s)\n",
+656:			list ? "empty" : "not empty",
+657:			dma_obj->dma_free ? "free" : "busy");
+658:
+659:	return 0;
+660:}
+661:
+662:static int rk_pcie_debugfs_open(struct inode *inode, struct file *file)
+663:{
+664:	return single_open(file, rk_pcie_debugfs_trx_show, inode->i_private);
+665:}
+666:
+667:static const struct file_operations rk_pcie_debugfs_fops = {
+668:	.owner = THIS_MODULE,
+669:	.open = rk_pcie_debugfs_open,
+670:	.read = seq_read,
+671:	.llseek = seq_lseek,
+672:	.release = single_release,
+673:};
+674:#endif
+675:
+676:struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+677:{
+678:	int ret;
+679:	int busno;
+680:	struct device_node *np = dev->of_node;
+681:	struct device_node *mem;
+682:	struct resource reg;
+683:	struct dma_trx_obj *obj;
+684:
+685:	obj = devm_kzalloc(dev, sizeof(struct dma_trx_obj), GFP_KERNEL);
+686:	if (!obj)
+687:		return ERR_PTR(-ENOMEM);
+688:
+689:	obj->dev = dev;
+690:
+691:	ret = of_property_read_u32(np, "busno", &busno);
+692:	if (ret < 0) {
+693:		dev_err(dev, "missing \"busno\" property\n");
+694:		return ERR_PTR(ret);
+695:	}
+696:
+697:	obj->busno = busno;
+698:
+699:	mem = of_parse_phandle(np, "memory-region", 0);
+700:	if (!mem) {
+701:		dev_err(dev, "missing \"memory-region\" property\n");
+702:		return ERR_PTR(-ENODEV);
+703:	}
+704:
+705:	ret = of_address_to_resource(mem, 0, &reg);
+706:	if (ret < 0) {
+707:		dev_err(dev, "missing \"reg\" property\n");
+708:		return ERR_PTR(-ENODEV);
+709:	}
+710:
+711:	obj->mem_start = reg.start;
+712:	obj->mem_size = resource_size(&reg);
+713:	obj->mem_base = rk_pcie_map_kernel(obj->mem_start, obj->mem_size);
+714:
+715:	if (!obj->mem_base)
+716:		return ERR_PTR(-ENOMEM);
+717:
+718:	ret = rk_pcie_dma_table_alloc(obj);
+719:	if (ret)
+720:		return ERR_PTR(-ENOMEM);
+721:
+722:	obj->dma_trx_wq = create_singlethread_workqueue("dma_trx_wq");
+723:	INIT_WORK(&obj->dma_trx_work, rk_pcie_dma_trx_work);
+724:
+725:	INIT_LIST_HEAD(&obj->tbl_list);
+726:	spin_lock_init(&obj->tbl_list_lock);
+727:
+728:	init_waitqueue_head(&obj->event_queue);
+729:
+730:	hrtimer_init_on_stack(&obj->scan_timer, CLOCK_MONOTONIC,
+731:				HRTIMER_MODE_REL);
+732:	obj->scan_timer.function = rk_pcie_scan_timer;
+733:	obj->scan_thread = kthread_run(rk_pcie_scan_thread, (void *)obj,
+734:				"scan_thread");
+735:	if (!obj->scan_thread) {
+736:		dev_err(dev, "kthread_run failed\n");
+737:		obj = ERR_PTR(-EINVAL);
+738:		goto free_dma_table;
+739:	}
+740:
+741:	obj->irq_num = 0;
+742:	obj->loop_count_threshold = 0;
+743:	obj->ref_count = 0;
+744:	init_completion(&obj->done);
+745:
+746:	mutex_init(&obj->count_mutex);
+747:	rk_pcie_add_misc(obj);
+748:
+749:#ifdef CONFIG_DEBUG_FS
+750:	obj->pcie_root = debugfs_create_dir("pcie", NULL);
+751:	if (!obj->pcie_root) {
+752:		obj = ERR_PTR(-EINVAL);
+753:		goto free_dma_table;
+754:	}
+755:
+756:	debugfs_create_file("pcie_trx", 0644, obj->pcie_root, obj,
+757:			&rk_pcie_debugfs_fops);
+758:#endif
+759:
+760:	return obj;
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/drivers/pci/host/rockchip-pcie-dma.h
+1:/* SPDX-License-Identifier: GPL-2.0 */
+2:/*
+3: * Copyright (C) 2018 Rockchip Electronics Co., Ltd.
+4: */
+5:
+6:#include <linux/debugfs.h>
+7:
+8:#define PCIE_DMA_TABLE_NUM		24
+9:
+10:#define PCIE_DMA_TRX_TYPE_NUM		3
+11:
+12:#define PCIE_DMA_DATA_SND_TABLE_OFFSET		0x0
+13:#define PCIE_DMA_DATA_RCV_ACK_TABLE_OFFSET	0x8
+14:#define PCIE_DMA_DATA_FREE_ACK_TABLE_OFFSET	0x10
+15:
+16:enum dma_dir {
+17:	DMA_FROM_BUS,
+18:	DMA_TO_BUS,
+19:};
+20:
+21:/**
+22: * The Channel Control Register for read and write.
+23: */
+24:union chan_ctrl_lo {
+25:	struct {
+26:		u32	cb		:1;	// 0
+27:		u32	tcb		:1;	// 1
+28:		u32	llp		:1;	// 2
+29:		u32	lie		:1;	// 3
+30:		u32	rie		:1;	// 4
+31:		u32	cs		:2;	// 5:6
+32:		u32	rsvd1		:1;	// 7
+33:		u32	ccs		:1;	// 8
+34:		u32	llen		:1;	// 9
+35:		u32	b_64s		:1;	// 10
+36:		u32	b_64d		:1;	// 11
+37:		u32	pf		:5;	// 12:16
+38:		u32	rsvd2		:7;	// 17:23
+39:		u32	sn		:1;	// 24
+40:		u32	ro		:1;	// 25
+41:		u32	td		:1;	// 26
+42:		u32	tc		:3;	// 27:29
+43:		u32	at		:2;	// 30:31
+44:	};
+45:	u32 asdword;
+46:};
+47:
+48:/**
+49: * The Channel Control Register high part for read and write.
+50: */
+51:union chan_ctrl_hi {
+52:	struct {
+53:		u32	vfenb		:1;	// 0
+54:		u32	vfunc		:8;	// 1-8
+55:		u32	rsvd0		:23;	// 9-31
+56:	};
+57:	u32 asdword;
+58:};
+59:
+60:/**
+61: * The Channel Weight Register.
+62: */
+63:union weight {
+64:	struct {
+65:		u32	weight0		:5;	// 0:4
+66:		u32	weight1		:5;	// 5:9
+67:		u32	weight2		:5;	// 10:14
+68:		u32	weight3		:5;	// 15:19
+69:		u32	rsvd		:12;	// 20:31
+70:	};
+71:	u32 asdword;
+72:};
+73:
+74:/**
+75: * The Doorbell Register for read and write.
+76: */
+77:union db {
+78:	struct {
+79:		u32	chnl		:3;	// 0
+80:		u32	reserved0	:28;	// 3:30
+81:		u32	stop		:1;	// 31
+82:	};
+83:	u32 asdword;
+84:};
+85:
+86:/**
+87: * The Context Registers for read and write.
+88: */
+89:struct ctx_regs {
+90:	union chan_ctrl_lo		ctrllo;
+91:	union chan_ctrl_hi		ctrlhi;
+92:	u32				xfersize;
+93:	u32				sarptrlo;
+94:	u32				sarptrhi;
+95:	u32				darptrlo;
+96:	u32				darptrhi;
+97:};
+98:
+99:/**
+100: * The Enable Register for read and write.
+101: */
+102:union enb {
+103:	struct {
+104:		u32	enb		:1;	// 0
+105:		u32	reserved0	:31;	// 1:31
+106:	};
+107:	u32 asdword;
+108:};
+109:
+110:/**
+111: * The Interrupt Status Register for read and write.
+112: */
+113:union int_status {
+114:	struct {
+115:		u32	donesta		:8;
+116:		u32	rsvd0		:8;
+117:		u32	abortsta	:8;
+118:		u32	rsvd1		:8;
+119:	};
+120:	u32 asdword;
+121:};
+122:
+123:/**
+124: * The Interrupt Clear Register for read and write.
+125: */
+126:union int_clear {
+127:	struct {
+128:		u32	doneclr		:8;
+129:		u32	rsvd0		:8;
+130:		u32	abortclr	:8;
+131:		u32	rsvd1		:8;
+132:	};
+133:	u32 asdword;
+134:};
+135:
+136:struct dma_table {
+137:	u32				*descs;
+138:	int				chn;
+139:	phys_addr_t			phys_descs;
+140:	u32				dir;
+141:	u32				type;
+142:	struct list_head		tbl_node;
+143:	union enb			wr_enb;
+144:	struct ctx_regs			ctx_reg;
+145:	union weight			wr_weilo;
+146:	union weight			wr_weihi;
+147:	union db			start;
+148:};
+149:
+150:struct dma_trx_obj {
+151:	struct device			*dev;
+152:	int				loop_count;
+153:	int				loop_count_threshold;
+154:	void				*mem_base;
+155:	phys_addr_t			mem_start;
+156:	size_t				mem_size;
+157:	int				dma_free;
+158:	unsigned long			local_write_available;
+159:	unsigned long			local_read_available;
+160:	unsigned long			remote_write_available;
+161:	spinlock_t			tbl_list_lock; /* lock dma table */
+162:	struct list_head		tbl_list;
+163:	struct work_struct		dma_trx_work;
+164:	wait_queue_head_t		event_queue;
+165:	struct workqueue_struct		*dma_trx_wq;
+166:	struct dma_table		*table[PCIE_DMA_TABLE_NUM];
+167:	struct dma_table		*cur;
+168:	struct task_struct		*scan_thread;
+169:	struct hrtimer			scan_timer;
+170:	int				busno;
+171:	void				*priv;
+172:	struct completion		done;
+173:	int				ref_count;
+174:	struct mutex			count_mutex;
+175:	unsigned long			irq_num;
+176:	struct dentry			*pcie_root;
+177:	struct pcie_misc_dev		*pcie_dev;
+178:};
+179:
+180:#ifdef CONFIG_PCIE_DW_ROCKCHIP
+181:void rk_pcie_start_dma_1808(struct dma_trx_obj *obj);
+182:#else
+183:static inline void rk_pcie_start_dma_1808(struct dma_trx_obj *obj)
+184:{
+185:}
+186:#endif
+187:
+188:#ifdef CONFIG_PCIE_ROCKCHIP
+189:void rk_pcie_start_dma_3399(struct dma_trx_obj *obj);
+190:#else
+191:static inline void rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+192:{
+193:}
+194:#endif
+195:
+196:#ifdef CONFIG_ROCKCHIP_PCIE_DMA_OBJ
+197:struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev);
+198:void rk_pcie_dma_obj_remove(struct dma_trx_obj *obj);
+199:#else
+200:static inline struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+201:{
+202:	return NULL;
+203:}
+204:
+205:static inline void rk_pcie_dma_obj_remove(struct dma_trx_obj *obj)
+206:{
+207:}
+208:#endif
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/include/uapi/linux/rk-pcie-dma.h
+1:/* SPDX-License-Identifier: GPL-2.0 */
+2:/*
+3: * Copyright (C) 2018 Rockchip Electronics Co., Ltd.
+4: */
+5:
+6:enum transfer_type {
+7:	PCIE_DMA_DATA_SND,
+8:	PCIE_DMA_DATA_RCV_ACK,
+9:	PCIE_DMA_DATA_FREE_ACK,
+10:};
+11:
+12:union pcie_dma_ioctl_param {
+13:	struct {
+14:		u32	idx;
+15:		u32	l_widx;
+16:		u32	r_widx;
+17:		u32	size;
+18:		u32	type;
+19:	} in;
+20:	struct {
+21:		u32	lwa;
+22:		u32	rwa;
+23:	} out;
+24:	u32		lra;
+25:	u32		count;
+26:};
+27:
+28:#define PCIE_BASE	'P'
+29:#define PCIE_DMA_START					\
+30:	_IOW(PCIE_BASE, 0, union pcie_dma_ioctl_param)
+31:#define PCIE_DMA_GET_LOCAL_READ_BUFFER_INDEX		\
+32:	_IOR(PCIE_BASE, 1, union pcie_dma_ioctl_param)
+33:#define PCIE_DMA_GET_LOCAL_REMOTE_WRITE_BUFFER_INDEX	\
+34:	_IOR(PCIE_BASE, 2, union pcie_dma_ioctl_param)
+35:#define PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX		\
+36:	_IOW(PCIE_BASE, 3, union pcie_dma_ioctl_param)
+37:#define PCIE_DMA_SYNC_BUFFER_FOR_CPU			\
+38:	_IOW(PCIE_BASE, 4, union pcie_dma_ioctl_param)
+39:#define PCIE_DMA_SYNC_BUFFER_TO_DEVICE			\
+40:	_IOW(PCIE_BASE, 5, union pcie_dma_ioctl_param)
+41:#define PCIE_DMA_WAIT_TRANSFER_COMPLETE			\
+42:	_IO(PCIE_BASE, 6)
+43:#define PCIE_DMA_SET_LOOP_COUNT				\
+44:	_IOW(PCIE_BASE, 7, union pcie_dma_ioctl_param)
+45:
+

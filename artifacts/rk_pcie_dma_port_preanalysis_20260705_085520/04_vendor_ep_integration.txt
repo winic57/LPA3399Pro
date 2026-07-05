@@ -1,0 +1,161 @@
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/drivers/pci/host/pcie-dw-rockchip.c
+760:	if (of_device_is_compatible(pdev->dev.of_node,
+761:				    "rockchip,rk1808-pcie"))
+762:		rk_pcie_writel_dbi(rk_pcie, PCIE_PL_ORDER_RULE_CTRL_OFF,
+763:				   0xff00);
+764:
+765:	return 0;
+766:}
+767:
+768:static int rk_pcie_add_ep(struct rk_pcie *rk_pcie,
+769:			       struct platform_device *pdev)
+770:{
+771:	int ret;
+772:	struct device *dev = &pdev->dev;
+773:	struct device_node *np = dev->of_node;
+774:	struct device_node *mem;
+775:	struct resource reg;
+776:
+777:	mem = of_parse_phandle(np, "memory-region", 0);
+778:	if (!mem) {
+779:		dev_err(rk_pcie->dev, "missing \"memory-region\" property\n");
+780:		return -ENODEV;
+781:	}
+782:
+783:	ret = of_address_to_resource(mem, 0, &reg);
+784:	if (ret < 0) {
+785:		dev_err(rk_pcie->dev, "missing \"reg\" property\n");
+786:		return ret;
+787:	}
+788:
+789:	rk_pcie->mem_start = reg.start;
+790:	rk_pcie->mem_size = resource_size(&reg);
+791:
+792:	ret = rk_pcie_ep_win_parse(rk_pcie, pdev);
+793:	if (ret) {
+794:		dev_err(dev, "failed to parse ep dts\n");
+795:		return ret;
+796:	}
+797:
+798:	ret = rk_pcie_ep_atu_init(rk_pcie);
+799:	if (ret) {
+800:		dev_err(dev, "failed to init ep device\n");
+801:		return ret;
+802:	}
+803:
+804:	rk_pcie_ep_setup(rk_pcie);
+805:
+806:	rk_pcie->dma_obj = rk_pcie_dma_obj_probe(dev);
+807:		if (IS_ERR(rk_pcie->dma_obj)) {
+808:			dev_err(dev, "failed to prepare dma object\n");
+809:			return -EINVAL;
+810:		}
+811:
+812:	return 0;
+813:}
+814:
+815:static void rk_pcie_clk_deinit(struct rk_pcie *rk_pcie)
+816:{
+817:	clk_bulk_disable(rk_pcie->clk_cnt, rk_pcie->clks);
+818:	clk_bulk_unprepare(rk_pcie->clk_cnt, rk_pcie->clks);
+819:}
+820:
+821:static int rk_pcie_clk_init(struct rk_pcie *rk_pcie)
+822:{
+823:	struct device *dev = rk_pcie->dev;
+824:	struct property *prop;
+825:	const char *name;
+826:	int i = 0, ret, count;
+827:
+828:	count = of_property_count_strings(dev->of_node, "clock-names");
+829:	if (count < 1)
+830:		return -ENODEV;
+831:
+832:	rk_pcie->clks = devm_kcalloc(dev, count,
+833:				     sizeof(struct clk_bulk_data),
+834:				     GFP_KERNEL);
+835:	if (!rk_pcie->clks)
+836:		return -ENOMEM;
+837:
+838:	rk_pcie->clk_cnt = count;
+839:
+840:	of_property_for_each_string(dev->of_node, "clock-names", prop, name) {
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/drivers/pci/host/pcie-dw-rockchip.c
+1000:void rk_pcie_start_dma_1808(struct dma_trx_obj *obj)
+1001:{
+1002:	struct rk_pcie *rk_pcie = dev_get_drvdata(obj->dev);
+1003:
+1004:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_WR_ENB,
+1005:		obj->cur->wr_enb.asdword);
+1006:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_CTRL_LO,
+1007:		obj->cur->ctx_reg.ctrllo.asdword);
+1008:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_CTRL_HI,
+1009:		obj->cur->ctx_reg.ctrlhi.asdword);
+1010:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_XFERSIZE,
+1011:		obj->cur->ctx_reg.xfersize);
+1012:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_SAR_PTR_LO,
+1013:		obj->cur->ctx_reg.sarptrlo);
+1014:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_SAR_PTR_HI,
+1015:		obj->cur->ctx_reg.sarptrhi);
+1016:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_DAR_PTR_LO,
+1017:		obj->cur->ctx_reg.darptrlo);
+1018:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_DAR_PTR_HI,
+1019:		obj->cur->ctx_reg.darptrhi);
+1020:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_WR_WEILO,
+1021:		obj->cur->wr_weilo.asdword);
+1022:	rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET + PCIE_DMA_WR_DOORBELL,
+1023:		obj->cur->start.asdword);
+1024:}
+1025:EXPORT_SYMBOL(rk_pcie_start_dma_1808);
+1026:
+1027:static inline void
+1028:rk_pcie_handle_dma_interrupt(struct rk_pcie *rk_pcie)
+1029:{
+1030:	struct dma_trx_obj *obj = rk_pcie->dma_obj;
+1031:
+1032:	if (!obj)
+1033:		return;
+1034:
+1035:	obj->dma_free = true;
+1036:	obj->irq_num++;
+1037:
+1038:	if (list_empty(&obj->tbl_list)) {
+1039:		if (obj->dma_free &&
+1040:		    obj->loop_count >= obj->loop_count_threshold)
+1041:			complete(&obj->done);
+1042:	}
+1043:}
+1044:
+1045:static irqreturn_t rk_pcie_sys_irq_handler(int irq, void *arg)
+1046:{
+1047:	struct rk_pcie *rk_pcie = arg;
+1048:	u32 chn = rk_pcie->dma_obj->cur->chn;
+1049:	union int_status status;
+1050:	union int_clear clears;
+1051:
+1052:	status.asdword = rk_pcie_readl_dbi(rk_pcie, PCIE_DMA_OFFSET +
+1053:					   PCIE_DMA_WR_INT_STATUS);
+1054:
+1055:	if (status.donesta & BIT(0)) {
+1056:		rk_pcie_handle_dma_interrupt(rk_pcie);
+1057:		clears.doneclr = 0x1 << chn;
+1058:		rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET +
+1059:				   PCIE_DMA_WR_INT_CLEAR, clears.asdword);
+1060:	}
+1061:
+1062:	if (status.abortsta & BIT(0)) {
+1063:		dev_err(rk_pcie->dev, "%s, abort\n", __func__);
+1064:		clears.abortclr = 0x1 << chn;
+1065:		rk_pcie_writel_dbi(rk_pcie, PCIE_DMA_OFFSET +
+1066:				   PCIE_DMA_WR_INT_CLEAR, clears.asdword);
+1067:	}
+1068:
+1069:	return IRQ_HANDLED;
+1070:}
+1071:
+1072:static int rk_pcie_request_sys_irq(struct rk_pcie *rk_pcie,
+1073:					struct platform_device *pdev)
+1074:{
+1075:	int irq;
+

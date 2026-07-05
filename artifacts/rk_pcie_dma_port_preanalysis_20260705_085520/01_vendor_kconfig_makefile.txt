@@ -1,0 +1,69 @@
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/drivers/pci/host/Kconfig
+1:menu "PCI host controller drivers"
+2:	depends on PCI
+3:
+4:config PCI_DRA7XX
+5:	bool "TI DRA7xx PCIe controller"
+6:	select PCIE_DW
+7:	depends on OF && HAS_IOMEM && TI_PIPE3
+8:	depends on BROKEN
+9:	help
+10:	 Enables support for the PCIe controller in the DRA7xx SoC.  There
+11:	 are two instances of PCIe controller in DRA7xx.  This controller can
+12:	 act both as EP and RC.  This reuses the Designware core.
+13:
+14:config PCIE_DW_ROCKCHIP
+15:	bool "Rockchip DesignWare PCIe controller"
+16:	select PCIE_DW
+17:	depends on ARCH_ROCKCHIP
+18:	depends on OF
+19:	help
+20:	  Enables support for the DW PCIe controller in the Rockchip SoC.
+21:
+22:config ROCKCHIP_PCIE_DMA_OBJ
+23:	bool "Rockchip PCIe uDMA transfer support"
+24:	depends on PCIE_ROCKCHIP || PCIE_DW_ROCKCHIP
+25:	default n
+26:	help
+27:	 Say y to enable p2p DMA transfer between PCIe components.
+28:
+29:config PCI_MVEBU
+30:	bool "Marvell EBU PCIe controller"
+31:	depends on ARCH_MVEBU || ARCH_DOVE
+32:	depends on OF
+33:
+34:config PCIE_DW
+35:	bool
+36:
+37:config PCI_EXYNOS
+38:	bool "Samsung Exynos PCIe controller"
+39:	depends on SOC_EXYNOS5440
+40:	select PCIEPORTBUS
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/drivers/pci/host/Makefile
+1:obj-$(CONFIG_PCIE_DW) += pcie-designware.o
+2:obj-$(CONFIG_PCI_DRA7XX) += pci-dra7xx.o
+3:obj-$(CONFIG_PCI_EXYNOS) += pci-exynos.o
+4:obj-$(CONFIG_PCI_IMX6) += pci-imx6.o
+5:obj-$(CONFIG_PCI_MVEBU) += pci-mvebu.o
+6:obj-$(CONFIG_PCI_TEGRA) += pci-tegra.o
+7:obj-$(CONFIG_PCI_RCAR_GEN2) += pci-rcar-gen2.o
+8:obj-$(CONFIG_PCI_RCAR_GEN2_PCIE) += pcie-rcar.o
+9:obj-$(CONFIG_PCI_HOST_GENERIC) += pci-host-generic.o
+10:obj-$(CONFIG_PCIE_SPEAR13XX) += pcie-spear13xx.o
+11:obj-$(CONFIG_PCI_KEYSTONE) += pci-keystone-dw.o pci-keystone.o
+12:obj-$(CONFIG_PCIE_XILINX) += pcie-xilinx.o
+13:obj-$(CONFIG_PCI_XGENE) += pci-xgene.o
+14:obj-$(CONFIG_PCI_XGENE_MSI) += pci-xgene-msi.o
+15:obj-$(CONFIG_PCI_LAYERSCAPE) += pci-layerscape.o
+16:obj-$(CONFIG_PCI_VERSATILE) += pci-versatile.o
+17:obj-$(CONFIG_PCIE_IPROC) += pcie-iproc.o
+18:obj-$(CONFIG_PCIE_IPROC_PLATFORM) += pcie-iproc-platform.o
+19:obj-$(CONFIG_PCIE_IPROC_BCMA) += pcie-iproc-bcma.o
+20:obj-$(CONFIG_PCIE_ALTERA) += pcie-altera.o
+21:obj-$(CONFIG_PCIE_ALTERA_MSI) += pcie-altera-msi.o
+22:obj-$(CONFIG_PCI_HISI) += pcie-hisi.o
+23:obj-$(CONFIG_PCIE_ROCKCHIP) += pcie-rockchip.o
+24:obj-$(CONFIG_PCIE_DW_ROCKCHIP) += pcie-dw-rockchip.o
+25:obj-$(CONFIG_ROCKCHIP_PCIE_DMA_OBJ) += rockchip-pcie-dma.o
+

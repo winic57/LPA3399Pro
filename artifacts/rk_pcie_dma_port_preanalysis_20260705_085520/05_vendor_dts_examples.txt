@@ -1,0 +1,116 @@
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/arch/arm64/boot/dts/rockchip/rk3399pro-neardi-linux-lc110-base.dts
+1:// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+2:/*
+3: * Copyright (c) 2019 Fuzhou Rockchip Electronics Co., Ltd
+4: *
+5: */
+6:
+7:/dts-v1/;
+8:#include "rk3399pro-neardi-linux-ld110-hdmi.dtsi"
+9:#include "rk3399pro-neardi-linux-ld110-wifibt.dtsi"
+10:#include "rk3399pro-neardi-linux-ld110-phy.dtsi"
+11:#include "rk3399pro-neardi-linux-ld110-peripheral.dtsi"
+12:#include "rk3399pro-neardi-linux-ld110-usb.dtsi"
+13:#include "rk3399pro-neardi-linux-ld110-cam.dtsi"
+14://#include "rk3399pro-evb-v11-linux.dts"
+15:
+16:/ {
+17:	model = "Rockchip RK3399pro evb v13 linux board with multi camera";
+18:	compatible = "rockchip,rk3399pro-evb-v13-linux", "rockchip,rk3399pro";
+19:
+20:	reserved-memory {
+21:		#address-cells = <2>;
+22:		#size-cells = <2>;
+23:
+24:		dma_trans: dma_trans@3c000000 {
+25:			//no-map;
+26:			reg = <0x0 0x3c000000 0x0 0x04000000>;
+27:		};
+28:	};
+29:
+30:    fiq_debugger: fiq-debugger {
+31:		compatible = "rockchip,fiq-debugger";
+32:		rockchip,serial-id = <2>;
+33:		rockchip,wake-irq = <0>;
+34:		rockchip,irq-mode-enable = <0>;  /* If enable uart uses irq instead of fiq */
+35:		rockchip,baudrate = <1500000>;  /* Only 115200 and 1500000 */
+36:		pinctrl-names = "default";
+37:		pinctrl-0 = <&uart2c_xfer>;
+38:		interrupts = <GIC_SPI 150 IRQ_TYPE_LEVEL_HIGH 0>;
+39:	};
+40:
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/arch/arm64/boot/dts/rockchip/rk3399pro-neardi-linux-lc110-base.dts
+676:};
+677:
+678:&pcie0 {
+679:	/delete-property/ ep-gpios;
+680:	num-lanes = <4>;
+681:	pinctrl-names = "default";
+682:	pinctrl-0 = <&pcie_clkreqn_cpm>;
+683:	max-link-speed = <1>;
+684:	memory-region = <&dma_trans>;
+685:	busno = <0>;
+686:	rockchip,dma_trx_enabled = <1>;
+687:	rockchip,deferred = <1>;
+688:	status = "okay";
+689:};
+690:
+691:&pmu_io_domains {
+692:	status = "okay";
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/arch/arm64/boot/dts/rockchip/rk3399pro-npu-evb-v10-multi-cam.dts
+1:// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+2:/*
+3: * Copyright (c) 2018 Fuzhou Rockchip Electronics Co., Ltd
+4: */
+5:
+6:/dts-v1/;
+7:#include <dt-bindings/gpio/gpio.h>
+8:#include <dt-bindings/pinctrl/rockchip.h>
+9:#include "rk3399pro-npu.dtsi"
+10:#include <dt-bindings/display/drm_mipi_dsi.h>
+11:#include <dt-bindings/display/media-bus-format.h>
+12:
+13:/ {
+14:	model = "Rockchip RK3399pro-npu EVB V10 multi cam Board";
+15:	compatible = "rockchip,rk3399pro-npu-evb-v10-multi-cam", "rockchip,rk3399pro-npu";
+16:
+17:	chosen {
+18:		bootargs = "earlycon=uart8250,mmio32,0xff550000 console=ttyFIQ0 init=/init swiotlb=1 kpti=0";
+19:	};
+20:
+21:	reserved-memory {
+22:		#address-cells = <2>;
+23:		#size-cells = <2>;
+24:		ranges;
+25:
+26:		dma_trans: dma_trans@3c000000 {
+27:			reg = <0x0 0x3c000000 0x0 0x04000000>;
+28:		};
+29:	};
+30:
+31:	keys: gpio-keys {
+32:		compatible = "gpio-keys";
+33:		pinctrl-names = "default";
+34:		pinctrl-0 = <&pwr_key>;
+35:
+36:		power {
+
+### /mnt/sdb3/LPA3399Pro/LPA3399Pro-SDK-Linux-V3.0/kernel/arch/arm64/boot/dts/rockchip/rk3399pro-npu-evb-v10-multi-cam.dts
+266:	npu_1-supply = <&vdd_npu_1>;
+267:	status = "okay";
+268:};
+269:
+270:&pcie0 {
+271:	/delete-property/ reset-gpios;
+272:	memory-region = <&dma_trans>;
+273:	busno = <1>;
+274:	status = "okay";
+275:};
+276:
+277:&rk_rga {
+278:	status =  "okay";
+279:};
+280:
+
