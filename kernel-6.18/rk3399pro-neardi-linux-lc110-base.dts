@@ -38,6 +38,16 @@
 		mmc1 = "/mmc@fe320000";
 	};
 
+	reserved-memory {
+		#address-cells = <0x02>;
+		#size-cells = <0x02>;
+		ranges;
+
+		dma_trans: dma_trans@3c000000 {
+			reg = <0x00 0x3c000000 0x00 0x4000000>;
+		};
+	};
+
 	cpus {
 		#address-cells = <0x02>;
 		#size-cells = <0x00>;
@@ -316,6 +326,7 @@
 		#interrupt-cells = <0x01>;
 		aspm-no-l0s;
 		bus-range = <0x00 0x1f>;
+		busno = <0x00>;
 		clocks = <0x08 0xc5 0x08 0xc4 0x08 0x147 0x08 0xa0>;
 		clock-names = "aclk\0aclk-perf\0hclk\0pm";
 		interrupts = <0x00 0x31 0x04 0x00 0x00 0x32 0x04 0x00 0x00 0x33 0x04 0x00>;
@@ -334,6 +345,8 @@
 		num-lanes = <0x04>;
 		pinctrl-0 = <0x1a>;
 		pinctrl-names = "default";
+		memory-region = <&dma_trans>;
+		rockchip,dma_trx_enabled = <0x01>;
 		vpcie0v9-supply = <0x1b>;
 		vpcie1v8-supply = <0x1c>;
 		vpcie3v3-supply = <0x1d>;
