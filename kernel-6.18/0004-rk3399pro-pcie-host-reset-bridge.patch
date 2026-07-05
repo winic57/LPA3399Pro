@@ -52,13 +52,6 @@ index 955f0b7..7b312dc 100644
  	return 0;
  }
  
-@@ -841,6 +849,6 @@ static int rockchip_pcie_cfg_atu(struct rockchip_pcie *rockchip)
- 		}
- 	}
- 
- 	err = rockchip_pcie_prog_ib_atu(rockchip, 2, 32 - 1, 0x0, 0);
- 	if (err) {
- 		dev_err(dev, "program RC mem inbound ATU failed\n");
 @@ -902,6 +922,173 @@ static int rockchip_pcie_wait_l2(struct rockchip_pcie *rockchip)
  	return 0;
  }
