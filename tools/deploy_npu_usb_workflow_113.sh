@@ -36,6 +36,7 @@ remote 'apt-get update || true; apt-get install -y gpiod usbutils || true'
 echo "== upload scripts =="
 "${SCP[@]}" \
   "${ROOT_DIR}/tools/npu_powerctrl_gpiod.sh" \
+  "${ROOT_DIR}/tools/npu_transfer_proxy_launcher.sh" \
   "${ROOT_DIR}/tools/npu_mainline_usb_ntb_boot.sh" \
   "${ROOT_DIR}/tools/npu_mainline_usb_ntb_check.sh" \
   "${ROOT_DIR}/configs/npu/npu_startup.sh" \
@@ -50,6 +51,7 @@ echo "== install target files =="
 remote '
 set -e
 install -m 0755 /tmp/npu_powerctrl_gpiod.sh /usr/local/bin/npu_powerctrl-gpiod
+install -m 0755 /tmp/npu_transfer_proxy_launcher.sh /usr/local/bin/npu_transfer_proxy_launcher.sh
 install -m 0755 /tmp/npu_mainline_usb_ntb_boot.sh /usr/local/bin/npu_mainline_usb_ntb_boot.sh
 install -m 0755 /tmp/npu_mainline_usb_ntb_check.sh /usr/local/bin/npu_mainline_usb_ntb_check.sh
 install -m 0755 /tmp/npu_startup.sh /usr/local/bin/npu_startup.sh

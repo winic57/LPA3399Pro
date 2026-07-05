@@ -4,6 +4,7 @@ set -euo pipefail
 FW_DIR=${FW_DIR:-/usr/share/npu_fw}
 UPGRADE_TOOL=${UPGRADE_TOOL:-/usr/bin/upgrade_tool}
 TRANSFER_PROXY=${TRANSFER_PROXY:-/usr/bin/npu_transfer_proxy}
+TRANSFER_PROXY_LAUNCHER=${TRANSFER_PROXY_LAUNCHER:-/usr/local/bin/npu_transfer_proxy_launcher.sh}
 NPU_POWERCTRL=${NPU_POWERCTRL:-/usr/bin/npu_powerctrl}
 FW_PROFILE=${FW_PROFILE:-factory}
 LOADER_WAIT=${LOADER_WAIT:-1}
@@ -79,6 +80,29 @@ run_power_action() {
       "$NPU_POWERCTRL" on 2>/dev/null || "$NPU_POWERCTRL" -o || true
       ;;
   esac
+}
+
+proxy_running() {
+  pgrep -f '(^|/| )npu_transfer_proxy($| )' >/dev/null 2>&1
+}
+
+start_transfer_proxy() {
+  if proxy_running; then
+    echo "== npu_transfer_proxy already running =="
+    return 0
+  fi
+
+  if [ -x "$TRANSFER_PROXY_LAUNCHER" ]; then
+    echo "== start npu_transfer_proxy via launcher =="
+    echo "TRANSFER_PROXY_LAUNCHER=$TRANSFER_PROXY_LAUNCHER"
+    "$TRANSFER_PROXY_LAUNCHER" || true
+    sleep 1
+    return 0
+  fi
+
+  echo "== start npu_transfer_proxy =="
+  nohup "$TRANSFER_PROXY" >/tmp/npu_transfer_proxy.log 2>&1 &
+  sleep 1
 }
 
 pcie_host_ab_after_power() {
@@ -201,11 +225,7 @@ sleep "$POST_RS_WAIT_SEC"
 pcie_host_ab_after_rs
 
 if [ "$START_PROXY" = 1 ] && [ -x "$TRANSFER_PROXY" ]; then
-  if ! pgrep -x npu_transfer_proxy >/dev/null 2>&1; then
-    echo "== start npu_transfer_proxy =="
-    nohup "$TRANSFER_PROXY" >/tmp/npu_transfer_proxy.log 2>&1 &
-    sleep 1
-  fi
+  start_transfer_proxy
 fi
 
 run_check
