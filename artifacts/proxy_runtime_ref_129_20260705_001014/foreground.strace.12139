@@ -1,0 +1,6 @@
+00:16:19.110989 set_robust_list(0x7f9ced62a0, 24) = 0
+00:16:19.111247 ppoll([{fd=4, events=POLLIN}, {fd=3, events=POLLIN}], 2, NULL, NULL, 0) = 1 ([{fd=4, revents=POLLIN}])
+00:16:19.141509 read(4, "\1", 1)        = 1
+00:16:19.141704 madvise(0x7f9c6d6000, 8253440, MADV_DONTNEED) = 0
+00:16:19.141828 exit(0)                 = ?
+00:16:19.141957 +++ exited with 0 +++

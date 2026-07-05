@@ -1,0 +1,9 @@
+08:12:44.086840 rseq(0xffffb4d1e960, 0x20, 0, 0xd428bc00) = 0
+08:12:44.087284 set_robust_list(0xffffb4d1e240, 24) = 0
+08:12:44.087570 rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+08:12:44.087845 ppoll([{fd=4, events=POLLIN}, {fd=3, events=POLLIN}], 2, NULL, NULL, 0) = 1 ([{fd=4, revents=POLLIN}])
+08:12:44.125060 read(4, "\1", 1)        = 1
+08:12:44.125277 rt_sigprocmask(SIG_BLOCK, ~[RT_1], NULL, 8) = 0
+08:12:44.125445 madvise(0xffffb450f000, 8314880, MADV_DONTNEED) = 0
+08:12:44.125608 exit(0)                 = ?
+08:12:44.125809 +++ exited with 0 +++

@@ -1,0 +1,359 @@
+00:10:14.964022 execve("/usr/bin/npu_transfer_proxy", ["/usr/bin/npu_transfer_proxy", "devices"], 0x7fc378e7f8 /* 18 vars */) = 0
+00:10:14.965204 brk(NULL)               = 0x26f8e000
+00:10:14.965495 faccessat(AT_FDCWD, "/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+00:10:14.965743 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+00:10:14.965891 fstat(3, {st_mode=S_IFREG|0644, st_size=67010, ...}) = 0
+00:10:14.966029 mmap(NULL, 67010, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f8e4d6000
+00:10:14.966158 close(3)                = 0
+00:10:14.966314 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
+00:10:14.966463 read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\0d\0\0\0\0\0\0@\0\0\0\0\0\0\0\350G\2\0\0\0\0\0\0\0\0\0@\08\0\t\0@\0\"\0!\0\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0\370\1\0\0\0\0\0\0\370\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0PL\1\0\0\0\0\0PL\1\0\0\0\0\0PL\1\0\0\0\0\0\33\0\0\0\0\0\0\0\33\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\221\1\0\0\0\0\0@\221\1\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0\240\233\1\0\0\0\0\0\240\233\2\0\0\0\0\0"..., 832) = 832
+00:10:14.966597 fstat(3, {st_mode=S_IFREG|0755, st_size=151656, ...}) = 0
+00:10:14.966735 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f8e512000
+00:10:14.966865 mmap(NULL, 189448, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f8e4a7000
+00:10:14.966989 mprotect(0x7f8e4c1000, 61440, PROT_NONE) = 0
+00:10:14.967113 mmap(0x7f8e4d0000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x19000) = 0x7f8e4d0000
+00:10:14.967270 mmap(0x7f8e4d2000, 13320, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f8e4d2000
+00:10:14.967467 close(3)                = 0
+00:10:14.967605 openat(AT_FDCWD, "/usr/lib/aarch64-linux-gnu/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = 3
+00:10:14.967747 read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\320\315\10\0\0\0\0\0@\0\0\0\0\0\0\0\310~\27\0\0\0\0\0\0\0\0\0@\08\0\10\0@\0\37\0\36\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\254\263\26\0\0\0\0\0\254\263\26\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0P\301\26\0\0\0\0\0P\301\27\0\0\0\0\0P\301\27\0\0\0\0\0000\273\0\0\0\0\0\0(\355\0\0\0\0\0\0\0\0\1\0\0\0\0\0\2\0\0\0\6\0\0\0 K\27\0\0\0\0\0 K\30\0\0\0\0\0 K\30\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0\0\2\0\0\0\0\0\0\0\2\0\0\0\0\0\0"..., 832) = 832
+00:10:14.967878 fstat(3, {st_mode=S_IFREG|0644, st_size=1541768, ...}) = 0
+00:10:14.968005 mmap(NULL, 1617528, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f8e31c000
+00:10:14.968138 mprotect(0x7f8e488000, 65536, PROT_NONE) = 0
+00:10:14.968277 mmap(0x7f8e498000, 49152, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x16c000) = 0x7f8e498000
+00:10:14.968470 mmap(0x7f8e4a4000, 11896, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f8e4a4000
+00:10:14.968643 close(3)                = 0
+00:10:14.968809 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libm.so.6", O_RDONLY|O_CLOEXEC) = 3
+00:10:14.968951 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\340\267\0\0\0\0\0\0@\0\0\0\0\0\0\0\240\301\n\0\0\0\0\0\0\0\0\0@\08\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0004\275\n\0\0\0\0\0004\275\n\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0X\275\n\0\0\0\0\0X\275\v\0\0\0\0\0X\275\v\0\0\0\0\0\24\3\0\0\0\0\0\0 \3\0\0\0\0\0\0\0\0\1\0\0\0\0\0\2\0\0\0\6\0\0\0h\275\n\0\0\0\0\0h\275\v\0\0\0\0\0h\275\v\0\0\0\0\0\20\2\0\0\0\0\0\0\20\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0\310\1\0\0\0\0\0\0\310\1\0\0\0\0\0\0"..., 832) = 832
+00:10:14.969079 fstat(3, {st_mode=S_IFREG|0644, st_size=706720, ...}) = 0
+00:10:14.969200 mmap(NULL, 770168, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f8e25f000
+00:10:14.969342 mprotect(0x7f8e30b000, 61440, PROT_NONE) = 0
+00:10:14.969467 mmap(0x7f8e31a000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0xab000) = 0x7f8e31a000
+00:10:14.969754 close(3)                = 0
+00:10:14.969886 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libgcc_s.so.1", O_RDONLY|O_CLOEXEC) = 3
+00:10:14.970013 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\20)\0\0\0\0\0\0@\0\0\0\0\0\0\0\2502\1\0\0\0\0\0\0\0\0\0@\08\0\7\0@\0\32\0\31\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4,\1\0\0\0\0\0\4,\1\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0\270-\1\0\0\0\0\0\270-\2\0\0\0\0\0\270-\2\0\0\0\0\0\310\3\0\0\0\0\0\0\200\6\0\0\0\0\0\0\0\0\1\0\0\0\0\0\2\0\0\0\6\0\0\0\310-\1\0\0\0\0\0\310-\2\0\0\0\0\0\310-\2\0\0\0\0\0\360\1\0\0\0\0\0\0\360\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0\310\1\0\0\0\0\0\0\310\1\0\0\0\0\0\0"..., 832) = 832
+00:10:14.970136 fstat(3, {st_mode=S_IFREG|0644, st_size=80168, ...}) = 0
+00:10:14.970257 mmap(NULL, 144440, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f8e23b000
+00:10:14.970398 mprotect(0x7f8e24e000, 61440, PROT_NONE) = 0
+00:10:14.970511 mmap(0x7f8e25d000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x12000) = 0x7f8e25d000
+00:10:14.970700 close(3)                = 0
+00:10:14.970826 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+00:10:14.970955 read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\360\16\2\0\0\0\0\0@\0\0\0\0\0\0\0\370\324\25\0\0\0\0\0\0\0\0\0@\08\0\n\0@\0I\0H\0\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0\250\307\22\0\0\0\0\0\250\307\22\0\0\0\0\0\250\307\22\0\0\0\0\0\33\0\0\0\0\0\0\0\33\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\24s\25\0\0\0\0\0\24s\25\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0\300z\25\0\0\0\0\0\300z\26\0\0\0\0\0"..., 832) = 832
+00:10:14.971076 fstat(3, {st_mode=S_IFREG|0755, st_size=1435448, ...}) = 0
+00:10:14.971193 mmap(NULL, 1507424, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f8e0ca000
+00:10:14.971329 mprotect(0x7f8e222000, 61440, PROT_NONE) = 0
+00:10:14.971454 mmap(0x7f8e231000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x157000) = 0x7f8e231000
+00:10:14.971600 mmap(0x7f8e237000, 12384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f8e237000
+00:10:14.971757 close(3)                = 0
+00:10:14.971943 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f8e510000
+00:10:14.972400 mprotect(0x7f8e231000, 16384, PROT_READ) = 0
+00:10:14.972555 mprotect(0x7f8e25d000, 4096, PROT_READ) = 0
+00:10:14.972697 mprotect(0x7f8e31a000, 4096, PROT_READ) = 0
+00:10:14.973568 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f8e50e000
+00:10:14.975996 mprotect(0x7f8e498000, 40960, PROT_READ) = 0
+00:10:14.976559 mprotect(0x7f8e4d0000, 4096, PROT_READ) = 0
+00:10:14.977254 mprotect(0x45b000, 8192, PROT_READ) = 0
+00:10:14.977544 mprotect(0x7f8e516000, 4096, PROT_READ) = 0
+00:10:14.977780 munmap(0x7f8e4d6000, 67010) = 0
+00:10:14.978028 set_tid_address(0x7f8e510dc0) = 10720
+00:10:14.978244 set_robust_list(0x7f8e510dd0, 24) = 0
+00:10:14.978422 rt_sigaction(SIGRTMIN, {sa_handler=0x7f8e4ace80, sa_mask=[], sa_flags=SA_SIGINFO}, NULL, 8) = 0
+00:10:14.978620 rt_sigaction(SIGRT_1, {sa_handler=0x7f8e4acf40, sa_mask=[], sa_flags=SA_RESTART|SA_SIGINFO}, NULL, 8) = 0
+00:10:14.978773 rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0
+00:10:14.978920 prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+00:10:14.979491 brk(NULL)               = 0x26f8e000
+00:10:14.979682 brk(0x26faf000)         = 0x26faf000
+00:10:14.979995 mmap(NULL, 16781312, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f8d0c9000
+00:10:14.980272 rt_sigaction(SIGINT, {sa_handler=0x4078c0, sa_mask=[INT], sa_flags=SA_RESTART}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+00:10:14.980608 fstat(1, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+00:10:14.980777 faccessat(AT_FDCWD, "/sys/devices/platform/ff690000.efuse/rockchip-efuse0/nvmem", R_OK) = 0
+00:10:14.981047 openat(AT_FDCWD, "/sys/devices/platform/ff690000.efuse/rockchip-efuse0/nvmem", O_RDONLY) = 3
+00:10:14.981482 fstat(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:10:14.981647 read(3, "RK3\231\221\3760TF0N41.00\0\0\0\0\2\6\t\35\23\27\20\24\10\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 4096) = 128
+00:10:14.981897 close(3)                = 0
+00:10:14.982025 openat(AT_FDCWD, "/proc/cpuinfo", O_RDONLY) = 3
+00:10:14.982283 fstat(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:10:14.982457 read(3, "processor\t: 0\nBogoMIPS\t: 48.00\nFeatures\t: fp asimd evtstrm aes pmull sha1 sha2 crc32\nCPU implementer\t: 0x41\nCPU architecture: 8\nCPU variant\t: 0x0\nCPU part\t: 0xd03\nCPU revision\t: 4\n\nprocessor\t: 1\nBogoMIPS\t: 48.00\nFeatures\t: fp asimd evtstrm aes pmull sha1 s"..., 1024) = 1024
+00:10:14.982814 read(3, "cture: 8\nCPU variant\t: 0x0\nCPU part\t: 0xd08\nCPU revision\t: 2\n\nSerial\t\t: 42cc03b9de2b73e6\n", 1024) = 89
+00:10:14.982961 read(3, "", 1024)       = 0
+00:10:14.983081 close(3)                = 0
+00:10:14.983462 socket(AF_UNIX, SOCK_STREAM, 0) = 3
+00:10:14.983740 connect(3, {sa_family=AF_UNIX, sun_path=@"transfer_proxy"}, 17) = -1 ECONNREFUSED (Connection refused)
+00:10:14.984024 close(3)                = 0
+00:10:14.984163 rt_sigaction(SIGPIPE, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+00:10:14.984334 openat(AT_FDCWD, "/dev", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+00:10:14.984488 fstat(3, {st_mode=S_IFDIR|0755, st_size=4220, ...}) = 0
+00:10:14.984625 getdents64(3, /* 211 entries */, 32768) = 6360
+00:10:14.985045 faccessat(AT_FDCWD, "/dev/pcie-dev", R_OK|W_OK) = 0
+00:10:14.985205 close(3)                = 0
+00:10:14.985345 rt_sigaction(SIGPIPE, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, 8) = 0
+00:10:14.985517 openat(AT_FDCWD, "/dev/bus/usb", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+00:10:14.985664 fstat(3, {st_mode=S_IFDIR|0755, st_size=160, ...}) = 0
+00:10:14.985789 brk(0x26fd2000)         = 0x26fd2000
+00:10:14.985911 getdents64(3, /* 8 entries */, 32768) = 192
+00:10:14.986033 brk(0x26fca000)         = 0x26fca000
+00:10:14.986159 close(3)                = 0
+00:10:14.986269 uname({sysname="Linux", nodename="LPA3399Pro", ...}) = 0
+00:10:14.986420 newfstatat(AT_FDCWD, "/sys/bus/usb/devices", {st_mode=S_IFDIR|0755, st_size=0, ...}, 0) = 0
+00:10:14.986571 socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC|SOCK_NONBLOCK, NETLINK_KOBJECT_UEVENT) = 3
+00:10:14.986711 bind(3, {sa_family=AF_NETLINK, nl_pid=0, nl_groups=0x000001}, 12) = 0
+00:10:14.986847 setsockopt(3, SOL_SOCKET, SO_PASSCRED, [1], 4) = 0
+00:10:14.986969 pipe2([4, 5], 0)        = 0
+00:10:14.987104 fcntl(4, F_GETFD)       = 0
+00:10:14.987217 fcntl(4, F_SETFD, FD_CLOEXEC) = 0
+00:10:14.987354 fcntl(5, F_GETFD)       = 0
+00:10:14.987469 fcntl(5, F_SETFD, FD_CLOEXEC) = 0
+00:10:14.987580 fcntl(5, F_GETFL)       = 0x1 (flags O_WRONLY)
+00:10:14.987705 fcntl(5, F_SETFL, O_WRONLY|O_NONBLOCK) = 0
+00:10:14.987874 mmap(NULL, 8392704, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0x7f8c8c8000
+00:10:14.988020 mprotect(0x7f8c8c9000, 8388608, PROT_READ|PROT_WRITE) = 0
+00:10:14.988178 clone(child_stack=0x7f8d0c7ac0, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tidptr=0x7f8d0c8290, tls=0x7f8d0c88c0, child_tidptr=0x7f8d0c8290) = 10721
+00:10:14.988691 openat(AT_FDCWD, "/sys/bus/usb/devices", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 6
+00:10:14.988928 fstat(6, {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+00:10:14.989064 getdents64(6, /* 27 entries */, 32768) = 776
+00:10:14.989222 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.989430 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.989552 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.989714 read(7, "1\n", 4096)    = 2
+00:10:14.989849 close(7)                = 0
+00:10:14.989964 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.990107 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.990218 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.990356 read(7, "5\n", 4096)    = 2
+00:10:14.990479 close(7)                = 0
+00:10:14.990594 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.990732 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.990846 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.990964 read(7, "480\n", 4096)  = 4
+00:10:14.991082 close(7)                = 0
+00:10:14.991193 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.991342 read(7, "\22\1\0\2\0\0\0@\7\"\5\20\20\3\1\2\3\1\t\2K\0\2\1\4\200\372\10\v\0\2\2\2\1\7\t\4\0\0\1\2\2\1\5\5$\0\20\1\5$\1\0\1\4$\2\2\5$\6\0\1\7\5\202\3\n\0\t\t\4\1\0\2\n\0\0\6\7\5\201\2\0\2\0\7\5\1\2\0\2\0", 1024) = 93
+00:10:14.991471 close(7)                = 0
+00:10:14.991584 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.991718 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.991832 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.991950 read(7, "1\n", 4096)    = 2
+00:10:14.992069 close(7)                = 0
+00:10:14.992181 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.992333 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.992453 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.992571 read(7, "1\n", 4096)    = 2
+00:10:14.992705 close(7)                = 0
+00:10:14.992819 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.992954 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.993066 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.993183 read(7, "480\n", 4096)  = 4
+00:10:14.993320 close(7)                = 0
+00:10:14.993437 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.993574 read(7, "\22\1\0\2\t\0\0@k\35\2\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f", 1024) = 43
+00:10:14.993710 close(7)                = 0
+00:10:14.993824 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.993967 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.994080 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.994198 read(7, "3\n", 4096)    = 2
+00:10:14.994327 close(7)                = 0
+00:10:14.994444 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.994579 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.994705 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.994821 read(7, "2\n", 4096)    = 2
+00:10:14.994939 close(7)                = 0
+00:10:14.995051 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.995183 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.995316 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.995441 read(7, "480\n", 4096)  = 4
+00:10:14.995558 close(7)                = 0
+00:10:14.995659 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.995792 read(7, "\22\1\0\2\t\0\2@\343\5\20\6\2302\0\1\0\1\t\2)\0\1\1\0\3402\t\4\0\0\1\t\0\1\0\7\5\201\3\1\0\f\t\4\0\1\1\t\0\2\0\7\5\201\3\1\0\f", 1024) = 59
+00:10:14.995911 close(7)                = 0
+00:10:14.996024 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.996158 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.996272 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.996417 read(7, "3\n", 4096)    = 2
+00:10:14.996537 close(7)                = 0
+00:10:14.996659 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.996820 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.996932 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.997050 read(7, "1\n", 4096)    = 2
+00:10:14.997166 close(7)                = 0
+00:10:14.997280 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.997447 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.997561 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.997694 read(7, "480\n", 4096)  = 4
+00:10:14.997810 close(7)                = 0
+00:10:14.997922 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.998054 read(7, "\22\1\0\2\t\0\0@k\35\2\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f", 1024) = 43
+00:10:14.998171 close(7)                = 0
+00:10:14.998283 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.998461 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.998574 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.998708 read(7, "6\n", 4096)    = 2
+00:10:14.998826 close(7)                = 0
+00:10:14.998939 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.999074 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.999186 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.999319 read(7, "2\n", 4096)    = 2
+00:10:14.999442 close(7)                = 0
+00:10:14.999556 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:14.999704 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:14.999815 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:14.999932 read(7, "5000\n", 4096) = 5
+00:10:15.000048 close(7)                = 0
+00:10:15.000160 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.000316 read(7, "\22\1\20\3\0\0\0\t-\25v\5\1A\1\2\3\1\t\2y\0\1\1\0\200p\t\4\0\0\2\10\6P\0\7\5\201\2\0\4\0\0060\17\0\0\0\7\5\2\2\0\4\0\0060\17\0\0\0\t\4\0\1\4\10\6b\0\7\5\1\2\0\4\0\0060\0\0\0\0\4$\1\0\7\5\202\2\0\4\0\0060\0\5\0\0\4$\2\0\7\5\203\2\0\4\0\0060\16\5\0\0\4$\3\0\7\5\4\2\0\4\0\0060\7\5\0\0\4$\4\0", 1024) = 139
+00:10:15.000446 close(7)                = 0
+00:10:15.000559 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.000710 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.000826 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.000948 read(7, "6\n", 4096)    = 2
+00:10:15.001068 close(7)                = 0
+00:10:15.001180 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.001335 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.001458 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.001576 read(7, "1\n", 4096)    = 2
+00:10:15.001708 close(7)                = 0
+00:10:15.001822 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.001958 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.002070 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.002186 read(7, "5000\n", 4096) = 5
+00:10:15.002322 close(7)                = 0
+00:10:15.002444 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.002584 read(7, "\22\1\0\3\t\0\3\tk\35\3\0\4\4\3\2\1\1\t\2\37\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f\0060\0\0\2\0", 1024) = 49
+00:10:15.002714 close(7)                = 0
+00:10:15.002828 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.002968 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.003081 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.003199 read(7, "1\n", 4096)    = 2
+00:10:15.003333 close(7)                = 0
+00:10:15.003454 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.003592 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.003736 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.003857 read(7, "1\n", 4096)    = 2
+00:10:15.003977 close(7)                = 0
+00:10:15.004090 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.004231 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.004361 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.004481 read(7, "2\n", 4096)    = 2
+00:10:15.004598 close(7)                = 0
+00:10:15.004718 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.004852 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.004965 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.005081 read(7, "1\n", 4096)    = 2
+00:10:15.005197 close(7)                = 0
+00:10:15.005321 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.005459 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.005573 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.005708 read(7, "12\n", 4096)   = 3
+00:10:15.005828 close(7)                = 0
+00:10:15.005940 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.006072 read(7, "\22\1\20\1\t\0\0@k\35\1\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\2\0\377", 1024) = 43
+00:10:15.006189 close(7)                = 0
+00:10:15.006306 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.006451 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.006564 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.006699 read(7, "3\n", 4096)    = 2
+00:10:15.006816 close(7)                = 0
+00:10:15.006929 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.007062 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.007174 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.007312 read(7, "1\n", 4096)    = 2
+00:10:15.007438 close(7)                = 0
+00:10:15.007551 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.007704 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.007816 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.007934 read(7, "4\n", 4096)    = 2
+00:10:15.008050 close(7)                = 0
+00:10:15.008161 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.008311 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.008431 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.008548 read(7, "1\n", 4096)    = 2
+00:10:15.008671 close(7)                = 0
+00:10:15.008786 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.008920 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.009034 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.009152 read(7, "12\n", 4096)   = 3
+00:10:15.009270 close(7)                = 0
+00:10:15.009409 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.009544 read(7, "\22\1\20\1\t\0\0@k\35\1\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\2\0\377", 1024) = 43
+00:10:15.009669 close(7)                = 0
+00:10:15.009783 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.009928 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.010042 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.010162 read(7, "5\n", 4096)    = 2
+00:10:15.010279 close(7)                = 0
+00:10:15.010420 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.010559 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.010661 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.010779 read(7, "1\n", 4096)    = 2
+00:10:15.010895 close(7)                = 0
+00:10:15.011008 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.011163 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.011279 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.011423 read(7, "480\n", 4096)  = 4
+00:10:15.011541 close(7)                = 0
+00:10:15.011665 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.011801 read(7, "\22\1\0\2\t\0\1@k\35\2\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f", 1024) = 43
+00:10:15.011920 close(7)                = 0
+00:10:15.012031 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.012169 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.012283 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.012429 read(7, "6\n", 4096)    = 2
+00:10:15.012548 close(7)                = 0
+00:10:15.012666 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.012801 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.012915 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.013032 read(7, "1\n", 4096)    = 2
+00:10:15.013149 close(7)                = 0
+00:10:15.013263 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.013434 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.013547 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.013673 read(7, "3\n", 4096)    = 2
+00:10:15.013792 close(7)                = 0
+00:10:15.013905 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.014040 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.014153 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.014271 read(7, "3\n", 4096)    = 2
+00:10:15.014416 close(7)                = 0
+00:10:15.014532 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.014657 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:10:15.014771 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:10:15.014889 read(7, "480\n", 4096)  = 4
+00:10:15.015006 close(7)                = 0
+00:10:15.015120 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:10:15.015253 read(7, "\22\1\0\2\357\2\1@|,\5`\30\3\1\2\3\1\t\2\321\0\5\1\0\340\372\10\v\0\2\2\6\0\5\t\4\0\0\1\2\6\0\5\5$\0\20\1\r$\17\16\0\0\0\0\10\6\1\0\0\5$\6\0\1\7\5\207\3@\0\20\t\4\1\0\0\n\0\0\5\t\4\1\1\2\n\0\0\0\7\5\203\2\0\2\0\7\5\f\2\0\2\0\t\4\2\0\2\377\0\0\10\7\5\202\2\0\2\0\7\5\v\2\0\2\0\t\4\3\0\3\377\0\0\v\5$\0\20\1\5$\1\0\0\4$\2\2\5$\6\0\0\7\5\211\3@\0\20\7\5\206\2\0\2\0\7\5\17\2\0\2\0\t\4\4\0\3\377\0\0\v\5$\0\20\1\5$\1\0\0\4$\2\2\5$\6\0\0\7\5\210\3@\0\20\7\5\201\2\0\2\0\7\5\n\2\0\2\0", 1024) = 227
+00:10:15.015405 close(7)                = 0
+00:10:15.015523 getdents64(6, /* 0 entries */, 32768) = 0
+00:10:15.015636 close(6)                = 0
+00:10:15.015765 pipe2([6, 7], 0)        = 0
+00:10:15.015891 fcntl(6, F_GETFD)       = 0
+00:10:15.016002 fcntl(6, F_SETFD, FD_CLOEXEC) = 0
+00:10:15.016114 fcntl(7, F_GETFD)       = 0
+00:10:15.016223 fcntl(7, F_SETFD, FD_CLOEXEC) = 0
+00:10:15.016349 fcntl(7, F_GETFL)       = 0x1 (flags O_WRONLY)
+00:10:15.016467 fcntl(7, F_SETFL, O_WRONLY|O_NONBLOCK) = 0
+00:10:15.016578 write(7, "\1", 1)       = 1
+00:10:15.016706 recvmsg(3, {msg_namelen=12}, 0) = -1 EAGAIN (Resource temporarily unavailable)
+00:10:15.016865 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:10:15.017027 read(8, "1\n", 5)       = 2
+00:10:15.017146 close(8)                = 0
+00:10:15.017257 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:10:15.017413 read(8, "1\n", 5)       = 2
+00:10:15.017531 close(8)                = 0
+00:10:15.017710 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:10:15.017879 read(8, "1\n", 5)       = 2
+00:10:15.018002 close(8)                = 0
+00:10:15.018114 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:10:15.018280 read(8, "1\n", 5)       = 2
+00:10:15.018439 close(8)                = 0
+00:10:15.018576 read(6, "\1", 1)        = 1
+00:10:15.018694 ppoll([{fd=6, events=POLLIN}], 1, {tv_sec=0, tv_nsec=0}, NULL, 0) = 0 (Timeout)
+00:10:15.018831 write(7, "\1", 1)       = 1
+00:10:15.018947 close(6)                = 0
+00:10:15.019057 close(7)                = 0
+00:10:15.019175 write(5, "\1", 1)       = 1
+00:10:15.019362 futex(0x7f8d0c8290, FUTEX_WAIT, 10721, NULL) = 0
+00:10:15.019977 close(3)                = 0
+00:10:15.020117 close(4)                = 0
+00:10:15.020227 close(5)                = 0
+00:10:15.020379 munmap(0x7f8d0c9000, 16781312) = 0
+00:10:15.020632 write(1, "List of ntb devices attached\n0123456789ABCDEF    cfbc0c55    PCIE\n", 66) = 66
+00:10:15.020844 exit_group(0)           = ?
+00:10:15.021390 +++ exited with 0 +++

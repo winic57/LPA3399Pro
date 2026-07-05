@@ -1,0 +1,32 @@
+=== meta ===
+2026-07-05T00:10:14,631628412+00:00
+-rwxr-xr-x 1 root root 317616 Feb  1 05:55 /usr/bin/npu_transfer_proxy
+c4e77bdfe9256cf0671094db8d98fbcdba65a71cafa04040742c1bfff4052900  /usr/bin/npu_transfer_proxy
+/usr/bin/npu_transfer_proxy: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 3.7.0, BuildID[sha1]=614722594ffde74a2d6f3d398338fd6c9e4abac2, stripped
+--- devices ---
+List of ntb devices attached
+0123456789ABCDEF    cfbc0c55    PCIE
+--- upgrade_tool LD ---
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(1)
+DevNo=1	Vid=0x2207,Pid=0x1005,LocationID=101	Mode=Maskrom	SerialNo=04e48e8f3d4a7d07
+--- lsusb filtered ---
+Bus 001 Device 005: ID 2207:1005 Fuzhou Rockchip Electronics Company 
+--- lspci -nn ---
+00:00.0 PCI bridge [0604]: Fuzhou Rockchip Electronics Co., Ltd RK3399 PCI Express Root Port [1d87:0100]
+01:00.0 Non-VGA unclassified device [0000]: Fuzhou Rockchip Electronics Co., Ltd RK1808 Neural Network Processor Card [1d87:1808] (rev 01)
+--- /dev/dri ---
+total 0
+crw-rw----+ 1 root video  226,   0 Jul  4 14:20 card0
+crw-rw----  1 root video  226,  64 Jul  4 14:20 controlD64
+crw-rw----+ 1 root render 226, 128 Jul  4 14:20 renderD128
+--- /sys/class/drm ---
+/sys/class/drm -> 
+/sys/class/drm/card0-HDMI-A-1 -> ../../devices/platform/display-subsystem/drm/card0/card0-HDMI-A-1
+/sys/class/drm/card0 -> ../../devices/platform/display-subsystem/drm/card0
+/sys/class/drm/renderD128 -> ../../devices/platform/display-subsystem/drm/renderD128
+/sys/class/drm/controlD64 -> ../../devices/platform/display-subsystem/drm/controlD64
+/sys/class/drm/version -> 
+--- 0000:01:00.0 subtree ---
+/sys/bus/pci/devices/0000:01:00.0 -> ../../../devices/platform/f8000000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0

@@ -1,0 +1,4 @@
+=== before foreground ===
+2026-07-05T00:16:18,932769898+00:00
+List of ntb devices attached
+0123456789ABCDEF    cfbc0c55    PCIE

@@ -1,0 +1,1679 @@
+00:16:19.066134 execve("/usr/bin/npu_transfer_proxy", ["/usr/bin/npu_transfer_proxy"], 0x7fe27af310 /* 18 vars */) = 0
+00:16:19.068589 brk(NULL)               = 0x2c9db000
+00:16:19.069114 faccessat(AT_FDCWD, "/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+00:16:19.069737 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+00:16:19.070155 fstat(3, {st_mode=S_IFREG|0644, st_size=67010, ...}) = 0
+00:16:19.070653 mmap(NULL, 67010, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f9e2e4000
+00:16:19.071055 close(3)                = 0
+00:16:19.071566 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
+00:16:19.071977 read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\0d\0\0\0\0\0\0@\0\0\0\0\0\0\0\350G\2\0\0\0\0\0\0\0\0\0@\08\0\t\0@\0\"\0!\0\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0\370\1\0\0\0\0\0\0\370\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0PL\1\0\0\0\0\0PL\1\0\0\0\0\0PL\1\0\0\0\0\0\33\0\0\0\0\0\0\0\33\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\221\1\0\0\0\0\0@\221\1\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0\240\233\1\0\0\0\0\0\240\233\2\0\0\0\0\0"..., 832) = 832
+00:16:19.072464 fstat(3, {st_mode=S_IFREG|0755, st_size=151656, ...}) = 0
+00:16:19.072897 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f9e320000
+00:16:19.073277 mmap(NULL, 189448, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9e2b5000
+00:16:19.073724 mprotect(0x7f9e2cf000, 61440, PROT_NONE) = 0
+00:16:19.074344 mmap(0x7f9e2de000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x19000) = 0x7f9e2de000
+00:16:19.074842 mmap(0x7f9e2e0000, 13320, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f9e2e0000
+00:16:19.075367 close(3)                = 0
+00:16:19.075813 openat(AT_FDCWD, "/usr/lib/aarch64-linux-gnu/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = 3
+00:16:19.076225 read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\320\315\10\0\0\0\0\0@\0\0\0\0\0\0\0\310~\27\0\0\0\0\0\0\0\0\0@\08\0\10\0@\0\37\0\36\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\254\263\26\0\0\0\0\0\254\263\26\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0P\301\26\0\0\0\0\0P\301\27\0\0\0\0\0P\301\27\0\0\0\0\0000\273\0\0\0\0\0\0(\355\0\0\0\0\0\0\0\0\1\0\0\0\0\0\2\0\0\0\6\0\0\0 K\27\0\0\0\0\0 K\30\0\0\0\0\0 K\30\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0\0\2\0\0\0\0\0\0\0\2\0\0\0\0\0\0"..., 832) = 832
+00:16:19.076699 fstat(3, {st_mode=S_IFREG|0644, st_size=1541768, ...}) = 0
+00:16:19.077088 mmap(NULL, 1617528, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9e12a000
+00:16:19.077546 mprotect(0x7f9e296000, 65536, PROT_NONE) = 0
+00:16:19.077913 mmap(0x7f9e2a6000, 49152, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x16c000) = 0x7f9e2a6000
+00:16:19.078362 mmap(0x7f9e2b2000, 11896, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f9e2b2000
+00:16:19.078784 close(3)                = 0
+00:16:19.079187 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libm.so.6", O_RDONLY|O_CLOEXEC) = 3
+00:16:19.079673 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\340\267\0\0\0\0\0\0@\0\0\0\0\0\0\0\240\301\n\0\0\0\0\0\0\0\0\0@\08\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0004\275\n\0\0\0\0\0004\275\n\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0X\275\n\0\0\0\0\0X\275\v\0\0\0\0\0X\275\v\0\0\0\0\0\24\3\0\0\0\0\0\0 \3\0\0\0\0\0\0\0\0\1\0\0\0\0\0\2\0\0\0\6\0\0\0h\275\n\0\0\0\0\0h\275\v\0\0\0\0\0h\275\v\0\0\0\0\0\20\2\0\0\0\0\0\0\20\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0\310\1\0\0\0\0\0\0\310\1\0\0\0\0\0\0"..., 832) = 832
+00:16:19.080065 fstat(3, {st_mode=S_IFREG|0644, st_size=706720, ...}) = 0
+00:16:19.080511 mmap(NULL, 770168, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9e06d000
+00:16:19.080902 mprotect(0x7f9e119000, 61440, PROT_NONE) = 0
+00:16:19.081260 mmap(0x7f9e128000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0xab000) = 0x7f9e128000
+00:16:19.081798 close(3)                = 0
+00:16:19.082170 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libgcc_s.so.1", O_RDONLY|O_CLOEXEC) = 3
+00:16:19.082603 read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\20)\0\0\0\0\0\0@\0\0\0\0\0\0\0\2502\1\0\0\0\0\0\0\0\0\0@\08\0\7\0@\0\32\0\31\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4,\1\0\0\0\0\0\4,\1\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0\270-\1\0\0\0\0\0\270-\2\0\0\0\0\0\270-\2\0\0\0\0\0\310\3\0\0\0\0\0\0\200\6\0\0\0\0\0\0\0\0\1\0\0\0\0\0\2\0\0\0\6\0\0\0\310-\1\0\0\0\0\0\310-\2\0\0\0\0\0\310-\2\0\0\0\0\0\360\1\0\0\0\0\0\0\360\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0\310\1\0\0\0\0\0\0\310\1\0\0\0\0\0\0"..., 832) = 832
+00:16:19.082995 fstat(3, {st_mode=S_IFREG|0644, st_size=80168, ...}) = 0
+00:16:19.083392 mmap(NULL, 144440, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9e049000
+00:16:19.083812 mprotect(0x7f9e05c000, 61440, PROT_NONE) = 0
+00:16:19.084172 mmap(0x7f9e06b000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x12000) = 0x7f9e06b000
+00:16:19.084672 close(3)                = 0
+00:16:19.085055 openat(AT_FDCWD, "/lib/aarch64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+00:16:19.085503 read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\360\16\2\0\0\0\0\0@\0\0\0\0\0\0\0\370\324\25\0\0\0\0\0\0\0\0\0@\08\0\n\0@\0I\0H\0\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0\250\307\22\0\0\0\0\0\250\307\22\0\0\0\0\0\250\307\22\0\0\0\0\0\33\0\0\0\0\0\0\0\33\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\24s\25\0\0\0\0\0\24s\25\0\0\0\0\0\0\0\1\0\0\0\0\0\1\0\0\0\6\0\0\0\300z\25\0\0\0\0\0\300z\26\0\0\0\0\0"..., 832) = 832
+00:16:19.085927 fstat(3, {st_mode=S_IFREG|0755, st_size=1435448, ...}) = 0
+00:16:19.086419 mmap(NULL, 1507424, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9ded8000
+00:16:19.086881 mprotect(0x7f9e030000, 61440, PROT_NONE) = 0
+00:16:19.087900 mmap(0x7f9e03f000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x157000) = 0x7f9e03f000
+00:16:19.088585 mmap(0x7f9e045000, 12384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f9e045000
+00:16:19.089203 close(3)                = 0
+00:16:19.089958 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f9e31e000
+00:16:19.091071 mprotect(0x7f9e03f000, 16384, PROT_READ) = 0
+00:16:19.091599 mprotect(0x7f9e06b000, 4096, PROT_READ) = 0
+00:16:19.092016 mprotect(0x7f9e128000, 4096, PROT_READ) = 0
+00:16:19.093710 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f9e31c000
+00:16:19.099355 mprotect(0x7f9e2a6000, 40960, PROT_READ) = 0
+00:16:19.100085 mprotect(0x7f9e2de000, 4096, PROT_READ) = 0
+00:16:19.101279 mprotect(0x45b000, 8192, PROT_READ) = 0
+00:16:19.101930 mprotect(0x7f9e324000, 4096, PROT_READ) = 0
+00:16:19.102561 munmap(0x7f9e2e4000, 67010) = 0
+00:16:19.103180 set_tid_address(0x7f9e31edc0) = 12138
+00:16:19.103864 set_robust_list(0x7f9e31edd0, 24) = 0
+00:16:19.104437 rt_sigaction(SIGRTMIN, {sa_handler=0x7f9e2bae80, sa_mask=[], sa_flags=SA_SIGINFO}, NULL, 8) = 0
+00:16:19.105011 rt_sigaction(SIGRT_1, {sa_handler=0x7f9e2baf40, sa_mask=[], sa_flags=SA_RESTART|SA_SIGINFO}, NULL, 8) = 0
+00:16:19.105181 rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0
+00:16:19.105358 prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+00:16:19.105765 brk(NULL)               = 0x2c9db000
+00:16:19.105919 brk(0x2c9fc000)         = 0x2c9fc000
+00:16:19.106175 mmap(NULL, 16781312, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f9ced7000
+00:16:19.106340 rt_sigaction(SIGINT, {sa_handler=0x4078c0, sa_mask=[INT], sa_flags=SA_RESTART}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+00:16:19.106508 rt_sigaction(SIGPIPE, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+00:16:19.106649 openat(AT_FDCWD, "/dev", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+00:16:19.106852 fstat(3, {st_mode=S_IFDIR|0755, st_size=4220, ...}) = 0
+00:16:19.106995 getdents64(3, /* 211 entries */, 32768) = 6360
+00:16:19.107469 faccessat(AT_FDCWD, "/dev/pcie-dev", R_OK|W_OK) = 0
+00:16:19.107643 close(3)                = 0
+00:16:19.107774 rt_sigaction(SIGPIPE, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, 8) = 0
+00:16:19.107949 openat(AT_FDCWD, "/dev/bus/usb", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+00:16:19.108095 fstat(3, {st_mode=S_IFDIR|0755, st_size=160, ...}) = 0
+00:16:19.108223 brk(0x2ca1e000)         = 0x2ca1e000
+00:16:19.108392 getdents64(3, /* 8 entries */, 32768) = 192
+00:16:19.108534 brk(0x2ca16000)         = 0x2ca16000
+00:16:19.108675 close(3)                = 0
+00:16:19.108793 uname({sysname="Linux", nodename="LPA3399Pro", ...}) = 0
+00:16:19.108931 newfstatat(AT_FDCWD, "/sys/bus/usb/devices", {st_mode=S_IFDIR|0755, st_size=0, ...}, 0) = 0
+00:16:19.109082 socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC|SOCK_NONBLOCK, NETLINK_KOBJECT_UEVENT) = 3
+00:16:19.109224 bind(3, {sa_family=AF_NETLINK, nl_pid=0, nl_groups=0x000001}, 12) = 0
+00:16:19.109402 setsockopt(3, SOL_SOCKET, SO_PASSCRED, [1], 4) = 0
+00:16:19.109527 pipe2([4, 5], 0)        = 0
+00:16:19.109662 fcntl(4, F_GETFD)       = 0
+00:16:19.109777 fcntl(4, F_SETFD, FD_CLOEXEC) = 0
+00:16:19.109887 fcntl(5, F_GETFD)       = 0
+00:16:19.109996 fcntl(5, F_SETFD, FD_CLOEXEC) = 0
+00:16:19.110105 fcntl(5, F_GETFL)       = 0x1 (flags O_WRONLY)
+00:16:19.110218 fcntl(5, F_SETFL, O_WRONLY|O_NONBLOCK) = 0
+00:16:19.110351 mmap(NULL, 8392704, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0x7f9c6d6000
+00:16:19.110479 mprotect(0x7f9c6d7000, 8388608, PROT_READ|PROT_WRITE) = 0
+00:16:19.110628 clone(child_stack=0x7f9ced5ac0, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tidptr=0x7f9ced6290, tls=0x7f9ced68c0, child_tidptr=0x7f9ced6290) = 12139
+00:16:19.111077 openat(AT_FDCWD, "/sys/bus/usb/devices", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 6
+00:16:19.111327 fstat(6, {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+00:16:19.111464 getdents64(6, /* 27 entries */, 32768) = 776
+00:16:19.111615 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.111794 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.111913 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.112034 read(7, "1\n", 4096)    = 2
+00:16:19.112160 close(7)                = 0
+00:16:19.112272 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.112435 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.112550 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.112679 read(7, "5\n", 4096)    = 2
+00:16:19.112798 close(7)                = 0
+00:16:19.112914 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.113052 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.113163 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.113280 read(7, "480\n", 4096)  = 4
+00:16:19.113429 close(7)                = 0
+00:16:19.113545 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.113689 read(7, "\22\1\0\2\0\0\0@\7\"\5\20\20\3\1\2\3\1\t\2K\0\2\1\4\200\372\10\v\0\2\2\2\1\7\t\4\0\0\1\2\2\1\5\5$\0\20\1\5$\1\0\1\4$\2\2\5$\6\0\1\7\5\202\3\n\0\t\t\4\1\0\2\n\0\0\6\7\5\201\2\0\2\0\7\5\1\2\0\2\0", 1024) = 93
+00:16:19.113810 close(7)                = 0
+00:16:19.113927 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.114065 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.114178 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.114314 read(7, "1\n", 4096)    = 2
+00:16:19.114441 close(7)                = 0
+00:16:19.114556 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.114693 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.114845 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.114966 read(7, "1\n", 4096)    = 2
+00:16:19.115084 close(7)                = 0
+00:16:19.115198 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.115367 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.115483 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.115603 read(7, "480\n", 4096)  = 4
+00:16:19.115735 close(7)                = 0
+00:16:19.115847 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.115986 read(7, "\22\1\0\2\t\0\0@k\35\2\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f", 1024) = 43
+00:16:19.116105 close(7)                = 0
+00:16:19.116218 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.116383 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.116496 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.116623 read(7, "3\n", 4096)    = 2
+00:16:19.116744 close(7)                = 0
+00:16:19.116855 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.116991 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.117100 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.117216 read(7, "2\n", 4096)    = 2
+00:16:19.117358 close(7)                = 0
+00:16:19.117477 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.117611 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.117727 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.117847 read(7, "480\n", 4096)  = 4
+00:16:19.117966 close(7)                = 0
+00:16:19.118078 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.118211 read(7, "\22\1\0\2\t\0\2@\343\5\20\6\2302\0\1\0\1\t\2)\0\1\1\0\3402\t\4\0\0\1\t\0\1\0\7\5\201\3\1\0\f\t\4\0\1\1\t\0\2\0\7\5\201\3\1\0\f", 1024) = 59
+00:16:19.118348 close(7)                = 0
+00:16:19.118468 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.118605 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.118726 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.118846 read(7, "3\n", 4096)    = 2
+00:16:19.118964 close(7)                = 0
+00:16:19.119076 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.119208 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.119334 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.119458 read(7, "1\n", 4096)    = 2
+00:16:19.119574 close(7)                = 0
+00:16:19.119685 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.119821 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.119932 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.120048 read(7, "480\n", 4096)  = 4
+00:16:19.120163 close(7)                = 0
+00:16:19.120272 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.120429 read(7, "\22\1\0\2\t\0\0@k\35\2\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f", 1024) = 43
+00:16:19.120549 close(7)                = 0
+00:16:19.120673 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.120822 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.120934 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.121049 read(7, "6\n", 4096)    = 2
+00:16:19.121164 close(7)                = 0
+00:16:19.121274 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.121428 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.121542 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.121675 read(7, "2\n", 4096)    = 2
+00:16:19.121789 close(7)                = 0
+00:16:19.121900 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.122059 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.122172 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.122303 read(7, "5000\n", 4096) = 5
+00:16:19.122429 close(7)                = 0
+00:16:19.122542 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.122683 read(7, "\22\1\20\3\0\0\0\t-\25v\5\1A\1\2\3\1\t\2y\0\1\1\0\200p\t\4\0\0\2\10\6P\0\7\5\201\2\0\4\0\0060\17\0\0\0\7\5\2\2\0\4\0\0060\17\0\0\0\t\4\0\1\4\10\6b\0\7\5\1\2\0\4\0\0060\0\0\0\0\4$\1\0\7\5\202\2\0\4\0\0060\0\5\0\0\4$\2\0\7\5\203\2\0\4\0\0060\16\5\0\0\4$\3\0\7\5\4\2\0\4\0\0060\7\5\0\0\4$\4\0", 1024) = 139
+00:16:19.122804 close(7)                = 0
+00:16:19.122919 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.123059 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.123171 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.123286 read(7, "6\n", 4096)    = 2
+00:16:19.123432 close(7)                = 0
+00:16:19.123544 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.123682 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.123797 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.123916 read(7, "1\n", 4096)    = 2
+00:16:19.124033 close(7)                = 0
+00:16:19.124144 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.124280 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.124419 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.124541 read(7, "5000\n", 4096) = 5
+00:16:19.124676 close(7)                = 0
+00:16:19.124790 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.124932 read(7, "\22\1\0\3\t\0\3\tk\35\3\0\4\4\3\2\1\1\t\2\37\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f\0060\0\0\2\0", 1024) = 49
+00:16:19.125051 close(7)                = 0
+00:16:19.125163 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.125315 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.125437 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.125557 read(7, "1\n", 4096)    = 2
+00:16:19.125680 close(7)                = 0
+00:16:19.125792 openat(AT_FDCWD, "/sys/bus/usb/devices/usb1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.125926 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.126038 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.126154 read(7, "1\n", 4096)    = 2
+00:16:19.126269 close(7)                = 0
+00:16:19.126409 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.126553 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.126675 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.126794 read(7, "2\n", 4096)    = 2
+00:16:19.126912 close(7)                = 0
+00:16:19.127024 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.127157 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.127268 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.127412 read(7, "1\n", 4096)    = 2
+00:16:19.127532 close(7)                = 0
+00:16:19.127647 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.127783 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.127896 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.128014 read(7, "12\n", 4096)   = 3
+00:16:19.128130 close(7)                = 0
+00:16:19.128240 openat(AT_FDCWD, "/sys/bus/usb/devices/usb2/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.128400 read(7, "\22\1\20\1\t\0\0@k\35\1\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\2\0\377", 1024) = 43
+00:16:19.128519 close(7)                = 0
+00:16:19.128632 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.128770 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.128902 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.129024 read(7, "3\n", 4096)    = 2
+00:16:19.129142 close(7)                = 0
+00:16:19.129253 openat(AT_FDCWD, "/sys/bus/usb/devices/usb3/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.129413 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.129527 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.129645 read(7, "1\n", 4096)    = 2
+00:16:19.129763 close(7)                = 0
+00:16:19.129875 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.130014 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.130124 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.130241 read(7, "4\n", 4096)    = 2
+00:16:19.130360 close(7)                = 0
+00:16:19.130471 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.130600 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.130729 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.130845 read(7, "1\n", 4096)    = 2
+00:16:19.130961 close(7)                = 0
+00:16:19.131071 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.131200 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.131324 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.131447 read(7, "12\n", 4096)   = 3
+00:16:19.131564 close(7)                = 0
+00:16:19.131678 openat(AT_FDCWD, "/sys/bus/usb/devices/usb4/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.131813 read(7, "\22\1\20\1\t\0\0@k\35\1\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\2\0\377", 1024) = 43
+00:16:19.131929 close(7)                = 0
+00:16:19.132038 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.132178 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.132288 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.132435 read(7, "5\n", 4096)    = 2
+00:16:19.132554 close(7)                = 0
+00:16:19.132674 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.132813 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.132925 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.133042 read(7, "1\n", 4096)    = 2
+00:16:19.133158 close(7)                = 0
+00:16:19.133268 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.133431 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.133546 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.133678 read(7, "480\n", 4096)  = 4
+00:16:19.133797 close(7)                = 0
+00:16:19.133908 openat(AT_FDCWD, "/sys/bus/usb/devices/usb5/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.134043 read(7, "\22\1\0\2\t\0\1@k\35\2\0\4\4\3\2\1\1\t\2\31\0\1\1\0\340\0\t\4\0\0\1\t\0\0\0\7\5\201\3\4\0\f", 1024) = 43
+00:16:19.134160 close(7)                = 0
+00:16:19.134271 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.134437 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.134551 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.134697 read(7, "6\n", 4096)    = 2
+00:16:19.134817 close(7)                = 0
+00:16:19.134928 openat(AT_FDCWD, "/sys/bus/usb/devices/usb6/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.135063 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.135174 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.135290 read(7, "1\n", 4096)    = 2
+00:16:19.135435 close(7)                = 0
+00:16:19.135548 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/busnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.135694 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.135806 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.135923 read(7, "3\n", 4096)    = 2
+00:16:19.136040 close(7)                = 0
+00:16:19.136149 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/devnum", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.136319 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.136442 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.136564 read(7, "3\n", 4096)    = 2
+00:16:19.136683 close(7)                = 0
+00:16:19.136798 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/speed", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.136937 fcntl(7, F_GETFL)       = 0x20000 (flags O_RDONLY|O_LARGEFILE)
+00:16:19.137050 fstat(7, {st_mode=S_IFREG|0444, st_size=4096, ...}) = 0
+00:16:19.137169 read(7, "480\n", 4096)  = 4
+00:16:19.137285 close(7)                = 0
+00:16:19.137428 openat(AT_FDCWD, "/sys/bus/usb/devices/3-1.1/descriptors", O_RDONLY|O_CLOEXEC) = 7
+00:16:19.137567 read(7, "\22\1\0\2\357\2\1@|,\5`\30\3\1\2\3\1\t\2\321\0\5\1\0\340\372\10\v\0\2\2\6\0\5\t\4\0\0\1\2\6\0\5\5$\0\20\1\r$\17\16\0\0\0\0\10\6\1\0\0\5$\6\0\1\7\5\207\3@\0\20\t\4\1\0\0\n\0\0\5\t\4\1\1\2\n\0\0\0\7\5\203\2\0\2\0\7\5\f\2\0\2\0\t\4\2\0\2\377\0\0\10\7\5\202\2\0\2\0\7\5\v\2\0\2\0\t\4\3\0\3\377\0\0\v\5$\0\20\1\5$\1\0\0\4$\2\2\5$\6\0\0\7\5\211\3@\0\20\7\5\206\2\0\2\0\7\5\17\2\0\2\0\t\4\4\0\3\377\0\0\v\5$\0\20\1\5$\1\0\0\4$\2\2\5$\6\0\0\7\5\210\3@\0\20\7\5\201\2\0\2\0\7\5\n\2\0\2\0", 1024) = 227
+00:16:19.137690 close(7)                = 0
+00:16:19.137804 getdents64(6, /* 0 entries */, 32768) = 0
+00:16:19.137918 close(6)                = 0
+00:16:19.138030 pipe2([6, 7], 0)        = 0
+00:16:19.138153 fcntl(6, F_GETFD)       = 0
+00:16:19.138262 fcntl(6, F_SETFD, FD_CLOEXEC) = 0
+00:16:19.138381 fcntl(7, F_GETFD)       = 0
+00:16:19.138490 fcntl(7, F_SETFD, FD_CLOEXEC) = 0
+00:16:19.138600 fcntl(7, F_GETFL)       = 0x1 (flags O_WRONLY)
+00:16:19.138725 fcntl(7, F_SETFL, O_WRONLY|O_NONBLOCK) = 0
+00:16:19.138835 write(7, "\1", 1)       = 1
+00:16:19.138951 recvmsg(3, {msg_namelen=12}, 0) = -1 EAGAIN (Resource temporarily unavailable)
+00:16:19.139131 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:16:19.139312 read(8, "1\n", 5)       = 2
+00:16:19.139440 close(8)                = 0
+00:16:19.139553 openat(AT_FDCWD, "/sys/bus/usb/devices/6-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:16:19.139690 read(8, "1\n", 5)       = 2
+00:16:19.139808 close(8)                = 0
+00:16:19.139936 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:16:19.140076 read(8, "1\n", 5)       = 2
+00:16:19.140192 close(8)                = 0
+00:16:19.140316 openat(AT_FDCWD, "/sys/bus/usb/devices/1-1/bConfigurationValue", O_RDONLY|O_CLOEXEC) = 8
+00:16:19.140456 read(8, "1\n", 5)       = 2
+00:16:19.140573 close(8)                = 0
+00:16:19.140705 read(6, "\1", 1)        = 1
+00:16:19.140822 ppoll([{fd=6, events=POLLIN}], 1, {tv_sec=0, tv_nsec=0}, NULL, 0) = 0 (Timeout)
+00:16:19.140960 write(7, "\1", 1)       = 1
+00:16:19.141077 close(6)                = 0
+00:16:19.141188 close(7)                = 0
+00:16:19.141329 write(5, "\1", 1)       = 1
+00:16:19.141467 futex(0x7f9ced6290, FUTEX_WAIT, 12139, NULL) = 0
+00:16:19.142051 close(3)                = 0
+00:16:19.142196 close(4)                = 0
+00:16:19.142330 close(5)                = 0
+00:16:19.142452 getpid()                = 12138
+00:16:19.142560 getppid()               = 12135
+00:16:19.142744 fstat(1, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+00:16:19.142884 write(1, "I NPUTransfer: Starting NPU Transfer Proxy, Transfer version 2.0.0 (8f9ebbc@2020-04-03T09:12:43), devid = 0123456789ABCDEF, pid = 12138:12135\n", 142) = 142
+00:16:19.143088 rt_sigaction(SIGCHLD, {sa_handler=SIG_IGN, sa_mask=[CHLD], sa_flags=SA_RESTART}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+00:16:19.143229 faccessat(AT_FDCWD, "/sys/devices/platform/ff690000.efuse/rockchip-efuse0/nvmem", R_OK) = 0
+00:16:19.143425 openat(AT_FDCWD, "/sys/devices/platform/ff690000.efuse/rockchip-efuse0/nvmem", O_RDONLY) = 3
+00:16:19.143588 fstat(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.143742 read(3, "RK3\231\221\3760TF0N41.00\0\0\0\0\2\6\t\35\23\27\20\24\10\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 4096) = 128
+00:16:19.143997 close(3)                = 0
+00:16:19.144112 openat(AT_FDCWD, "/proc/cpuinfo", O_RDONLY) = 3
+00:16:19.144257 fstat(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.144407 read(3, "processor\t: 0\nBogoMIPS\t: 48.00\nFeatures\t: fp asimd evtstrm aes pmull sha1 sha2 crc32\nCPU implementer\t: 0x41\nCPU architecture: 8\nCPU variant\t: 0x0\nCPU part\t: 0xd03\nCPU revision\t: 4\n\nprocessor\t: 1\nBogoMIPS\t: 48.00\nFeatures\t: fp asimd evtstrm aes pmull sha1 s"..., 1024) = 1024
+00:16:19.144607 read(3, "cture: 8\nCPU variant\t: 0x0\nCPU part\t: 0xd08\nCPU revision\t: 2\n\nSerial\t\t: 42cc03b9de2b73e6\n", 1024) = 89
+00:16:19.144732 read(3, "", 1024)       = 0
+00:16:19.144846 close(3)                = 0
+00:16:19.144990 openat(AT_FDCWD, "/proc", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+00:16:19.145113 fstat(3, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+00:16:19.145232 getdents64(3, /* 355 entries */, 32768) = 9120
+00:16:19.147132 openat(AT_FDCWD, "/proc/1/cmdline", O_RDONLY) = 4
+00:16:19.147378 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.147536 read(4, "/sbin/init\0", 1024) = 11
+00:16:19.147669 read(4, "", 1024)       = 0
+00:16:19.147802 close(4)                = 0
+00:16:19.147933 openat(AT_FDCWD, "/proc/2/cmdline", O_RDONLY) = 4
+00:16:19.148080 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.148208 read(4, "", 1024)       = 0
+00:16:19.148327 close(4)                = 0
+00:16:19.148446 openat(AT_FDCWD, "/proc/3/cmdline", O_RDONLY) = 4
+00:16:19.148572 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.148692 read(4, "", 1024)       = 0
+00:16:19.148806 close(4)                = 0
+00:16:19.148916 openat(AT_FDCWD, "/proc/5/cmdline", O_RDONLY) = 4
+00:16:19.149038 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.149152 read(4, "", 1024)       = 0
+00:16:19.149262 close(4)                = 0
+00:16:19.149374 openat(AT_FDCWD, "/proc/7/cmdline", O_RDONLY) = 4
+00:16:19.149496 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.149635 read(4, "", 1024)       = 0
+00:16:19.149770 close(4)                = 0
+00:16:19.149880 openat(AT_FDCWD, "/proc/8/cmdline", O_RDONLY) = 4
+00:16:19.150002 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.150119 read(4, "", 1024)       = 0
+00:16:19.150231 close(4)                = 0
+00:16:19.150380 openat(AT_FDCWD, "/proc/9/cmdline", O_RDONLY) = 4
+00:16:19.150509 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.150627 read(4, "", 1024)       = 0
+00:16:19.150755 close(4)                = 0
+00:16:19.150864 openat(AT_FDCWD, "/proc/10/cmdline", O_RDONLY) = 4
+00:16:19.150983 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.151099 read(4, "", 1024)       = 0
+00:16:19.151211 close(4)                = 0
+00:16:19.151337 openat(AT_FDCWD, "/proc/11/cmdline", O_RDONLY) = 4
+00:16:19.151461 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.151577 read(4, "", 1024)       = 0
+00:16:19.151703 close(4)                = 0
+00:16:19.151812 openat(AT_FDCWD, "/proc/12/cmdline", O_RDONLY) = 4
+00:16:19.151929 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.152045 read(4, "", 1024)       = 0
+00:16:19.152155 close(4)                = 0
+00:16:19.152264 openat(AT_FDCWD, "/proc/13/cmdline", O_RDONLY) = 4
+00:16:19.152398 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.152514 read(4, "", 1024)       = 0
+00:16:19.152648 close(4)                = 0
+00:16:19.152764 openat(AT_FDCWD, "/proc/15/cmdline", O_RDONLY) = 4
+00:16:19.152889 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.153005 read(4, "", 1024)       = 0
+00:16:19.153115 close(4)                = 0
+00:16:19.153224 openat(AT_FDCWD, "/proc/16/cmdline", O_RDONLY) = 4
+00:16:19.153359 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.153476 read(4, "", 1024)       = 0
+00:16:19.153586 close(4)                = 0
+00:16:19.153696 openat(AT_FDCWD, "/proc/17/cmdline", O_RDONLY) = 4
+00:16:19.153857 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.153976 read(4, "", 1024)       = 0
+00:16:19.154090 close(4)                = 0
+00:16:19.154199 openat(AT_FDCWD, "/proc/18/cmdline", O_RDONLY) = 4
+00:16:19.154332 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.154456 read(4, "", 1024)       = 0
+00:16:19.154568 close(4)                = 0
+00:16:19.154679 openat(AT_FDCWD, "/proc/20/cmdline", O_RDONLY) = 4
+00:16:19.154798 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.154912 read(4, "", 1024)       = 0
+00:16:19.155024 close(4)                = 0
+00:16:19.155132 openat(AT_FDCWD, "/proc/21/cmdline", O_RDONLY) = 4
+00:16:19.155249 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.155389 read(4, "", 1024)       = 0
+00:16:19.155499 close(4)                = 0
+00:16:19.155620 openat(AT_FDCWD, "/proc/22/cmdline", O_RDONLY) = 4
+00:16:19.155791 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.155908 read(4, "", 1024)       = 0
+00:16:19.156020 close(4)                = 0
+00:16:19.156129 openat(AT_FDCWD, "/proc/23/cmdline", O_RDONLY) = 4
+00:16:19.156248 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.156395 read(4, "", 1024)       = 0
+00:16:19.156509 close(4)                = 0
+00:16:19.156617 openat(AT_FDCWD, "/proc/25/cmdline", O_RDONLY) = 4
+00:16:19.156753 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.156868 read(4, "", 1024)       = 0
+00:16:19.156978 close(4)                = 0
+00:16:19.157088 openat(AT_FDCWD, "/proc/26/cmdline", O_RDONLY) = 4
+00:16:19.157737 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.157962 read(4, "", 1024)       = 0
+00:16:19.158084 close(4)                = 0
+00:16:19.158199 openat(AT_FDCWD, "/proc/27/cmdline", O_RDONLY) = 4
+00:16:19.158387 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.158541 read(4, "", 1024)       = 0
+00:16:19.158677 close(4)                = 0
+00:16:19.158791 openat(AT_FDCWD, "/proc/28/cmdline", O_RDONLY) = 4
+00:16:19.158921 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.159069 read(4, "", 1024)       = 0
+00:16:19.159187 close(4)                = 0
+00:16:19.159309 openat(AT_FDCWD, "/proc/30/cmdline", O_RDONLY) = 4
+00:16:19.159438 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.159554 read(4, "", 1024)       = 0
+00:16:19.159674 close(4)                = 0
+00:16:19.159783 openat(AT_FDCWD, "/proc/31/cmdline", O_RDONLY) = 4
+00:16:19.159904 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.160019 read(4, "", 1024)       = 0
+00:16:19.160128 close(4)                = 0
+00:16:19.160237 openat(AT_FDCWD, "/proc/32/cmdline", O_RDONLY) = 4
+00:16:19.160371 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.160501 read(4, "", 1024)       = 0
+00:16:19.160622 close(4)                = 0
+00:16:19.160756 openat(AT_FDCWD, "/proc/33/cmdline", O_RDONLY) = 4
+00:16:19.160901 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.161023 read(4, "", 1024)       = 0
+00:16:19.161133 close(4)                = 0
+00:16:19.161247 openat(AT_FDCWD, "/proc/35/cmdline", O_RDONLY) = 4
+00:16:19.161412 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.161536 read(4, "", 1024)       = 0
+00:16:19.161663 close(4)                = 0
+00:16:19.161775 openat(AT_FDCWD, "/proc/36/cmdline", O_RDONLY) = 4
+00:16:19.161928 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.162048 read(4, "", 1024)       = 0
+00:16:19.162160 close(4)                = 0
+00:16:19.162268 openat(AT_FDCWD, "/proc/37/cmdline", O_RDONLY) = 4
+00:16:19.162426 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.162544 read(4, "", 1024)       = 0
+00:16:19.162673 close(4)                = 0
+00:16:19.162782 openat(AT_FDCWD, "/proc/38/cmdline", O_RDONLY) = 4
+00:16:19.162900 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.163016 read(4, "", 1024)       = 0
+00:16:19.163126 close(4)                = 0
+00:16:19.163234 openat(AT_FDCWD, "/proc/39/cmdline", O_RDONLY) = 4
+00:16:19.163381 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.163540 read(4, "", 1024)       = 0
+00:16:19.163671 close(4)                = 0
+00:16:19.163783 openat(AT_FDCWD, "/proc/40/cmdline", O_RDONLY) = 4
+00:16:19.163907 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.164023 read(4, "", 1024)       = 0
+00:16:19.164135 close(4)                = 0
+00:16:19.164243 openat(AT_FDCWD, "/proc/41/cmdline", O_RDONLY) = 4
+00:16:19.164388 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.164504 read(4, "", 1024)       = 0
+00:16:19.164615 close(4)                = 0
+00:16:19.164735 openat(AT_FDCWD, "/proc/42/cmdline", O_RDONLY) = 4
+00:16:19.164866 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.164982 read(4, "", 1024)       = 0
+00:16:19.165094 close(4)                = 0
+00:16:19.165204 openat(AT_FDCWD, "/proc/43/cmdline", O_RDONLY) = 4
+00:16:19.165326 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.165446 read(4, "", 1024)       = 0
+00:16:19.165557 close(4)                = 0
+00:16:19.165659 openat(AT_FDCWD, "/proc/45/cmdline", O_RDONLY) = 4
+00:16:19.165779 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.165893 read(4, "", 1024)       = 0
+00:16:19.166004 close(4)                = 0
+00:16:19.166111 openat(AT_FDCWD, "/proc/46/cmdline", O_RDONLY) = 4
+00:16:19.166229 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.166373 read(4, "", 1024)       = 0
+00:16:19.166484 close(4)                = 0
+00:16:19.166594 openat(AT_FDCWD, "/proc/47/cmdline", O_RDONLY) = 4
+00:16:19.166715 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.166830 read(4, "", 1024)       = 0
+00:16:19.166941 close(4)                = 0
+00:16:19.167050 openat(AT_FDCWD, "/proc/49/cmdline", O_RDONLY) = 4
+00:16:19.167168 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.167282 read(4, "", 1024)       = 0
+00:16:19.167419 close(4)                = 0
+00:16:19.167528 openat(AT_FDCWD, "/proc/50/cmdline", O_RDONLY) = 4
+00:16:19.167685 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.167807 read(4, "", 1024)       = 0
+00:16:19.167919 close(4)                = 0
+00:16:19.168029 openat(AT_FDCWD, "/proc/51/cmdline", O_RDONLY) = 4
+00:16:19.168150 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.168264 read(4, "", 1024)       = 0
+00:16:19.168392 close(4)                = 0
+00:16:19.168501 openat(AT_FDCWD, "/proc/66/cmdline", O_RDONLY) = 4
+00:16:19.168621 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.168736 read(4, "", 1024)       = 0
+00:16:19.168847 close(4)                = 0
+00:16:19.168955 openat(AT_FDCWD, "/proc/67/cmdline", O_RDONLY) = 4
+00:16:19.169074 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.169188 read(4, "", 1024)       = 0
+00:16:19.169316 close(4)                = 0
+00:16:19.169452 openat(AT_FDCWD, "/proc/68/cmdline", O_RDONLY) = 4
+00:16:19.169579 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.169710 read(4, "", 1024)       = 0
+00:16:19.169821 close(4)                = 0
+00:16:19.169930 openat(AT_FDCWD, "/proc/69/cmdline", O_RDONLY) = 4
+00:16:19.170049 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.170164 read(4, "", 1024)       = 0
+00:16:19.170274 close(4)                = 0
+00:16:19.170416 openat(AT_FDCWD, "/proc/70/cmdline", O_RDONLY) = 4
+00:16:19.170544 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.170675 read(4, "", 1024)       = 0
+00:16:19.170794 close(4)                = 0
+00:16:19.170904 openat(AT_FDCWD, "/proc/71/cmdline", O_RDONLY) = 4
+00:16:19.171026 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.171141 read(4, "", 1024)       = 0
+00:16:19.171252 close(4)                = 0
+00:16:19.171384 openat(AT_FDCWD, "/proc/72/cmdline", O_RDONLY) = 4
+00:16:19.171504 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.171620 read(4, "", 1024)       = 0
+00:16:19.171746 close(4)                = 0
+00:16:19.171855 openat(AT_FDCWD, "/proc/73/cmdline", O_RDONLY) = 4
+00:16:19.171973 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.172088 read(4, "", 1024)       = 0
+00:16:19.172232 close(4)                = 0
+00:16:19.172360 openat(AT_FDCWD, "/proc/106/cmdline", O_RDONLY) = 4
+00:16:19.172479 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.172593 read(4, "", 1024)       = 0
+00:16:19.172710 close(4)                = 0
+00:16:19.172819 openat(AT_FDCWD, "/proc/107/cmdline", O_RDONLY) = 4
+00:16:19.172937 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.173052 read(4, "", 1024)       = 0
+00:16:19.173162 close(4)                = 0
+00:16:19.173271 openat(AT_FDCWD, "/proc/108/cmdline", O_RDONLY) = 4
+00:16:19.173417 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.173533 read(4, "", 1024)       = 0
+00:16:19.173656 close(4)                = 0
+00:16:19.173765 openat(AT_FDCWD, "/proc/109/cmdline", O_RDONLY) = 4
+00:16:19.173883 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.174019 read(4, "", 1024)       = 0
+00:16:19.174135 close(4)                = 0
+00:16:19.174245 openat(AT_FDCWD, "/proc/110/cmdline", O_RDONLY) = 4
+00:16:19.174400 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.174517 read(4, "", 1024)       = 0
+00:16:19.174627 close(4)                = 0
+00:16:19.174737 openat(AT_FDCWD, "/proc/112/cmdline", O_RDONLY) = 4
+00:16:19.174960 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.175391 read(4, "", 1024)       = 0
+00:16:19.175514 close(4)                = 0
+00:16:19.175625 openat(AT_FDCWD, "/proc/114/cmdline", O_RDONLY) = 4
+00:16:19.175817 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.175934 read(4, "", 1024)       = 0
+00:16:19.176044 close(4)                = 0
+00:16:19.176153 openat(AT_FDCWD, "/proc/115/cmdline", O_RDONLY) = 4
+00:16:19.176287 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.176455 read(4, "", 1024)       = 0
+00:16:19.176576 close(4)                = 0
+00:16:19.176701 openat(AT_FDCWD, "/proc/116/cmdline", O_RDONLY) = 4
+00:16:19.176826 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.176943 read(4, "", 1024)       = 0
+00:16:19.177053 close(4)                = 0
+00:16:19.177162 openat(AT_FDCWD, "/proc/117/cmdline", O_RDONLY) = 4
+00:16:19.177281 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.177426 read(4, "", 1024)       = 0
+00:16:19.177540 close(4)                = 0
+00:16:19.177666 openat(AT_FDCWD, "/proc/118/cmdline", O_RDONLY) = 4
+00:16:19.177789 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.177903 read(4, "", 1024)       = 0
+00:16:19.178013 close(4)                = 0
+00:16:19.178121 openat(AT_FDCWD, "/proc/119/cmdline", O_RDONLY) = 4
+00:16:19.178238 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.178366 read(4, "", 1024)       = 0
+00:16:19.178477 close(4)                = 0
+00:16:19.178585 openat(AT_FDCWD, "/proc/120/cmdline", O_RDONLY) = 4
+00:16:19.178720 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.178835 read(4, "", 1024)       = 0
+00:16:19.178944 close(4)                = 0
+00:16:19.179053 openat(AT_FDCWD, "/proc/121/cmdline", O_RDONLY) = 4
+00:16:19.179169 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.179283 read(4, "", 1024)       = 0
+00:16:19.179422 close(4)                = 0
+00:16:19.179533 openat(AT_FDCWD, "/proc/122/cmdline", O_RDONLY) = 4
+00:16:19.179669 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.179792 read(4, "", 1024)       = 0
+00:16:19.179905 close(4)                = 0
+00:16:19.180015 openat(AT_FDCWD, "/proc/123/cmdline", O_RDONLY) = 4
+00:16:19.180138 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.180254 read(4, "", 1024)       = 0
+00:16:19.180397 close(4)                = 0
+00:16:19.180508 openat(AT_FDCWD, "/proc/124/cmdline", O_RDONLY) = 4
+00:16:19.180627 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.180759 read(4, "", 1024)       = 0
+00:16:19.180872 close(4)                = 0
+00:16:19.180981 openat(AT_FDCWD, "/proc/125/cmdline", O_RDONLY) = 4
+00:16:19.181099 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.181214 read(4, "", 1024)       = 0
+00:16:19.181329 close(4)                = 0
+00:16:19.181481 openat(AT_FDCWD, "/proc/126/cmdline", O_RDONLY) = 4
+00:16:19.181605 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.181711 read(4, "", 1024)       = 0
+00:16:19.181823 close(4)                = 0
+00:16:19.181932 openat(AT_FDCWD, "/proc/127/cmdline", O_RDONLY) = 4
+00:16:19.182050 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.182165 read(4, "", 1024)       = 0
+00:16:19.182276 close(4)                = 0
+00:16:19.182434 openat(AT_FDCWD, "/proc/128/cmdline", O_RDONLY) = 4
+00:16:19.182562 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.182686 read(4, "", 1024)       = 0
+00:16:19.182810 close(4)                = 0
+00:16:19.182921 openat(AT_FDCWD, "/proc/129/cmdline", O_RDONLY) = 4
+00:16:19.183043 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.183158 read(4, "", 1024)       = 0
+00:16:19.183269 close(4)                = 0
+00:16:19.183410 openat(AT_FDCWD, "/proc/130/cmdline", O_RDONLY) = 4
+00:16:19.183529 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.183654 read(4, "", 1024)       = 0
+00:16:19.183767 close(4)                = 0
+00:16:19.183875 openat(AT_FDCWD, "/proc/131/cmdline", O_RDONLY) = 4
+00:16:19.183994 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.184109 read(4, "", 1024)       = 0
+00:16:19.184220 close(4)                = 0
+00:16:19.184352 openat(AT_FDCWD, "/proc/132/cmdline", O_RDONLY) = 4
+00:16:19.184475 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.184590 read(4, "", 1024)       = 0
+00:16:19.184709 close(4)                = 0
+00:16:19.184818 openat(AT_FDCWD, "/proc/133/cmdline", O_RDONLY) = 4
+00:16:19.184937 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.185051 read(4, "", 1024)       = 0
+00:16:19.185163 close(4)                = 0
+00:16:19.185272 openat(AT_FDCWD, "/proc/134/cmdline", O_RDONLY) = 4
+00:16:19.185417 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.185533 read(4, "", 1024)       = 0
+00:16:19.185735 close(4)                = 0
+00:16:19.185881 openat(AT_FDCWD, "/proc/135/cmdline", O_RDONLY) = 4
+00:16:19.186009 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.186154 read(4, "", 1024)       = 0
+00:16:19.186269 close(4)                = 0
+00:16:19.186549 openat(AT_FDCWD, "/proc/138/cmdline", O_RDONLY) = 4
+00:16:19.186707 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.186848 read(4, "", 1024)       = 0
+00:16:19.186968 close(4)                = 0
+00:16:19.187081 openat(AT_FDCWD, "/proc/140/cmdline", O_RDONLY) = 4
+00:16:19.187206 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.187326 read(4, "", 1024)       = 0
+00:16:19.187444 close(4)                = 0
+00:16:19.187556 openat(AT_FDCWD, "/proc/141/cmdline", O_RDONLY) = 4
+00:16:19.187680 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.187799 read(4, "", 1024)       = 0
+00:16:19.187910 close(4)                = 0
+00:16:19.188018 openat(AT_FDCWD, "/proc/142/cmdline", O_RDONLY) = 4
+00:16:19.188136 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.188250 read(4, "", 1024)       = 0
+00:16:19.188390 close(4)                = 0
+00:16:19.188498 openat(AT_FDCWD, "/proc/143/cmdline", O_RDONLY) = 4
+00:16:19.188635 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.188774 read(4, "", 1024)       = 0
+00:16:19.188886 close(4)                = 0
+00:16:19.188996 openat(AT_FDCWD, "/proc/145/cmdline", O_RDONLY) = 4
+00:16:19.189117 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.189232 read(4, "", 1024)       = 0
+00:16:19.189375 close(4)                = 0
+00:16:19.189485 openat(AT_FDCWD, "/proc/148/cmdline", O_RDONLY) = 4
+00:16:19.189606 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.189712 read(4, "", 1024)       = 0
+00:16:19.189823 close(4)                = 0
+00:16:19.189932 openat(AT_FDCWD, "/proc/149/cmdline", O_RDONLY) = 4
+00:16:19.190051 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.190165 read(4, "", 1024)       = 0
+00:16:19.190275 close(4)                = 0
+00:16:19.190411 openat(AT_FDCWD, "/proc/150/cmdline", O_RDONLY) = 4
+00:16:19.190562 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.190695 read(4, "", 1024)       = 0
+00:16:19.190805 close(4)                = 0
+00:16:19.190914 openat(AT_FDCWD, "/proc/152/cmdline", O_RDONLY) = 4
+00:16:19.191034 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.191148 read(4, "", 1024)       = 0
+00:16:19.191258 close(4)                = 0
+00:16:19.191382 openat(AT_FDCWD, "/proc/153/cmdline", O_RDONLY) = 4
+00:16:19.191503 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.191617 read(4, "", 1024)       = 0
+00:16:19.191745 close(4)                = 0
+00:16:19.192287 openat(AT_FDCWD, "/proc/154/cmdline", O_RDONLY) = 4
+00:16:19.192565 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.192697 read(4, "", 1024)       = 0
+00:16:19.192813 close(4)                = 0
+00:16:19.192927 openat(AT_FDCWD, "/proc/155/cmdline", O_RDONLY) = 4
+00:16:19.193051 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.193170 read(4, "", 1024)       = 0
+00:16:19.193282 close(4)                = 0
+00:16:19.193429 openat(AT_FDCWD, "/proc/156/cmdline", O_RDONLY) = 4
+00:16:19.193551 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.193677 read(4, "", 1024)       = 0
+00:16:19.193790 close(4)                = 0
+00:16:19.193901 openat(AT_FDCWD, "/proc/157/cmdline", O_RDONLY) = 4
+00:16:19.194022 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.194152 read(4, "", 1024)       = 0
+00:16:19.194265 close(4)                = 0
+00:16:19.194404 openat(AT_FDCWD, "/proc/158/cmdline", O_RDONLY) = 4
+00:16:19.194527 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.194671 read(4, "", 1024)       = 0
+00:16:19.194804 close(4)                = 0
+00:16:19.194937 openat(AT_FDCWD, "/proc/159/cmdline", O_RDONLY) = 4
+00:16:19.195079 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.195187 read(4, "", 1024)       = 0
+00:16:19.195353 close(4)                = 0
+00:16:19.195473 openat(AT_FDCWD, "/proc/160/cmdline", O_RDONLY) = 4
+00:16:19.195597 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.195720 read(4, "", 1024)       = 0
+00:16:19.195830 close(4)                = 0
+00:16:19.195939 openat(AT_FDCWD, "/proc/161/cmdline", O_RDONLY) = 4
+00:16:19.196057 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.196172 read(4, "", 1024)       = 0
+00:16:19.196284 close(4)                = 0
+00:16:19.196427 openat(AT_FDCWD, "/proc/162/cmdline", O_RDONLY) = 4
+00:16:19.196549 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.196671 read(4, "", 1024)       = 0
+00:16:19.196782 close(4)                = 0
+00:16:19.196891 openat(AT_FDCWD, "/proc/163/cmdline", O_RDONLY) = 4
+00:16:19.197010 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.197124 read(4, "", 1024)       = 0
+00:16:19.197234 close(4)                = 0
+00:16:19.197368 openat(AT_FDCWD, "/proc/165/cmdline", O_RDONLY) = 4
+00:16:19.197490 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.197623 read(4, "", 1024)       = 0
+00:16:19.197758 close(4)                = 0
+00:16:19.197870 openat(AT_FDCWD, "/proc/168/cmdline", O_RDONLY) = 4
+00:16:19.197993 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.198109 read(4, "", 1024)       = 0
+00:16:19.198219 close(4)                = 0
+00:16:19.198346 openat(AT_FDCWD, "/proc/172/cmdline", O_RDONLY) = 4
+00:16:19.198486 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.198604 read(4, "", 1024)       = 0
+00:16:19.198708 close(4)                = 0
+00:16:19.198818 openat(AT_FDCWD, "/proc/173/cmdline", O_RDONLY) = 4
+00:16:19.198937 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.199052 read(4, "", 1024)       = 0
+00:16:19.199163 close(4)                = 0
+00:16:19.199271 openat(AT_FDCWD, "/proc/176/cmdline", O_RDONLY) = 4
+00:16:19.199407 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.199524 read(4, "", 1024)       = 0
+00:16:19.199635 close(4)                = 0
+00:16:19.199760 openat(AT_FDCWD, "/proc/177/cmdline", O_RDONLY) = 4
+00:16:19.199876 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.200032 read(4, "", 1024)       = 0
+00:16:19.200143 close(4)                = 0
+00:16:19.200252 openat(AT_FDCWD, "/proc/178/cmdline", O_RDONLY) = 4
+00:16:19.200400 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.200516 read(4, "", 1024)       = 0
+00:16:19.200627 close(4)                = 0
+00:16:19.200773 openat(AT_FDCWD, "/proc/179/cmdline", O_RDONLY) = 4
+00:16:19.200902 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.201018 read(4, "", 1024)       = 0
+00:16:19.201128 close(4)                = 0
+00:16:19.201237 openat(AT_FDCWD, "/proc/180/cmdline", O_RDONLY) = 4
+00:16:19.201380 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.201496 read(4, "", 1024)       = 0
+00:16:19.201608 close(4)                = 0
+00:16:19.201724 openat(AT_FDCWD, "/proc/182/cmdline", O_RDONLY) = 4
+00:16:19.201843 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.201958 read(4, "", 1024)       = 0
+00:16:19.202068 close(4)                = 0
+00:16:19.202176 openat(AT_FDCWD, "/proc/183/cmdline", O_RDONLY) = 4
+00:16:19.202317 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.202444 read(4, "", 1024)       = 0
+00:16:19.202556 close(4)                = 0
+00:16:19.202675 openat(AT_FDCWD, "/proc/184/cmdline", O_RDONLY) = 4
+00:16:19.202794 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.202908 read(4, "", 1024)       = 0
+00:16:19.203019 close(4)                = 0
+00:16:19.203127 openat(AT_FDCWD, "/proc/203/cmdline", O_RDONLY) = 4
+00:16:19.203244 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.203375 read(4, "", 1024)       = 0
+00:16:19.203486 close(4)                = 0
+00:16:19.203592 openat(AT_FDCWD, "/proc/208/cmdline", O_RDONLY) = 4
+00:16:19.203743 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.203860 read(4, "", 1024)       = 0
+00:16:19.203972 close(4)                = 0
+00:16:19.204081 openat(AT_FDCWD, "/proc/215/cmdline", O_RDONLY) = 4
+00:16:19.204200 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.204338 read(4, "/lib/systemd/systemd-journald\0", 1024) = 30
+00:16:19.204473 read(4, "", 1024)       = 0
+00:16:19.204585 close(4)                = 0
+00:16:19.204705 openat(AT_FDCWD, "/proc/230/cmdline", O_RDONLY) = 4
+00:16:19.204824 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.204939 read(4, "/usr/sbin/blkmapd\0", 1024) = 18
+00:16:19.205057 read(4, "", 1024)       = 0
+00:16:19.205167 close(4)                = 0
+00:16:19.205276 openat(AT_FDCWD, "/proc/244/cmdline", O_RDONLY) = 4
+00:16:19.205425 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.205540 read(4, "/lib/systemd/systemd-udevd\0", 1024) = 27
+00:16:19.205665 read(4, "", 1024)       = 0
+00:16:19.205777 close(4)                = 0
+00:16:19.205886 openat(AT_FDCWD, "/proc/249/cmdline", O_RDONLY) = 4
+00:16:19.206008 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.206123 read(4, "/lib/systemd/systemd-networkd\0", 1024) = 30
+00:16:19.206238 read(4, "", 1024)       = 0
+00:16:19.206371 close(4)                = 0
+00:16:19.206480 openat(AT_FDCWD, "/proc/329/cmdline", O_RDONLY) = 4
+00:16:19.206616 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.206750 read(4, "", 1024)       = 0
+00:16:19.206862 close(4)                = 0
+00:16:19.206971 openat(AT_FDCWD, "/proc/448/cmdline", O_RDONLY) = 4
+00:16:19.207093 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.207209 read(4, "/lib/systemd/systemd-timesyncd\0", 1024) = 31
+00:16:19.207349 read(4, "", 1024)       = 0
+00:16:19.207466 close(4)                = 0
+00:16:19.207575 openat(AT_FDCWD, "/proc/449/cmdline", O_RDONLY) = 4
+00:16:19.207696 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.207811 read(4, "/sbin/rpcbind\0-f\0-w\0", 1024) = 20
+00:16:19.207927 read(4, "", 1024)       = 0
+00:16:19.208038 close(4)                = 0
+00:16:19.208146 openat(AT_FDCWD, "/proc/450/cmdline", O_RDONLY) = 4
+00:16:19.208265 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.208411 read(4, "/lib/systemd/systemd-resolved\0", 1024) = 30
+00:16:19.208559 read(4, "", 1024)       = 0
+00:16:19.208679 close(4)                = 0
+00:16:19.208792 openat(AT_FDCWD, "/proc/462/cmdline", O_RDONLY) = 4
+00:16:19.208916 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.209034 read(4, "/usr/sbin/alsactl\0-E\0HOME=/run/alsa\0-s\0-n\00019\0-c\0rdaemon\0", 1024) = 56
+00:16:19.209153 read(4, "", 1024)       = 0
+00:16:19.209265 close(4)                = 0
+00:16:19.209403 openat(AT_FDCWD, "/proc/466/cmdline", O_RDONLY) = 4
+00:16:19.209527 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.209644 read(4, "/usr/sbin/rsyslogd\0-n\0-iNONE\0", 1024) = 29
+00:16:19.209764 read(4, "", 1024)       = 0
+00:16:19.209877 close(4)                = 0
+00:16:19.210608 openat(AT_FDCWD, "/proc/470/cmdline", O_RDONLY) = 4
+00:16:19.210971 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.211656 read(4, "/usr/lib/udisks2/udisksd\0", 1024) = 25
+00:16:19.212169 read(4, "", 1024)       = 0
+00:16:19.212657 close(4)                = 0
+00:16:19.213226 openat(AT_FDCWD, "/proc/471/cmdline", O_RDONLY) = 4
+00:16:19.213815 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.214125 read(4, "/lib/systemd/systemd-logind\0", 1024) = 28
+00:16:19.214465 read(4, "", 1024)       = 0
+00:16:19.214791 close(4)                = 0
+00:16:19.215100 openat(AT_FDCWD, "/proc/474/cmdline", O_RDONLY) = 4
+00:16:19.215519 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.216032 read(4, "/usr/lib/upower/upowerd\0", 1024) = 24
+00:16:19.216361 read(4, "", 1024)       = 0
+00:16:19.216801 close(4)                = 0
+00:16:19.217116 openat(AT_FDCWD, "/proc/477/cmdline", O_RDONLY) = 4
+00:16:19.217535 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.217836 read(4, "/usr/bin/dbus-daemon\0--system\0--address=systemd:\0--nofork\0--nopidfile\0--systemd-activation\0--syslog-only\0", 1024) = 105
+00:16:19.218163 read(4, "", 1024)       = 0
+00:16:19.218490 close(4)                = 0
+00:16:19.218810 openat(AT_FDCWD, "/proc/479/cmdline", O_RDONLY) = 4
+00:16:19.219155 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.219629 read(4, "/usr/sbin/NetworkManager\0--no-daemon\0", 1024) = 37
+00:16:19.220276 read(4, "", 1024)       = 0
+00:16:19.220637 close(4)                = 0
+00:16:19.220971 openat(AT_FDCWD, "/proc/483/cmdline", O_RDONLY) = 4
+00:16:19.221322 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.221633 read(4, "/sbin/wpa_supplicant\0-u\0-s\0-O\0/run/wpa_supplicant\0", 1024) = 50
+00:16:19.221975 read(4, "", 1024)       = 0
+00:16:19.222287 close(4)                = 0
+00:16:19.222779 openat(AT_FDCWD, "/proc/489/cmdline", O_RDONLY) = 4
+00:16:19.223350 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.223797 read(4, "/usr/bin/rkisp_3A_server\0--mmedia=/dev/media0\0", 1024) = 46
+00:16:19.224127 read(4, "", 1024)       = 0
+00:16:19.224472 close(4)                = 0
+00:16:19.224785 openat(AT_FDCWD, "/proc/491/cmdline", O_RDONLY) = 4
+00:16:19.225128 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.225470 read(4, "logger\0-t\0rkisp_3A-0\0", 1024) = 21
+00:16:19.225985 read(4, "", 1024)       = 0
+00:16:19.226318 close(4)                = 0
+00:16:19.226652 openat(AT_FDCWD, "/proc/498/cmdline", O_RDONLY) = 4
+00:16:19.226993 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.227315 read(4, "/usr/sbin/acpid\0", 1024) = 16
+00:16:19.227654 read(4, "", 1024)       = 0
+00:16:19.227961 close(4)                = 0
+00:16:19.228268 openat(AT_FDCWD, "/proc/514/cmdline", O_RDONLY) = 4
+00:16:19.228654 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.229157 read(4, "/usr/lib/policykit-1/polkitd\0--no-debug\0", 1024) = 40
+00:16:19.229503 read(4, "", 1024)       = 0
+00:16:19.229812 close(4)                = 0
+00:16:19.230120 openat(AT_FDCWD, "/proc/534/cmdline", O_RDONLY) = 4
+00:16:19.230479 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.230798 read(4, "/usr/bin/python3\0/dpanel/compose/vikunja-relay/relay.py\0", 1024) = 56
+00:16:19.231124 read(4, "", 1024)       = 0
+00:16:19.231625 close(4)                = 0
+00:16:19.232216 openat(AT_FDCWD, "/proc/535/cmdline", O_RDONLY) = 4
+00:16:19.232603 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.233660 read(4, "/usr/bin/containerd\0", 1024) = 20
+00:16:19.234265 read(4, "", 1024)       = 0
+00:16:19.234748 close(4)                = 0
+00:16:19.235086 openat(AT_FDCWD, "/proc/544/cmdline", O_RDONLY) = 4
+00:16:19.235466 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.235772 read(4, "/usr/sbin/rpc.mountd\0--manage-gids\0", 1024) = 35
+00:16:19.236102 read(4, "", 1024)       = 0
+00:16:19.236452 close(4)                = 0
+00:16:19.236878 openat(AT_FDCWD, "/proc/554/cmdline", O_RDONLY) = 4
+00:16:19.237240 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.237558 read(4, "", 1024)       = 0
+00:16:19.238064 close(4)                = 0
+00:16:19.238421 openat(AT_FDCWD, "/proc/555/cmdline", O_RDONLY) = 4
+00:16:19.238787 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.239087 read(4, "", 1024)       = 0
+00:16:19.239417 close(4)                = 0
+00:16:19.239730 openat(AT_FDCWD, "/proc/560/cmdline", O_RDONLY) = 4
+00:16:19.240070 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.240376 read(4, "", 1024)       = 0
+00:16:19.240863 close(4)                = 0
+00:16:19.241193 openat(AT_FDCWD, "/proc/561/cmdline", O_RDONLY) = 4
+00:16:19.241561 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.242073 read(4, "", 1024)       = 0
+00:16:19.242408 close(4)                = 0
+00:16:19.242729 openat(AT_FDCWD, "/proc/562/cmdline", O_RDONLY) = 4
+00:16:19.243073 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.243582 read(4, "", 1024)       = 0
+00:16:19.243924 close(4)                = 0
+00:16:19.244241 openat(AT_FDCWD, "/proc/563/cmdline", O_RDONLY) = 4
+00:16:19.244632 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.244947 read(4, "", 1024)       = 0
+00:16:19.245239 close(4)                = 0
+00:16:19.245593 openat(AT_FDCWD, "/proc/564/cmdline", O_RDONLY) = 4
+00:16:19.245930 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.246231 read(4, "", 1024)       = 0
+00:16:19.246750 close(4)                = 0
+00:16:19.247397 openat(AT_FDCWD, "/proc/565/cmdline", O_RDONLY) = 4
+00:16:19.248263 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.248623 read(4, "", 1024)       = 0
+00:16:19.248938 close(4)                = 0
+00:16:19.249260 openat(AT_FDCWD, "/proc/566/cmdline", O_RDONLY) = 4
+00:16:19.249698 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.249995 read(4, "", 1024)       = 0
+00:16:19.250282 close(4)                = 0
+00:16:19.250680 openat(AT_FDCWD, "/proc/567/cmdline", O_RDONLY) = 4
+00:16:19.251023 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.251321 read(4, "", 1024)       = 0
+00:16:19.251653 close(4)                = 0
+00:16:19.251969 openat(AT_FDCWD, "/proc/568/cmdline", O_RDONLY) = 4
+00:16:19.252313 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.252634 read(4, "", 1024)       = 0
+00:16:19.252941 close(4)                = 0
+00:16:19.253250 openat(AT_FDCWD, "/proc/569/cmdline", O_RDONLY) = 4
+00:16:19.253655 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.253957 read(4, "", 1024)       = 0
+00:16:19.254255 close(4)                = 0
+00:16:19.254610 openat(AT_FDCWD, "/proc/575/cmdline", O_RDONLY) = 4
+00:16:19.254969 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.255273 read(4, "/usr/sbin/cron\0-f\0", 1024) = 18
+00:16:19.255655 read(4, "", 1024)       = 0
+00:16:19.255975 close(4)                = 0
+00:16:19.256286 openat(AT_FDCWD, "/proc/599/cmdline", O_RDONLY) = 4
+00:16:19.256655 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.256958 read(4, "/usr/sbin/lightdm\0", 1024) = 18
+00:16:19.257287 read(4, "", 1024)       = 0
+00:16:19.257627 close(4)                = 0
+00:16:19.257957 openat(AT_FDCWD, "/proc/612/cmdline", O_RDONLY) = 4
+00:16:19.258313 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.258661 read(4, "/usr/lib/xorg/Xorg\0:0\0-seat\0seat0\0-auth\0/var/run/lightdm/root/:0\0-nolisten\0tcp\0vt7\0-novtswitch\0", 1024) = 95
+00:16:19.259030 read(4, "", 1024)       = 0
+00:16:19.260052 close(4)                = 0
+00:16:19.260379 openat(AT_FDCWD, "/proc/652/cmdline", O_RDONLY) = 4
+00:16:19.260563 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.260721 read(4, "/usr/bin/dockerd\0-H\0fd://\0--containerd=/run/containerd/containerd.sock\0", 1024) = 71
+00:16:19.260859 read(4, "", 1024)       = 0
+00:16:19.260985 close(4)                = 0
+00:16:19.261106 openat(AT_FDCWD, "/proc/654/cmdline", O_RDONLY) = 4
+00:16:19.261237 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.261380 read(4, "", 1024)       = 0
+00:16:19.261497 close(4)                = 0
+00:16:19.261609 openat(AT_FDCWD, "/proc/686/cmdline", O_RDONLY) = 4
+00:16:19.261747 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.261863 read(4, "/sbin/dhclient\0-d\0-q\0-sf\0/usr/lib/NetworkManager/nm-dhcp-helper\0-pf\0/run/dhclient-eth0.pid\0-lf\0/var/lib/NetworkManager/dhclient-e5ea502a-3766-3a5a-935f-8189a50c3bad-eth0.lease\0-cf\0/var/lib/NetworkManager/dhclient-eth0.conf\0eth0\0", 1024) = 228
+00:16:19.261986 read(4, "", 1024)       = 0
+00:16:19.262098 close(4)                = 0
+00:16:19.262208 openat(AT_FDCWD, "/proc/699/cmdline", O_RDONLY) = 4
+00:16:19.262353 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.262474 read(4, "/sbin/mount.ntfs-3g\0/dev/sda1\0/mnt/hdd1\0-o\0rw,noatime\0", 1024) = 54
+00:16:19.262594 read(4, "", 1024)       = 0
+00:16:19.262714 close(4)                = 0
+00:16:19.262824 openat(AT_FDCWD, "/proc/724/cmdline", O_RDONLY) = 4
+00:16:19.262945 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.263061 read(4, "lightdm\0--session-child\00014\00017\0", 1024) = 30
+00:16:19.263178 read(4, "", 1024)       = 0
+00:16:19.263289 close(4)                = 0
+00:16:19.263427 openat(AT_FDCWD, "/proc/734/cmdline", O_RDONLY) = 4
+00:16:19.263549 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.263659 read(4, "/lib/systemd/systemd\0--user\0", 1024) = 28
+00:16:19.263777 read(4, "", 1024)       = 0
+00:16:19.263889 close(4)                = 0
+00:16:19.263998 openat(AT_FDCWD, "/proc/737/cmdline", O_RDONLY) = 4
+00:16:19.264118 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.264233 read(4, "(sd-pam)\0", 1024) = 9
+00:16:19.264375 read(4, "", 1024)       = 0
+00:16:19.264489 close(4)                = 0
+00:16:19.264889 openat(AT_FDCWD, "/proc/750/cmdline", O_RDONLY) = 4
+00:16:19.265527 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.266200 read(4, "/usr/bin/lxsession\0-s\0LXDE\0-e\0LXDE\0", 1024) = 35
+00:16:19.266662 read(4, "", 1024)       = 0
+00:16:19.266986 close(4)                = 0
+00:16:19.267319 openat(AT_FDCWD, "/proc/783/cmdline", O_RDONLY) = 4
+00:16:19.268004 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.268504 read(4, "/usr/bin/dbus-launch\0--exit-with-session\0--sh-syntax\0", 1024) = 53
+00:16:19.269285 read(4, "", 1024)       = 0
+00:16:19.269907 close(4)                = 0
+00:16:19.270221 openat(AT_FDCWD, "/proc/784/cmdline", O_RDONLY) = 4
+00:16:19.270513 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.270848 read(4, "/usr/bin/dbus-daemon\0--syslog\0--fork\0--print-pid\0005\0--print-address\0007\0--session\0", 1024) = 79
+00:16:19.271055 read(4, "", 1024)       = 0
+00:16:19.271240 close(4)                = 0
+00:16:19.271477 openat(AT_FDCWD, "/proc/795/cmdline", O_RDONLY) = 4
+00:16:19.271780 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.271970 read(4, "/usr/bin/ssh-agent\0x-session-manager\0", 1024) = 37
+00:16:19.272171 read(4, "", 1024)       = 0
+00:16:19.272364 close(4)                = 0
+00:16:19.272540 openat(AT_FDCWD, "/proc/806/cmdline", O_RDONLY) = 4
+00:16:19.272728 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.272895 read(4, "/usr/lib/gvfs/gvfsd\0", 1024) = 20
+00:16:19.273072 read(4, "", 1024)       = 0
+00:16:19.273236 close(4)                = 0
+00:16:19.273409 openat(AT_FDCWD, "/proc/818/cmdline", O_RDONLY) = 4
+00:16:19.273601 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.273805 read(4, "openbox\0--config-file\0/home/neardi/.config/openbox/lxde-rc.xml\0", 1024) = 63
+00:16:19.273987 read(4, "", 1024)       = 0
+00:16:19.274151 close(4)                = 0
+00:16:19.274315 openat(AT_FDCWD, "/proc/820/cmdline", O_RDONLY) = 4
+00:16:19.274516 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.274819 read(4, "lxpolkit\0", 1024) = 9
+00:16:19.275026 read(4, "", 1024)       = 0
+00:16:19.275395 close(4)                = 0
+00:16:19.275663 openat(AT_FDCWD, "/proc/822/cmdline", O_RDONLY) = 4
+00:16:19.275907 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.276099 read(4, "lxpanel\0--profile\0LXDE\0", 1024) = 23
+00:16:19.276393 read(4, "", 1024)       = 0
+00:16:19.276657 close(4)                = 0
+00:16:19.276863 openat(AT_FDCWD, "/proc/824/cmdline", O_RDONLY) = 4
+00:16:19.277400 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.277605 read(4, "pcmanfm\0--desktop\0--profile\0LXDE\0", 1024) = 33
+00:16:19.277950 read(4, "", 1024)       = 0
+00:16:19.278149 close(4)                = 0
+00:16:19.278385 openat(AT_FDCWD, "/proc/847/cmdline", O_RDONLY) = 4
+00:16:19.278614 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.278815 read(4, "/usr/bin/ssh-agent\0-s\0", 1024) = 22
+00:16:19.279016 read(4, "", 1024)       = 0
+00:16:19.279201 close(4)                = 0
+00:16:19.279430 openat(AT_FDCWD, "/proc/850/cmdline", O_RDONLY) = 4
+00:16:19.279630 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.279811 read(4, "/usr/bin/python3\0/usr/bin/blueman-applet\0", 1024) = 41
+00:16:19.279991 read(4, "", 1024)       = 0
+00:16:19.280158 close(4)                = 0
+00:16:19.280341 openat(AT_FDCWD, "/proc/853/cmdline", O_RDONLY) = 4
+00:16:19.280536 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.280825 read(4, "", 1024)       = 0
+00:16:19.281018 close(4)                = 0
+00:16:19.281213 openat(AT_FDCWD, "/proc/857/cmdline", O_RDONLY) = 4
+00:16:19.281471 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.281656 read(4, "nm-applet\0", 1024) = 10
+00:16:19.281859 read(4, "", 1024)       = 0
+00:16:19.282046 close(4)                = 0
+00:16:19.282229 openat(AT_FDCWD, "/proc/870/cmdline", O_RDONLY) = 4
+00:16:19.282461 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.282624 read(4, "/usr/bin/pulseaudio\0--daemonize=no\0", 1024) = 35
+00:16:19.282815 read(4, "", 1024)       = 0
+00:16:19.282980 close(4)                = 0
+00:16:19.283144 openat(AT_FDCWD, "/proc/871/cmdline", O_RDONLY) = 4
+00:16:19.283382 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.283655 read(4, "xfce4-power-manager\0", 1024) = 20
+00:16:19.283868 read(4, "", 1024)       = 0
+00:16:19.284060 close(4)                = 0
+00:16:19.284249 openat(AT_FDCWD, "/proc/885/cmdline", O_RDONLY) = 4
+00:16:19.284505 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.284804 read(4, "/usr/lib/menu-cache/menu-cached\0/run/user/1001/menu-cached-:0\0", 1024) = 62
+00:16:19.285010 read(4, "", 1024)       = 0
+00:16:19.285200 close(4)                = 0
+00:16:19.285432 openat(AT_FDCWD, "/proc/901/cmdline", O_RDONLY) = 4
+00:16:19.285647 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.285837 read(4, "/usr/lib/gvfs/gvfs-udisks2-volume-monitor\0", 1024) = 42
+00:16:19.286017 read(4, "", 1024)       = 0
+00:16:19.286185 close(4)                = 0
+00:16:19.286396 openat(AT_FDCWD, "/proc/915/cmdline", O_RDONLY) = 4
+00:16:19.286705 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.286895 read(4, "/usr/lib/bluetooth/bluetoothd\0", 1024) = 30
+00:16:19.287096 read(4, "", 1024)       = 0
+00:16:19.287283 close(4)                = 0
+00:16:19.287485 openat(AT_FDCWD, "/proc/923/cmdline", O_RDONLY) = 4
+00:16:19.287790 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.288053 read(4, "/usr/lib/aarch64-linux-gnu/xfce4/xfconf/xfconfd\0", 1024) = 48
+00:16:19.288262 read(4, "", 1024)       = 0
+00:16:19.288540 close(4)                = 0
+00:16:19.288752 openat(AT_FDCWD, "/proc/1081/cmdline", O_RDONLY) = 4
+00:16:19.288971 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.289192 read(4, "/usr/lib/gvfs/gvfsd-trash\0--spawner\0:1.2\0/org/gtk/gvfs/exec_spaw/0\0", 1024) = 67
+00:16:19.289396 read(4, "", 1024)       = 0
+00:16:19.289675 close(4)                = 0
+00:16:19.289847 openat(AT_FDCWD, "/proc/1454/cmdline", O_RDONLY) = 4
+00:16:19.290037 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.290246 read(4, "", 1024)       = 0
+00:16:19.290781 close(4)                = 0
+00:16:19.290954 openat(AT_FDCWD, "/proc/1481/cmdline", O_RDONLY) = 4
+00:16:19.291144 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.291313 read(4, "/usr/lib/bluetooth/obexd\0", 1024) = 25
+00:16:19.291503 read(4, "", 1024)       = 0
+00:16:19.291668 close(4)                = 0
+00:16:19.291832 openat(AT_FDCWD, "/proc/1494/cmdline", O_RDONLY) = 4
+00:16:19.292017 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.292178 read(4, "", 1024)       = 0
+00:16:19.292380 close(4)                = 0
+00:16:19.292550 openat(AT_FDCWD, "/proc/1496/cmdline", O_RDONLY) = 4
+00:16:19.292731 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.292893 read(4, "", 1024)       = 0
+00:16:19.293049 close(4)                = 0
+00:16:19.293210 openat(AT_FDCWD, "/proc/1497/cmdline", O_RDONLY) = 4
+00:16:19.293400 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.293562 read(4, "", 1024)       = 0
+00:16:19.293718 close(4)                = 0
+00:16:19.293879 openat(AT_FDCWD, "/proc/1498/cmdline", O_RDONLY) = 4
+00:16:19.294060 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.294221 read(4, "", 1024)       = 0
+00:16:19.294399 close(4)                = 0
+00:16:19.294564 openat(AT_FDCWD, "/proc/1523/cmdline", O_RDONLY) = 4
+00:16:19.294751 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.294912 read(4, "", 1024)       = 0
+00:16:19.295068 close(4)                = 0
+00:16:19.295229 openat(AT_FDCWD, "/proc/1525/cmdline", O_RDONLY) = 4
+00:16:19.295442 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.295605 read(4, "/bin/login\0-f\0\0\0\0\0\0", 1024) = 19
+00:16:19.295783 read(4, "", 1024)       = 0
+00:16:19.295949 close(4)                = 0
+00:16:19.296112 openat(AT_FDCWD, "/proc/1529/cmdline", O_RDONLY) = 4
+00:16:19.296332 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.296501 read(4, "/sbin/agetty\0-o\0-p -- \\u\0--noclear\0tty1\0linux\0", 1024) = 46
+00:16:19.296676 read(4, "", 1024)       = 0
+00:16:19.296841 close(4)                = 0
+00:16:19.297003 openat(AT_FDCWD, "/proc/1690/cmdline", O_RDONLY) = 4
+00:16:19.297186 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.297363 read(4, "", 1024)       = 0
+00:16:19.297523 close(4)                = 0
+00:16:19.297686 openat(AT_FDCWD, "/proc/1994/cmdline", O_RDONLY) = 4
+00:16:19.297869 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.298030 read(4, "/lib/systemd/systemd\0--user\0", 1024) = 28
+00:16:19.298204 read(4, "", 1024)       = 0
+00:16:19.298416 close(4)                = 0
+00:16:19.298908 openat(AT_FDCWD, "/proc/1997/cmdline", O_RDONLY) = 4
+00:16:19.299126 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.299314 read(4, "(sd-pam)\0", 1024) = 9
+00:16:19.299539 read(4, "", 1024)       = 0
+00:16:19.299729 close(4)                = 0
+00:16:19.299917 openat(AT_FDCWD, "/proc/2016/cmdline", O_RDONLY) = 4
+00:16:19.300125 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.300313 read(4, "-bash\0", 1024) = 6
+00:16:19.300517 read(4, "", 1024)       = 0
+00:16:19.300704 close(4)                = 0
+00:16:19.300888 openat(AT_FDCWD, "/proc/2170/cmdline", O_RDONLY) = 4
+00:16:19.301094 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.301272 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\00036192\0-container-ip\000172.17.0.2\0-container-port\08080\0", 1024) = 113
+00:16:19.301499 read(4, "", 1024)       = 0
+00:16:19.301677 close(4)                = 0
+00:16:19.301853 openat(AT_FDCWD, "/proc/2178/cmdline", O_RDONLY) = 4
+00:16:19.302047 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.302248 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\00036192\0-container-ip\000172.17.0.2\0-container-port\08080\0", 1024) = 108
+00:16:19.302464 read(4, "", 1024)       = 0
+00:16:19.302641 close(4)                = 0
+00:16:19.302818 openat(AT_FDCWD, "/proc/2215/cmdline", O_RDONLY) = 4
+00:16:19.303015 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.303188 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\08182\0-container-ip\000172.23.0.2\0-container-port\08182\0", 1024) = 112
+00:16:19.303395 read(4, "", 1024)       = 0
+00:16:19.303574 close(4)                = 0
+00:16:19.303756 openat(AT_FDCWD, "/proc/2228/cmdline", O_RDONLY) = 4
+00:16:19.303956 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.304130 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\08182\0-container-ip\000172.23.0.2\0-container-port\08182\0", 1024) = 107
+00:16:19.304321 read(4, "", 1024)       = 0
+00:16:19.304627 close(4)                = 0
+00:16:19.304856 openat(AT_FDCWD, "/proc/2234/cmdline", O_RDONLY) = 4
+00:16:19.305075 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.305266 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\08317\0-container-ip\000172.26.0.2\0-container-port\08317\0", 1024) = 112
+00:16:19.305505 read(4, "", 1024)       = 0
+00:16:19.305697 close(4)                = 0
+00:16:19.305885 openat(AT_FDCWD, "/proc/2248/cmdline", O_RDONLY) = 4
+00:16:19.306097 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.306288 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\000443\0-container-ip\000172.18.0.2\0-container-port\000443\0", 1024) = 110
+00:16:19.306509 read(4, "", 1024)       = 0
+00:16:19.306697 close(4)                = 0
+00:16:19.306873 openat(AT_FDCWD, "/proc/2250/cmdline", O_RDONLY) = 4
+00:16:19.307060 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.307224 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\08317\0-container-ip\000172.26.0.2\0-container-port\08317\0", 1024) = 107
+00:16:19.307429 read(4, "", 1024)       = 0
+00:16:19.307597 close(4)                = 0
+00:16:19.307761 openat(AT_FDCWD, "/proc/2263/cmdline", O_RDONLY) = 4
+00:16:19.307948 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.308110 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\000443\0-container-ip\000172.18.0.2\0-container-port\000443\0", 1024) = 105
+00:16:19.308288 read(4, "", 1024)       = 0
+00:16:19.308481 close(4)                = 0
+00:16:19.308654 openat(AT_FDCWD, "/proc/2274/cmdline", O_RDONLY) = 4
+00:16:19.308840 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.309002 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\0005432\0-container-ip\000172.22.0.2\0-container-port\0005432\0", 1024) = 112
+00:16:19.309179 read(4, "", 1024)       = 0
+00:16:19.309361 close(4)                = 0
+00:16:19.309529 openat(AT_FDCWD, "/proc/2286/cmdline", O_RDONLY) = 4
+00:16:19.309726 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.309887 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\0003003\0-container-ip\000172.17.0.3\0-container-port\0003000\0", 1024) = 112
+00:16:19.310063 read(4, "", 1024)       = 0
+00:16:19.310227 close(4)                = 0
+00:16:19.310411 openat(AT_FDCWD, "/proc/2287/cmdline", O_RDONLY) = 4
+00:16:19.310746 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.310937 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\0003002\0-container-ip\000172.21.0.2\0-container-port\0003000\0", 1024) = 112
+00:16:19.311142 read(4, "", 1024)       = 0
+00:16:19.311333 close(4)                = 0
+00:16:19.311529 openat(AT_FDCWD, "/proc/2290/cmdline", O_RDONLY) = 4
+00:16:19.311738 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.311921 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\0005432\0-container-ip\000172.22.0.2\0-container-port\0005432\0", 1024) = 107
+00:16:19.312119 read(4, "", 1024)       = 0
+00:16:19.312332 close(4)                = 0
+00:16:19.312527 openat(AT_FDCWD, "/proc/2305/cmdline", O_RDONLY) = 4
+00:16:19.312843 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.313034 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\0003002\0-container-ip\000172.21.0.2\0-container-port\0003000\0", 1024) = 107
+00:16:19.313235 read(4, "", 1024)       = 0
+00:16:19.313446 close(4)                = 0
+00:16:19.313736 openat(AT_FDCWD, "/proc/2307/cmdline", O_RDONLY) = 4
+00:16:19.313954 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.314148 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\0003003\0-container-ip\000172.17.0.3\0-container-port\0003000\0", 1024) = 107
+00:16:19.314378 read(4, "", 1024)       = 0
+00:16:19.314576 close(4)                = 0
+00:16:19.314766 openat(AT_FDCWD, "/proc/2331/cmdline", O_RDONLY) = 4
+00:16:19.314964 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.315139 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\081\0-container-ip\000172.18.0.2\0-container-port\081\0", 1024) = 108
+00:16:19.315354 read(4, "", 1024)       = 0
+00:16:19.315537 close(4)                = 0
+00:16:19.315711 openat(AT_FDCWD, "/proc/2340/cmdline", O_RDONLY) = 4
+00:16:19.315908 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.316083 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\081\0-container-ip\000172.18.0.2\0-container-port\081\0", 1024) = 103
+00:16:19.316273 read(4, "", 1024)       = 0
+00:16:19.316468 close(4)                = 0
+00:16:19.316644 openat(AT_FDCWD, "/proc/2349/cmdline", O_RDONLY) = 4
+00:16:19.316839 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.317012 read(4, "", 1024)       = 0
+00:16:19.317180 close(4)                = 0
+00:16:19.317377 openat(AT_FDCWD, "/proc/2361/cmdline", O_RDONLY) = 4
+00:16:19.317577 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.317752 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\080\0-container-ip\000172.18.0.2\0-container-port\080\0", 1024) = 108
+00:16:19.317941 read(4, "", 1024)       = 0
+00:16:19.318116 close(4)                = 0
+00:16:19.318290 openat(AT_FDCWD, "/proc/2369/cmdline", O_RDONLY) = 4
+00:16:19.318516 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.318690 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\080\0-container-ip\000172.18.0.2\0-container-port\080\0", 1024) = 103
+00:16:19.318878 read(4, "", 1024)       = 0
+00:16:19.319055 close(4)                = 0
+00:16:19.319229 openat(AT_FDCWD, "/proc/2426/cmdline", O_RDONLY) = 4
+00:16:19.319447 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.319622 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\08081\0-container-ip\000172.17.0.4\0-container-port\080\0", 1024) = 110
+00:16:19.319812 read(4, "", 1024)       = 0
+00:16:19.319987 close(4)                = 0
+00:16:19.320161 openat(AT_FDCWD, "/proc/2455/cmdline", O_RDONLY) = 4
+00:16:19.320391 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.320570 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\08081\0-container-ip\000172.17.0.4\0-container-port\080\0", 1024) = 105
+00:16:19.320764 read(4, "", 1024)       = 0
+00:16:19.320941 close(4)                = 0
+00:16:19.321115 openat(AT_FDCWD, "/proc/2474/cmdline", O_RDONLY) = 4
+00:16:19.321314 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.321506 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0a13b3e7d0b1ccb9e2fef750c2370552f7ebce2b7de392243705819b516b4bd0f\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.321698 read(4, "", 1024)       = 0
+00:16:19.321878 close(4)                = 0
+00:16:19.322053 openat(AT_FDCWD, "/proc/2490/cmdline", O_RDONLY) = 4
+00:16:19.322249 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.322452 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0cea329a53d56e80cfd39f64e1e5c1c34e7959b2e8ce20c228269a7ab4d3ff778\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.322666 read(4, "", 1024)       = 0
+00:16:19.322845 close(4)                = 0
+00:16:19.323020 openat(AT_FDCWD, "/proc/2492/cmdline", O_RDONLY) = 4
+00:16:19.323216 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.323408 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0005a1c9ebdc5740082e71bd57cb0bf542b403a361353343b93a7ceb81892619865\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.323598 read(4, "", 1024)       = 0
+00:16:19.323776 close(4)                = 0
+00:16:19.323952 openat(AT_FDCWD, "/proc/2494/cmdline", O_RDONLY) = 4
+00:16:19.324145 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.324330 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\00002b1b4d3655e497a070e4b8351cc3266890bf7a9a78df63def2f0a250bdefc23\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.324530 read(4, "", 1024)       = 0
+00:16:19.324707 close(4)                = 0
+00:16:19.324884 openat(AT_FDCWD, "/proc/2515/cmdline", O_RDONLY) = 4
+00:16:19.325082 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.325255 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\000006d915d8d1651f10bca2090040361e01c82e8fa49cef94d00ef0e9247c86f7c\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.325471 read(4, "", 1024)       = 0
+00:16:19.325647 close(4)                = 0
+00:16:19.325824 openat(AT_FDCWD, "/proc/2569/cmdline", O_RDONLY) = 4
+00:16:19.326019 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.326192 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\0005244\0-container-ip\000172.17.0.5\0-container-port\0005244\0", 1024) = 112
+00:16:19.326395 read(4, "", 1024)       = 0
+00:16:19.326571 close(4)                = 0
+00:16:19.326745 openat(AT_FDCWD, "/proc/2587/cmdline", O_RDONLY) = 4
+00:16:19.326941 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.327116 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\0005244\0-container-ip\000172.17.0.5\0-container-port\0005244\0", 1024) = 107
+00:16:19.327311 read(4, "", 1024)       = 0
+00:16:19.327496 close(4)                = 0
+00:16:19.327672 openat(AT_FDCWD, "/proc/2611/cmdline", O_RDONLY) = 4
+00:16:19.327867 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.328041 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0004d18f8562d5a68f93ee6d074261078349a1a44bf9f82df1b55c86068564f0d49\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.328231 read(4, "", 1024)       = 0
+00:16:19.328416 close(4)                = 0
+00:16:19.328593 openat(AT_FDCWD, "/proc/2661/cmdline", O_RDONLY) = 4
+00:16:19.328790 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.328962 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0002cec193dd3c82289f88107aceb534bb7295927d0ec22171afa77db4ff733d6bc\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.329151 read(4, "", 1024)       = 0
+00:16:19.329332 close(4)                = 0
+00:16:19.329517 openat(AT_FDCWD, "/proc/2664/cmdline", O_RDONLY) = 4
+00:16:19.329714 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.329886 read(4, "redis-server *:6379\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 1024) = 163
+00:16:19.330076 read(4, "", 1024)       = 0
+00:16:19.330252 close(4)                = 0
+00:16:19.330456 openat(AT_FDCWD, "/proc/2678/cmdline", O_RDONLY) = 4
+00:16:19.330654 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.330828 read(4, "/app/server/dpanel\0server:start\0-f\0/app/server/config.yaml\0", 1024) = 59
+00:16:19.331017 read(4, "", 1024)       = 0
+00:16:19.331193 close(4)                = 0
+00:16:19.331384 openat(AT_FDCWD, "/proc/2689/cmdline", O_RDONLY) = 4
+00:16:19.331598 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.331772 read(4, "cloudflared\0--no-autoupdate\0tunnel\0--no-autoupdate\0run\0--token\0eyJhIjoiMTZmZmM2MGZmYzRlODAwNzdmZTFmNDhiZjYyYjllYWQiLCJ0IjoiZGM0MDBjOTUtNDc4Ni00NzkxLThkMDAtOWU0NGE1NWYxNGU0IiwicyI6Ik16TTBOekZpTldZdFlUQTROQzAwWmpsaUxXSmxNakF0TVdKaE5qSXpORFkzTVdGbCJ9\0", 1024) = 248
+00:16:19.331964 read(4, "", 1024)       = 0
+00:16:19.332139 close(4)                = 0
+00:16:19.332316 openat(AT_FDCWD, "/proc/2690/cmdline", O_RDONLY) = 4
+00:16:19.332520 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.332694 read(4, "./CLIProxyAPIPlus\0", 1024) = 18
+00:16:19.332880 read(4, "", 1024)       = 0
+00:16:19.333055 close(4)                = 0
+00:16:19.333231 openat(AT_FDCWD, "/proc/2707/cmdline", O_RDONLY) = 4
+00:16:19.333455 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.333630 read(4, "/bin/sh\0/sshwifty.sh\0", 1024) = 21
+00:16:19.333816 read(4, "", 1024)       = 0
+00:16:19.333992 close(4)                = 0
+00:16:19.334167 openat(AT_FDCWD, "/proc/2737/cmdline", O_RDONLY) = 4
+00:16:19.334390 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.334569 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0fccf13f91976319be543dd9f299a13afa2fee3463e3b2785bc679657f32a239f\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.334757 read(4, "", 1024)       = 0
+00:16:19.334933 close(4)                = 0
+00:16:19.335109 openat(AT_FDCWD, "/proc/2762/cmdline", O_RDONLY) = 4
+00:16:19.335310 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.335492 read(4, "/new-api\0", 1024) = 9
+00:16:19.335679 read(4, "", 1024)       = 0
+00:16:19.335854 close(4)                = 0
+00:16:19.336029 openat(AT_FDCWD, "/proc/2799/cmdline", O_RDONLY) = 4
+00:16:19.336223 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.336404 read(4, "/package/admin/s6/command/s6-svscan\0-d4\0--\0/run/service\0", 1024) = 56
+00:16:19.336591 read(4, "", 1024)       = 0
+00:16:19.336767 close(4)                = 0
+00:16:19.336942 openat(AT_FDCWD, "/proc/2815/cmdline", O_RDONLY) = 4
+00:16:19.337137 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.337326 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0e3a589b2cc5b713bf3166fc2d04328a2e0a55157dda045b2b7b1a176ad53612d\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.337525 read(4, "", 1024)       = 0
+00:16:19.337703 close(4)                = 0
+00:16:19.337879 openat(AT_FDCWD, "/proc/2819/cmdline", O_RDONLY) = 4
+00:16:19.338073 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.338248 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0942d2fc661b2a8a977437c9ca51e9fa97e2ab91a171096749ca561ab5dc031f5\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.338470 read(4, "", 1024)       = 0
+00:16:19.338650 close(4)                = 0
+00:16:19.338975 openat(AT_FDCWD, "/proc/2822/cmdline", O_RDONLY) = 4
+00:16:19.339261 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.339744 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0005e6b3dc9cb22fc2ed7b89f8f61a59ac12613716480480d4e7167e4e6c070b760\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.340195 read(4, "", 1024)       = 0
+00:16:19.340427 close(4)                = 0
+00:16:19.340654 openat(AT_FDCWD, "/proc/2852/cmdline", O_RDONLY) = 4
+00:16:19.340879 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.341067 read(4, "/vaultwarden\0", 1024) = 13
+00:16:19.341261 read(4, "", 1024)       = 0
+00:16:19.341496 close(4)                = 0
+00:16:19.341676 openat(AT_FDCWD, "/proc/2950/cmdline", O_RDONLY) = 4
+00:16:19.341877 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.342053 read(4, "postgres\0", 1024) = 9
+00:16:19.342240 read(4, "", 1024)       = 0
+00:16:19.342444 close(4)                = 0
+00:16:19.342620 openat(AT_FDCWD, "/proc/2957/cmdline", O_RDONLY) = 4
+00:16:19.342818 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.342991 read(4, "./openlist\0server\0--no-prefix\0", 1024) = 30
+00:16:19.343197 read(4, "", 1024)       = 0
+00:16:19.343418 close(4)                = 0
+00:16:19.343596 openat(AT_FDCWD, "/proc/2964/cmdline", O_RDONLY) = 4
+00:16:19.343793 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.343966 read(4, "node\0server/index.mjs\0", 1024) = 22
+00:16:19.344153 read(4, "", 1024)       = 0
+00:16:19.344354 close(4)                = 0
+00:16:19.344535 openat(AT_FDCWD, "/proc/3185/cmdline", O_RDONLY) = 4
+00:16:19.344733 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.344907 read(4, "/sshwifty\0", 1024) = 10
+00:16:19.345094 read(4, "", 1024)       = 0
+00:16:19.345270 close(4)                = 0
+00:16:19.347535 openat(AT_FDCWD, "/proc/3527/cmdline", O_RDONLY) = 4
+00:16:19.347798 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.347989 read(4, "postgres: checkpointer ", 1024) = 23
+00:16:19.348197 read(4, "", 1024)       = 0
+00:16:19.348412 close(4)                = 0
+00:16:19.348599 openat(AT_FDCWD, "/proc/3528/cmdline", O_RDONLY) = 4
+00:16:19.348805 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.348984 read(4, "postgres: background writer ", 1024) = 28
+00:16:19.349177 read(4, "", 1024)       = 0
+00:16:19.349376 close(4)                = 0
+00:16:19.349558 openat(AT_FDCWD, "/proc/3557/cmdline", O_RDONLY) = 4
+00:16:19.349754 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.349929 read(4, "s6-supervise\0s6-linux-init-shutdownd\0", 1024) = 37
+00:16:19.350116 read(4, "", 1024)       = 0
+00:16:19.350291 close(4)                = 0
+00:16:19.350486 openat(AT_FDCWD, "/proc/3560/cmdline", O_RDONLY) = 4
+00:16:19.350682 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.350855 read(4, "/package/admin/s6-linux-init/command/s6-linux-init-shutdownd\0-d3\0-c\0/run/s6/basedir\0-g\0003000\0-C\0-B\0", 1024) = 98
+00:16:19.351044 read(4, "", 1024)       = 0
+00:16:19.351221 close(4)                = 0
+00:16:19.351404 openat(AT_FDCWD, "/proc/3574/cmdline", O_RDONLY) = 4
+00:16:19.351600 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.351772 read(4, "s6-supervise\0s6rc-oneshot-runner\0", 1024) = 33
+00:16:19.351957 read(4, "", 1024)       = 0
+00:16:19.352133 close(4)                = 0
+00:16:19.352323 openat(AT_FDCWD, "/proc/3575/cmdline", O_RDONLY) = 4
+00:16:19.352531 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.352705 read(4, "s6-supervise\0s6rc-fdholder\0", 1024) = 27
+00:16:19.352891 read(4, "", 1024)       = 0
+00:16:19.353065 close(4)                = 0
+00:16:19.353241 openat(AT_FDCWD, "/proc/3576/cmdline", O_RDONLY) = 4
+00:16:19.353500 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.353675 read(4, "s6-supervise\0backend\0", 1024) = 21
+00:16:19.353863 read(4, "", 1024)       = 0
+00:16:19.354039 close(4)                = 0
+00:16:19.354214 openat(AT_FDCWD, "/proc/3578/cmdline", O_RDONLY) = 4
+00:16:19.354459 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.354634 read(4, "s6-supervise\0nginx\0", 1024) = 19
+00:16:19.354819 read(4, "", 1024)       = 0
+00:16:19.354994 close(4)                = 0
+00:16:19.355169 openat(AT_FDCWD, "/proc/3579/cmdline", O_RDONLY) = 4
+00:16:19.355398 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.355573 read(4, "s6-supervise\0frontend\0", 1024) = 22
+00:16:19.355760 read(4, "", 1024)       = 0
+00:16:19.355937 close(4)                = 0
+00:16:19.356111 openat(AT_FDCWD, "/proc/3592/cmdline", O_RDONLY) = 4
+00:16:19.356306 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.356494 read(4, "/package/admin/s6/command/s6-ipcserverd\0-1\0--\0/package/admin/s6/command/s6-ipcserver-access\0-v0\0-E\0-l0\0-i\0data/rules\0--\0/package/admin/s6/command/s6-sudod\0-t\00030000\0--\0/package/admin/s6-rc/command/s6-rc-oneshot-run\0-l\0../..\0--\0", 1024) = 226
+00:16:19.356684 read(4, "", 1024)       = 0
+00:16:19.356863 close(4)                = 0
+00:16:19.357038 openat(AT_FDCWD, "/proc/3803/cmdline", O_RDONLY) = 4
+00:16:19.357235 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.357417 read(4, "postgres: walwriter ", 1024) = 20
+00:16:19.357649 read(4, "", 1024)       = 0
+00:16:19.357830 close(4)                = 0
+00:16:19.358007 openat(AT_FDCWD, "/proc/3804/cmdline", O_RDONLY) = 4
+00:16:19.358205 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.358404 read(4, "postgres: autovacuum launcher ", 1024) = 30
+00:16:19.358854 read(4, "", 1024)       = 0
+00:16:19.359310 close(4)                = 0
+00:16:19.359526 openat(AT_FDCWD, "/proc/3805/cmdline", O_RDONLY) = 4
+00:16:19.359755 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.359951 read(4, "postgres: logical replication launcher ", 1024) = 39
+00:16:19.360165 read(4, "", 1024)       = 0
+00:16:19.360374 close(4)                = 0
+00:16:19.360655 openat(AT_FDCWD, "/proc/3849/cmdline", O_RDONLY) = 4
+00:16:19.360879 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.361072 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0000.0.0.0\0-host-port\0003456\0-container-ip\000172.28.0.3\0-container-port\0003456\0", 1024) = 112
+00:16:19.361280 read(4, "", 1024)       = 0
+00:16:19.361509 close(4)                = 0
+00:16:19.361700 openat(AT_FDCWD, "/proc/3861/cmdline", O_RDONLY) = 4
+00:16:19.361910 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.362097 read(4, "/usr/bin/docker-proxy\0-proto\0tcp\0-host-ip\0::\0-host-port\0003456\0-container-ip\000172.28.0.3\0-container-port\0003456\0", 1024) = 107
+00:16:19.362290 read(4, "", 1024)       = 0
+00:16:19.362499 close(4)                = 0
+00:16:19.362676 openat(AT_FDCWD, "/proc/3886/cmdline", O_RDONLY) = 4
+00:16:19.362876 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.363051 read(4, "/usr/bin/containerd-shim-runc-v2\0-namespace\0moby\0-id\0a4825a31dce790904e413fc08578a26f47901bfe8c7c52c73b4e301c893eca90\0-address\0/run/containerd/containerd.sock\0", 1024) = 159
+00:16:19.363241 read(4, "", 1024)       = 0
+00:16:19.363472 close(4)                = 0
+00:16:19.363654 openat(AT_FDCWD, "/proc/3921/cmdline", O_RDONLY) = 4
+00:16:19.363853 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.364027 read(4, "/app/vikunja/vikunja\0", 1024) = 21
+00:16:19.364212 read(4, "", 1024)       = 0
+00:16:19.364417 close(4)                = 0
+00:16:19.364594 openat(AT_FDCWD, "/proc/3961/cmdline", O_RDONLY) = 4
+00:16:19.364791 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.364965 read(4, "bash\0./run\0backend\0", 1024) = 19
+00:16:19.365151 read(4, "", 1024)       = 0
+00:16:19.365327 close(4)                = 0
+00:16:19.365512 openat(AT_FDCWD, "/proc/3962/cmdline", O_RDONLY) = 4
+00:16:19.365723 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.365898 read(4, "nginx: master process nginx", 1024) = 27
+00:16:19.366089 read(4, "", 1024)       = 0
+00:16:19.366268 close(4)                = 0
+00:16:19.366473 openat(AT_FDCWD, "/proc/3965/cmdline", O_RDONLY) = 4
+00:16:19.366670 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.366845 read(4, "node\0--abort_on_uncaught_exception\0--max_old_space_size=250\0index.js\0", 1024) = 69
+00:16:19.367034 read(4, "", 1024)       = 0
+00:16:19.367210 close(4)                = 0
+00:16:19.367399 openat(AT_FDCWD, "/proc/4055/cmdline", O_RDONLY) = 4
+00:16:19.367596 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.367770 read(4, "/usr/local/bin/adbd\0", 1024) = 20
+00:16:19.367957 read(4, "", 1024)       = 0
+00:16:19.368134 close(4)                = 0
+00:16:19.368326 openat(AT_FDCWD, "/proc/4081/cmdline", O_RDONLY) = 4
+00:16:19.368530 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.368721 read(4, "", 1024)       = 0
+00:16:19.368891 close(4)                = 0
+00:16:19.369067 openat(AT_FDCWD, "/proc/4086/cmdline", O_RDONLY) = 4
+00:16:19.369262 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.369465 read(4, "", 1024)       = 0
+00:16:19.369635 close(4)                = 0
+00:16:19.369825 openat(AT_FDCWD, "/proc/4286/cmdline", O_RDONLY) = 4
+00:16:19.370022 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.370197 read(4, "/sbin/dhclient\0-d\0-q\0-sf\0/usr/lib/NetworkManager/nm-dhcp-helper\0-pf\0/run/dhclient-wlan0.pid\0-lf\0/var/lib/NetworkManager/dhclient-805b5280-d113-4670-a0d8-415352301242-wlan0.lease\0-cf\0/var/lib/NetworkManager/dhclient-wlan0.conf\0wlan0\0", 1024) = 232
+00:16:19.370432 read(4, "", 1024)       = 0
+00:16:19.370612 close(4)                = 0
+00:16:19.370803 openat(AT_FDCWD, "/proc/7019/cmdline", O_RDONLY) = 4
+00:16:19.370999 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.371173 read(4, "", 1024)       = 0
+00:16:19.371363 close(4)                = 0
+00:16:19.371545 openat(AT_FDCWD, "/proc/7445/cmdline", O_RDONLY) = 4
+00:16:19.371743 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.371919 read(4, "", 1024)       = 0
+00:16:19.372090 close(4)                = 0
+00:16:19.372267 openat(AT_FDCWD, "/proc/8704/cmdline", O_RDONLY) = 4
+00:16:19.372509 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.372683 read(4, "", 1024)       = 0
+00:16:19.372853 close(4)                = 0
+00:16:19.373029 openat(AT_FDCWD, "/proc/9022/cmdline", O_RDONLY) = 4
+00:16:19.373224 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.373407 read(4, "", 1024)       = 0
+00:16:19.373578 close(4)                = 0
+00:16:19.373752 openat(AT_FDCWD, "/proc/10362/cmdline", O_RDONLY) = 4
+00:16:19.373947 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.374121 read(4, "", 1024)       = 0
+00:16:19.374315 close(4)                = 0
+00:16:19.374501 openat(AT_FDCWD, "/proc/10582/cmdline", O_RDONLY) = 4
+00:16:19.374697 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.374871 read(4, "", 1024)       = 0
+00:16:19.375042 close(4)                = 0
+00:16:19.375218 openat(AT_FDCWD, "/proc/10709/cmdline", O_RDONLY) = 4
+00:16:19.375443 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.375619 read(4, "", 1024)       = 0
+00:16:19.375810 close(4)                = 0
+00:16:19.376204 openat(AT_FDCWD, "/proc/10727/cmdline", O_RDONLY) = 4
+00:16:19.376673 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.377081 read(4, "", 1024)       = 0
+00:16:19.377500 close(4)                = 0
+00:16:19.377709 openat(AT_FDCWD, "/proc/10801/cmdline", O_RDONLY) = 4
+00:16:19.377925 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.378109 read(4, "", 1024)       = 0
+00:16:19.378288 close(4)                = 0
+00:16:19.378507 openat(AT_FDCWD, "/proc/10927/cmdline", O_RDONLY) = 4
+00:16:19.378731 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.378918 read(4, "", 1024)       = 0
+00:16:19.379097 close(4)                = 0
+00:16:19.379282 openat(AT_FDCWD, "/proc/11000/cmdline", O_RDONLY) = 4
+00:16:19.379783 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.379984 read(4, "", 1024)       = 0
+00:16:19.380169 close(4)                = 0
+00:16:19.380407 openat(AT_FDCWD, "/proc/11719/cmdline", O_RDONLY) = 4
+00:16:19.380623 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.380811 read(4, "", 1024)       = 0
+00:16:19.380994 close(4)                = 0
+00:16:19.381180 openat(AT_FDCWD, "/proc/11831/cmdline", O_RDONLY) = 4
+00:16:19.381422 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.381611 read(4, "", 1024)       = 0
+00:16:19.381782 close(4)                = 0
+00:16:19.381958 openat(AT_FDCWD, "/proc/11976/cmdline", O_RDONLY) = 4
+00:16:19.382153 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.382328 read(4, "", 1024)       = 0
+00:16:19.382503 close(4)                = 0
+00:16:19.382679 openat(AT_FDCWD, "/proc/12064/cmdline", O_RDONLY) = 4
+00:16:19.382874 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.383049 read(4, "", 1024)       = 0
+00:16:19.383216 close(4)                = 0
+00:16:19.383405 openat(AT_FDCWD, "/proc/12082/cmdline", O_RDONLY) = 4
+00:16:19.383603 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.383777 read(4, "", 1024)       = 0
+00:16:19.383946 close(4)                = 0
+00:16:19.384121 openat(AT_FDCWD, "/proc/12115/cmdline", O_RDONLY) = 4
+00:16:19.384318 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.384500 read(4, "sshd: root@notty\0\0", 1024) = 18
+00:16:19.384699 read(4, "", 1024)       = 0
+00:16:19.384911 close(4)                = 0
+00:16:19.385088 openat(AT_FDCWD, "/proc/12126/cmdline", O_RDONLY) = 4
+00:16:19.385284 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.385489 read(4, "bash\0-s\0", 1024) = 8
+00:16:19.385677 read(4, "", 1024)       = 0
+00:16:19.385853 close(4)                = 0
+00:16:19.386028 openat(AT_FDCWD, "/proc/12134/cmdline", O_RDONLY) = 4
+00:16:19.386254 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.386475 read(4, "timeout\08\0strace\0-ff\0-tt\0-s\000256\0-o\0/tmp/proxy_runtime_ref_129_20260705_001014/foreground.strace\0/usr/bin/npu_transfer_proxy\0", 1024) = 124
+00:16:19.386673 read(4, "", 1024)       = 0
+00:16:19.386852 close(4)                = 0
+00:16:19.387032 openat(AT_FDCWD, "/proc/12135/cmdline", O_RDONLY) = 4
+00:16:19.387241 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.387453 read(4, "strace\0-ff\0-tt\0-s\000256\0-o\0/tmp/proxy_runtime_ref_129_20260705_001014/foreground.strace\0/usr/bin/npu_transfer_proxy\0", 1024) = 114
+00:16:19.387646 read(4, "", 1024)       = 0
+00:16:19.387824 close(4)                = 0
+00:16:19.388001 openat(AT_FDCWD, "/proc/12138/cmdline", O_RDONLY) = 4
+00:16:19.388204 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.388398 read(4, "/usr/bin/npu_transfer_proxy\0", 1024) = 28
+00:16:19.388584 read(4, "", 1024)       = 0
+00:16:19.388762 close(4)                = 0
+00:16:19.388939 openat(AT_FDCWD, "/proc/22265/cmdline", O_RDONLY) = 4
+00:16:19.389137 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.389312 read(4, "nginx: worker process", 1024) = 21
+00:16:19.389523 read(4, "", 1024)       = 0
+00:16:19.389707 close(4)                = 0
+00:16:19.389886 openat(AT_FDCWD, "/proc/22266/cmdline", O_RDONLY) = 4
+00:16:19.390085 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.390286 read(4, "nginx: worker process", 1024) = 21
+00:16:19.390569 read(4, "", 1024)       = 0
+00:16:19.390769 close(4)                = 0
+00:16:19.390949 openat(AT_FDCWD, "/proc/22267/cmdline", O_RDONLY) = 4
+00:16:19.391151 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.391324 read(4, "nginx: worker process", 1024) = 21
+00:16:19.391527 read(4, "", 1024)       = 0
+00:16:19.391707 close(4)                = 0
+00:16:19.391884 openat(AT_FDCWD, "/proc/22268/cmdline", O_RDONLY) = 4
+00:16:19.392080 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.392255 read(4, "nginx: worker process", 1024) = 21
+00:16:19.392476 read(4, "", 1024)       = 0
+00:16:19.392655 close(4)                = 0
+00:16:19.392831 openat(AT_FDCWD, "/proc/22269/cmdline", O_RDONLY) = 4
+00:16:19.393026 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.393199 read(4, "nginx: worker process", 1024) = 21
+00:16:19.393400 read(4, "", 1024)       = 0
+00:16:19.393581 close(4)                = 0
+00:16:19.393756 openat(AT_FDCWD, "/proc/22270/cmdline", O_RDONLY) = 4
+00:16:19.393950 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.394124 read(4, "nginx: worker process", 1024) = 21
+00:16:19.394327 read(4, "", 1024)       = 0
+00:16:19.394516 close(4)                = 0
+00:16:19.394694 openat(AT_FDCWD, "/proc/22271/cmdline", O_RDONLY) = 4
+00:16:19.394890 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.395064 read(4, "nginx: cache manager process", 1024) = 28
+00:16:19.395256 read(4, "", 1024)       = 0
+00:16:19.395462 close(4)                = 0
+00:16:19.395638 openat(AT_FDCWD, "/proc/24112/cmdline", O_RDONLY) = 4
+00:16:19.395834 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.396005 read(4, "", 1024)       = 0
+00:16:19.396174 close(4)                = 0
+00:16:19.396399 openat(AT_FDCWD, "/proc/28510/cmdline", O_RDONLY) = 4
+00:16:19.396599 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.396776 read(4, "", 1024)       = 0
+00:16:19.396945 close(4)                = 0
+00:16:19.397119 openat(AT_FDCWD, "/proc/28752/cmdline", O_RDONLY) = 4
+00:16:19.397314 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.397503 read(4, "", 1024)       = 0
+00:16:19.397703 close(4)                = 0
+00:16:19.397879 openat(AT_FDCWD, "/proc/31568/cmdline", O_RDONLY) = 4
+00:16:19.398073 fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+00:16:19.398246 read(4, "", 1024)       = 0
+00:16:19.398440 close(4)                = 0
+00:16:19.398611 getdents64(3, /* 0 entries */, 32768) = 0
+00:16:19.398792 close(3)                = 0
+00:16:19.398985 rt_sigaction(SIGPIPE, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, {sa_handler=SIG_IGN, sa_mask=[PIPE], sa_flags=SA_RESTART}, 8) = 0
+00:16:19.399182 openat(AT_FDCWD, "/dev", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3
+00:16:19.399395 fstat(3, {st_mode=S_IFDIR|0755, st_size=4220, ...}) = 0
+00:16:19.399575 getdents64(3, /* 211 entries */, 32768) = 6360
+00:16:19.400155 faccessat(AT_FDCWD, "/dev/pcie-dev", R_OK|W_OK) = 0
+00:16:19.400404 close(3)                = 0
+00:16:19.400701 clone(child_stack=0x7f9ced5ac0, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tidptr=0x7f9ced6290, tls=0x7f9ced68c0, child_tidptr=0x7f9ced6290) = 12140
+00:16:19.401194 futex(0x7f9ced6290, FUTEX_WAIT, 12140, NULL) = ? ERESTARTSYS (To be restarted if SA_RESTART is set)
+00:16:27.056222 --- SIGCONT {si_signo=SIGCONT, si_code=SI_USER, si_pid=12134, si_uid=0} ---
+00:16:27.058659 +++ killed by SIGTERM +++

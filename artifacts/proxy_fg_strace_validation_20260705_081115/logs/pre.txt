@@ -1,0 +1,21 @@
+=== pre ===
+2026-07-05T08:12:13,856068348+08:00
+--- uptime ---
+ 08:12:13 up 0 min,  3 users,  load average: 1.52, 0.39, 0.13
+--- ps/pgrep ---
+--- upgrade_tool LD ---
+Not found config.ini
+Program Data in /usr/bin
+List of rockusb connected(0)
+--- lsusb filtered ---
+--- lspci -nn ---
+00:00.0 PCI bridge [0604]: Rockchip Electronics Co., Ltd RK3399 PCI Express Root Port [1d87:0100]
+--- lspci endpoint verbose ---
+--- /dev/dri ---
+ls: cannot access '/dev/dri': No such file or directory
+--- /sys/class/drm ---
+/sys/class/drm -> 
+/sys/class/drm/version -> 
+--- 0000:01:00.0 subtree ---
+--- npu_transfer_proxy devices ---
+List of ntb devices attached
