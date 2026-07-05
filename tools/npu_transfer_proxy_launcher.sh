@@ -74,6 +74,21 @@ start_raw_proxy() {
   echo $!
 }
 
+start_proxy_in_private_mount_ns() {
+  local tmp_cpuinfo="$1"
+
+  nohup unshare -m sh -c "mount --bind '$tmp_cpuinfo' /proc/cpuinfo && exec '$TRANSFER_PROXY_BIN'" \
+    >>"$TRANSFER_PROXY_LOG" 2>&1 &
+  sleep "$PROXY_STARTUP_WAIT_SEC"
+
+  if proxy_running; then
+    log "proxy resident in private mount namespace"
+    return 0
+  fi
+
+  return 1
+}
+
 start_proxy_with_injected_serial() {
   local serial="$1"
   local tmp_cpuinfo proxy_pid
@@ -82,11 +97,18 @@ start_proxy_with_injected_serial() {
   cp /proc/cpuinfo "$tmp_cpuinfo"
   printf '\nSerial\t\t: %s\n' "$serial" >>"$tmp_cpuinfo"
 
+  if command -v unshare >/dev/null 2>&1; then
+    if start_proxy_in_private_mount_ns "$tmp_cpuinfo"; then
+      rm -f "$tmp_cpuinfo"
+      return 0
+    fi
+    log "private mount namespace startup failed; fallback to temporary global bind"
+  fi
+
   if ! mount --bind "$tmp_cpuinfo" /proc/cpuinfo; then
     rm -f "$tmp_cpuinfo"
     return 1
   fi
-
   nohup "$TRANSFER_PROXY_BIN" >>"$TRANSFER_PROXY_LOG" 2>&1 &
   proxy_pid=$!
   sleep "$PROXY_STARTUP_WAIT_SEC"
