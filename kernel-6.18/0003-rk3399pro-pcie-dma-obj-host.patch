@@ -34,7 +34,7 @@ new file mode 100644
 index 0000000..b05f113
 --- /dev/null
 +++ b/drivers/pci/controller/pcie-rockchip-dma.c
-@@ -0,0 +1,532 @@
+@@ -0,0 +1,571 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Rockchip PCIe RC-side DMA helper for RK3399Pro NPU transfer proxy.
@@ -78,6 +78,11 @@ index 0000000..b05f113
 +#define PCIE_DMA_PARAM_SIZE		64
 +#define PCIE_DMA_CHN0			0x0
 +
++static inline bool is_rc(struct dma_trx_obj *obj)
++{
++	return obj->busno == 0;
++}
++
 +static void rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
 +{
 +	struct rockchip_pcie *rockchip = dev_get_drvdata(obj->dev);
@@ -112,7 +117,13 @@ index 0000000..b05f113
 +		virt = obj->mem_base + local_idx * PCIE_DMA_BUF_SIZE;
 +		bus = obj->mem_start + bus_idx * PCIE_DMA_BUF_SIZE;
 +
-+		dma_sync_single_for_device(dev, (dma_addr_t)local, buf_size, DMA_TO_DEVICE);
++		if (!is_rc(obj)) {
++			local += PCIE_DMA_RD_BUF_SIZE;
++			virt += PCIE_DMA_RD_BUF_SIZE;
++			bus += PCIE_DMA_WR_BUF_SIZE;
++		}
++
++		dma_sync_single_for_device(dev, local, buf_size, DMA_TO_DEVICE);
 +
 +		writel(PCIE_DMA_DATA_CHECK, virt + PCIE_DMA_SET_DATA_CHECK_POS);
 +		writel(local_idx, virt + PCIE_DMA_SET_LOCAL_IDX_POS);
@@ -123,8 +134,13 @@ index 0000000..b05f113
 +	case PCIE_DMA_DATA_RCV_ACK:
 +		table = obj->table[PCIE_DMA_DATA_RCV_ACK_TABLE_OFFSET + idx];
 +		table->type = PCIE_DMA_DATA_RCV_ACK;
-+		local = obj->mem_start + PCIE_DMA_ACK_BASE + PCIE_DMA_ACK_BLOCK_SIZE + idx * NODE_SIZE;
-+		virt = obj->mem_base + PCIE_DMA_ACK_BASE + PCIE_DMA_ACK_BLOCK_SIZE + idx * NODE_SIZE;
++		local = obj->mem_start + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
++		virt = obj->mem_base + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
++
++		if (is_rc(obj)) {
++			local += PCIE_DMA_ACK_BLOCK_SIZE;
++			virt += PCIE_DMA_ACK_BLOCK_SIZE;
++		}
 +		bus = local;
 +		writel(PCIE_DMA_DATA_ACK_CHECK, virt);
 +		buf_size = NODE_SIZE;
@@ -132,8 +148,16 @@ index 0000000..b05f113
 +	case PCIE_DMA_DATA_FREE_ACK:
 +		table = obj->table[PCIE_DMA_DATA_FREE_ACK_TABLE_OFFSET + idx];
 +		table->type = PCIE_DMA_DATA_FREE_ACK;
-+		local = obj->mem_start + PCIE_DMA_ACK_BASE + 3 * PCIE_DMA_ACK_BLOCK_SIZE + idx * NODE_SIZE;
-+		virt = obj->mem_base + PCIE_DMA_ACK_BASE + 3 * PCIE_DMA_ACK_BLOCK_SIZE + idx * NODE_SIZE;
++		local = obj->mem_start + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
++		virt = obj->mem_base + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
++
++		if (is_rc(obj)) {
++			local += 3 * PCIE_DMA_ACK_BLOCK_SIZE;
++			virt += 3 * PCIE_DMA_ACK_BLOCK_SIZE;
++		} else {
++			local += 2 * PCIE_DMA_ACK_BLOCK_SIZE;
++			virt += 2 * PCIE_DMA_ACK_BLOCK_SIZE;
++		}
 +		bus = local;
 +		writel(PCIE_DMA_DATA_FREE_ACK_CHECK, virt);
 +		buf_size = NODE_SIZE;
@@ -167,38 +191,51 @@ index 0000000..b05f113
 +
 +	while (!list_empty(&obj->tbl_list)) {
 +		table = list_first_entry(&obj->tbl_list, struct dma_table, tbl_node);
-+		if (!obj->dma_free)
-+			break;
-+
-+		obj->dma_free = false;
-+		spin_lock_irqsave(&obj->tbl_list_lock, flags);
-+		list_del_init(&table->tbl_node);
-+		spin_unlock_irqrestore(&obj->tbl_list_lock, flags);
-+		obj->cur = table;
-+		rk_pcie_start_dma_3399(obj);
++		if (obj->dma_free) {
++			obj->dma_free = false;
++			spin_lock_irqsave(&obj->tbl_list_lock, flags);
++			list_del_init(&table->tbl_node);
++			spin_unlock_irqrestore(&obj->tbl_list_lock, flags);
++			obj->cur = table;
++			rk_pcie_start_dma_3399(obj);
++		}
 +	}
++}
++
++static void rk_pcie_clear_ack(void *addr)
++{
++	writel(0x0, addr);
 +}
 +
 +static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
 +{
 +	struct dma_trx_obj *obj = container_of(timer, struct dma_trx_obj, scan_timer);
 +	unsigned int sdv, idx, sav, suv;
++	void *sda_base;
++	void *scan_data_addr;
 +	void *scan_ack_addr;
 +	void *scan_user_addr;
 +	int i;
 +	bool need_ack = false;
 +
 +	for (i = 0; i < PCIE_DMA_BUF_CNT; i++) {
-+		void *scan_data_addr = obj->mem_base + PCIE_DMA_WR_BUF_SIZE + PCIE_DMA_BUF_SIZE * i;
++		sda_base = obj->mem_base + PCIE_DMA_BUF_SIZE * i;
++
++		if (is_rc(obj))
++			scan_data_addr = sda_base + PCIE_DMA_WR_BUF_SIZE;
++		else
++			scan_data_addr = sda_base;
 +
 +		sdv = readl(scan_data_addr + PCIE_DMA_SET_DATA_CHECK_POS);
 +		idx = readl(scan_data_addr + PCIE_DMA_SET_LOCAL_IDX_POS);
 +
 +		if (sdv == PCIE_DMA_DATA_CHECK) {
-+			need_ack = true;
++			if (!need_ack)
++				need_ack = true;
 +			writel(0x0, scan_data_addr + PCIE_DMA_SET_DATA_CHECK_POS);
 +			set_bit(i, &obj->local_read_available);
-+			rk_pcie_prepare_dma(obj, idx, 0, 0, NODE_SIZE, PCIE_DMA_DATA_RCV_ACK);
++			rk_pcie_prepare_dma(obj, idx, 0, 0, 0x4,
++					    PCIE_DMA_DATA_RCV_ACK);
 +		}
 +	}
 +
@@ -206,21 +243,28 @@ index 0000000..b05f113
 +		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
 +
 +	scan_ack_addr = obj->mem_base + PCIE_DMA_ACK_BASE;
-+	scan_user_addr = obj->mem_base + PCIE_DMA_ACK_BASE + 2 * PCIE_DMA_ACK_BLOCK_SIZE;
++	scan_user_addr = obj->mem_base + PCIE_DMA_ACK_BASE;
++
++	if (is_rc(obj)) {
++		scan_user_addr += PCIE_DMA_ACK_BLOCK_SIZE * 2;
++	} else {
++		scan_ack_addr += PCIE_DMA_ACK_BLOCK_SIZE;
++		scan_user_addr += PCIE_DMA_ACK_BLOCK_SIZE * 3;
++	}
 +
 +	for (i = 0; i < PCIE_DMA_BUF_CNT; i++) {
 +		void *addr = scan_ack_addr + i * NODE_SIZE;
 +
 +		sav = readl(addr);
 +		if (sav == PCIE_DMA_DATA_ACK_CHECK) {
-+			writel(0x0, addr);
++			rk_pcie_clear_ack(addr);
 +			set_bit(i, &obj->local_write_available);
 +		}
 +
 +		addr = scan_user_addr + i * NODE_SIZE;
 +		suv = readl(addr);
 +		if (suv == PCIE_DMA_DATA_FREE_ACK_CHECK) {
-+			writel(0x0, addr);
++			rk_pcie_clear_ack(addr);
 +			set_bit(i, &obj->remote_write_available);
 +		}
 +	}
@@ -285,49 +329,30 @@ index 0000000..b05f113
 +	struct device *dev = obj->dev;
 +	union pcie_dma_ioctl_param msg = { };
 +	union pcie_dma_ioctl_param out = { };
-+	dma_addr_t addr;
++	phys_addr_t addr;
 +	void __user *uarg = (void __user *)arg;
 +	int ret;
 +
-+	switch (cmd) {
-+	case PCIE_DMA_START:
-+	case PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX:
-+	case PCIE_DMA_SYNC_BUFFER_FOR_CPU:
-+	case PCIE_DMA_SYNC_BUFFER_TO_DEVICE:
-+	case PCIE_DMA_SET_LOOP_COUNT:
-+		if (copy_from_user(&msg, uarg, sizeof(msg)))
-+			return -EFAULT;
-+		break;
-+	case PCIE_DMA_GET_LOCAL_READ_BUFFER_INDEX:
-+	case PCIE_DMA_GET_LOCAL_REMOTE_WRITE_BUFFER_INDEX:
-+	case PCIE_DMA_WAIT_TRANSFER_COMPLETE:
-+		break;
-+	default:
-+		dev_dbg(dev, "unsupported ioctl 0x%x\n", cmd);
-+		return -EINVAL;
-+	}
++	if (copy_from_user(&msg, uarg, sizeof(msg)) != 0)
++		return -EFAULT;
 +
 +	switch (cmd) {
 +	case PCIE_DMA_START:
 +		test_and_clear_bit(msg.in.l_widx, &obj->local_write_available);
 +		test_and_clear_bit(msg.in.r_widx, &obj->remote_write_available);
 +		obj->loop_count++;
-+		rk_pcie_prepare_dma(obj, msg.in.idx, msg.in.r_widx, msg.in.l_widx,
-+				    msg.in.size, msg.in.type);
-+		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
 +		break;
 +	case PCIE_DMA_GET_LOCAL_READ_BUFFER_INDEX:
 +		out.lra = obj->local_read_available;
-+		addr = obj->mem_start + PCIE_DMA_WR_BUF_SIZE;
++		addr = obj->mem_start;
++		if (is_rc(obj))
++			addr += PCIE_DMA_WR_BUF_SIZE;
 +		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_RD_BUF_SIZE, DMA_FROM_DEVICE);
 +		if (copy_to_user(uarg, &out, sizeof(out)))
 +			return -EFAULT;
 +		break;
 +	case PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX:
 +		test_and_clear_bit(msg.in.idx, &obj->local_read_available);
-+		rk_pcie_prepare_dma(obj, msg.in.idx, msg.in.r_widx, msg.in.l_widx,
-+				    msg.in.size, msg.in.type);
-+		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
 +		break;
 +	case PCIE_DMA_GET_LOCAL_REMOTE_WRITE_BUFFER_INDEX:
 +		out.out.lwa = obj->local_write_available;
@@ -336,7 +361,9 @@ index 0000000..b05f113
 +			return -EFAULT;
 +		break;
 +	case PCIE_DMA_SYNC_BUFFER_FOR_CPU:
-+		addr = obj->mem_start + msg.in.idx * PCIE_DMA_BUF_SIZE + PCIE_DMA_WR_BUF_SIZE;
++		addr = obj->mem_start + msg.in.idx * PCIE_DMA_BUF_SIZE;
++		if (is_rc(obj))
++			addr += PCIE_DMA_WR_BUF_SIZE;
 +		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_BUF_SIZE, DMA_FROM_DEVICE);
 +		break;
 +	case PCIE_DMA_SYNC_BUFFER_TO_DEVICE:
@@ -354,7 +381,15 @@ index 0000000..b05f113
 +		obj->loop_count_threshold = msg.count;
 +		break;
 +	default:
++		dev_dbg(dev, "unsupported ioctl 0x%x\n", cmd);
 +		return -EINVAL;
++	}
++
++	if (cmd == PCIE_DMA_START ||
++	    cmd == PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX) {
++		rk_pcie_prepare_dma(obj, msg.in.idx, msg.in.r_widx,
++				    msg.in.l_widx, msg.in.size, msg.in.type);
++		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
 +	}
 +
 +	return 0;
@@ -483,6 +518,7 @@ index 0000000..b05f113
 +struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
 +{
 +	struct dma_trx_obj *obj;
++	u32 busno = 0;
 +	struct device_node *mem;
 +	struct resource reg;
 +	int ret;
@@ -492,6 +528,9 @@ index 0000000..b05f113
 +		return ERR_PTR(-ENOMEM);
 +
 +	obj->dev = dev;
++
++	if (of_property_read_u32(dev->of_node, "busno", &busno) == 0)
++		obj->busno = busno;
 +
 +	mem = of_parse_phandle(dev->of_node, "memory-region", 0);
 +	if (!mem)
@@ -572,7 +611,7 @@ new file mode 100644
 index 0000000..31697c1
 --- /dev/null
 +++ b/drivers/pci/controller/pcie-rockchip-dma.h
-@@ -0,0 +1,90 @@
+@@ -0,0 +1,91 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2018 Rockchip Electronics Co., Ltd.
@@ -631,6 +670,7 @@ index 0000000..31697c1
 +	struct dma_table		*table[PCIE_DMA_TABLE_NUM];
 +	struct dma_table		*cur;
 +	struct hrtimer			scan_timer;
++	int				busno;
 +	struct completion		done;
 +	int				ref_count;
 +	struct mutex			count_mutex;
@@ -693,16 +733,20 @@ index eba716c..8a09804 100644
  	rockchip_pcie_write(rockchip, PCI_VENDOR_ID_ROCKCHIP,
  			    PCIE_CORE_CONFIG_VENDOR);
  	rockchip_pcie_write(rockchip,
-@@ -494,7 +500,11 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
+@@ -494,7 +500,14 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
  		rockchip_pcie_clr_bw_int(rockchip);
  	}
  
 -	rockchip_pcie_write(rockchip, reg & PCIE_CLIENT_INT_LOCAL,
-+	if (reg & PCIE_CLIENT_INT_UDMA)
++	if (reg & PCIE_CLIENT_INT_UDMA) {
 +		rk_pcie_handle_dma_interrupt(rockchip);
++		if (sub_reg)
++			rockchip_pcie_write(rockchip, sub_reg,
++					    PCIE_CLIENT_INT_STATUS);
++		rockchip_pcie_write(rockchip, reg, PCIE_CLIENT_INT_STATUS);
++	}
 +
-+	rockchip_pcie_write(rockchip, reg & (PCIE_CLIENT_INT_LOCAL |
-+			    PCIE_CLIENT_INT_UDMA),
++	rockchip_pcie_write(rockchip, reg & PCIE_CLIENT_INT_LOCAL,
  			    PCIE_CLIENT_INT_STATUS);
  
  	return IRQ_HANDLED;
