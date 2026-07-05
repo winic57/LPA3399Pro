@@ -1,6 +1,13 @@
 name: ophub kernel 6.18.y
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/ophub_6.18.y.yml'
+      - 'kdevbuild/ophub_6.18.y_kernel.sh'
+      - 'kernel-6.18/**'
   repository_dispatch:
   workflow_dispatch:
     inputs: { }
@@ -8,9 +15,14 @@ on:
 env:
   TZ: America/New_York
 
+concurrency:
+  group: ophub-kernel-6.18-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-22.04
+    timeout-minutes: 360
     permissions:
       contents: write
 
@@ -45,6 +57,14 @@ jobs:
         run: |
           ls -alh ${{ github.workspace }}/output/ 2>/dev/null || echo "No output directory"
           md5sum ${{ github.workspace }}/output/* 2>/dev/null || true
+
+      - name: Upload workflow artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ophub-kernel-6.18.33-artifacts
+          path: ${{ github.workspace }}/output/*
+          if-no-files-found: error
 
       - name: Upload Image to Release
         if: success()
