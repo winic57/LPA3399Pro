@@ -180,7 +180,7 @@ sshb 'set -x
 
 if [ "$START_NPU_TEST" = 1 ]; then
   echo "$(ts) NPU USB fw before pcie_deferred"
-  sshb "set -x; pkill -f npu_transfer_proxy || true; \
+  sshb "set -x; for p in \\$(pidof npu_transfer_proxy 2>/dev/null || true); do kill \\$p || true; done; \
     NPU_POWERCTRL='$NPU_POWERCTRL' NPU_PRECISE_POWERUP_PROFILE='$NPU_PRECISE_POWERUP_PROFILE' \
     WRITE_IMAGES_BEFORE_RS='$NPU_WRITE_IMAGES_BEFORE_RS' START_PROXY=0 POST_RS_WAIT_SEC='$NPU_POST_RS_WAIT_SEC' RS_STRICT=0 \
     /usr/local/bin/npu_mainline_usb_ntb_boot.sh" || true
