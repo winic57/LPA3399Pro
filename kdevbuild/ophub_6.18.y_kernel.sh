@@ -86,13 +86,16 @@ else
 fi
 
 echo "=== Copying custom DTS ==="
-if [ -f "${PATCH_DIR}/rk3399pro-neardi-linux-lc110-base.dts" ]; then
-  cp -v "${PATCH_DIR}/rk3399pro-neardi-linux-lc110-base.dts" arch/arm64/boot/dts/rockchip/
-  if ! grep -q "rk3399pro-neardi-linux-lc110-base.dtb" arch/arm64/boot/dts/rockchip/Makefile; then
-    echo "Adding rk3399pro-neardi-linux-lc110-base.dtb to Makefile..."
-    echo 'dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399pro-neardi-linux-lc110-base.dtb' >> arch/arm64/boot/dts/rockchip/Makefile
+shopt -s nullglob
+for dts_file in "${PATCH_DIR}"/rk3399pro-neardi-linux-lc110*.dts; do
+  dtb_name="$(basename "${dts_file%.dts}.dtb")"
+  cp -v "${dts_file}" arch/arm64/boot/dts/rockchip/
+  if ! grep -q "${dtb_name}" arch/arm64/boot/dts/rockchip/Makefile; then
+    echo "Adding ${dtb_name} to Makefile..."
+    echo "dtb-\$(CONFIG_ARCH_ROCKCHIP) += ${dtb_name}" >> arch/arm64/boot/dts/rockchip/Makefile
   fi
-fi
+done
+shopt -u nullglob
 
 
 echo "=== Configuring kernel ==="
