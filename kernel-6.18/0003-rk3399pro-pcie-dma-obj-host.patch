@@ -34,13 +34,14 @@ new file mode 100644
 index 0000000..b05f113
 --- /dev/null
 +++ b/drivers/pci/controller/pcie-rockchip-dma.c
-@@ -0,0 +1,571 @@
+@@ -0,0 +1,623 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Rockchip PCIe RC-side DMA helper for RK3399Pro NPU transfer proxy.
 + */
 +
 +#include <linux/delay.h>
++#include <linux/debugfs.h>
 +#include <linux/fs.h>
 +#include <linux/hrtimer.h>
 +#include <linux/mm.h>
@@ -48,6 +49,7 @@ index 0000000..b05f113
 +#include <linux/of_address.h>
 +#include <linux/of.h>
 +#include <linux/poll.h>
++#include <linux/seq_file.h>
 +#include <linux/slab.h>
 +#include <linux/uaccess.h>
 +#include <linux/vmalloc.h>
@@ -191,14 +193,15 @@ index 0000000..b05f113
 +
 +	while (!list_empty(&obj->tbl_list)) {
 +		table = list_first_entry(&obj->tbl_list, struct dma_table, tbl_node);
-+		if (obj->dma_free) {
-+			obj->dma_free = false;
-+			spin_lock_irqsave(&obj->tbl_list_lock, flags);
-+			list_del_init(&table->tbl_node);
-+			spin_unlock_irqrestore(&obj->tbl_list_lock, flags);
-+			obj->cur = table;
-+			rk_pcie_start_dma_3399(obj);
-+		}
++		if (!obj->dma_free)
++			break;
++
++		obj->dma_free = false;
++		spin_lock_irqsave(&obj->tbl_list_lock, flags);
++		list_del_init(&table->tbl_node);
++		spin_unlock_irqrestore(&obj->tbl_list_lock, flags);
++		obj->cur = table;
++		rk_pcie_start_dma_3399(obj);
 +	}
 +}
 +
@@ -507,13 +510,46 @@ index 0000000..b05f113
 +	obj->irq_num++;
 +	obj->dma_free = true;
 +
-+	if (list_empty(&obj->tbl_list)) {
-+		if (obj->dma_free && obj->loop_count >= obj->loop_count_threshold)
-+			complete(&obj->done);
-+	} else {
-+		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
-+	}
++	if (list_empty(&obj->tbl_list) &&
++	    obj->dma_free &&
++	    obj->loop_count >= obj->loop_count_threshold)
++		complete(&obj->done);
 +}
++
++#ifdef CONFIG_DEBUG_FS
++static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
++{
++	struct dma_trx_obj *dma_obj = s->private;
++	bool list_empty_now = list_empty(&dma_obj->tbl_list);
++
++	seq_printf(s, "irq_num = %ld, loop_count = %d,",
++		   dma_obj->irq_num, dma_obj->loop_count);
++	seq_printf(s, "loop_threshold = %d,",
++		   dma_obj->loop_count_threshold);
++	seq_printf(s, "lwa = %lx, rwa = %lx, lra = %lx,",
++		   dma_obj->local_write_available,
++		   dma_obj->remote_write_available,
++		   dma_obj->local_read_available);
++	seq_printf(s, "list : (%s), dma chn : (%s)\n",
++		   list_empty_now ? "empty" : "not empty",
++		   dma_obj->dma_free ? "free" : "busy");
++
++	return 0;
++}
++
++static int rk_pcie_debugfs_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, rk_pcie_debugfs_trx_show, inode->i_private);
++}
++
++static const struct file_operations rk_pcie_debugfs_fops = {
++	.owner = THIS_MODULE,
++	.open = rk_pcie_debugfs_open,
++	.read = seq_read,
++	.llseek = seq_lseek,
++	.release = single_release,
++};
++#endif
 +
 +struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
 +{
@@ -580,9 +616,22 @@ index 0000000..b05f113
 +	if (ret)
 +		goto err_wq;
 +
++#ifdef CONFIG_DEBUG_FS
++	obj->pcie_root = debugfs_create_dir("pcie", NULL);
++	if (!obj->pcie_root) {
++		ret = -EINVAL;
++		goto err_misc;
++	}
++
++	debugfs_create_file("pcie_trx", 0644, obj->pcie_root, obj,
++			    &rk_pcie_debugfs_fops);
++#endif
++
 +	dev_info(dev, "registered misc device pcie-dev\n");
 +	return obj;
 +
++err_misc:
++	misc_deregister(&obj->miscdev);
 +err_wq:
 +	hrtimer_cancel(&obj->scan_timer);
 +	destroy_workqueue(obj->dma_trx_wq);
@@ -602,6 +651,9 @@ index 0000000..b05f113
 +	hrtimer_cancel(&obj->scan_timer);
 +	if (obj->dma_trx_wq)
 +		destroy_workqueue(obj->dma_trx_wq);
++#ifdef CONFIG_DEBUG_FS
++	debugfs_remove_recursive(obj->pcie_root);
++#endif
 +	rk_pcie_dma_table_free(obj, PCIE_DMA_TABLE_NUM);
 +	if (obj->mem_base)
 +		rk_pcie_unmap_kernel(obj->mem_base);
@@ -611,7 +663,7 @@ new file mode 100644
 index 0000000..31697c1
 --- /dev/null
 +++ b/drivers/pci/controller/pcie-rockchip-dma.h
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,94 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2018 Rockchip Electronics Co., Ltd.
@@ -675,6 +727,9 @@ index 0000000..31697c1
 +	int				ref_count;
 +	struct mutex			count_mutex;
 +	unsigned long			irq_num;
++#ifdef CONFIG_DEBUG_FS
++	struct dentry			*pcie_root;
++#endif
 +	struct miscdevice		miscdev;
 +};
 +
@@ -733,16 +788,14 @@ index eba716c..8a09804 100644
  	rockchip_pcie_write(rockchip, PCI_VENDOR_ID_ROCKCHIP,
  			    PCIE_CORE_CONFIG_VENDOR);
  	rockchip_pcie_write(rockchip,
-@@ -494,7 +500,14 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
+@@ -494,7 +500,13 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
  		rockchip_pcie_clr_bw_int(rockchip);
  	}
  
 -	rockchip_pcie_write(rockchip, reg & PCIE_CLIENT_INT_LOCAL,
 +	if (reg & PCIE_CLIENT_INT_UDMA) {
 +		rk_pcie_handle_dma_interrupt(rockchip);
-+		if (sub_reg)
-+			rockchip_pcie_write(rockchip, sub_reg,
-+					    PCIE_CLIENT_INT_STATUS);
++		rockchip_pcie_write(rockchip, sub_reg, PCIE_CLIENT_INT_STATUS);
 +		rockchip_pcie_write(rockchip, reg, PCIE_CLIENT_INT_STATUS);
 +	}
 +
