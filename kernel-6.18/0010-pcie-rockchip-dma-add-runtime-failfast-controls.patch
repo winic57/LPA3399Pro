@@ -1,0 +1,184 @@
+From 1111111111111111111111111111111111111111 Mon Sep 17 00:00:00 2001
+From: henry <henry@example.com>
+Date: Mon, 6 Jul 2026 18:00:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: add runtime fail-fast controls
+
+RKNN real runs can still hard-hang the board when the NPU transfer
+client enters the PCIe DMA path. Keep the default behaviour unchanged,
+but expose debugfs controls so risky userspace tests can be staged more
+safely:
+
+  /sys/kernel/debug/pcie/dma_disabled
+  /sys/kernel/debug/pcie/dma_timeout_ms
+
+When dma_disabled is set, DMA start/wait ioctls fail fast with -EIO,
+queued DMA tables are dropped, waiters are woken, and pcie_trx exposes
+the state. dma_timeout_ms is writable at runtime and is also used for
+PCIE_DMA_WAIT_TRANSFER_COMPLETE, allowing shorter controlled timeout
+experiments instead of the previous hard minimum of 5000 ms.
+
+A DT opt-in property, rockchip,pcie-dma-disabled, is also accepted for
+boot-time fail-fast testing.
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 60 +++++++++++++++++-----
+ drivers/pci/controller/pcie-rockchip-dma.h |  1 +
+ 2 files changed, 49 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -78,6 +78,8 @@
+ 			    PCIE_APB_CORE_UDMA_BASE + 0x14 * chn + 0x00);
+ }
+ 
++static void rk_pcie_dma_failfast_reset(struct dma_trx_obj *obj);
++
+ static void rk_pcie_prepare_dma(struct dma_trx_obj *obj,
+ 			unsigned int idx, unsigned int bus_idx,
+ 			unsigned int local_idx, size_t buf_size,
+@@ -171,6 +173,14 @@
+ 	struct dma_table *table;
+ 
+ 	while (!list_empty(&obj->tbl_list)) {
++		if (READ_ONCE(obj->dma_disabled)) {
++			obj->dma_abort_count++;
++			rk_pcie_dma_failfast_reset(obj);
++			dev_warn_ratelimited(obj->dev,
++					     "pcie dma disabled: dropping queued transfer\n");
++			break;
++		}
++
+ 		table = list_first_entry(&obj->tbl_list, struct dma_table, tbl_node);
+ 		if (!obj->dma_free)
+ 			break;
+@@ -190,6 +200,37 @@
+ 	writel(0x0, addr);
+ }
+ 
++static void rk_pcie_dma_failfast_reset(struct dma_trx_obj *obj)
++{
++	unsigned long flags;
++
++	if (!obj)
++		return;
++
++	spin_lock_irqsave(&obj->tbl_list_lock, flags);
++	while (!list_empty(&obj->tbl_list)) {
++		struct dma_table *table;
++
++		table = list_first_entry(&obj->tbl_list, struct dma_table, tbl_node);
++		list_del_init(&table->tbl_node);
++	}
++	spin_unlock_irqrestore(&obj->tbl_list_lock, flags);
++
++	obj->cur = NULL;
++	obj->dma_free = true;
++	obj->local_read_available = 0x0;
++	obj->local_write_available = 0xff;
++	obj->remote_write_available = 0xff;
++	wake_up(&obj->event_queue);
++	complete_all(&obj->done);
++}
++
++static bool rk_pcie_dma_cmd_needs_hw(unsigned int cmd)
++{
++	return cmd == PCIE_DMA_START ||
++	       cmd == PCIE_DMA_WAIT_TRANSFER_COMPLETE;
++}
++
+ static void rk_pcie_dma_recover_timeout(struct dma_trx_obj *obj)
+ {
+ 	if (obj->dma_free || !obj->dma_timeout_ms)
+@@ -356,6 +397,14 @@
+ 	if (copy_from_user(&msg, uarg, sizeof(msg)) != 0)
+ 		return -EFAULT;
+ 
++	if (READ_ONCE(obj->dma_disabled) && rk_pcie_dma_cmd_needs_hw(cmd)) {
++		obj->dma_abort_count++;
++		rk_pcie_dma_failfast_reset(obj);
++		dev_warn_ratelimited(dev,
++				     "pcie dma disabled: fail-fast ioctl 0x%x\n", cmd);
++		return -EIO;
++	}
++
+ 	switch (cmd) {
+ 	case PCIE_DMA_START:
+ 		test_and_clear_bit(msg.in.l_widx, &obj->local_write_available);
+@@ -390,11 +439,14 @@
+ 		addr = obj->mem_start + msg.in.idx * PCIE_DMA_BUF_SIZE;
+ 		dma_sync_single_for_device(dev, addr, PCIE_DMA_BUF_SIZE, DMA_TO_DEVICE);
+ 		break;
+-	case PCIE_DMA_WAIT_TRANSFER_COMPLETE:
++	case PCIE_DMA_WAIT_TRANSFER_COMPLETE: {
++		u32 timeout_ms = READ_ONCE(obj->dma_timeout_ms);
++
++		if (!timeout_ms)
++			timeout_ms = PCIE_DMA_DEFAULT_TIMEOUT_MS;
+ 		reinit_completion(&obj->done);
+ 		ret = wait_for_completion_interruptible_timeout(&obj->done,
+-				msecs_to_jiffies(max_t(u32, obj->dma_timeout_ms,
+-							  PCIE_DMA_DEFAULT_TIMEOUT_MS)));
++				msecs_to_jiffies(timeout_ms));
+ 		if (ret < 0)
+ 			return ret;
+ 		if (!ret) {
+@@ -408,6 +460,7 @@
+ 		}
+ 		obj->loop_count = 0;
+ 		break;
++	}
+ 	case PCIE_DMA_SET_LOOP_COUNT:
+ 		obj->loop_count_threshold = msg.count;
+ 		break;
+@@ -578,9 +631,10 @@
+ 	seq_printf(s, "list : (%s), dma chn : (%s)\n",
+ 		   list_empty_now ? "empty" : "not empty",
+ 		   dma_obj->dma_free ? "free" : "busy");
+-	seq_printf(s, "last_status = 0x%x, timeout_ms = %u, timeouts = %lu, aborts = %lu\n",
+-		   dma_obj->last_dma_status, dma_obj->dma_timeout_ms,
+-		   dma_obj->dma_timeout_count, dma_obj->dma_abort_count);
++	seq_printf(s, "last_status = 0x%x, dma_disabled = %d, timeout_ms = %u, timeouts = %lu, aborts = %lu\n",
++		   dma_obj->last_dma_status, dma_obj->dma_disabled,
++		   dma_obj->dma_timeout_ms, dma_obj->dma_timeout_count,
++		   dma_obj->dma_abort_count);
+ 	seq_printf(s, "irq_counts: udma = %lu, subsys = %lu, client = %lu\n",
+ 		   dma_obj->udma_irq_count, dma_obj->subsys_irq_count,
+ 		   dma_obj->client_irq_count);
+@@ -665,6 +719,8 @@
+ 	mutex_init(&obj->count_mutex);
+ 	obj->dma_free = true;
+ 	obj->dma_timeout_ms = PCIE_DMA_DEFAULT_TIMEOUT_MS;
++	obj->dma_disabled = of_property_read_bool(dev->of_node,
++						  "rockchip,pcie-dma-disabled");
+ 
+ 	of_property_read_u32(dev->of_node, "rockchip,dma-timeout-ms",
+ 			     &obj->dma_timeout_ms);
+@@ -690,9 +746,14 @@
+ 
+ 	debugfs_create_file("pcie_trx", 0644, obj->pcie_root, obj,
+ 			    &rk_pcie_debugfs_fops);
++	debugfs_create_bool("dma_disabled", 0600, obj->pcie_root,
++			    &obj->dma_disabled);
++	debugfs_create_u32("dma_timeout_ms", 0600, obj->pcie_root,
++			   &obj->dma_timeout_ms);
+ #endif
+ 
+-	dev_info(dev, "registered misc device pcie-dev\n");
++	dev_info(dev, "registered misc device pcie-dev (dma_disabled=%d timeout_ms=%u)\n",
++		 obj->dma_disabled, obj->dma_timeout_ms);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -70,6 +70,7 @@
+ 	u32				last_subsys_status;
+ 	u32				last_subsys_core_status;
+ 	u32				last_client_irq_status;
++	bool				dma_disabled;
+ 	u32				dma_timeout_ms;
+ 	unsigned long			dma_timeout_count;
+ 	unsigned long			dma_abort_count;
+-- 
+2.43.0
