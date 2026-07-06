@@ -1,0 +1,19 @@
+/dts-v1/;
+
+/include/ "rk3399pro-neardi-linux-lc110-pcie-deferred-display.dts"
+
+/ {
+	model = "Neardi LPA3399Pro LC110 PCIe deferred display USB0 OTG A/B";
+};
+
+/*
+ * Vendor 4.4 golden .129 exposes the first DWC3 controller (fe800000) as
+ * dr_mode="otg" while .113 mainline DT had both DWC3 controllers forced to
+ * host.  Keep the normal/deferred DTBs unchanged and provide an A/B-only DTB to
+ * test whether USB0 OTG role programming is required for NPU rs -> USB gadget
+ * re-enumeration.
+ */
+&{/usb@fe800000/usb@fe800000} {
+	dr_mode = "otg";
+	/delete-property/ role-switch-default-mode;
+};
