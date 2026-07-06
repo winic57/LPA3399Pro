@@ -1,0 +1,21 @@
+/dts-v1/;
+
+#include "rk3399pro-neardi-linux-lc110-pcie-deferred-display.dts"
+
+/*
+ * A/B-only USB0 OTG + role-switch variant for RK3399Pro NPU USB testing.
+ * Keeps the tested pcie-deferred display baseline, but exposes the mainline
+ * DWC3 usb_role switch while defaulting to host so the board can still
+ * enumerate the NPU ACM/rockusb device.  This is for vendor 4.4
+ * rockchip-dwc3 parity debugging; do not make it default until validated.
+ */
+
+/ {
+	model = "Neardi LPA3399Pro LC110 PCIe deferred display USB0 OTG role-switch A/B";
+};
+
+&{/usb@fe800000/usb@fe800000} {
+	dr_mode = "otg";
+	usb-role-switch;
+	role-switch-default-mode = "host";
+};

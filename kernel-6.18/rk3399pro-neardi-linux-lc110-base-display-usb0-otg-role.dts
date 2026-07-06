@@ -1,0 +1,15 @@
+/dts-v1/;
+
+#include "rk3399pro-neardi-linux-lc110-base-display.dts"
+
+/* A/B-only USB0 OTG + role-switch variant for RK3399Pro NPU USB testing. */
+
+/ {
+	model = "Neardi LPA3399Pro LC110 base display USB0 OTG role-switch A/B";
+};
+
+&{/usb@fe800000/usb@fe800000} {
+	dr_mode = "otg";
+	usb-role-switch;
+	role-switch-default-mode = "host";
+};
