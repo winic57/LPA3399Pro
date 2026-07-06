@@ -1,0 +1,130 @@
+From f0d077ee7f6cafee74c9d3e962fe1ff2d6139b3b Mon Sep 17 00:00:00 2001
+From: LPA3399Pro Maintainers <noreply@example.com>
+Date: Mon, 6 Jul 2026 11:55:09 +0800
+Subject: [PATCH] soc: rockchip: add npu refclk keepalive driver
+
+---
+ drivers/soc/rockchip/Kconfig                | 11 +++
+ drivers/soc/rockchip/Makefile               |  1 +
+ drivers/soc/rockchip/npu-refclk-keepalive.c | 78 +++++++++++++++++++++
+ 3 files changed, 90 insertions(+)
+ create mode 100644 drivers/soc/rockchip/npu-refclk-keepalive.c
+
+diff --git a/drivers/soc/rockchip/Kconfig b/drivers/soc/rockchip/Kconfig
+index 785f60c6f..236c7b244 100644
+--- a/drivers/soc/rockchip/Kconfig
++++ b/drivers/soc/rockchip/Kconfig
+@@ -22,6 +22,17 @@ config ROCKCHIP_IODOMAIN
+ 	  necessary for the io domain setting of the SoC to match the
+ 	  voltage supplied by the regulators.
+ 
++config ROCKCHIP_NPU_REFCLK_KEEPALIVE
++	tristate "Rockchip RK3399Pro NPU reference clock keepalive"
++	depends on OF && COMMON_CLK
++	default y if ARCH_ROCKCHIP
++	help
++	  Hold the RK3399Pro NPU reference clock prepared/enabled through
++	  a tiny device-tree clock consumer.  This is useful on boards where
++	  SCLK_WIFI_PMU/GPIO0_A2 feeds the NPU boot path and generic fixed
++	  regulator or assigned-clock properties do not create a persistent
++	  consumer.
++
+ config ROCKCHIP_DTPM
+ 	tristate "Rockchip DTPM hierarchy"
+ 	depends on DTPM && m
+diff --git a/drivers/soc/rockchip/Makefile b/drivers/soc/rockchip/Makefile
+index 23d414433..a8e792f03 100644
+--- a/drivers/soc/rockchip/Makefile
++++ b/drivers/soc/rockchip/Makefile
+@@ -5,3 +5,4 @@
+ obj-$(CONFIG_ROCKCHIP_GRF) += grf.o
+ obj-$(CONFIG_ROCKCHIP_IODOMAIN) += io-domain.o
+ obj-$(CONFIG_ROCKCHIP_DTPM) += dtpm.o
++obj-$(CONFIG_ROCKCHIP_NPU_REFCLK_KEEPALIVE) += npu-refclk-keepalive.o
+diff --git a/drivers/soc/rockchip/npu-refclk-keepalive.c b/drivers/soc/rockchip/npu-refclk-keepalive.c
+new file mode 100644
+index 000000000..59f11143a
+--- /dev/null
++++ b/drivers/soc/rockchip/npu-refclk-keepalive.c
+@@ -0,0 +1,78 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Tiny RK3399Pro NPU reference-clock keepalive driver.
++ *
++ * Some RK3399Pro boards route the NPU/USB boot reference clock through
++ * SCLK_WIFI_PMU / GPIO0_A2.  A bare assigned-clock or fixed-clock DT node is
++ * not a real consumer, so the clock can remain prepared/enabled count 0 on
++ * mainline.  This platform driver intentionally holds the clock while the
++ * device is bound, matching the board-level need without changing generic
++ * regulator-fixed-clock semantics.
++ */
++
++#include <linux/clk.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/slab.h>
++
++struct rockchip_npu_refclk_keepalive {
++	struct clk *clk;
++};
++
++static int rockchip_npu_refclk_keepalive_probe(struct platform_device *pdev)
++{
++	struct rockchip_npu_refclk_keepalive *priv;
++	unsigned long rate;
++	int ret;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(priv->clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(priv->clk),
++				     "failed to get npu refclk\n");
++
++	ret = clk_prepare_enable(priv->clk);
++	if (ret)
++		return dev_err_probe(&pdev->dev, ret,
++				     "failed to enable npu refclk\n");
++
++	platform_set_drvdata(pdev, priv);
++	pm_runtime_enable(&pdev->dev);
++	rate = clk_get_rate(priv->clk);
++	dev_info(&pdev->dev, "holding NPU refclk enabled at %lu Hz\n", rate);
++
++	return 0;
++}
++
++static void rockchip_npu_refclk_keepalive_remove(struct platform_device *pdev)
++{
++	struct rockchip_npu_refclk_keepalive *priv = platform_get_drvdata(pdev);
++
++	pm_runtime_disable(&pdev->dev);
++	clk_disable_unprepare(priv->clk);
++}
++
++static const struct of_device_id rockchip_npu_refclk_keepalive_of_match[] = {
++	{ .compatible = "rockchip,npu-refclk-keepalive" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, rockchip_npu_refclk_keepalive_of_match);
++
++static struct platform_driver rockchip_npu_refclk_keepalive_driver = {
++	.probe = rockchip_npu_refclk_keepalive_probe,
++	.remove = rockchip_npu_refclk_keepalive_remove,
++	.driver = {
++		.name = "rockchip-npu-refclk-keepalive",
++		.of_match_table = rockchip_npu_refclk_keepalive_of_match,
++	},
++};
++module_platform_driver(rockchip_npu_refclk_keepalive_driver);
++
++MODULE_DESCRIPTION("Rockchip RK3399Pro NPU reference clock keepalive");
++MODULE_AUTHOR("LPA3399Pro Maintainers");
++MODULE_LICENSE("GPL");
+-- 
+2.43.0
+

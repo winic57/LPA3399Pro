@@ -38,6 +38,15 @@
 		mmc1 = "/mmc@fe320000";
 	};
 
+	npu-refclk-keepalive {
+		compatible = "rockchip,npu-refclk-keepalive";
+		clocks = <0x7a 0x08>;
+		clock-names = "refclk";
+		assigned-clocks = <0x7a 0x08>;
+		assigned-clock-rates = <0x16e3600>;
+		status = "okay";
+	};
+
 	reserved-memory {
 		#address-cells = <0x02>;
 		#size-cells = <0x02>;
@@ -350,6 +359,7 @@
 		pinctrl-names = "default";
 		memory-region = <&dma_trans>;
 		rockchip,dma_trx_enabled = <0x01>;
+		rockchip,dma-timeout-ms = <0x1388>;
 		rockchip,deferred = <0x01>;
 		vpcie0v9-supply = <0x1b>;
 		vpcie1v8-supply = <0x1c>;
