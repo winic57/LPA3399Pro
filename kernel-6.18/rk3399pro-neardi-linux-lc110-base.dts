@@ -2571,8 +2571,6 @@
 		#address-cells = <0x02>;
 		#size-cells = <0x02>;
 		ranges;
-		pinctrl-names = "default";
-		pinctrl-0 = <0xf4>;
 
 		gpio@ff720000 {
 			compatible = "rockchip,gpio-bank";
