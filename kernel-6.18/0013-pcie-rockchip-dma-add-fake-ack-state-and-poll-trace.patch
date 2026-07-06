@@ -1,0 +1,216 @@
+From e48a40c8e02180d605f931c810946620798c9801 Mon Sep 17 00:00:00 2001
+From: henry <henry@example.com>
+Date: Mon, 6 Jul 2026 19:47:36 +0800
+Subject: [PATCH] pcie-dma: add fake ack state and poll trace ring
+
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 94 +++++++++++++++++++---
+ drivers/pci/controller/pcie-rockchip-dma.h | 18 +++++
+ 2 files changed, 102 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 24ceed04e..93b29ae3a 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -241,25 +241,52 @@ static bool rk_pcie_dma_cmd_needs_hw(unsigned int cmd)
+ static void rk_pcie_dma_fake_done(struct dma_trx_obj *obj, unsigned int cmd,
+ 				   const union pcie_dma_ioctl_param *msg)
+ {
++	unsigned int idx, l_widx, r_widx, type;
++
+ 	if (!obj)
+ 		return;
+ 
+ 	/*
+ 	 * Safe software-only completion path used only with dma_disabled=1.
+-	 * Do not program UDMA registers here.  Just emulate the vendor-style
+-	 * done/wake flow so RKNN/proxy ioctl ordering can be observed without
+-	 * entering the real DMA path that previously hard-hung the board.
++	 * Do not program UDMA registers here.  Emulate enough DATA/ACK state
++	 * to distinguish whether userspace is blocked in poll/index exchange,
++	 * ACK progression, or a later RKNN protocol layer.
+ 	 */
+ 	obj->dma_fake_done_count++;
+ 	obj->dma_free = true;
+ 	obj->cur = NULL;
+ 
+ 	if (cmd == PCIE_DMA_START && msg) {
++		idx = msg->in.idx & (PCIE_DMA_BUF_CNT - 1);
++		l_widx = msg->in.l_widx & (PCIE_DMA_BUF_CNT - 1);
++		r_widx = msg->in.r_widx & (PCIE_DMA_BUF_CNT - 1);
++		type = msg->in.type;
++
+ 		obj->loop_count++;
+-		if (msg->in.l_widx < BITS_PER_LONG)
+-			set_bit(msg->in.l_widx, &obj->local_write_available);
+-		if (msg->in.r_widx < BITS_PER_LONG)
+-			set_bit(msg->in.r_widx, &obj->remote_write_available);
++
++		switch (type) {
++		case PCIE_DMA_DATA_SND:
++			/* Remote consumed host write buffer and returned both ACKs. */
++			obj->dma_fake_data_snd_count++;
++			set_bit(l_widx, &obj->local_write_available);
++			set_bit(r_widx, &obj->remote_write_available);
++			break;
++		case PCIE_DMA_DATA_RCV_ACK:
++			/* ACK for a local read buffer; make it reusable. */
++			obj->dma_fake_data_rcv_ack_count++;
++			clear_bit(idx, &obj->local_read_available);
++			set_bit(l_widx, &obj->local_write_available);
++			break;
++		case PCIE_DMA_DATA_FREE_ACK:
++			/* Remote free ACK path; expose remote write availability. */
++			obj->dma_fake_data_free_ack_count++;
++			set_bit(r_widx, &obj->remote_write_available);
++			break;
++		default:
++			set_bit(l_widx, &obj->local_write_available);
++			set_bit(r_widx, &obj->remote_write_available);
++			break;
++		}
+ 	} else if (cmd == PCIE_DMA_WAIT_TRANSFER_COMPLETE) {
+ 		obj->loop_count = 0;
+ 	}
+@@ -277,12 +304,14 @@ static int rk_pcie_dma_disabled_ret(struct dma_trx_obj *obj, unsigned int cmd,
+ 	if (mode > PCIE_DMA_FAILFAST_FAKE_DONE)
+ 		mode = PCIE_DMA_FAILFAST_ERROR;
+ 
++	if (mode == PCIE_DMA_FAILFAST_FAKE_DONE) {
++		rk_pcie_dma_fake_done(obj, cmd, msg);
++		return 0;
++	}
++
+ 	rk_pcie_dma_failfast_reset(obj);
+ 
+ 	switch (mode) {
+-	case PCIE_DMA_FAILFAST_FAKE_DONE:
+-		rk_pcie_dma_fake_done(obj, cmd, msg);
+-		return 0;
+ 	case PCIE_DMA_FAILFAST_SOFT_COMPLETE:
+ 		if (cmd == PCIE_DMA_WAIT_TRANSFER_COMPLETE)
+ 			obj->loop_count = 0;
+@@ -591,6 +620,29 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 	return rk_pcie_dma_ioctl_done(obj, cmd, &msg, 0);
+ }
+ 
++static void rk_pcie_dma_record_poll(struct dma_trx_obj *obj, __poll_t ret)
++{
++	struct dma_poll_trace *tr;
++	u32 head;
++
++	if (!obj)
++		return;
++
++	obj->poll_count++;
++	obj->last_poll_ret = ret;
++	head = obj->poll_trace_head++ & (PCIE_DMA_POLL_TRACE_LEN - 1);
++	tr = &obj->poll_trace[head];
++
++	memset(tr, 0, sizeof(*tr));
++	tr->seq = obj->poll_count;
++	tr->ts_ns = ktime_get_ns();
++	tr->ret = ret;
++	tr->lwa = (u32)obj->local_write_available;
++	tr->rwa = (u32)obj->remote_write_available;
++	tr->lra = (u32)obj->local_read_available;
++	tr->loop_count = obj->loop_count;
++}
++
+ static __poll_t rk_pcie_misc_poll(struct file *filp, poll_table *wait)
+ {
+ 	struct dma_trx_obj *obj = filp->private_data;
+@@ -603,6 +655,7 @@ static __poll_t rk_pcie_misc_poll(struct file *filp, poll_table *wait)
+ 	if (obj->local_read_available)
+ 		ret |= POLLIN;
+ 
++	rk_pcie_dma_record_poll(obj, ret);
+ 	return ret;
+ }
+ 
+@@ -753,6 +806,11 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_soft_complete_count,
+ 		   dma_obj->dma_fake_done_count,
+ 		   dma_obj->dma_fake_wake_count);
++	seq_printf(s, "fake_types: data_snd = %lu, rcv_ack = %lu, free_ack = %lu; poll_count = %lu, last_poll_ret = 0x%x\n",
++		   dma_obj->dma_fake_data_snd_count,
++		   dma_obj->dma_fake_data_rcv_ack_count,
++		   dma_obj->dma_fake_data_free_ack_count,
++		   dma_obj->poll_count, dma_obj->last_poll_ret);
+ 	seq_printf(s, "irq_counts: udma = %lu, subsys = %lu, client = %lu\n",
+ 		   dma_obj->udma_irq_count, dma_obj->subsys_irq_count,
+ 		   dma_obj->client_irq_count);
+@@ -784,6 +842,22 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 				   tr->ts_ns);
+ 		}
+ 	}
++	seq_puts(s, "poll_trace recent-first: seq ret lwa/rwa/lra loop ts_ns\n");
++	{
++		u32 head = dma_obj->poll_trace_head;
++		u32 n = min_t(u32, dma_obj->poll_count, PCIE_DMA_POLL_TRACE_LEN);
++		u32 i;
++
++		for (i = 0; i < n; i++) {
++			const struct dma_poll_trace *tr;
++
++			tr = &dma_obj->poll_trace[(head - 1 - i) &
++						  (PCIE_DMA_POLL_TRACE_LEN - 1)];
++			seq_printf(s, "  %lu 0x%x 0x%x/0x%x/0x%x %d %llu\n",
++				   tr->seq, tr->ret, tr->lwa, tr->rwa, tr->lra,
++				   tr->loop_count, tr->ts_ns);
++		}
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 06320fbe8..c0d8ece8b 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -20,6 +20,7 @@
+ #include <linux/ktime.h>
+ 
+ #define PCIE_DMA_IOCTL_TRACE_LEN		32
++#define PCIE_DMA_POLL_TRACE_LEN		32
+ 
+ struct dma_ioctl_trace {
+ 	unsigned long	seq;
+@@ -57,6 +58,16 @@ struct dma_table {
+ 	struct list_head	tbl_node;
+ };
+ 
++struct dma_poll_trace {
++	unsigned long	seq;
++	u64		ts_ns;
++	u32		ret;
++	u32		lwa;
++	u32		rwa;
++	u32		lra;
++	int		loop_count;
++};
++
+ struct dma_trx_obj {
+ 	struct device			*dev;
+ 	int				loop_count;
+@@ -98,11 +109,18 @@ struct dma_trx_obj {
+ 	unsigned long			dma_soft_complete_count;
+ 	unsigned long			dma_fake_done_count;
+ 	unsigned long			dma_fake_wake_count;
++	unsigned long			dma_fake_data_snd_count;
++	unsigned long			dma_fake_data_rcv_ack_count;
++	unsigned long			dma_fake_data_free_ack_count;
+ 	unsigned long			ioctl_count;
+ 	u32				last_ioctl_cmd;
+ 	int				last_ioctl_ret;
+ 	u32				ioctl_trace_head;
+ 	struct dma_ioctl_trace	ioctl_trace[PCIE_DMA_IOCTL_TRACE_LEN];
++	unsigned long			poll_count;
++	u32				last_poll_ret;
++	u32				poll_trace_head;
++	struct dma_poll_trace	poll_trace[PCIE_DMA_POLL_TRACE_LEN];
+ 	unsigned long			udma_irq_count;
+ 	unsigned long			subsys_irq_count;
+ 	unsigned long			client_irq_count;
+-- 
+2.43.0
+
