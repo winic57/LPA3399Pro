@@ -22,6 +22,12 @@ POST_RS_WAIT_SEC=${POST_RS_WAIT_SEC:-8}
 POST_RS_PCIE_RESCAN=${POST_RS_PCIE_RESCAN:-0}
 POST_RS_PCIE_RESCAN_DELAY_SEC=${POST_RS_PCIE_RESCAN_DELAY_SEC:-0}
 RS_STRICT=${RS_STRICT:-0}
+# DB_POLICY=auto: run `db` only from Maskrom; skip it when already Loader.
+# Other values: always, skip, require-maskrom.
+DB_POLICY=${DB_POLICY:-auto}
+ROCKUSB_WAIT_SEC=${ROCKUSB_WAIT_SEC:-8}
+POWER_OFF_SETTLE_SEC=${POWER_OFF_SETTLE_SEC:-2}
+POWER_ON_SETTLE_SEC=${POWER_ON_SETTLE_SEC:-3}
 PCIE_RESCAN_AFTER_POWER=${PCIE_RESCAN_AFTER_POWER:-0}
 PCIE_HOST_REBIND_AFTER_POWER=${PCIE_HOST_REBIND_AFTER_POWER:-0}
 PCIE_HOST_PLATFORM_DEV=${PCIE_HOST_PLATFORM_DEV:-f8000000.pcie}
@@ -80,6 +86,72 @@ run_power_action() {
       "$NPU_POWERCTRL" on 2>/dev/null || "$NPU_POWERCTRL" -o || true
       ;;
   esac
+}
+
+rockusb_ld() {
+  "$UPGRADE_TOOL" ld 2>/dev/null || true
+}
+
+rockusb_mode() {
+  rockusb_ld | awk -F'Mode=' '/Mode=/{split($2,a,/[^A-Za-z0-9_-]/); print a[1]; exit}'
+}
+
+wait_rockusb_mode() {
+  local timeout_s="${1:-$ROCKUSB_WAIT_SEC}" mode i
+  for i in $(seq 1 "$timeout_s"); do
+    mode=$(rockusb_mode || true)
+    if [ -n "$mode" ]; then
+      echo "$mode"
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
+run_loader_db_if_needed() {
+  local mode="${1:-}"
+  if [ -z "$mode" ]; then
+    mode=$(rockusb_mode || true)
+  fi
+
+  echo "== rockusb mode before db: ${mode:-none} =="
+  case "$DB_POLICY" in
+    skip)
+      echo "== DB_POLICY=skip: skip upgrade_tool db =="
+      return 0
+      ;;
+    always)
+      echo "== DB_POLICY=always: force upgrade_tool db MiniLoaderAll.bin =="
+      "$UPGRADE_TOOL" db "$LOADER"
+      sleep 1
+      return 0
+      ;;
+    require-maskrom)
+      if [ "$mode" != "Maskrom" ]; then
+        echo "ERROR: DB_POLICY=require-maskrom but mode is ${mode:-none}; refusing db" >&2
+        return 3
+      fi
+      ;;
+    auto)
+      if [ "$mode" = "Loader" ]; then
+        echo "== already Loader: skip upgrade_tool db to avoid unsupported duplicate db =="
+        return 0
+      fi
+      if [ "$mode" != "Maskrom" ]; then
+        echo "ERROR: expected Maskrom for db, got ${mode:-none}; refusing db" >&2
+        return 3
+      fi
+      ;;
+    *)
+      echo "ERROR: unknown DB_POLICY=$DB_POLICY" >&2
+      return 2
+      ;;
+  esac
+
+  echo "== upgrade_tool db MiniLoaderAll.bin =="
+  "$UPGRADE_TOOL" db "$LOADER"
+  sleep 1
 }
 
 proxy_running() {
@@ -161,10 +233,10 @@ if [ "$SKIP_POWER" != 1 ] && [ -x "$NPU_POWERCTRL" ]; then
   if [ "$POWER_FORCE_OFF_FIRST" = 1 ]; then
     echo "== forced power down before power up =="
     run_power_action off
-    sleep 1
+    sleep "$POWER_OFF_SETTLE_SEC"
   fi
   run_power_action on
-  sleep 2
+  sleep "$POWER_ON_SETTLE_SEC"
   pcie_host_ab_after_power
 else
   echo "== skip npu_powerctrl =="
@@ -182,6 +254,10 @@ echo "POST_RS_WAIT_SEC=$POST_RS_WAIT_SEC"
 echo "POST_RS_PCIE_RESCAN=$POST_RS_PCIE_RESCAN"
 echo "POST_RS_PCIE_RESCAN_DELAY_SEC=$POST_RS_PCIE_RESCAN_DELAY_SEC"
 echo "RS_STRICT=$RS_STRICT"
+echo "DB_POLICY=$DB_POLICY"
+echo "ROCKUSB_WAIT_SEC=$ROCKUSB_WAIT_SEC"
+echo "POWER_OFF_SETTLE_SEC=$POWER_OFF_SETTLE_SEC"
+echo "POWER_ON_SETTLE_SEC=$POWER_ON_SETTLE_SEC"
 echo "PCIE_RESCAN_AFTER_POWER=$PCIE_RESCAN_AFTER_POWER"
 echo "PCIE_HOST_REBIND_AFTER_POWER=$PCIE_HOST_REBIND_AFTER_POWER"
 echo "PCIE_HOST_PLATFORM_DEV=$PCIE_HOST_PLATFORM_DEV"
@@ -190,13 +266,17 @@ echo "PCIE_HOST_REBIND_WAIT_SEC=$PCIE_HOST_REBIND_WAIT_SEC"
 echo "== before firmware download =="
 lsusb | grep -Ei '2207:|rockchip|rk3xxx' || true
 
-echo "== upgrade_tool db MiniLoaderAll.bin =="
-"$UPGRADE_TOOL" db "$LOADER"
-sleep 1
+MODE_BEFORE_DB=$(wait_rockusb_mode "$ROCKUSB_WAIT_SEC" || true)
+run_loader_db_if_needed "$MODE_BEFORE_DB"
 
 if [ "$LOADER_WAIT" = 1 ]; then
-  echo "== upgrade_tool td (wait loader) =="
-  "$UPGRADE_TOOL" td || true
+  MODE_AFTER_DB=$(wait_rockusb_mode "$ROCKUSB_WAIT_SEC" || true)
+  if [ "$MODE_AFTER_DB" = "Loader" ]; then
+    echo "== already Loader after db/skip; skip upgrade_tool td =="
+  else
+    echo "== upgrade_tool td (wait loader) =="
+    "$UPGRADE_TOOL" td || true
+  fi
 fi
 
 if [ "$WRITE_IMAGES_BEFORE_RS" = 1 ]; then
