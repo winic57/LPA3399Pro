@@ -3627,7 +3627,7 @@
 	};
 
 	n4-pwren {
-		compatible = "regulator-fixed-clock", "regulator-fixed";
+		compatible = "regulator-fixed-clock";
 		enable-active-high;
 		regulator-always-on;
 		regulator-boot-on;
