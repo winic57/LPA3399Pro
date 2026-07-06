@@ -32,6 +32,8 @@ OUTPUT_DIR="${BUILDER_DIR}/output"
 mkdir -p "$OUTPUT_DIR"
 
 MAKE_ARGS=(ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-)
+KERNEL_JOBS="${KERNEL_JOBS:-8}"
+echo "=== Kernel build parallel jobs: -j${KERNEL_JOBS} ==="
 if command -v ccache >/dev/null 2>&1; then
   export CCACHE_DIR="${CCACHE_DIR:-${BUILDER_DIR}/.ccache}"
   export CCACHE_MAXSIZE="${CCACHE_MAXSIZE:-5G}"
@@ -139,7 +141,7 @@ make "${MAKE_ARGS[@]}" olddefconfig 2>&1 | tee /tmp/olddefconfig.log
 
 BUILD_LOG="/tmp/kernel_build.log"
 echo "=== Building Image (logging to ${BUILD_LOG}) ==="
-make "${MAKE_ARGS[@]}" -j4 Image 2>&1 | tee "${BUILD_LOG}" || {
+make "${MAKE_ARGS[@]}" -j"${KERNEL_JOBS}" Image 2>&1 | tee "${BUILD_LOG}" || {
   echo ""
   echo "========== BUILD FAILED =========="
   echo "=== Extracting error lines from build log ==="
@@ -154,7 +156,7 @@ make "${MAKE_ARGS[@]}" -j4 Image 2>&1 | tee "${BUILD_LOG}" || {
 }
 
 echo "=== Building modules ==="
-make "${MAKE_ARGS[@]}" -j4 modules 2>&1 | tee "${BUILD_LOG}" || {
+make "${MAKE_ARGS[@]}" -j"${KERNEL_JOBS}" modules 2>&1 | tee "${BUILD_LOG}" || {
   echo ""
   echo "========== MODULES BUILD FAILED =========="
   echo "=== Extracting error lines ==="
@@ -166,7 +168,7 @@ make "${MAKE_ARGS[@]}" -j4 modules 2>&1 | tee "${BUILD_LOG}" || {
 }
 
 echo "=== Building dtbs ==="
-make "${MAKE_ARGS[@]}" -j4 dtbs
+make "${MAKE_ARGS[@]}" -j"${KERNEL_JOBS}" dtbs
 
 echo "=== Collecting output ==="
 cp arch/arm64/boot/Image "$OUTPUT_DIR/"

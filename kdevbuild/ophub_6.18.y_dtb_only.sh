@@ -21,6 +21,8 @@ apt-get install -y --no-install-recommends \
   python3 rsync tar wget xz-utils gzip
 
 MAKE_ARGS=(ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-)
+KERNEL_JOBS="${KERNEL_JOBS:-8}"
+echo "=== Kernel build parallel jobs: -j${KERNEL_JOBS} ==="
 if command -v ccache >/dev/null 2>&1; then
   export CCACHE_DIR="${CCACHE_DIR:-${BUILDER_DIR}/.ccache}"
   export CCACHE_MAXSIZE="${CCACHE_MAXSIZE:-3G}"
@@ -94,7 +96,7 @@ sed -i 's/^CONFIG_CLK_IMX93=y/# CONFIG_CLK_IMX93 is not set/' .config
 make "${MAKE_ARGS[@]}" olddefconfig
 
 echo "=== DTB-only: building dtbs ==="
-make "${MAKE_ARGS[@]}" -j4 dtbs
+make "${MAKE_ARGS[@]}" -j"${KERNEL_JOBS}" dtbs
 
 echo "=== DTB-only: collecting RK3399 DTBs ==="
 rm -rf dtbs

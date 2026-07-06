@@ -61,6 +61,7 @@ jobs:
             -v ${{ github.workspace }}/.ccache:/workspace/.ccache \
             -w /workspace \
             -e CCACHE_DIR=/workspace/.ccache \
+            -e KERNEL_JOBS=8 \
             -e CCACHE_MAXSIZE=3G \
             ubuntu:22.04 \
             bash -c "
@@ -105,6 +106,6 @@ jobs:
             -d '{
               "msgtype": "text",
               "text": {
-                "content": "GitHub Action Build Notification\nProject: LPA3399Pro-private\nWorkflow: ${{ github.workflow }}\nStatus: ${{ job.status }}\nCommit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}\nTriggered By: ${{ github.actor }}"
+                "content": "GitHub Action Build Notification\nProject: LPA3399Pro\nWorkflow: ${{ github.workflow }}\nStatus: ${{ job.status }}\nCommit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}\nTriggered By: ${{ github.actor }}"
               }
             }'
