@@ -1,0 +1,93 @@
+From 0ead9dc2c5f39abd5c8c92f6d9eab89845c50905 Mon Sep 17 00:00:00 2001
+From: henry <henry@example.com>
+Date: Mon, 6 Jul 2026 20:37:10 +0800
+Subject: [PATCH] pcie-dma: add fake poll and rx-ready controls
+
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 21 ++++++++++++++++++++-
+ drivers/pci/controller/pcie-rockchip-dma.h |  4 ++++
+ 2 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 93b29ae..d160219 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -265,12 +265,20 @@ static void rk_pcie_dma_fake_done(struct dma_trx_obj *obj, unsigned int cmd,
+ 		obj->loop_count++;
+ 
+ 		switch (type) {
+-		case PCIE_DMA_DATA_SND:
++		case PCIE_DMA_DATA_SND: {
++			u32 rx_mask = READ_ONCE(obj->dma_fake_rx_mask) &
++				PCIE_DMA_FAKE_BUF_MASK;
++
+ 			/* Remote consumed host write buffer and returned both ACKs. */
+ 			obj->dma_fake_data_snd_count++;
+ 			set_bit(l_widx, &obj->local_write_available);
+ 			set_bit(r_widx, &obj->remote_write_available);
++			if (rx_mask) {
++				obj->local_read_available |= rx_mask;
++				obj->dma_fake_rx_inject_count++;
++			}
+ 			break;
++		}
+ 		case PCIE_DMA_DATA_RCV_ACK:
+ 			/* ACK for a local read buffer; make it reusable. */
+ 			obj->dma_fake_data_rcv_ack_count++;
+@@ -655,6 +663,10 @@ static __poll_t rk_pcie_misc_poll(struct file *filp, poll_table *wait)
+ 	if (obj->local_read_available)
+ 		ret |= POLLIN;
+ 
++	if (READ_ONCE(obj->dma_disabled) &&
++	    READ_ONCE(obj->dma_failfast_mode) == PCIE_DMA_FAILFAST_FAKE_DONE)
++		ret |= (__force __poll_t)READ_ONCE(obj->dma_fake_poll_mask);
++
+ 	rk_pcie_dma_record_poll(obj, ret);
+ 	return ret;
+ }
+@@ -811,6 +823,9 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_fake_data_rcv_ack_count,
+ 		   dma_obj->dma_fake_data_free_ack_count,
+ 		   dma_obj->poll_count, dma_obj->last_poll_ret);
++	seq_printf(s, "fake_ctrl: poll_mask = 0x%x, rx_mask = 0x%x, rx_inject = %lu\n",
++		   dma_obj->dma_fake_poll_mask, dma_obj->dma_fake_rx_mask,
++		   dma_obj->dma_fake_rx_inject_count);
+ 	seq_printf(s, "irq_counts: udma = %lu, subsys = %lu, client = %lu\n",
+ 		   dma_obj->udma_irq_count, dma_obj->subsys_irq_count,
+ 		   dma_obj->client_irq_count);
+@@ -967,6 +982,10 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			   &obj->dma_timeout_ms);
+ 	debugfs_create_u32("dma_failfast_mode", 0600, obj->pcie_root,
+ 			   &obj->dma_failfast_mode);
++	debugfs_create_u32("dma_fake_poll_mask", 0600, obj->pcie_root,
++			   &obj->dma_fake_poll_mask);
++	debugfs_create_u32("dma_fake_rx_mask", 0600, obj->pcie_root,
++			   &obj->dma_fake_rx_mask);
+ #endif
+ 
+ 	dev_info(dev, "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u)\n",
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index c0d8ece..19b175b 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -21,6 +21,7 @@
+ 
+ #define PCIE_DMA_IOCTL_TRACE_LEN		32
+ #define PCIE_DMA_POLL_TRACE_LEN		32
++#define PCIE_DMA_FAKE_BUF_MASK		0xff
+ 
+ struct dma_ioctl_trace {
+ 	unsigned long	seq;
+@@ -112,6 +113,9 @@ struct dma_trx_obj {
+ 	unsigned long			dma_fake_data_snd_count;
+ 	unsigned long			dma_fake_data_rcv_ack_count;
+ 	unsigned long			dma_fake_data_free_ack_count;
++	u32				dma_fake_poll_mask;
++	u32				dma_fake_rx_mask;
++	unsigned long			dma_fake_rx_inject_count;
+ 	unsigned long			ioctl_count;
+ 	u32				last_ioctl_cmd;
+ 	int				last_ioctl_ret;
+-- 
+2.43.0
+
