@@ -31,6 +31,18 @@ BUILDER_DIR="/workspace"
 OUTPUT_DIR="${BUILDER_DIR}/output"
 mkdir -p "$OUTPUT_DIR"
 
+MAKE_ARGS=(ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-)
+if command -v ccache >/dev/null 2>&1; then
+  export CCACHE_DIR="${CCACHE_DIR:-${BUILDER_DIR}/.ccache}"
+  export CCACHE_MAXSIZE="${CCACHE_MAXSIZE:-5G}"
+  mkdir -p "${CCACHE_DIR}"
+  ccache -M "${CCACHE_MAXSIZE}" || true
+  ccache -z || true
+  # Kernel build accepts make variable values containing spaces when passed
+  # as one array element. This lets private GHA reuse cached target/host objects.
+  MAKE_ARGS+=("CC=ccache aarch64-linux-gnu-gcc" "HOSTCC=ccache gcc")
+fi
+
 cd "${BUILDER_DIR}"
 echo "=== Cloning kernel source ==="
 # Use official kernel.org v6.18.33 tag — matches our config-6.18 exactly.
@@ -106,7 +118,7 @@ if [ -f "${CUSTOM_CONFIG}" ]; then
   echo "Using config-6.18 from repo (kernel $(head -3 .config | grep 'Linux/arm64'))"
 else
   echo "WARNING: config-6.18 not found, using defconfig"
-  make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+  make "${MAKE_ARGS[@]}" defconfig
 fi
 
 # Disable i.MX clock drivers that have API breakage on this kernel version.
@@ -123,11 +135,11 @@ sed -i 's/^CONFIG_CLK_IMX93=y/# CONFIG_CLK_IMX93 is not set/' .config
 echo "Disabled: CONFIG_CLK_IMX8xx (i.MX clock drivers not needed on RK3399Pro)"
 
 echo "=== olddefconfig ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig 2>&1 | tee /tmp/olddefconfig.log
+make "${MAKE_ARGS[@]}" olddefconfig 2>&1 | tee /tmp/olddefconfig.log
 
 BUILD_LOG="/tmp/kernel_build.log"
 echo "=== Building Image (logging to ${BUILD_LOG}) ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image 2>&1 | tee "${BUILD_LOG}" || {
+make "${MAKE_ARGS[@]}" -j$(nproc) Image 2>&1 | tee "${BUILD_LOG}" || {
   echo ""
   echo "========== BUILD FAILED =========="
   echo "=== Extracting error lines from build log ==="
@@ -142,7 +154,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image 2>&1 | tee "${
 }
 
 echo "=== Building modules ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules 2>&1 | tee "${BUILD_LOG}" || {
+make "${MAKE_ARGS[@]}" -j$(nproc) modules 2>&1 | tee "${BUILD_LOG}" || {
   echo ""
   echo "========== MODULES BUILD FAILED =========="
   echo "=== Extracting error lines ==="
@@ -154,7 +166,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules 2>&1 | tee "
 }
 
 echo "=== Building dtbs ==="
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) dtbs
+make "${MAKE_ARGS[@]}" -j$(nproc) dtbs
 
 echo "=== Collecting output ==="
 cp arch/arm64/boot/Image "$OUTPUT_DIR/"
@@ -170,4 +182,5 @@ tar -zcvf "$OUTPUT_DIR/kos.tar.gz" kos
 echo "=== Output ==="
 ls -alh "$OUTPUT_DIR/"
 
+if command -v ccache >/dev/null 2>&1; then ccache -s || true; fi
 echo "=== Build completed successfully! ==="

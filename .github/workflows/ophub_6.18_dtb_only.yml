@@ -1,0 +1,110 @@
+name: ophub kernel 6.18.y DTB only
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/ophub_6.18_dtb_only.yml'
+      - 'kdevbuild/ophub_6.18.y_dtb_only.sh'
+      - 'kernel-6.18/*.dts'
+      - 'kernel-6.18/*.dtsi'
+      - 'kernel-6.18/*.patch'
+  repository_dispatch:
+    types:
+      - dtb-only
+  workflow_dispatch:
+    inputs: { }
+
+env:
+  TZ: America/New_York
+
+concurrency:
+  group: ophub-kernel-6.18-dtb-only-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-dtb:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Show environment
+        run: |
+          nproc
+          uname -a
+          cat /etc/*release
+          free -h
+          df -h
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ${{ runner.os }}-ophub-6.18-dtb-ccache-${{ hashFiles('kernel-6.18/config-6.18', 'kernel-6.18/*.patch', 'kernel-6.18/*.dts', 'kernel-6.18/*.dtsi') }}
+          restore-keys: |
+            ${{ runner.os }}-ophub-6.18-dtb-ccache-
+
+      - name: Run DTB-only build in Ubuntu 22.04 container
+        working-directory: ${{ github.workspace }}
+        run: |
+          pwd
+          ls -alh
+          mkdir -p .ccache
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -v ${{ github.workspace }}/.ccache:/workspace/.ccache \
+            -w /workspace \
+            -e CCACHE_DIR=/workspace/.ccache \
+            -e CCACHE_MAXSIZE=3G \
+            ubuntu:22.04 \
+            bash -c "
+              chmod +x /workspace/kdevbuild/ophub_6.18.y_dtb_only.sh ;
+              /workspace/kdevbuild/ophub_6.18.y_dtb_only.sh
+            "
+
+      - name: List DTB output
+        if: always()
+        run: |
+          ls -alh ${{ github.workspace }}/output-dtb/ 2>/dev/null || echo "No output-dtb directory"
+          sha256sum ${{ github.workspace }}/output-dtb/* 2>/dev/null || true
+
+      - name: Upload DTB workflow artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ophub-kernel-6.18.33-dtb-artifacts
+          path: ${{ github.workspace }}/output-dtb/*
+          if-no-files-found: error
+
+      - name: Upload DTB to Release
+        if: success()
+        uses: ncipollo/release-action@v1
+        with:
+          tag: Neardi-LPA3399Pro-kernel-6.18-dtb-only
+          name: Neardi-LPA3399Pro-kernel-6.18 DTB only
+          artifacts: ${{ github.workspace }}/output-dtb/*
+          allowUpdates: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ### DTB-only build
+            Fast DTB-only artifacts for LPA3399Pro kernel 6.18.33 PCIe/NPU A/B validation.
+            Full kernel Image/modules are intentionally not rebuilt in this workflow.
+
+      - name: Notify WeChat Webhook
+        if: always()
+        run: |
+          curl '${{ secrets.WECHAT_WORK_WEBHOOK }}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "msgtype": "text",
+              "text": {
+                "content": "GitHub Action Build Notification\nProject: LPA3399Pro-private\nWorkflow: ${{ github.workflow }}\nStatus: ${{ job.status }}\nCommit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}\nTriggered By: ${{ github.actor }}"
+              }
+            }'

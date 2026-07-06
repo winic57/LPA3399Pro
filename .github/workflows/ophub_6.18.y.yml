@@ -7,7 +7,8 @@ on:
     paths:
       - '.github/workflows/ophub_6.18.y.yml'
       - 'kdevbuild/ophub_6.18.y_kernel.sh'
-      - 'kernel-6.18/**'
+      - 'kernel-6.18/config-6.18'
+      - 'kernel-6.18/*.patch'
   repository_dispatch:
   workflow_dispatch:
     inputs: { }
@@ -38,6 +39,14 @@ jobs:
           free -h
           df -h
 
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ${{ runner.os }}-ophub-6.18-ccache-${{ hashFiles('kernel-6.18/config-6.18', 'kernel-6.18/*.patch') }}
+          restore-keys: |
+            ${{ runner.os }}-ophub-6.18-ccache-
+
       - name: Run build in Ubuntu 22.04 container
         working-directory: ${{ github.workspace }}
         run: |
@@ -45,7 +54,10 @@ jobs:
           ls -alh
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
+            -v ${{ github.workspace }}/.ccache:/workspace/.ccache \
             -w /workspace \
+            -e CCACHE_DIR=/workspace/.ccache \
+            -e CCACHE_MAXSIZE=5G \
             ubuntu:22.04 \
             bash -c "
               chmod +x /workspace/kdevbuild/ophub_6.18.y_kernel.sh ;
