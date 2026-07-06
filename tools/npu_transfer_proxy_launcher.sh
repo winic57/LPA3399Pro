@@ -13,7 +13,17 @@ log() {
 }
 
 proxy_running() {
-  pgrep -f '(^|/| )npu_transfer_proxy($| )' >/dev/null 2>&1
+  local bin base
+  bin="$TRANSFER_PROXY_BIN"
+  base="$(basename "$TRANSFER_PROXY_BIN")"
+
+  # Avoid broad `pgrep -f npu_transfer_proxy`: it can match the caller's
+  # ssh/shell command line when that line contains "npu_transfer_proxy devices",
+  # causing a false "proxy already running" and preventing listener startup.
+  ps -eo args= | awk -v bin="$bin" -v base="$base" '
+    $1 == bin || $1 == base || $1 ~ ("/" base "$") { found = 1 }
+    END { exit found ? 0 : 1 }
+  '
 }
 
 has_cpuinfo_serial() {
