@@ -48,6 +48,7 @@ jobs:
             ${{ runner.os }}-ophub-6.18-ccache-
 
       - name: Run build in Ubuntu 22.04 container
+        timeout-minutes: 120
         working-directory: ${{ github.workspace }}
         run: |
           pwd

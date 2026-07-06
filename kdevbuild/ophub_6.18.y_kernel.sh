@@ -32,8 +32,14 @@ OUTPUT_DIR="${BUILDER_DIR}/output"
 mkdir -p "$OUTPUT_DIR"
 
 MAKE_ARGS=(ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-)
-KERNEL_JOBS="${KERNEL_JOBS:-8}"
-echo "=== Kernel build parallel jobs: -j${KERNEL_JOBS} ==="
+KERNEL_JOBS_REQUESTED="${KERNEL_JOBS:-8}"
+KERNEL_JOBS_MAX="$(nproc 2>/dev/null || echo 4)"
+if [ "${KERNEL_JOBS_REQUESTED}" -gt "${KERNEL_JOBS_MAX}" ]; then
+  KERNEL_JOBS="${KERNEL_JOBS_MAX}"
+else
+  KERNEL_JOBS="${KERNEL_JOBS_REQUESTED}"
+fi
+echo "=== Kernel build parallel jobs: requested -j${KERNEL_JOBS_REQUESTED}, effective -j${KERNEL_JOBS} (nproc=${KERNEL_JOBS_MAX}) ==="
 if command -v ccache >/dev/null 2>&1; then
   export CCACHE_DIR="${CCACHE_DIR:-${BUILDER_DIR}/.ccache}"
   export CCACHE_MAXSIZE="${CCACHE_MAXSIZE:-5G}"
