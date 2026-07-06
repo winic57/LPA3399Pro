@@ -155,7 +155,17 @@ run_loader_db_if_needed() {
 }
 
 proxy_running() {
-  pgrep -f '(^|/| )npu_transfer_proxy($| )' >/dev/null 2>&1
+  local bin base
+  bin="$TRANSFER_PROXY"
+  base="$(basename "$TRANSFER_PROXY")"
+
+  # Do not use broad `pgrep -f npu_transfer_proxy`: it can match the
+  # current shell/ssh command line when that line contains
+  # "npu_transfer_proxy devices", creating a false "already running".
+  ps -eo args= | awk -v bin="$bin" -v base="$base" '
+    $1 == bin || $1 == base || $1 ~ ("/" base "$") { found = 1 }
+    END { exit found ? 0 : 1 }
+  '
 }
 
 start_transfer_proxy() {
