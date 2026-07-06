@@ -343,6 +343,8 @@
 		status = "okay";
 		ep-gpios = <0x19 0x0c 0x00>;
 		reset-gpios = <0x19 0x0c 0x00>;
+		reset-assert-us = <0x186a0>;
+		reset-deassert-us = <0x186a0>;
 		num-lanes = <0x04>;
 		pinctrl-0 = <0x1a 0xf5>;
 		pinctrl-names = "default";
@@ -597,7 +599,7 @@
 			interrupts = <0x00 0x69 0x04 0x00>;
 			clocks = <0x08 0x81 0x08 0xf6 0x08 0x83>;
 			clock-names = "ref\0bus_early\0suspend";
-			dr_mode = "otg";
+			dr_mode = "host";
 			role-switch-default-mode = "host";
 			phys = <0x32 0x33>;
 			phy-names = "usb2-phy\0usb3-phy";
@@ -641,6 +643,9 @@
 			snps,dis_u2_susphy_quirk;
 			snps,dis-del-phy-power-chg-quirk;
 			snps,dis-tx-ipgap-linecheck-quirk;
+			snps,xhci-slow-suspend-quirk;
+			snps,xhci-trb-ent-quirk;
+			snps,usb3-warm-reset-on-resume-quirk;
 			power-domains = <0x1e 0x18>;
 			status = "okay";
 		};
@@ -2567,6 +2572,8 @@
 		#address-cells = <0x02>;
 		#size-cells = <0x02>;
 		ranges;
+		pinctrl-names = "default";
+		pinctrl-0 = <0xf4>;
 
 		gpio@ff720000 {
 			compatible = "rockchip,gpio-bank";
@@ -3623,13 +3630,14 @@
 	};
 
 	n4-pwren {
-		compatible = "regulator-fixed-clock";
+		compatible = "regulator-fixed-clock", "regulator-fixed";
 		enable-active-high;
 		regulator-always-on;
 		regulator-boot-on;
 		gpio = <0x19 0x09 0x00>;
 		pinctrl-names = "default";
 		pinctrl-0 = <0xf2 0xf4>;
+		startup-delay-us = <0x186a0>;
 		regulator-name = "n4_pwren";
 		clocks = <0x7a 0x08>;
 		clock-names = "enable";
