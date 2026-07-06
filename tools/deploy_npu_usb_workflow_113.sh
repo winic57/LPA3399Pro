@@ -39,6 +39,7 @@ echo "== upload scripts =="
   "${ROOT_DIR}/tools/npu_transfer_proxy_launcher.sh" \
   "${ROOT_DIR}/tools/npu_mainline_usb_ntb_boot.sh" \
   "${ROOT_DIR}/tools/npu_mainline_usb_ntb_check.sh" \
+  "${ROOT_DIR}/tools/npu_usb_loader_rs_rknn_pipeline.sh" \
   "${ROOT_DIR}/configs/npu/npu_startup.sh" \
   "${TARGET}:/tmp/"
 
@@ -54,6 +55,7 @@ install -m 0755 /tmp/npu_powerctrl_gpiod.sh /usr/local/bin/npu_powerctrl-gpiod
 install -m 0755 /tmp/npu_transfer_proxy_launcher.sh /usr/local/bin/npu_transfer_proxy_launcher.sh
 install -m 0755 /tmp/npu_mainline_usb_ntb_boot.sh /usr/local/bin/npu_mainline_usb_ntb_boot.sh
 install -m 0755 /tmp/npu_mainline_usb_ntb_check.sh /usr/local/bin/npu_mainline_usb_ntb_check.sh
+install -m 0755 /tmp/npu_usb_loader_rs_rknn_pipeline.sh /usr/local/bin/npu_usb_loader_rs_rknn_pipeline.sh
 install -m 0755 /tmp/npu_startup.sh /usr/local/bin/npu_startup.sh
 install -m 0644 /tmp/npu_transfer_proxy.service /etc/systemd/system/npu_transfer_proxy.service
 install -m 0644 /tmp/npu-usb-workflow.env /etc/default/npu-usb-workflow
@@ -83,6 +85,11 @@ PCIE_HOST_REBIND_AFTER_POWER=1
 PCIE_HOST_REBIND_WAIT_SEC=5
 CONF
 and then restart the service again.
+
+Main USB validation pipeline with monitoring and tunable parameters:
+  FW_DIR=/usr/share/npu_fw FW_PROFILE=normal DB_POLICY=require-maskrom POWER_FORCE_OFF_FIRST=1 WRITE_IMAGES_BEFORE_RS=1 \
+  /usr/local/bin/npu_usb_loader_rs_rknn_pipeline.sh
+Set RUN_RKNN=1 RKNN_CMD='...' after USB_DEVICE is confirmed.
 EOF
 
 echo "== restart service and collect status =="
