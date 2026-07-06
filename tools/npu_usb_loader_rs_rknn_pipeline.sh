@@ -9,20 +9,24 @@ ENV_FILE=${ENV_FILE:-/etc/default/npu-usb-workflow}
 # Preserve explicit command-line environment overrides before sourcing ENV_FILE.
 # /etc/default/npu-usb-workflow contains service defaults; interactive A/B runs
 # must be able to override them with `VAR=value npu_usb_loader_rs_rknn_pipeline.sh`.
-for _npu_var in   BOOT_SCRIPT CHECK_SCRIPT NPU_POWERCTRL TRANSFER_PROXY TRANSFER_PROXY_LAUNCHER UPGRADE_TOOL   LOG_DIR RUN_ID LOG_FILE SNAP_DMESG_LINES USB_FW_DIR USB_FW_PROFILE DB_POLICY   POWER_INIT_FIRST POWER_FORCE_OFF_FIRST POWER_OFF_SETTLE_SEC POWER_ON_SETTLE_SEC   WRITE_IMAGES_BEFORE_RS START_PROXY RS_STRICT POST_RS_WAIT_SEC RS_TIMEOUT   UBOOT_ADDR TRUST_ADDR BOOT_ADDR WAIT_USB3_TIMEOUT_SEC WAIT_USB3_POLL_SEC   EXPECT_USB_ID EXPECT_PROXY_DEVICE WAIT_PROXY_TIMEOUT_SEC WAIT_PROXY_POLL_SEC   RESTART_PROXY RUN_RKNN RKNN_TIMEOUT_SEC RKNN_CMD RKNN_PYTHONPATH   RKNN_LD_LIBRARY_PATH FAIL_ON_NO_USB3 FAIL_ON_NO_USB_DEVICE DUMP_PCIE_DEBUGFS   SET_PCIE_DMA_SAFE; do
-  eval "_npu_pre_${_npu_var}=\${${_npu_var}__NPU_UNSET__}"
+NPU_ENV_OVERRIDE_VARS="BOOT_SCRIPT CHECK_SCRIPT NPU_POWERCTRL TRANSFER_PROXY TRANSFER_PROXY_LAUNCHER UPGRADE_TOOL LOG_DIR RUN_ID LOG_FILE SNAP_DMESG_LINES USB_FW_DIR USB_FW_PROFILE DB_POLICY POWER_INIT_FIRST POWER_FORCE_OFF_FIRST POWER_OFF_SETTLE_SEC POWER_ON_SETTLE_SEC WRITE_IMAGES_BEFORE_RS START_PROXY RS_STRICT POST_RS_WAIT_SEC RS_TIMEOUT POST_RS_USB_REBIND POST_RS_USB_REBIND_DELAY_SEC POST_RS_USB_REBIND_DRIVER POST_RS_USB_REBIND_DEVICES POST_RS_DWC3_REBIND POST_RS_DWC3_REBIND_DRIVER POST_RS_DWC3_REBIND_DEVICES POST_RS_USBDEV_RESCAN POST_RS_USBDEV_RESCAN_DELAY_SEC UBOOT_ADDR TRUST_ADDR BOOT_ADDR WAIT_USB3_TIMEOUT_SEC WAIT_USB3_POLL_SEC EXPECT_USB_ID EXPECT_PROXY_DEVICE WAIT_PROXY_TIMEOUT_SEC WAIT_PROXY_POLL_SEC RESTART_PROXY RUN_RKNN RKNN_TIMEOUT_SEC RKNN_CMD RKNN_PYTHONPATH RKNN_LD_LIBRARY_PATH FAIL_ON_NO_USB3 FAIL_ON_NO_USB_DEVICE DUMP_PCIE_DEBUGFS SET_PCIE_DMA_SAFE"
+declare -A _npu_pre_set _npu_pre_val
+for _npu_var in $NPU_ENV_OVERRIDE_VARS; do
+  if [ "${!_npu_var+x}" = x ]; then
+    _npu_pre_set[$_npu_var]=1
+    _npu_pre_val[$_npu_var]="${!_npu_var}"
+  fi
 done
 if [ -r "$ENV_FILE" ]; then
   # shellcheck disable=SC1090
   set -a; . "$ENV_FILE"; set +a
 fi
-for _npu_var in   BOOT_SCRIPT CHECK_SCRIPT NPU_POWERCTRL TRANSFER_PROXY TRANSFER_PROXY_LAUNCHER UPGRADE_TOOL   LOG_DIR RUN_ID LOG_FILE SNAP_DMESG_LINES USB_FW_DIR USB_FW_PROFILE DB_POLICY   POWER_INIT_FIRST POWER_FORCE_OFF_FIRST POWER_OFF_SETTLE_SEC POWER_ON_SETTLE_SEC   WRITE_IMAGES_BEFORE_RS START_PROXY RS_STRICT POST_RS_WAIT_SEC RS_TIMEOUT   UBOOT_ADDR TRUST_ADDR BOOT_ADDR WAIT_USB3_TIMEOUT_SEC WAIT_USB3_POLL_SEC   EXPECT_USB_ID EXPECT_PROXY_DEVICE WAIT_PROXY_TIMEOUT_SEC WAIT_PROXY_POLL_SEC   RESTART_PROXY RUN_RKNN RKNN_TIMEOUT_SEC RKNN_CMD RKNN_PYTHONPATH   RKNN_LD_LIBRARY_PATH FAIL_ON_NO_USB3 FAIL_ON_NO_USB_DEVICE DUMP_PCIE_DEBUGFS   SET_PCIE_DMA_SAFE; do
-  eval "_npu_val=\${_npu_pre_${_npu_var}}"
-  if [ "$_npu_val" != "__NPU_UNSET__" ]; then
-    export "$_npu_var=$_npu_val"
+for _npu_var in $NPU_ENV_OVERRIDE_VARS; do
+  if [ "${_npu_pre_set[$_npu_var]:-0}" = 1 ]; then
+    export "$_npu_var=${_npu_pre_val[$_npu_var]}"
   fi
 done
-unset _npu_var _npu_val
+unset _npu_var
 
 BOOT_SCRIPT=${BOOT_SCRIPT:-/usr/local/bin/npu_mainline_usb_ntb_boot.sh}
 CHECK_SCRIPT=${CHECK_SCRIPT:-/usr/local/bin/npu_mainline_usb_ntb_check.sh}
@@ -50,6 +54,15 @@ export WRITE_IMAGES_BEFORE_RS=${WRITE_IMAGES_BEFORE_RS:-1}
 export START_PROXY=${START_PROXY:-0}
 export RS_STRICT=${RS_STRICT:-0}
 export POST_RS_WAIT_SEC=${POST_RS_WAIT_SEC:-8}
+export POST_RS_USB_REBIND=${POST_RS_USB_REBIND:-0}
+export POST_RS_USB_REBIND_DELAY_SEC=${POST_RS_USB_REBIND_DELAY_SEC:-0}
+export POST_RS_USB_REBIND_DRIVER=${POST_RS_USB_REBIND_DRIVER:-xhci-hcd}
+export POST_RS_USB_REBIND_DEVICES="${POST_RS_USB_REBIND_DEVICES:-xhci-hcd.0.auto xhci-hcd.8.auto}"
+export POST_RS_DWC3_REBIND=${POST_RS_DWC3_REBIND:-0}
+export POST_RS_DWC3_REBIND_DRIVER=${POST_RS_DWC3_REBIND_DRIVER:-dwc3}
+export POST_RS_DWC3_REBIND_DEVICES="${POST_RS_DWC3_REBIND_DEVICES:-fe800000.usb fe900000.usb}"
+export POST_RS_USBDEV_RESCAN=${POST_RS_USBDEV_RESCAN:-0}
+export POST_RS_USBDEV_RESCAN_DELAY_SEC=${POST_RS_USBDEV_RESCAN_DELAY_SEC:-0}
 export RS_TIMEOUT=${RS_TIMEOUT:-90}
 export UBOOT_ADDR=${UBOOT_ADDR:-0x40000}
 export TRUST_ADDR=${TRUST_ADDR:-0x40800}
@@ -142,6 +155,58 @@ snapshot() {
   dmesg | grep -Ei 'usb|2207|180a|0019|1005|firmware changed|SuperSpeed|ntb|rknn|npu|pcie|dma|error -71|disconnect' | tail -n "$SNAP_DMESG_LINES" || true
 }
 
+post_rs_usb_recover() {
+  local dev driver
+
+  if [ "$POST_RS_USBDEV_RESCAN" = 1 ]; then
+    log "post-rs USB authorized toggle delay=${POST_RS_USBDEV_RESCAN_DELAY_SEC}s"
+    sleep "$POST_RS_USBDEV_RESCAN_DELAY_SEC"
+    for dev in /sys/bus/usb/devices/*/authorized; do
+      [ -w "$dev" ] || continue
+      echo 0 > "$dev" 2>/dev/null || true
+      sleep 0.1
+      echo 1 > "$dev" 2>/dev/null || true
+    done
+    sleep 2
+    snapshot "after_post_rs_usbdev_rescan"
+  fi
+
+  if [ "$POST_RS_USB_REBIND" = 1 ]; then
+    log "post-rs xHCI rebind delay=${POST_RS_USB_REBIND_DELAY_SEC}s driver=${POST_RS_USB_REBIND_DRIVER} devices=${POST_RS_USB_REBIND_DEVICES}"
+    sleep "$POST_RS_USB_REBIND_DELAY_SEC"
+    driver="/sys/bus/platform/drivers/${POST_RS_USB_REBIND_DRIVER}"
+    if [ -w "$driver/unbind" ] && [ -w "$driver/bind" ]; then
+      for dev in $POST_RS_USB_REBIND_DEVICES; do
+        [ -e "$driver/$dev" ] || { echo "WARN: missing $driver/$dev"; continue; }
+        echo "$dev" > "$driver/unbind" 2>/dev/null || true
+        sleep 1
+        echo "$dev" > "$driver/bind" 2>/dev/null || true
+        sleep 3
+      done
+    else
+      echo "WARN: missing bind/unbind for $driver"
+    fi
+    snapshot "after_post_rs_xhci_rebind"
+  fi
+
+  if [ "$POST_RS_DWC3_REBIND" = 1 ]; then
+    log "post-rs DWC3 rebind driver=${POST_RS_DWC3_REBIND_DRIVER} devices=${POST_RS_DWC3_REBIND_DEVICES}"
+    driver="/sys/bus/platform/drivers/${POST_RS_DWC3_REBIND_DRIVER}"
+    if [ -w "$driver/unbind" ] && [ -w "$driver/bind" ]; then
+      for dev in $POST_RS_DWC3_REBIND_DEVICES; do
+        [ -e "$driver/$dev" ] || { echo "WARN: missing $driver/$dev"; continue; }
+        echo "$dev" > "$driver/unbind" 2>/dev/null || true
+        sleep 1
+        echo "$dev" > "$driver/bind" 2>/dev/null || true
+        sleep 4
+      done
+    else
+      echo "WARN: missing bind/unbind for $driver"
+    fi
+    snapshot "after_post_rs_dwc3_rebind"
+  fi
+}
+
 wait_for_usb3() {
   local i out
   log "WAIT USB3 ${EXPECT_USB_ID} timeout=${WAIT_USB3_TIMEOUT_SEC}s"
@@ -227,6 +292,7 @@ main() {
   local boot_rc=$?
   echo "BOOT_SCRIPT_RC=$boot_rc"
   snapshot "after_boot_script_rs"
+  post_rs_usb_recover
 
   wait_for_usb3 || usb_rc=$?
   snapshot "after_usb3_wait"
