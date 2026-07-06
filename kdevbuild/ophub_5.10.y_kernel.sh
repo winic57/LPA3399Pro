@@ -60,9 +60,9 @@ if [ -f ${BUILDER_DIR}/kernel-5.10/config-5.10 ];then
   cp -a ${BUILDER_DIR}/kernel-5.10/config-5.10 .config
 fi
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) dtbs
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j4 Image
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j4 modules
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j4 dtbs
 cp arch/arm64/boot/Image $OUTPUT_DIR/
 mkdir -p dtbs
 find . -name "rk3399*.dtb" | xargs -i cp {} dtbs/

@@ -94,7 +94,7 @@ sed -i 's/^CONFIG_CLK_IMX93=y/# CONFIG_CLK_IMX93 is not set/' .config
 make "${MAKE_ARGS[@]}" olddefconfig
 
 echo "=== DTB-only: building dtbs ==="
-make "${MAKE_ARGS[@]}" -j"$(nproc)" dtbs
+make "${MAKE_ARGS[@]}" -j4 dtbs
 
 echo "=== DTB-only: collecting RK3399 DTBs ==="
 rm -rf dtbs

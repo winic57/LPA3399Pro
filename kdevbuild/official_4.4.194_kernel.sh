@@ -71,14 +71,14 @@ make ARCH=arm64 \
   KBUILD_BUILD_HOST="kdevbuilder" \
   LOCALVERSION=-kdev \
   rk3399pro-toybrick-prod-linux.img \
-  -j$(nproc)
+  -j4
 
 make ARCH=arm64 \
   CROSS_COMPILE=aarch64-linux-gnu- \
   KBUILD_BUILD_USER="builder" \
   KBUILD_BUILD_HOST="kdevbuilder" \
   LOCALVERSION=-kdev \
-  modules -j$(nproc)
+  modules -j4
 
 make ARCH=arm64 \
   CROSS_COMPILE=aarch64-linux-gnu- \

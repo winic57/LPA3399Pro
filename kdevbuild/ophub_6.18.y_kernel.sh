@@ -139,7 +139,7 @@ make "${MAKE_ARGS[@]}" olddefconfig 2>&1 | tee /tmp/olddefconfig.log
 
 BUILD_LOG="/tmp/kernel_build.log"
 echo "=== Building Image (logging to ${BUILD_LOG}) ==="
-make "${MAKE_ARGS[@]}" -j$(nproc) Image 2>&1 | tee "${BUILD_LOG}" || {
+make "${MAKE_ARGS[@]}" -j4 Image 2>&1 | tee "${BUILD_LOG}" || {
   echo ""
   echo "========== BUILD FAILED =========="
   echo "=== Extracting error lines from build log ==="
@@ -154,7 +154,7 @@ make "${MAKE_ARGS[@]}" -j$(nproc) Image 2>&1 | tee "${BUILD_LOG}" || {
 }
 
 echo "=== Building modules ==="
-make "${MAKE_ARGS[@]}" -j$(nproc) modules 2>&1 | tee "${BUILD_LOG}" || {
+make "${MAKE_ARGS[@]}" -j4 modules 2>&1 | tee "${BUILD_LOG}" || {
   echo ""
   echo "========== MODULES BUILD FAILED =========="
   echo "=== Extracting error lines ==="
@@ -166,7 +166,7 @@ make "${MAKE_ARGS[@]}" -j$(nproc) modules 2>&1 | tee "${BUILD_LOG}" || {
 }
 
 echo "=== Building dtbs ==="
-make "${MAKE_ARGS[@]}" -j$(nproc) dtbs
+make "${MAKE_ARGS[@]}" -j4 dtbs
 
 echo "=== Collecting output ==="
 cp arch/arm64/boot/Image "$OUTPUT_DIR/"
