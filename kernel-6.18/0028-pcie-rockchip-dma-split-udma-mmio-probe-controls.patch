@@ -1,0 +1,249 @@
+From 001c07f6939edaac87445b19546bda257d037d97 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Tue, 7 Jul 2026 23:09:38 +0800
+Subject: [PATCH] pcie-rockchip-dma: split UDMA MMIO probe controls
+
+Add a conservative dma_mmio_probe_mask mode that sits between 0027 dry-run no-MMIO and the older dma_program_only path. The mask allows one-shot testing of individual UDMA reads and descriptor writes without ever starting DMA ctrl.
+
+The mode defaults to disabled and uses dma_mmio_probe_limit=1 when enabled, so RKNN/proxy can trigger a single selected MMIO step and all later queued chunks fall back to no-MMIO finish. This helps isolate whether the hard hang is caused by UDMA status/enable/ctrl reads or desc_lo/desc_hi writes.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 123 ++++++++++++++++++++-
+ drivers/pci/controller/pcie-rockchip-dma.h |  22 ++++
+ 2 files changed, 143 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index d1337d4d6..5d69ce6ba 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -79,6 +79,8 @@ static const char *rk_pcie_dma_irq_kind_name(u32 kind)
+ 		return "program_only";
+ 	case PCIE_DMA_IRQ_TRACE_DRY_RUN:
+ 		return "dry_run";
++	case PCIE_DMA_IRQ_TRACE_MMIO_PROBE:
++		return "mmio_probe";
+ 	default:
+ 		return "unknown";
+ 	}
+@@ -345,6 +347,108 @@ static int rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ 		return -EINPROGRESS;
+ 	}
+ 
++	if (READ_ONCE(obj->dma_mmio_probe_mask)) {
++		u32 probe_mask = READ_ONCE(obj->dma_mmio_probe_mask) &
++				 PCIE_DMA_MMIO_PROBE_SAFE_MASK;
++		u32 probe_limit = READ_ONCE(obj->dma_mmio_probe_limit);
++		u32 reset_seq = READ_ONCE(obj->dma_mmio_probe_reset_seq);
++
++		if (obj->dma_mmio_probe_seen_reset_seq != reset_seq) {
++			obj->dma_mmio_probe_count = 0;
++			obj->dma_mmio_probe_skip_count = 0;
++			obj->dma_mmio_probe_seen_reset_seq = reset_seq;
++		}
++
++		if (!probe_limit)
++			probe_limit = 1;
++
++		tr->flags |= PCIE_DMA_START_F_MMIO_PROBE |
++			     (probe_mask << PCIE_DMA_START_F_MMIO_PROBE_MASK_SHIFT);
++
++		if (obj->dma_mmio_probe_count >= probe_limit) {
++			tr->stage = PCIE_DMA_START_STAGE_MMIO_PROBE_LIMIT;
++			tr->flags |= PCIE_DMA_START_F_MMIO_PROBE_LIMIT;
++			obj->dma_mmio_probe_skip_count++;
++			obj->dma_start_blocked_count++;
++			obj->dma_abort_count++;
++			rk_pcie_dma_record_reg_trace(rockchip, obj,
++						     PCIE_DMA_IRQ_TRACE_MMIO_PROBE,
++						     obj->last_dma_status);
++			dev_warn_ratelimited(obj->dev,
++					     "pcie dma mmio-probe limit: mask=0x%x count=%lu limit=%u no MMIO desc=%08x:%08x\n",
++					     probe_mask, obj->dma_mmio_probe_count,
++					     probe_limit, tr->desc_hi, tr->desc_lo);
++			rk_pcie_dma_finish_no_start(obj);
++			return -EINPROGRESS;
++		}
++
++		obj->dma_mmio_probe_count++;
++		obj->dma_start_blocked_count++;
++		obj->dma_abort_count++;
++		tr->stage = PCIE_DMA_START_STAGE_MMIO_PROBE;
++
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_READ_STATUS) {
++			before_status = rockchip_pcie_read(rockchip,
++							   PCIE_APB_CORE_UDMA_BASE +
++							   PCIE_UDMA_INT_REG);
++			tr->before_status = before_status;
++			obj->last_dma_status = before_status;
++		}
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_READ_ENABLE) {
++			before_enable = rockchip_pcie_read(rockchip,
++							   PCIE_APB_CORE_UDMA_BASE +
++							   PCIE_UDMA_INT_ENABLE_REG);
++			tr->before_enable = before_enable;
++			obj->last_udma_enable = before_enable;
++		}
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_READ_CTRL) {
++			before_ctrl = rockchip_pcie_read(rockchip, base + 0x00);
++			tr->before_ctrl = before_ctrl;
++			obj->last_udma_ctrl = before_ctrl;
++		}
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_WRITE_DESC_LO) {
++			rockchip_pcie_write(rockchip, lower_32_bits(tbl->desc_dma),
++					    base + 0x04);
++			obj->last_udma_desc_lo = lower_32_bits(tbl->desc_dma);
++		}
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_WRITE_DESC_HI) {
++			rockchip_pcie_write(rockchip, upper_32_bits(tbl->desc_dma),
++					    base + 0x08);
++			obj->last_udma_desc_hi = upper_32_bits(tbl->desc_dma);
++		}
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_READ_AFTER_STATUS) {
++			after_status = rockchip_pcie_read(rockchip,
++							  PCIE_APB_CORE_UDMA_BASE +
++							  PCIE_UDMA_INT_REG);
++			tr->after_status = after_status;
++			obj->last_dma_status = after_status;
++		}
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_READ_AFTER_ENABLE) {
++			after_enable = rockchip_pcie_read(rockchip,
++							  PCIE_APB_CORE_UDMA_BASE +
++							  PCIE_UDMA_INT_ENABLE_REG);
++			tr->after_enable = after_enable;
++			obj->last_udma_enable = after_enable;
++		}
++		if (probe_mask & PCIE_DMA_MMIO_PROBE_READ_AFTER_CTRL) {
++			after_ctrl = rockchip_pcie_read(rockchip, base + 0x00);
++			tr->after_ctrl = after_ctrl;
++			obj->last_udma_ctrl = after_ctrl;
++		}
++
++		rk_pcie_dma_record_irq_trace(rockchip, obj,
++					     PCIE_DMA_IRQ_TRACE_MMIO_PROBE,
++					     obj->last_dma_status);
++		dev_warn_ratelimited(obj->dev,
++				     "pcie dma mmio-probe: mask=0x%x count=%lu limit=%u no ctrl start type=%u desc=%08x:%08x before=%x/%x/%x after=%x/%x/%x\n",
++				     probe_mask, obj->dma_mmio_probe_count, probe_limit,
++				     tr->type, tr->desc_hi, tr->desc_lo,
++				     tr->before_status, tr->before_enable, tr->before_ctrl,
++				     tr->after_status, tr->after_enable, tr->after_ctrl);
++		rk_pcie_dma_finish_no_start(obj);
++		return -EINPROGRESS;
++	}
++
+ 	before_status = rockchip_pcie_read(rockchip,
+ 					   PCIE_APB_CORE_UDMA_BASE +
+ 					   PCIE_UDMA_INT_REG);
+@@ -1402,6 +1506,13 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_dry_run_no_mmio_count,
+ 		   dma_obj->dma_start_blocked_count,
+ 		   dma_obj->dma_preflight_fail_count);
++	seq_printf(s,
++		   "mmio_probe: mask = 0x%x, limit = %u, reset_seq = %u/%u, count = %lu, skip = %lu, bits = status:0x1 enable:0x2 ctrl:0x4 desc_lo:0x8 desc_hi:0x10 after_status:0x20 after_enable:0x40 after_ctrl:0x80\n",
++		   dma_obj->dma_mmio_probe_mask, dma_obj->dma_mmio_probe_limit,
++		   dma_obj->dma_mmio_probe_reset_seq,
++		   dma_obj->dma_mmio_probe_seen_reset_seq,
++		   dma_obj->dma_mmio_probe_count,
++		   dma_obj->dma_mmio_probe_skip_count);
+ 	seq_printf(s,
+ 		   "client_status = 0x%x, client_mask = 0x%x, core_status = 0x%x, core_mask = 0x%x\n",
+ 		   dma_obj->last_client_status, dma_obj->last_client_mask,
+@@ -1686,6 +1797,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_irq_sample_period_ms = PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS;
+ 	obj->dma_reg_trace_enable = true;
+ 	obj->dma_reg_trace_live_mmio = false;
++	obj->dma_mmio_probe_limit = 1;
+ 	obj->dma_preflight_validate = true;
+ 	obj->dma_disabled = true;
+ 	if (of_property_read_bool(dev->of_node, "rockchip,pcie-dma-enabled"))
+@@ -1741,6 +1853,12 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			    &obj->dma_program_only);
+ 	debugfs_create_bool("dma_dry_run_no_mmio", 0600, obj->pcie_root,
+ 			    &obj->dma_dry_run_no_mmio);
++	debugfs_create_u32("dma_mmio_probe_mask", 0600, obj->pcie_root,
++			   &obj->dma_mmio_probe_mask);
++	debugfs_create_u32("dma_mmio_probe_limit", 0600, obj->pcie_root,
++			   &obj->dma_mmio_probe_limit);
++	debugfs_create_u32("dma_mmio_probe_reset_seq", 0600, obj->pcie_root,
++			   &obj->dma_mmio_probe_reset_seq);
+ 	debugfs_create_u32("dma_start_once_limit", 0600, obj->pcie_root,
+ 			   &obj->dma_start_once_limit);
+ 	debugfs_create_bool("dma_no_queue_after_start", 0600, obj->pcie_root,
+@@ -1758,10 +1876,11 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+-		 obj->dma_dry_run_no_mmio, obj->dma_start_once_limit,
++		 obj->dma_dry_run_no_mmio, obj->dma_mmio_probe_mask,
++		 obj->dma_mmio_probe_limit, obj->dma_start_once_limit,
+ 		 obj->dma_preflight_validate, obj->dma_irq_sample_period_ms,
+ 		 obj->dma_reg_trace_enable, obj->dma_reg_trace_live_mmio);
+ 	return obj;
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 6384d90dd..a63f0db40 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -47,6 +47,7 @@
+ #define PCIE_DMA_IRQ_TRACE_SAMPLE		9
+ #define PCIE_DMA_IRQ_TRACE_PROGRAM_ONLY	10
+ #define PCIE_DMA_IRQ_TRACE_DRY_RUN		11
++#define PCIE_DMA_IRQ_TRACE_MMIO_PROBE	12
+ 
+ #define PCIE_DMA_START_STAGE_INIT		0
+ #define PCIE_DMA_START_STAGE_PREFLIGHT_FAIL	1
+@@ -58,6 +59,8 @@
+ #define PCIE_DMA_START_STAGE_CTRL_PRE		7
+ #define PCIE_DMA_START_STAGE_CTRL_POST		8
+ #define PCIE_DMA_START_STAGE_DONE		9
++#define PCIE_DMA_START_STAGE_MMIO_PROBE	10
++#define PCIE_DMA_START_STAGE_MMIO_PROBE_LIMIT	11
+ 
+ #define PCIE_DMA_START_F_PROGRAM_ONLY		BIT(0)
+ #define PCIE_DMA_START_F_LIMIT_BLOCKED		BIT(1)
+@@ -65,6 +68,19 @@
+ #define PCIE_DMA_START_F_PREFLIGHT_FAIL		BIT(3)
+ #define PCIE_DMA_START_F_NO_QUEUE_AFTER		BIT(4)
+ #define PCIE_DMA_START_F_DRY_RUN_NO_MMIO	BIT(5)
++#define PCIE_DMA_START_F_MMIO_PROBE		BIT(6)
++#define PCIE_DMA_START_F_MMIO_PROBE_LIMIT	BIT(7)
++#define PCIE_DMA_START_F_MMIO_PROBE_MASK_SHIFT	16
++
++#define PCIE_DMA_MMIO_PROBE_READ_STATUS		BIT(0)
++#define PCIE_DMA_MMIO_PROBE_READ_ENABLE		BIT(1)
++#define PCIE_DMA_MMIO_PROBE_READ_CTRL		BIT(2)
++#define PCIE_DMA_MMIO_PROBE_WRITE_DESC_LO	BIT(3)
++#define PCIE_DMA_MMIO_PROBE_WRITE_DESC_HI	BIT(4)
++#define PCIE_DMA_MMIO_PROBE_READ_AFTER_STATUS	BIT(5)
++#define PCIE_DMA_MMIO_PROBE_READ_AFTER_ENABLE	BIT(6)
++#define PCIE_DMA_MMIO_PROBE_READ_AFTER_CTRL	BIT(7)
++#define PCIE_DMA_MMIO_PROBE_SAFE_MASK		GENMASK(7, 0)
+ 
+ struct dma_ioctl_trace {
+ 	unsigned long	seq;
+@@ -290,12 +306,18 @@ struct dma_trx_obj {
+ 	struct dma_reg_trace	reg_trace[PCIE_DMA_REG_TRACE_LEN];
+ 	bool				dma_program_only;
+ 	bool				dma_dry_run_no_mmio;
++	u32				dma_mmio_probe_mask;
++	u32				dma_mmio_probe_limit;
++	u32				dma_mmio_probe_reset_seq;
++	u32				dma_mmio_probe_seen_reset_seq;
+ 	u32				dma_start_once_limit;
+ 	bool				dma_no_queue_after_start;
+ 	bool				dma_preflight_validate;
+ 	unsigned long			dma_real_start_count;
+ 	unsigned long			dma_program_only_count;
+ 	unsigned long			dma_dry_run_no_mmio_count;
++	unsigned long			dma_mmio_probe_count;
++	unsigned long			dma_mmio_probe_skip_count;
+ 	unsigned long			dma_start_blocked_count;
+ 	unsigned long			dma_preflight_fail_count;
+ 	bool				dma_poll_done_fallback;
+-- 
+2.43.0
+
