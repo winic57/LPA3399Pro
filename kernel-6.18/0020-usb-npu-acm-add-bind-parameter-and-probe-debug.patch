@@ -1,0 +1,103 @@
+diff --git a/drivers/usb/misc/npu-acm.c b/drivers/usb/misc/npu-acm.c
+index 9f00bd170..498e03139 100644
+--- a/drivers/usb/misc/npu-acm.c
++++ b/drivers/usb/misc/npu-acm.c
+@@ -101,6 +101,14 @@ struct acm {
+ 
+ static struct usb_driver npu_acm_driver;
+ static struct acm *npu_acm;
++static bool npu_acm_bind = true;
++static bool npu_acm_verbose = true;
++static unsigned int npu_acm_probe_count;
++
++module_param_named(bind, npu_acm_bind, bool, 0644);
++MODULE_PARM_DESC(bind, "Bind 2207:1005; set 0 for user-space proxy/libusb");
++module_param_named(verbose, npu_acm_verbose, bool, 0644);
++MODULE_PARM_DESC(verbose, "Print NPU ACM probe/endpoint state");
+ 
+ /*
+  * Functions for ACM control messages.
+@@ -734,9 +742,30 @@ static int npu_acm_probe(struct usb_interface *intf,
+ 	unsigned int elength = 0;
+ 	unsigned int pipe;
+ 	int rv = -ENOMEM;
++	unsigned int probe_id = ++npu_acm_probe_count;
++
++	if (npu_acm_verbose)
++		dev_info(&intf->dev,
++			 "npu_ACM probe#%u vid:pid=%04x:%04x if=%u alt=%u eps=%u bind=%d\n",
++			 probe_id, le16_to_cpu(usb_dev->descriptor.idVendor),
++			 le16_to_cpu(usb_dev->descriptor.idProduct),
++			 intf->cur_altsetting->desc.bInterfaceNumber,
++			 intf->cur_altsetting->desc.bAlternateSetting,
++			 intf->cur_altsetting->desc.bNumEndpoints, npu_acm_bind);
++
++	if (!npu_acm_bind) {
++		dev_info(&intf->dev,
++			 "npu_ACM probe#%u skipped by bind=0; leaving device for user space\n",
++			 probe_id);
++		return -ENODEV;
++	}
+ 
+-	if (npu_acm)
++	if (npu_acm) {
++		dev_info(&intf->dev,
++			 "npu_ACM probe#%u skipped: existing instance is active\n",
++			 probe_id);
+ 		return -ENODEV;
++	}
+ 
+ 	num_rx_buf = ACM_NR;
+ 	/* normal probing*/
+@@ -852,6 +881,12 @@ static int npu_acm_probe(struct usb_interface *intf,
+ 	epwrite = &data_interface->cur_altsetting->endpoint[1].desc;
+ 
+ 	dev_dbg(&intf->dev, "interfaces are valid\n");
++	if (npu_acm_verbose)
++		dev_info(&intf->dev,
++			 "npu_ACM probe#%u ctl_if=%d data_if=%d epctrl=0x%02x epread=0x%02x epwrite=0x%02x\n",
++			 probe_id, union_header->bMasterInterface0,
++			 union_header->bSlaveInterface0, epctrl->bEndpointAddress,
++			 epread->bEndpointAddress, epwrite->bEndpointAddress);
+ 
+ 	acm = kzalloc(sizeof(*acm), GFP_KERNEL);
+ 	if (!acm)
+@@ -955,12 +990,23 @@ static int npu_acm_probe(struct usb_interface *intf,
+ 	acm->ctrlurb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 	acm->ctrlurb->transfer_dma = acm->ctrl_dma;
+ 
+-	dev_info(&intf->dev, "npu_ACM: USB ACM device\n");
++	dev_info(&intf->dev,
++		 "npu_ACM: USB ACM device probe#%u readsize=%u writesize=%u ctrl=%u rx_bufs=%d\n",
++		 probe_id, acm->readsize, acm->writesize, acm->ctrlsize,
++		 num_rx_buf);
+ 
+ 	acm->line.dwDTERate = cpu_to_le32(1500000);
+ 	acm->line.bDataBits = 8;
+-	acm_set_line(acm, &acm->line);
+-	usb_driver_claim_interface(&npu_acm_driver, data_interface, acm);
++	rv = acm_set_line(acm, &acm->line);
++	if (rv)
++		dev_warn(&intf->dev,
++			 "npu_ACM probe#%u SET_LINE_CODING failed: %d\n",
++			 probe_id, rv);
++	rv = usb_driver_claim_interface(&npu_acm_driver, data_interface, acm);
++	if (rv)
++		dev_warn(&intf->dev,
++			 "npu_ACM probe#%u claim data interface failed: %d\n",
++			 probe_id, rv);
+ 	usb_set_intfdata(data_interface, acm);
+ 
+ 	usb_get_intf(control_interface);
+@@ -1006,7 +1052,10 @@ static void npu_acm_disconnect(struct usb_interface *intf)
+ 	struct usb_device *usb_dev = interface_to_usbdev(intf);
+ 	int i;
+ 
+-	dev_dbg(&intf->dev, "%s\n", __func__);
++	dev_info(&intf->dev, "npu_ACM disconnect vid:pid=%04x:%04x if=%u\n",
++		 le16_to_cpu(usb_dev->descriptor.idVendor),
++		 le16_to_cpu(usb_dev->descriptor.idProduct),
++		 intf->cur_altsetting->desc.bInterfaceNumber);
+ 
+ 	/* sibling interface is already cleaning up */
+ 	if (!acm)
