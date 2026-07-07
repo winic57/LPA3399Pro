@@ -1,0 +1,785 @@
+From 0000000000000000000000000000000000000021 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Tue, 7 Jul 2026 17:20:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: add kernel-side trace and poll fallback
+
+Add low-overhead kernel-side trace rings for the RK3399Pro NPU PCIe DMA
+path so that /dev/pcie-dev userspace transactions can be compared against
+vendor 4.4 and the .129 golden PCIe flow without live MMIO reads from
+DebugFS.
+
+The trace extension records:
+- raw 20-byte ioctl payloads before/after handling;
+- scan timer DATA/ACK/FREE_ACK/queue events;
+- UDMA start register snapshots before/after descriptor kick;
+- IRQ/timeout/poll-fallback status snapshots.
+
+Keep the default runtime-safe state as dma_disabled=1 unless DT explicitly
+sets rockchip,pcie-dma-enabled.  Add an opt-in debugfs
+`dma_poll_done_fallback` knob that polls the UDMA interrupt status bit and
+calls the normal done/abort wake-up path when the hardware
+completion bit is latched but no interrupt reaches the host.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 341 +++++++++++++++++++++++++----
+ drivers/pci/controller/pcie-rockchip-dma.h | 117 +++++++++-
+ 2 files changed, 414 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 77e15e3..2660120 100755
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -72,18 +72,94 @@ static void rk_pcie_dma_snapshot_regs(struct dma_trx_obj *obj)
+ 	rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
+ }
+ 
++static void rk_pcie_dma_record_scan(struct dma_trx_obj *obj, u32 event, u32 idx,
++				    u32 sdv, u32 data_idx, u32 sav, u32 suv,
++				    bool need_ack)
++{
++	struct dma_scan_trace *tr;
++	u32 head;
++
++	if (!obj)
++		return;
++
++	obj->scan_trace_count++;
++	head = obj->scan_trace_head++ & (PCIE_DMA_SCAN_TRACE_LEN - 1);
++	tr = &obj->scan_trace[head];
++
++	tr->seq = obj->scan_trace_count;
++	tr->ts_ns = ktime_get_ns();
++	tr->event = event;
++	tr->idx = idx;
++	tr->sdv = sdv;
++	tr->data_idx = data_idx;
++	tr->sav = sav;
++	tr->suv = suv;
++	tr->lwa = (u32)obj->local_write_available;
++	tr->rwa = (u32)obj->remote_write_available;
++	tr->lra = (u32)obj->local_read_available;
++	tr->need_ack = need_ack;
++	tr->queued = !list_empty(&obj->tbl_list);
++	tr->dma_free = obj->dma_free;
++}
++
+ static void rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ {
+ 	struct rockchip_pcie *rockchip = dev_get_drvdata(obj->dev);
+ 	struct dma_table *tbl = obj->cur;
+ 	int chn = tbl->chn;
++	u32 base = PCIE_APB_CORE_UDMA_BASE + 0x14 * chn;
++	struct dma_start_trace *tr;
++	u32 head;
++	u32 before_status, before_enable, before_ctrl;
++	u32 after_status, after_enable, after_ctrl;
++
++	before_status = rockchip_pcie_read(rockchip,
++					   PCIE_APB_CORE_UDMA_BASE +
++					   PCIE_UDMA_INT_REG);
++	before_enable = rockchip_pcie_read(rockchip,
++					   PCIE_APB_CORE_UDMA_BASE +
++					   PCIE_UDMA_INT_ENABLE_REG);
++	before_ctrl = rockchip_pcie_read(rockchip, base + 0x00);
+ 
+ 	rockchip_pcie_write(rockchip, lower_32_bits(tbl->desc_dma),
+-			    PCIE_APB_CORE_UDMA_BASE + 0x14 * chn + 0x04);
++			    base + 0x04);
+ 	rockchip_pcie_write(rockchip, upper_32_bits(tbl->desc_dma),
+-			    PCIE_APB_CORE_UDMA_BASE + 0x14 * chn + 0x08);
++			    base + 0x08);
+ 	rockchip_pcie_write(rockchip, BIT(0) | (tbl->dir << 1),
+-			    PCIE_APB_CORE_UDMA_BASE + 0x14 * chn + 0x00);
++			    base + 0x00);
++
++	after_status = rockchip_pcie_read(rockchip,
++					  PCIE_APB_CORE_UDMA_BASE +
++					  PCIE_UDMA_INT_REG);
++	after_enable = rockchip_pcie_read(rockchip,
++					  PCIE_APB_CORE_UDMA_BASE +
++					  PCIE_UDMA_INT_ENABLE_REG);
++	after_ctrl = rockchip_pcie_read(rockchip, base + 0x00);
++
++	obj->last_dma_status = after_status;
++	obj->last_udma_enable = after_enable;
++	obj->last_udma_ctrl = after_ctrl;
++	obj->last_udma_desc_lo = lower_32_bits(tbl->desc_dma);
++	obj->last_udma_desc_hi = upper_32_bits(tbl->desc_dma);
++
++	obj->dma_start_count++;
++	head = obj->dma_start_trace_head++ & (PCIE_DMA_START_TRACE_LEN - 1);
++	tr = &obj->dma_start_trace[head];
++
++	tr->seq = obj->dma_start_count;
++	tr->ts_ns = ktime_get_ns();
++	tr->type = tbl->type;
++	tr->chn = chn;
++	tr->dir = tbl->dir;
++	tr->desc_lo = lower_32_bits(tbl->desc_dma);
++	tr->desc_hi = upper_32_bits(tbl->desc_dma);
++	tr->before_status = before_status;
++	tr->before_enable = before_enable;
++	tr->before_ctrl = before_ctrl;
++	tr->after_status = after_status;
++	tr->after_enable = after_enable;
++	tr->after_ctrl = after_ctrl;
++	tr->list_empty = list_empty(&obj->tbl_list);
+ }
+ 
+ static void rk_pcie_dma_failfast_reset(struct dma_trx_obj *obj);
+@@ -374,7 +450,9 @@ static int rk_pcie_dma_disabled_ret(struct dma_trx_obj *obj, unsigned int cmd,
+ }
+ 
+ static void rk_pcie_dma_record_ioctl(struct dma_trx_obj *obj, unsigned int cmd,
+-				     const union pcie_dma_ioctl_param *msg, int ret)
++				     const union pcie_dma_ioctl_param *msg,
++				     const void *raw_before,
++				     const void *raw_after, int ret)
+ {
+ 	struct dma_ioctl_trace *tr;
+ 	u32 head;
+@@ -400,6 +478,10 @@ static void rk_pcie_dma_record_ioctl(struct dma_trx_obj *obj, unsigned int cmd,
+ 		tr->type = msg->in.type;
+ 		tr->count = msg->count;
+ 	}
++	if (raw_before)
++		memcpy(tr->raw_before, raw_before, sizeof(tr->raw_before));
++	if (raw_after)
++		memcpy(tr->raw_after, raw_after, sizeof(tr->raw_after));
+ 	tr->lwa = (u32)obj->local_write_available;
+ 	tr->rwa = (u32)obj->remote_write_available;
+ 	tr->lra = (u32)obj->local_read_available;
+@@ -407,20 +489,30 @@ static void rk_pcie_dma_record_ioctl(struct dma_trx_obj *obj, unsigned int cmd,
+ }
+ 
+ static long rk_pcie_dma_ioctl_done(struct dma_trx_obj *obj, unsigned int cmd,
+-				   const union pcie_dma_ioctl_param *msg, int ret)
++				   const union pcie_dma_ioctl_param *msg,
++				   const void *raw_before,
++				   const void *raw_after, int ret)
+ {
+-	rk_pcie_dma_record_ioctl(obj, cmd, msg, ret);
++	rk_pcie_dma_record_ioctl(obj, cmd, msg, raw_before, raw_after, ret);
+ 	return ret;
+ }
+ 
+ static void rk_pcie_dma_recover_timeout(struct dma_trx_obj *obj)
+ {
++	struct rockchip_pcie *rockchip;
++
+ 	if (obj->dma_free || !obj->dma_timeout_ms)
+ 		return;
+ 
+ 	if (ktime_ms_delta(ktime_get(), obj->dma_start_time) < obj->dma_timeout_ms)
+ 		return;
+ 
++	rockchip = dev_get_drvdata(obj->dev);
++	if (rockchip)
++		rk_pcie_dma_record_irq_trace(rockchip, obj,
++					     PCIE_DMA_IRQ_TRACE_TIMEOUT,
++					     obj->last_dma_status);
++
+ 	obj->dma_timeout_count++;
+ 	dev_warn_ratelimited(obj->dev,
+ 			     "pcie dma timeout: cur_type=%u loop=%d threshold=%d udma_status=0x%x udma_en=0x%x client=0x%x mask=0x%x core=0x%x core_mask=0x%x ctrl=0x%x desc=%08x:%08x list_empty=%d\n",
+@@ -448,6 +540,53 @@ static void rk_pcie_dma_recover_timeout(struct dma_trx_obj *obj)
+ 		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
+ }
+ 
++static bool rk_pcie_dma_poll_done_fallback(struct dma_trx_obj *obj)
++{
++	struct rockchip_pcie *rockchip;
++	u32 status;
++	bool handled = false;
++
++	if (!obj || obj->dma_free || !READ_ONCE(obj->dma_poll_done_fallback))
++		return false;
++
++	rockchip = dev_get_drvdata(obj->dev);
++	if (!rockchip)
++		return false;
++
++	status = rockchip_pcie_read(rockchip,
++				    PCIE_APB_CORE_UDMA_BASE +
++				    PCIE_UDMA_INT_REG);
++	if (!(status & (BIT(0) | BIT(16))))
++		return false;
++
++	if (status & BIT(16)) {
++		obj->dma_poll_abort_fallback_count++;
++		rk_pcie_dma_record_irq_trace(rockchip, obj,
++					     PCIE_DMA_IRQ_TRACE_POLL_ABORT,
++					     status);
++		handled = true;
++	}
++
++	if (status & BIT(0)) {
++		obj->dma_poll_done_fallback_count++;
++		rk_pcie_dma_record_irq_trace(rockchip, obj,
++					     PCIE_DMA_IRQ_TRACE_POLL_DONE,
++					     status);
++		handled = true;
++	}
++
++	rockchip_pcie_write(rockchip, status,
++			    PCIE_APB_CORE_UDMA_BASE + PCIE_UDMA_INT_REG);
++	obj->last_dma_status = status;
++
++	if (status & BIT(16))
++		rk_pcie_dma_irq_abort(obj);
++	if (status & BIT(0))
++		rk_pcie_dma_irq_done(obj);
++
++	return handled;
++}
++
+ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ {
+ 	struct dma_trx_obj *obj = container_of(timer, struct dma_trx_obj, scan_timer);
+@@ -473,6 +612,8 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 		if (sdv == PCIE_DMA_DATA_CHECK) {
+ 			if (!need_ack)
+ 				need_ack = true;
++			rk_pcie_dma_record_scan(obj, PCIE_DMA_SCAN_TRACE_DATA,
++							i, sdv, idx, 0, 0, need_ack);
+ 			writel(0x0, scan_data_addr + PCIE_DMA_SET_DATA_CHECK_POS);
+ 			set_bit(i, &obj->local_read_available);
+ 			rk_pcie_prepare_dma(obj, idx, 0, 0, 0x4,
+@@ -480,9 +621,13 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 		}
+ 	}
+ 
+-	if (need_ack || !list_empty(&obj->tbl_list))
++	if (need_ack || !list_empty(&obj->tbl_list)) {
++		rk_pcie_dma_record_scan(obj, PCIE_DMA_SCAN_TRACE_QUEUE,
++						0, 0, 0, 0, 0, need_ack);
+ 		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
++	}
+ 
++	rk_pcie_dma_poll_done_fallback(obj);
+ 	rk_pcie_dma_recover_timeout(obj);
+ 
+ 	scan_ack_addr = obj->mem_base + PCIE_DMA_ACK_BASE;
+@@ -500,6 +645,8 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 
+ 		sav = readl(addr);
+ 		if (sav == PCIE_DMA_DATA_ACK_CHECK) {
++			rk_pcie_dma_record_scan(obj, PCIE_DMA_SCAN_TRACE_ACK,
++							i, 0, 0, sav, 0, need_ack);
+ 			rk_pcie_clear_ack(addr);
+ 			set_bit(i, &obj->local_write_available);
+ 		}
+@@ -507,6 +654,8 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 		addr = scan_user_addr + i * NODE_SIZE;
+ 		suv = readl(addr);
+ 		if (suv == PCIE_DMA_DATA_FREE_ACK_CHECK) {
++			rk_pcie_dma_record_scan(obj, PCIE_DMA_SCAN_TRACE_FREE_ACK,
++							i, 0, 0, 0, suv, need_ack);
+ 			rk_pcie_clear_ack(addr);
+ 			set_bit(i, &obj->remote_write_available);
+ 		}
+@@ -572,6 +721,8 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 	struct device *dev = obj->dev;
+ 	union pcie_dma_ioctl_param msg = { };
+ 	union pcie_dma_ioctl_param out = { };
++	union pcie_dma_ioctl_param raw_before = { };
++	union pcie_dma_ioctl_param raw_after = { };
+ 	phys_addr_t addr;
+ 	void __user *uarg = (void __user *)arg;
+ 	int ret;
+@@ -581,7 +732,10 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 	obj->last_ioctl_ret = 0;
+ 
+ 	if (copy_from_user(&msg, uarg, sizeof(msg)) != 0)
+-		return rk_pcie_dma_ioctl_done(obj, cmd, NULL, -EFAULT);
++		return rk_pcie_dma_ioctl_done(obj, cmd, NULL, NULL, NULL, -EFAULT);
++
++	raw_before = msg;
++	raw_after = msg;
+ 
+ 	if (READ_ONCE(obj->dma_disabled) && rk_pcie_dma_cmd_needs_hw(cmd)) {
+ 		ret = rk_pcie_dma_disabled_ret(obj, cmd, &msg);
+@@ -590,7 +744,8 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		dev_warn_ratelimited(dev,
+ 				     "pcie dma disabled: mode=%u ioctl=0x%x ret=%d\n",
+ 				     READ_ONCE(obj->dma_failfast_mode), cmd, ret);
+-		return rk_pcie_dma_ioctl_done(obj, cmd, &msg, ret);
++		return rk_pcie_dma_ioctl_done(obj, cmd, &msg, &raw_before,
++					      &raw_after, ret);
+ 	}
+ 
+ 	switch (cmd) {
+@@ -604,10 +759,13 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		addr = obj->mem_start;
+ 		if (is_rc(obj))
+ 			addr += PCIE_DMA_WR_BUF_SIZE;
+-		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_RD_BUF_SIZE, DMA_FROM_DEVICE);
++		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_RD_BUF_SIZE,
++					DMA_FROM_DEVICE);
+ 		rk_pcie_dma_record_read_dump(obj, out.lra);
++		raw_after = out;
+ 		if (copy_to_user(uarg, &out, sizeof(out)))
+-			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -EFAULT);
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, &raw_before,
++						      &raw_after, -EFAULT);
+ 		break;
+ 	case PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX:
+ 		test_and_clear_bit(msg.in.idx, &obj->local_read_available);
+@@ -615,18 +773,22 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 	case PCIE_DMA_GET_LOCAL_REMOTE_WRITE_BUFFER_INDEX:
+ 		out.out.lwa = obj->local_write_available;
+ 		out.out.rwa = obj->remote_write_available;
++		raw_after = out;
+ 		if (copy_to_user(uarg, &out, sizeof(out)))
+-			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -EFAULT);
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, &raw_before,
++						      &raw_after, -EFAULT);
+ 		break;
+ 	case PCIE_DMA_SYNC_BUFFER_FOR_CPU:
+ 		addr = obj->mem_start + msg.in.idx * PCIE_DMA_BUF_SIZE;
+ 		if (is_rc(obj))
+ 			addr += PCIE_DMA_WR_BUF_SIZE;
+-		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_BUF_SIZE, DMA_FROM_DEVICE);
++		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_BUF_SIZE,
++					DMA_FROM_DEVICE);
+ 		break;
+ 	case PCIE_DMA_SYNC_BUFFER_TO_DEVICE:
+ 		addr = obj->mem_start + msg.in.idx * PCIE_DMA_BUF_SIZE;
+-		dma_sync_single_for_device(dev, addr, PCIE_DMA_BUF_SIZE, DMA_TO_DEVICE);
++		dma_sync_single_for_device(dev, addr, PCIE_DMA_BUF_SIZE,
++					   DMA_TO_DEVICE);
+ 		break;
+ 	case PCIE_DMA_WAIT_TRANSFER_COMPLETE: {
+ 		u32 timeout_ms = READ_ONCE(obj->dma_timeout_ms);
+@@ -637,15 +799,17 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		ret = wait_for_completion_interruptible_timeout(&obj->done,
+ 				msecs_to_jiffies(timeout_ms));
+ 		if (ret < 0)
+-			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, ret);
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, &raw_before,
++						      &raw_after, ret);
+ 		if (!ret) {
+ 			obj->dma_timeout_count++;
+ 			dev_warn_ratelimited(dev,
+-					     "wait transfer complete timeout: loop=%d threshold=%d status=0x%x list_empty=%d dma_free=%d\n",
+-					     obj->loop_count, obj->loop_count_threshold,
+-					     obj->last_dma_status, list_empty(&obj->tbl_list),
+-					     obj->dma_free);
+-			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -ETIMEDOUT);
++				     "wait transfer complete timeout: loop=%d threshold=%d status=0x%x list_empty=%d dma_free=%d\n",
++				     obj->loop_count, obj->loop_count_threshold,
++				     obj->last_dma_status, list_empty(&obj->tbl_list),
++				     obj->dma_free);
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, &raw_before,
++						      &raw_after, -ETIMEDOUT);
+ 		}
+ 		obj->loop_count = 0;
+ 		break;
+@@ -655,7 +819,8 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		break;
+ 	default:
+ 		dev_dbg(dev, "unsupported ioctl 0x%x\n", cmd);
+-		return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -EINVAL);
++		return rk_pcie_dma_ioctl_done(obj, cmd, &msg, &raw_before,
++					      &raw_after, -EINVAL);
+ 	}
+ 
+ 	if (cmd == PCIE_DMA_START ||
+@@ -665,7 +830,8 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
+ 	}
+ 
+-	return rk_pcie_dma_ioctl_done(obj, cmd, &msg, 0);
++	return rk_pcie_dma_ioctl_done(obj, cmd, &msg, &raw_before,
++				      &raw_after, 0);
+ }
+ 
+ static void rk_pcie_dma_record_poll(struct dma_trx_obj *obj, __poll_t ret)
+@@ -848,17 +1014,20 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	seq_printf(s, "list : (%s), dma chn : (%s)\n",
+ 		   list_empty_now ? "empty" : "not empty",
+ 		   dma_obj->dma_free ? "free" : "busy");
+-	seq_printf(s, "last_status = 0x%x, dma_disabled = %d, failfast_mode = %u, timeout_ms = %u, timeouts = %lu, aborts = %lu\n",
++	seq_printf(s,
++		   "last_status = 0x%x, dma_disabled = %d, failfast_mode = %u, timeout_ms = %u, timeouts = %lu, aborts = %lu\n",
+ 		   dma_obj->last_dma_status, dma_obj->dma_disabled,
+ 		   dma_obj->dma_failfast_mode, dma_obj->dma_timeout_ms,
+ 		   dma_obj->dma_timeout_count, dma_obj->dma_abort_count);
+-	seq_printf(s, "ioctl_count = %lu, last_cmd = 0x%x, last_ret = %d, soft_abort = %lu, soft_complete = %lu, fake_done = %lu, fake_wake = %lu\n",
++	seq_printf(s,
++		   "ioctl_count = %lu, last_cmd = 0x%x, last_ret = %d, soft_abort = %lu, soft_complete = %lu, fake_done = %lu, fake_wake = %lu\n",
+ 		   dma_obj->ioctl_count, dma_obj->last_ioctl_cmd,
+ 		   dma_obj->last_ioctl_ret, dma_obj->dma_soft_abort_count,
+ 		   dma_obj->dma_soft_complete_count,
+ 		   dma_obj->dma_fake_done_count,
+ 		   dma_obj->dma_fake_wake_count);
+-	seq_printf(s, "fake_types: data_snd = %lu, rcv_ack = %lu, free_ack = %lu; poll_count = %lu, last_poll_ret = 0x%x\n",
++	seq_printf(s,
++		   "fake_types: data_snd = %lu, rcv_ack = %lu, free_ack = %lu; poll_count = %lu, last_poll_ret = 0x%x\n",
+ 		   dma_obj->dma_fake_data_snd_count,
+ 		   dma_obj->dma_fake_data_rcv_ack_count,
+ 		   dma_obj->dma_fake_data_free_ack_count,
+@@ -866,7 +1035,8 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	seq_printf(s, "fake_ctrl: poll_mask = 0x%x, rx_mask = 0x%x, rx_inject = %lu\n",
+ 		   dma_obj->dma_fake_poll_mask, dma_obj->dma_fake_rx_mask,
+ 		   dma_obj->dma_fake_rx_inject_count);
+-	seq_printf(s, "read_dump: enable = %u, count = %lu, idx = %u, lra = 0x%x, valid = %u, len = %u\n",
++	seq_printf(s,
++		   "read_dump: enable = %u, count = %lu, idx = %u, lra = 0x%x, valid = %u, len = %u\n",
+ 		   dma_obj->dma_read_dump_enable, dma_obj->dma_read_dump_count,
+ 		   dma_obj->dma_read_dump_idx, dma_obj->dma_read_dump_lra,
+ 		   dma_obj->dma_read_dump_valid, dma_obj->dma_read_dump_len_last);
+@@ -878,17 +1048,25 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	seq_printf(s, "irq_counts: udma = %lu, subsys = %lu, client = %lu\n",
+ 		   dma_obj->udma_irq_count, dma_obj->subsys_irq_count,
+ 		   dma_obj->client_irq_count);
+-	seq_printf(s, "client_status = 0x%x, client_mask = 0x%x, core_status = 0x%x, core_mask = 0x%x\n",
++	seq_printf(s, "poll_done_fallback: enable = %d, done = %lu, abort = %lu\n",
++		   dma_obj->dma_poll_done_fallback,
++		   dma_obj->dma_poll_done_fallback_count,
++		   dma_obj->dma_poll_abort_fallback_count);
++	seq_printf(s,
++		   "client_status = 0x%x, client_mask = 0x%x, core_status = 0x%x, core_mask = 0x%x\n",
+ 		   dma_obj->last_client_status, dma_obj->last_client_mask,
+ 		   dma_obj->last_core_status, dma_obj->last_core_mask);
+ 	seq_printf(s, "udma_enable = 0x%x, udma_ctrl = 0x%x, udma_desc = %08x:%08x\n",
+ 		   dma_obj->last_udma_enable, dma_obj->last_udma_ctrl,
+ 		   dma_obj->last_udma_desc_hi, dma_obj->last_udma_desc_lo);
+-	seq_printf(s, "last_subsys_status = 0x%x, last_subsys_core = 0x%x, last_client_irq_status = 0x%x\n",
++	seq_printf(s,
++		   "last_subsys_status = 0x%x, last_subsys_core = 0x%x, last_client_irq_status = 0x%x\n",
+ 		   dma_obj->last_subsys_status,
+ 		   dma_obj->last_subsys_core_status,
+ 		   dma_obj->last_client_irq_status);
+-	seq_puts(s, "ioctl_trace recent-first: seq cmd ret idx l_widx r_widx size type count lwa/rwa/lra loop ts_ns\n");
++
++	seq_puts(s,
++		 "ioctl_trace recent-first: seq cmd ret idx l_widx r_widx size type count lwa/rwa/lra loop ts_ns raw_before/raw_after\n");
+ 	{
+ 		u32 head = dma_obj->ioctl_trace_head;
+ 		u32 n = min_t(u32, dma_obj->ioctl_count, PCIE_DMA_IOCTL_TRACE_LEN);
+@@ -898,14 +1076,20 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 			const struct dma_ioctl_trace *tr;
+ 
+ 			tr = &dma_obj->ioctl_trace[(head - 1 - i) &
+-						   (PCIE_DMA_IOCTL_TRACE_LEN - 1)];
+-			seq_printf(s, "  %lu 0x%x %d %u %u %u %u %u %u 0x%x/0x%x/0x%x %d %llu\n",
++						       (PCIE_DMA_IOCTL_TRACE_LEN - 1)];
++			seq_printf(s,
++				   "  %lu 0x%x %d %u %u %u %u %u %u 0x%x/0x%x/0x%x %d %llu\n",
+ 				   tr->seq, tr->cmd, tr->ret, tr->idx, tr->l_widx,
+ 				   tr->r_widx, tr->size, tr->type, tr->count,
+ 				   tr->lwa, tr->rwa, tr->lra, tr->loop_count,
+ 				   tr->ts_ns);
++			seq_hex_dump(s, "    before: ", DUMP_PREFIX_NONE, 16, 1,
++				     tr->raw_before, sizeof(tr->raw_before), false);
++			seq_hex_dump(s, "    after : ", DUMP_PREFIX_NONE, 16, 1,
++				     tr->raw_after, sizeof(tr->raw_after), false);
+ 		}
+ 	}
++
+ 	seq_puts(s, "poll_trace recent-first: seq ret lwa/rwa/lra loop ts_ns\n");
+ 	{
+ 		u32 head = dma_obj->poll_trace_head;
+@@ -916,13 +1100,83 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 			const struct dma_poll_trace *tr;
+ 
+ 			tr = &dma_obj->poll_trace[(head - 1 - i) &
+-						  (PCIE_DMA_POLL_TRACE_LEN - 1)];
++						      (PCIE_DMA_POLL_TRACE_LEN - 1)];
+ 			seq_printf(s, "  %lu 0x%x 0x%x/0x%x/0x%x %d %llu\n",
+ 				   tr->seq, tr->ret, tr->lwa, tr->rwa, tr->lra,
+ 				   tr->loop_count, tr->ts_ns);
+ 		}
+ 	}
+ 
++	seq_puts(s,
++		 "scan_timer_trace recent-first: seq event idx sdv data_idx sav suv lwa/rwa/lra need_ack queued dma_free ts_ns\n");
++	{
++		u32 head = dma_obj->scan_trace_head;
++		u32 n = min_t(u32, dma_obj->scan_trace_count,
++			      PCIE_DMA_SCAN_TRACE_LEN);
++		u32 i;
++
++		for (i = 0; i < n; i++) {
++			const struct dma_scan_trace *tr;
++
++			tr = &dma_obj->scan_trace[(head - 1 - i) &
++						      (PCIE_DMA_SCAN_TRACE_LEN - 1)];
++			seq_printf(s,
++				   "  %lu %u %u 0x%x %u 0x%x 0x%x 0x%x/0x%x/0x%x %d %d %d %llu\n",
++				   tr->seq, tr->event, tr->idx, tr->sdv,
++				   tr->data_idx, tr->sav, tr->suv,
++				   tr->lwa, tr->rwa, tr->lra,
++				   tr->need_ack, tr->queued,
++				   tr->dma_free, tr->ts_ns);
++		}
++	}
++
++	seq_puts(s,
++		 "dma_start_trace recent-first: seq type chn dir desc before(status/en/ctrl) after(status/en/ctrl) list_empty ts_ns\n");
++	{
++		u32 head = dma_obj->dma_start_trace_head;
++		u32 n = min_t(u32, dma_obj->dma_start_count,
++			      PCIE_DMA_START_TRACE_LEN);
++		u32 i;
++
++		for (i = 0; i < n; i++) {
++			const struct dma_start_trace *tr;
++
++			tr = &dma_obj->dma_start_trace[(head - 1 - i) &
++							  (PCIE_DMA_START_TRACE_LEN - 1)];
++			seq_printf(s,
++				   "  %lu %u %u %u %08x:%08x 0x%x/0x%x/0x%x 0x%x/0x%x/0x%x %u %llu\n",
++				   tr->seq, tr->type, tr->chn, tr->dir,
++				   tr->desc_hi, tr->desc_lo,
++				   tr->before_status, tr->before_enable,
++				   tr->before_ctrl, tr->after_status,
++				   tr->after_enable, tr->after_ctrl,
++				   tr->list_empty, tr->ts_ns);
++		}
++	}
++
++	seq_puts(s,
++		 "irq_trace recent-first: seq kind status core_status udma_status/en client_status/mask core_int_status/mask ts_ns\n");
++	{
++		u32 head = dma_obj->irq_trace_head;
++		u32 n = min_t(u32, dma_obj->irq_trace_count,
++			      PCIE_DMA_IRQ_TRACE_LEN);
++		u32 i;
++
++		for (i = 0; i < n; i++) {
++			const struct dma_irq_trace *tr;
++
++			tr = &dma_obj->irq_trace[(head - 1 - i) &
++						     (PCIE_DMA_IRQ_TRACE_LEN - 1)];
++			seq_printf(s,
++				   "  %lu %u 0x%x 0x%x 0x%x/0x%x 0x%x/0x%x 0x%x/0x%x %llu\n",
++				   tr->seq, tr->kind, tr->status,
++				   tr->core_status, tr->udma_status,
++				   tr->udma_enable, tr->client_status,
++				   tr->client_mask, tr->core_int_status,
++				   tr->core_int_mask, tr->ts_ns);
++		}
++	}
++
+ 	return 0;
+ }
+ 
+@@ -995,8 +1249,11 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_timeout_ms = PCIE_DMA_DEFAULT_TIMEOUT_MS;
+ 	obj->dma_read_dump_len = PCIE_DMA_READ_DUMP_MAX;
+ 	obj->dma_failfast_mode = PCIE_DMA_FAILFAST_ERROR;
+-	obj->dma_disabled = of_property_read_bool(dev->of_node,
+-						  "rockchip,pcie-dma-disabled");
++	obj->dma_disabled = true;
++	if (of_property_read_bool(dev->of_node, "rockchip,pcie-dma-enabled"))
++		obj->dma_disabled = false;
++	if (of_property_read_bool(dev->of_node, "rockchip,pcie-dma-disabled"))
++		obj->dma_disabled = true;
+ 
+ 	of_property_read_u32(dev->of_node, "rockchip,dma-timeout-ms",
+ 			     &obj->dma_timeout_ms);
+@@ -1038,12 +1295,16 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			   &obj->dma_fake_rx_mask);
+ 	debugfs_create_u32("dma_read_dump_enable", 0600, obj->pcie_root,
+ 			   &obj->dma_read_dump_enable);
+-	debugfs_create_u32("dma_read_dump_len", 0600, obj->pcie_root,
+-			   &obj->dma_read_dump_len);
+-#endif
+-
+-	dev_info(dev, "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u)\n",
+-		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms);
++		debugfs_create_u32("dma_read_dump_len", 0600, obj->pcie_root,
++				   &obj->dma_read_dump_len);
++		debugfs_create_bool("dma_poll_done_fallback", 0600,
++				    obj->pcie_root,
++				    &obj->dma_poll_done_fallback);
++	#endif
++
++	dev_info(dev, "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d)\n",
++		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
++		 obj->dma_poll_done_fallback);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 05eac61..8c32341 100755
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -21,8 +21,23 @@
+ 
+ #define PCIE_DMA_IOCTL_TRACE_LEN		32
+ #define PCIE_DMA_POLL_TRACE_LEN		32
++#define PCIE_DMA_SCAN_TRACE_LEN		32
++#define PCIE_DMA_START_TRACE_LEN		32
++#define PCIE_DMA_IRQ_TRACE_LEN		32
+ #define PCIE_DMA_FAKE_BUF_MASK		0xff
+ 
++#define PCIE_DMA_SCAN_TRACE_DATA		1
++#define PCIE_DMA_SCAN_TRACE_ACK		2
++#define PCIE_DMA_SCAN_TRACE_FREE_ACK		3
++#define PCIE_DMA_SCAN_TRACE_QUEUE		4
++
++#define PCIE_DMA_IRQ_TRACE_SUBSYS		1
++#define PCIE_DMA_IRQ_TRACE_CLIENT		2
++#define PCIE_DMA_IRQ_TRACE_UDMA		3
++#define PCIE_DMA_IRQ_TRACE_POLL_DONE		4
++#define PCIE_DMA_IRQ_TRACE_TIMEOUT		5
++#define PCIE_DMA_IRQ_TRACE_POLL_ABORT		6
++
+ struct dma_ioctl_trace {
+ 	unsigned long	seq;
+ 	u64		ts_ns;
+@@ -38,6 +53,8 @@ struct dma_ioctl_trace {
+ 	u32		rwa;
+ 	u32		lra;
+ 	int		loop_count;
++	u8		raw_before[20];
++	u8		raw_after[20];
+ };
+ 
+ #define PCIE_DMA_TABLE_NUM			24
+@@ -69,6 +86,54 @@ struct dma_poll_trace {
+ 	int		loop_count;
+ };
+ 
++struct dma_scan_trace {
++	unsigned long	seq;
++	u64		ts_ns;
++	u32		event;
++	u32		idx;
++	u32		sdv;
++	u32		data_idx;
++	u32		sav;
++	u32		suv;
++	u32		lwa;
++	u32		rwa;
++	u32		lra;
++	int		need_ack;
++	int		queued;
++	int		dma_free;
++};
++
++struct dma_start_trace {
++	unsigned long	seq;
++	u64		ts_ns;
++	u32		type;
++	u32		chn;
++	u32		dir;
++	u32		desc_lo;
++	u32		desc_hi;
++	u32		before_status;
++	u32		before_enable;
++	u32		before_ctrl;
++	u32		after_status;
++	u32		after_enable;
++	u32		after_ctrl;
++	u32		list_empty;
++};
++
++struct dma_irq_trace {
++	unsigned long	seq;
++	u64		ts_ns;
++	u32		kind;
++	u32		status;
++	u32		core_status;
++	u32		udma_status;
++	u32		udma_enable;
++	u32		client_status;
++	u32		client_mask;
++	u32		core_int_status;
++	u32		core_int_mask;
++};
++
+ struct dma_trx_obj {
+ 	struct device			*dev;
+ 	int				loop_count;
+@@ -133,6 +198,18 @@ struct dma_trx_obj {
+ 	u32				last_poll_ret;
+ 	u32				poll_trace_head;
+ 	struct dma_poll_trace	poll_trace[PCIE_DMA_POLL_TRACE_LEN];
++	unsigned long			scan_trace_count;
++	u32				scan_trace_head;
++	struct dma_scan_trace	scan_trace[PCIE_DMA_SCAN_TRACE_LEN];
++	unsigned long			dma_start_count;
++	u32				dma_start_trace_head;
++	struct dma_start_trace	dma_start_trace[PCIE_DMA_START_TRACE_LEN];
++	unsigned long			irq_trace_count;
++	u32				irq_trace_head;
++	struct dma_irq_trace	irq_trace[PCIE_DMA_IRQ_TRACE_LEN];
++	bool				dma_poll_done_fallback;
++	unsigned long			dma_poll_done_fallback_count;
++	unsigned long			dma_poll_abort_fallback_count;
+ 	unsigned long			udma_irq_count;
+ 	unsigned long			subsys_irq_count;
+ 	unsigned long			client_irq_count;
+@@ -175,7 +252,36 @@ static inline void rk_pcie_dma_snapshot_irq_regs(struct rockchip_pcie *rockchip,
+ 	obj->last_udma_desc_lo = rockchip_pcie_read(rockchip,
+ 			PCIE_APB_CORE_UDMA_BASE + 0x04);
+ 	obj->last_udma_desc_hi = rockchip_pcie_read(rockchip,
+-			PCIE_APB_CORE_UDMA_BASE + 0x08);
++				PCIE_APB_CORE_UDMA_BASE + 0x08);
++}
++
++static inline void rk_pcie_dma_record_irq_trace(struct rockchip_pcie *rockchip,
++						struct dma_trx_obj *obj,
++						u32 kind, u32 status)
++{
++	struct dma_irq_trace *tr;
++	u32 head;
++
++	if (!rockchip || !obj)
++		return;
++
++	rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
++
++	obj->irq_trace_count++;
++	head = obj->irq_trace_head++ & (PCIE_DMA_IRQ_TRACE_LEN - 1);
++	tr = &obj->irq_trace[head];
++
++	tr->seq = obj->irq_trace_count;
++	tr->ts_ns = ktime_get_ns();
++	tr->kind = kind;
++	tr->status = status;
++	tr->core_status = obj->last_subsys_core_status;
++	tr->udma_status = obj->last_dma_status;
++	tr->udma_enable = obj->last_udma_enable;
++	tr->client_status = obj->last_client_status;
++	tr->client_mask = obj->last_client_mask;
++	tr->core_int_status = obj->last_core_status;
++	tr->core_int_mask = obj->last_core_mask;
+ }
+ 
+ static inline void rk_pcie_dma_record_subsys_irq(struct rockchip_pcie *rockchip,
+@@ -189,7 +295,8 @@ static inline void rk_pcie_dma_record_subsys_irq(struct rockchip_pcie *rockchip,
+ 	obj->subsys_irq_count++;
+ 	obj->last_subsys_status = status;
+ 	obj->last_subsys_core_status = core_status;
+-	rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
++	rk_pcie_dma_record_irq_trace(rockchip, obj,
++				     PCIE_DMA_IRQ_TRACE_SUBSYS, status);
+ }
+ 
+ static inline void rk_pcie_dma_record_client_irq(struct rockchip_pcie *rockchip,
+@@ -202,7 +309,8 @@ static inline void rk_pcie_dma_record_client_irq(struct rockchip_pcie *rockchip,
+ 
+ 	obj->client_irq_count++;
+ 	obj->last_client_irq_status = status;
+-	rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
++	rk_pcie_dma_record_irq_trace(rockchip, obj,
++				     PCIE_DMA_IRQ_TRACE_CLIENT, status);
+ }
+ 
+ static inline void rk_pcie_handle_dma_interrupt(struct rockchip_pcie *rockchip)
+@@ -217,7 +325,8 @@ static inline void rk_pcie_handle_dma_interrupt(struct rockchip_pcie *rockchip)
+ 	dma_status = rockchip_pcie_read(rockchip,
+ 			PCIE_APB_CORE_UDMA_BASE + PCIE_UDMA_INT_REG);
+ 
+-	rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
++	rk_pcie_dma_record_irq_trace(rockchip, obj,
++				     PCIE_DMA_IRQ_TRACE_UDMA, dma_status);
+ 
+ 	rockchip_pcie_write(rockchip, dma_status,
+ 			PCIE_APB_CORE_UDMA_BASE + PCIE_UDMA_INT_REG);
