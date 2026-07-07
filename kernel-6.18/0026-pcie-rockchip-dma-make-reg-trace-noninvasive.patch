@@ -1,0 +1,144 @@
+From 0000000000000000000000000000000000000026 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Tue, 7 Jul 2026 21:50:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: make register trace non-invasive by default
+
+0025 added a key-register trace, but it sampled many PCIe controller
+registers from the normal DMA start/program-only/sample paths.  That
+reintroduced the same class of live non-IRQ MMIO access that 0009 had
+removed after it was proven to hang this RK3399Pro/NPU board in the
+half-alive endpoint state.
+
+Keep the useful descriptor trace, but make the default path non-invasive:
+record descriptor words and the cached UDMA/client/core values that are
+already maintained by guarded DMA start and IRQ paths.  Add an explicit
+`dma_reg_trace_live_mmio` debugfs knob, defaulting to false, for one-shot
+lab use only when live register sampling is intentionally required.
+
+This preserves the 0025 trace format while preventing the trace mechanism
+itself from becoming the next hard-hang trigger.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 14 ++++++----
+ drivers/pci/controller/pcie-rockchip-dma.h | 42 +++++++++++++++---------------
+ 2 files changed, 31 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -1418,8 +1418,9 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 			      rk_pcie_udma_enable_bits,
+ 			      ARRAY_SIZE(rk_pcie_udma_enable_bits));
+ 	seq_printf(s,
+-		   "reg_trace: enable = %d, count = %lu, head = %u, mem = %pa+0x%zx\n",
+-		   dma_obj->dma_reg_trace_enable, dma_obj->reg_trace_count,
++		   "reg_trace: enable = %d, live_mmio = %d, count = %lu, head = %u, mem = %pa+0x%zx\n",
++		   dma_obj->dma_reg_trace_enable,
++		   dma_obj->dma_reg_trace_live_mmio, dma_obj->reg_trace_count,
+ 		   dma_obj->reg_trace_head, &dma_obj->mem_start, dma_obj->mem_size);
+ 	{
+ 		struct rockchip_pcie *rockchip = dev_get_drvdata(dma_obj->dev);
+@@ -1659,6 +1660,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_failfast_mode = PCIE_DMA_FAILFAST_ERROR;
+ 	obj->dma_irq_sample_period_ms = PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS;
+ 	obj->dma_reg_trace_enable = true;
++	obj->dma_reg_trace_live_mmio = false;
+ 	obj->dma_preflight_validate = true;
+ 	obj->dma_disabled = true;
+ 	if (of_property_read_bool(dev->of_node, "rockchip,pcie-dma-enabled"))
+@@ -1724,14 +1726,17 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			   &obj->dma_irq_sample_period_ms);
+ 	debugfs_create_bool("dma_reg_trace_enable", 0600, obj->pcie_root,
+ 			    &obj->dma_reg_trace_enable);
++	debugfs_create_bool("dma_reg_trace_live_mmio", 0600, obj->pcie_root,
++			    &obj->dma_reg_trace_live_mmio);
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+ 		 obj->dma_start_once_limit, obj->dma_preflight_validate,
+-		 obj->dma_irq_sample_period_ms, obj->dma_reg_trace_enable);
++		 obj->dma_irq_sample_period_ms, obj->dma_reg_trace_enable,
++		 obj->dma_reg_trace_live_mmio);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -281,6 +281,7 @@ struct dma_trx_obj {
+ 	u32				irq_trace_head;
+ 	struct dma_irq_trace	irq_trace[PCIE_DMA_IRQ_TRACE_LEN];
+ 	bool				dma_reg_trace_enable;
++	bool				dma_reg_trace_live_mmio;
+ 	unsigned long			reg_trace_count;
+ 	u32				reg_trace_head;
+ 	struct dma_reg_trace	reg_trace[PCIE_DMA_REG_TRACE_LEN];
+@@ -351,8 +352,6 @@ static inline void rk_pcie_dma_record_reg_trace(struct rockchip_pcie *rockchip,
+ 	struct dma_reg_trace *tr;
+ 	struct dma_table *tbl;
+ 	u32 head;
+-	u32 chn = 0;
+-	u32 base;
+ 	u32 i;
+ 
+ 	if (!rockchip || !obj || !READ_ONCE(obj->dma_reg_trace_enable))
+@@ -379,23 +378,30 @@ static inline void rk_pcie_dma_record_reg_trace(struct rockchip_pcie *rockchip,
+ 			for (i = 0; i < PCIE_DMA_REG_TRACE_DESC_WORDS; i++)
+ 				tr->desc_words[i] = tbl->descs[i];
+ 		}
+-		chn = tbl->chn;
+ 	}
+ 
+-	base = PCIE_APB_CORE_UDMA_BASE + 0x14 * chn;
+-	tr->udma_ctrl = rockchip_pcie_read(rockchip, base + 0x00);
+-	tr->udma_desc_lo = rockchip_pcie_read(rockchip, base + 0x04);
+-	tr->udma_desc_hi = rockchip_pcie_read(rockchip, base + 0x08);
+-	tr->udma_int_status = rockchip_pcie_read(rockchip,
+-			PCIE_APB_CORE_UDMA_BASE + PCIE_UDMA_INT_REG);
+-	tr->udma_int_enable = rockchip_pcie_read(rockchip,
+-			PCIE_APB_CORE_UDMA_BASE + PCIE_UDMA_INT_ENABLE_REG);
++	/*
++	 * Keep the default trace non-invasive.  Earlier debugfs/runtime live
++	 * MMIO snapshots were proven to make this board unreachable when the
++	 * NPU endpoint is in its half-alive PCIe state.  Therefore the normal
++	 * reg_trace records descriptor words plus the cached register values
++	 * maintained by guarded DMA start and IRQ paths.  The opt-in live-MMIO
++	 * mode is left for one-shot lab use only.
++	 */
++	tr->udma_ctrl = obj->last_udma_ctrl;
++	tr->udma_desc_lo = obj->last_udma_desc_lo;
++	tr->udma_desc_hi = obj->last_udma_desc_hi;
++	tr->udma_int_status = obj->last_dma_status;
++	tr->udma_int_enable = obj->last_udma_enable;
++	tr->client_int_status = obj->last_client_status;
++	tr->client_int_mask = obj->last_client_mask;
++	tr->core_int_status = obj->last_core_status;
++	tr->core_int_mask = obj->last_core_mask;
++
++	if (!READ_ONCE(obj->dma_reg_trace_live_mmio))
++		return;
+ 
+ 	tr->client_config = rockchip_pcie_read(rockchip, PCIE_CLIENT_CONFIG);
+-	tr->client_int_status = rockchip_pcie_read(rockchip,
+-			PCIE_CLIENT_INT_STATUS);
+-	tr->client_int_mask = rockchip_pcie_read(rockchip,
+-			PCIE_CLIENT_INT_MASK);
+ 	tr->client_basic0 = rockchip_pcie_read(rockchip,
+ 			PCIE_CLIENT_BASIC_STATUS0);
+ 	tr->client_basic1 = rockchip_pcie_read(rockchip,
+@@ -408,8 +414,6 @@ static inline void rk_pcie_dma_record_reg_trace(struct rockchip_pcie *rockchip,
+ 	tr->core_ctrl = rockchip_pcie_read(rockchip, PCIE_CORE_CTRL);
+ 	tr->core_plc1 = rockchip_pcie_read(rockchip, PCIE_CORE_CTRL_PLC1);
+ 	tr->core_lane_map = rockchip_pcie_read(rockchip, PCIE_CORE_LANE_MAP);
+-	tr->core_int_status = rockchip_pcie_read(rockchip, PCIE_CORE_INT_STATUS);
+-	tr->core_int_mask = rockchip_pcie_read(rockchip, PCIE_CORE_INT_MASK);
+ 	tr->core_vendor = rockchip_pcie_read(rockchip, PCIE_CORE_CONFIG_VENDOR);
+ 	tr->core_bar_conf = rockchip_pcie_read(rockchip, PCIE_RC_BAR_CONF);
+ 
+-- 
+2.43.0
