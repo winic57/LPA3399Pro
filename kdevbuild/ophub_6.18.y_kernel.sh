@@ -82,8 +82,8 @@ if ls "${PATCH_DIR}"/*.patch >/dev/null 2>&1; then
     body_file="$(mktemp)"
     sed -n '/^diff --git/,$p' "${patch_file}" > "${body_file}"
     # Try git apply first (cleanest, no fuzz)
-    if git apply --check "${patch_file}" 2>/dev/null; then
-      git apply "${patch_file}"
+    if GIT_CEILING_DIRECTORIES="${BUILDER_DIR}" git apply --check "${patch_file}" 2>/dev/null; then
+      GIT_CEILING_DIRECTORIES="${BUILDER_DIR}" git apply "${patch_file}"
       echo "  Applied via git apply (clean)"
     # Fallback: patch -p1 with fuzz, no force
     elif patch -p1 --fuzz=3 --no-backup-if-mismatch < "${body_file}" 2>&1; then

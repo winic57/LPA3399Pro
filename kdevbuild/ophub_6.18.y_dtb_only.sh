@@ -52,8 +52,8 @@ if ls "${PATCH_DIR}"/*.patch >/dev/null 2>&1; then
     echo "--- Applying: $(basename "${patch_file}") ---"
     body_file="$(mktemp)"
     sed -n '/^diff --git/,$p' "${patch_file}" > "${body_file}"
-    if git apply --check "${patch_file}" 2>/dev/null; then
-      git apply "${patch_file}"
+    if GIT_CEILING_DIRECTORIES="${BUILDER_DIR}" git apply --check "${patch_file}" 2>/dev/null; then
+      GIT_CEILING_DIRECTORIES="${BUILDER_DIR}" git apply "${patch_file}"
       echo "  Applied via git apply (clean)"
     elif patch -p1 --fuzz=3 --no-backup-if-mismatch < "${body_file}" 2>&1; then
       echo "  Applied via patch -p1 (with fuzz=3)"
