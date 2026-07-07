@@ -1,0 +1,371 @@
+From 0000000000000000000000000000000000000024 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Tue, 7 Jul 2026 20:20:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: decode IRQ status and align vendor IRQ flow
+
+Add focused instrumentation for the current RK3399Pro NPU PCIe DMA
+failure mode where the first controlled real DMA start times out with
+client_status=0x10 and core_status=0x80000 while UDMA done IRQ never
+arrives.  Decode client/core/UDMA bits in debugfs and timeout logs so
+0x10 is reported as LOCAL and 0x80000 as MMVC, and record start-pre,
+start-post and busy-period IRQ samples in the existing kernel-side trace.
+
+Also move the subsystem interrupt path closer to vendor 4.4 ordering:
+snapshot client/core status first, preserve the vendor UDMA status/client
+double-clear sequence, clear stale UDMA/client pending state before
+unmasking, and then enable client/core/UDMA interrupt masks.  The default
+remains dma_disabled=1, so continuous real DMA is still opt-in via debugfs.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index aa7f2ae..4fecbe8 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -52,6 +52,107 @@
+ #define PCIE_DMA_FAILFAST_SOFT_COMPLETE	2
+ #define PCIE_DMA_FAILFAST_FAKE_DONE	3
+ #define PCIE_DMA_READ_DUMP_MAX		512
++#define PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS	1
++
++static const char *rk_pcie_dma_irq_kind_name(u32 kind)
++{
++	switch (kind) {
++	case PCIE_DMA_IRQ_TRACE_SUBSYS:
++		return "subsys";
++	case PCIE_DMA_IRQ_TRACE_CLIENT:
++		return "client";
++	case PCIE_DMA_IRQ_TRACE_UDMA:
++		return "udma";
++	case PCIE_DMA_IRQ_TRACE_POLL_DONE:
++		return "poll_done";
++	case PCIE_DMA_IRQ_TRACE_TIMEOUT:
++		return "timeout";
++	case PCIE_DMA_IRQ_TRACE_POLL_ABORT:
++		return "poll_abort";
++	case PCIE_DMA_IRQ_TRACE_START_PRE:
++		return "start_pre";
++	case PCIE_DMA_IRQ_TRACE_START_POST:
++		return "start_post";
++	case PCIE_DMA_IRQ_TRACE_SAMPLE:
++		return "sample";
++	default:
++		return "unknown";
++	}
++}
++
++struct rk_pcie_dma_bit_name {
++	u32 bit;
++	const char *name;
++};
++
++static void rk_pcie_dma_seq_bits(struct seq_file *s, const char *prefix,
++				 u32 val, const struct rk_pcie_dma_bit_name *names,
++				 u32 count)
++{
++	u32 i;
++	bool any = false;
++
++	seq_printf(s, "%s0x%x [", prefix, val);
++	for (i = 0; i < count; i++) {
++		if (!(val & names[i].bit))
++			continue;
++		seq_printf(s, "%s%s", any ? "|" : "", names[i].name);
++		any = true;
++	}
++	if (!any)
++		seq_puts(s, "none");
++	seq_puts(s, "]\n");
++}
++
++static const struct rk_pcie_dma_bit_name rk_pcie_client_bits[] = {
++	{ PCIE_CLIENT_INT_LEGACY_DONE, "LEGACY_DONE" },
++	{ PCIE_CLIENT_INT_MSG, "MSG" },
++	{ PCIE_CLIENT_INT_HOT_RST, "HOT_RST" },
++	{ PCIE_CLIENT_INT_DPA, "DPA" },
++	{ PCIE_CLIENT_INT_FATAL_ERR, "FATAL_ERR" },
++	{ PCIE_CLIENT_INT_NFATAL_ERR, "NFATAL_ERR" },
++	{ PCIE_CLIENT_INT_CORR_ERR, "CORR_ERR" },
++	{ PCIE_CLIENT_INT_INTD, "INTD" },
++	{ PCIE_CLIENT_INT_INTC, "INTC" },
++	{ PCIE_CLIENT_INT_INTB, "INTB" },
++	{ PCIE_CLIENT_INT_INTA, "INTA" },
++	{ PCIE_CLIENT_INT_LOCAL, "LOCAL" },
++	{ PCIE_CLIENT_INT_UDMA, "UDMA" },
++	{ PCIE_CLIENT_INT_PHY, "PHY" },
++	{ PCIE_CLIENT_INT_HOT_PLUG, "HOT_PLUG" },
++	{ PCIE_CLIENT_INT_PWR_STCG, "PWR_STCG" },
++};
++
++static const struct rk_pcie_dma_bit_name rk_pcie_core_bits[] = {
++	{ PCIE_CORE_INT_PRFPE, "PRFPE" },
++	{ PCIE_CORE_INT_CRFPE, "CRFPE" },
++	{ PCIE_CORE_INT_RRPE, "RRPE" },
++	{ PCIE_CORE_INT_PRFO, "PRFO" },
++	{ PCIE_CORE_INT_CRFO, "CRFO" },
++	{ PCIE_CORE_INT_RT, "RT" },
++	{ PCIE_CORE_INT_RTR, "RTR" },
++	{ PCIE_CORE_INT_PE, "PE" },
++	{ PCIE_CORE_INT_MTR, "MTR" },
++	{ PCIE_CORE_INT_UCR, "UCR" },
++	{ PCIE_CORE_INT_FCE, "FCE" },
++	{ PCIE_CORE_INT_CT, "CT" },
++	{ PCIE_CORE_INT_UTC, "UTC" },
++	{ PCIE_CORE_INT_MMVC, "MMVC" },
++};
++
++static const struct rk_pcie_dma_bit_name rk_pcie_udma_status_bits[] = {
++	{ BIT(0), "CH0_DONE" },
++	{ BIT(1), "CH1_DONE" },
++	{ BIT(16), "CH0_ABORT" },
++	{ BIT(17), "CH1_ABORT" },
++};
++
++static const struct rk_pcie_dma_bit_name rk_pcie_udma_enable_bits[] = {
++	{ PCIE_CH0_DONE_ENABLE, "CH0_DONE_EN" },
++	{ PCIE_CH1_DONE_ENABLE, "CH1_DONE_EN" },
++	{ PCIE_CH0_ERR_ENABLE, "CH0_ERR_EN" },
++	{ PCIE_CH1_ERR_ENABLE, "CH1_ERR_EN" },
++};
+ 
+ static inline bool is_rc(struct dma_trx_obj *obj)
+ {
+@@ -281,9 +382,13 @@ static int rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ 	}
+ 
+ 	tr->stage = PCIE_DMA_START_STAGE_CTRL_PRE;
++	rk_pcie_dma_record_irq_trace(rockchip, obj,
++				     PCIE_DMA_IRQ_TRACE_START_PRE, ctrl_value);
+ 	obj->dma_real_start_count++;
+ 	rockchip_pcie_write(rockchip, ctrl_value, base + 0x00);
+ 	tr->stage = PCIE_DMA_START_STAGE_CTRL_POST;
++	rk_pcie_dma_record_irq_trace(rockchip, obj,
++				     PCIE_DMA_IRQ_TRACE_START_POST, ctrl_value);
+ 
+ 	after_status = rockchip_pcie_read(rockchip,
+ 					  PCIE_APB_CORE_UDMA_BASE +
+@@ -685,14 +790,21 @@ static void rk_pcie_dma_recover_timeout(struct dma_trx_obj *obj)
+ 
+ 	obj->dma_timeout_count++;
+ 	dev_warn_ratelimited(obj->dev,
+-			     "pcie dma timeout: cur_type=%u loop=%d threshold=%d udma_status=0x%x udma_en=0x%x client=0x%x mask=0x%x core=0x%x core_mask=0x%x ctrl=0x%x desc=%08x:%08x list_empty=%d\n",
++			     "pcie dma timeout: cur_type=%u loop=%d threshold=%d udma_status=0x%x udma_en=0x%x client=0x%x(%s%s) mask=0x%x core=0x%x(%s%s) core_mask=0x%x ctrl=0x%x desc=%08x:%08x list_empty=%d udma_active_low_en=0x%x\n",
+ 			     obj->cur ? obj->cur->type : 0xffffffff,
+ 			     obj->loop_count, obj->loop_count_threshold,
+ 			     obj->last_dma_status, obj->last_udma_enable,
+-			     obj->last_client_status, obj->last_client_mask,
+-			     obj->last_core_status, obj->last_core_mask,
++			     obj->last_client_status,
++			     (obj->last_client_status & PCIE_CLIENT_INT_LOCAL) ? "LOCAL" : "",
++			     (obj->last_client_status & PCIE_CLIENT_INT_UDMA) ? "|UDMA" : "",
++			     obj->last_client_mask,
++			     obj->last_core_status,
++			     (obj->last_core_status & PCIE_CORE_INT_MMVC) ? "MMVC" : "",
++			     (obj->last_core_status & PCIE_CORE_INT_CT) ? "|CT" : "",
++			     obj->last_core_mask,
+ 			     obj->last_udma_ctrl, obj->last_udma_desc_hi,
+-			     obj->last_udma_desc_lo, list_empty(&obj->tbl_list));
++			     obj->last_udma_desc_lo, list_empty(&obj->tbl_list),
++			     (u32)((~obj->last_udma_enable) & PCIE_UDMA_INT_ENABLE_MASK));
+ 
+ 	/*
+ 	 * Vendor 4.4 relies on UDMA done IRQ to release the single DMA
+@@ -757,6 +869,31 @@ static bool rk_pcie_dma_poll_done_fallback(struct dma_trx_obj *obj)
+ 	return handled;
+ }
+ 
++static void rk_pcie_dma_sample_busy_irq(struct dma_trx_obj *obj)
++{
++	struct rockchip_pcie *rockchip;
++	u32 period;
++
++	if (!obj || obj->dma_free || !READ_ONCE(obj->dma_irq_sample_enable))
++		return;
++
++	period = READ_ONCE(obj->dma_irq_sample_period_ms);
++	if (!period)
++		period = PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS;
++	if (++obj->dma_irq_sample_tick < period)
++		return;
++	obj->dma_irq_sample_tick = 0;
++
++	rockchip = dev_get_drvdata(obj->dev);
++	if (!rockchip)
++		return;
++
++	obj->dma_irq_sample_count++;
++	rk_pcie_dma_record_irq_trace(rockchip, obj,
++				     PCIE_DMA_IRQ_TRACE_SAMPLE,
++				     obj->last_dma_status);
++}
++
+ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ {
+ 	struct dma_trx_obj *obj = container_of(timer, struct dma_trx_obj, scan_timer);
+@@ -797,6 +934,7 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
+ 	}
+ 
++	rk_pcie_dma_sample_busy_irq(obj);
+ 	rk_pcie_dma_poll_done_fallback(obj);
+ 	rk_pcie_dma_recover_timeout(obj);
+ 
+@@ -1246,6 +1384,34 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->last_subsys_status,
+ 		   dma_obj->last_subsys_core_status,
+ 		   dma_obj->last_client_irq_status);
++	seq_printf(s,
++		   "irq_sample: enable = %u, period_ms = %u, count = %lu, tick = %u\n",
++		   dma_obj->dma_irq_sample_enable,
++		   dma_obj->dma_irq_sample_period_ms,
++		   dma_obj->dma_irq_sample_count,
++		   dma_obj->dma_irq_sample_tick);
++	rk_pcie_dma_seq_bits(s, "client_status_bits = ",
++			      dma_obj->last_client_status, rk_pcie_client_bits,
++			      ARRAY_SIZE(rk_pcie_client_bits));
++	rk_pcie_dma_seq_bits(s, "client_mask_bits = ",
++			      dma_obj->last_client_mask, rk_pcie_client_bits,
++			      ARRAY_SIZE(rk_pcie_client_bits));
++	rk_pcie_dma_seq_bits(s, "core_status_bits = ",
++			      dma_obj->last_core_status, rk_pcie_core_bits,
++			      ARRAY_SIZE(rk_pcie_core_bits));
++	rk_pcie_dma_seq_bits(s, "core_mask_bits = ",
++			      dma_obj->last_core_mask, rk_pcie_core_bits,
++			      ARRAY_SIZE(rk_pcie_core_bits));
++	rk_pcie_dma_seq_bits(s, "udma_status_bits = ",
++			      dma_obj->last_dma_status, rk_pcie_udma_status_bits,
++			      ARRAY_SIZE(rk_pcie_udma_status_bits));
++	rk_pcie_dma_seq_bits(s, "udma_enable_raw_bits = ",
++			      dma_obj->last_udma_enable, rk_pcie_udma_enable_bits,
++			      ARRAY_SIZE(rk_pcie_udma_enable_bits));
++	rk_pcie_dma_seq_bits(s, "udma_enable_active_low_guess = ",
++			      (u32)((~dma_obj->last_udma_enable) & PCIE_UDMA_INT_ENABLE_MASK),
++			      rk_pcie_udma_enable_bits,
++			      ARRAY_SIZE(rk_pcie_udma_enable_bits));
+ 
+ 	seq_puts(s,
+ 		 "ioctl_trace recent-first: seq cmd ret idx l_widx r_widx size type count lwa/rwa/lra loop ts_ns raw_before/raw_after\n");
+@@ -1341,7 +1507,7 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	}
+ 
+ 	seq_puts(s,
+-		 "irq_trace recent-first: seq kind status core_status udma_status/en client_status/mask core_int_status/mask ts_ns\n");
++		 "irq_trace recent-first: seq kind(name) status core_status udma_status/en client_status/mask core_int_status/mask ts_ns\n");
+ 	{
+ 		u32 head = dma_obj->irq_trace_head;
+ 		u32 n = min_t(u32, dma_obj->irq_trace_count,
+@@ -1354,8 +1520,9 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 			tr = &dma_obj->irq_trace[(head - 1 - i) &
+ 						     (PCIE_DMA_IRQ_TRACE_LEN - 1)];
+ 			seq_printf(s,
+-				   "  %lu %u 0x%x 0x%x 0x%x/0x%x 0x%x/0x%x 0x%x/0x%x %llu\n",
+-				   tr->seq, tr->kind, tr->status,
++				   "  %lu %u(%s) 0x%x 0x%x 0x%x/0x%x 0x%x/0x%x 0x%x/0x%x %llu\n",
++				   tr->seq, tr->kind,
++				   rk_pcie_dma_irq_kind_name(tr->kind), tr->status,
+ 				   tr->core_status, tr->udma_status,
+ 				   tr->udma_enable, tr->client_status,
+ 				   tr->client_mask, tr->core_int_status,
+@@ -1435,6 +1602,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_timeout_ms = PCIE_DMA_DEFAULT_TIMEOUT_MS;
+ 	obj->dma_read_dump_len = PCIE_DMA_READ_DUMP_MAX;
+ 	obj->dma_failfast_mode = PCIE_DMA_FAILFAST_ERROR;
++	obj->dma_irq_sample_period_ms = PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS;
+ 	obj->dma_preflight_validate = true;
+ 	obj->dma_disabled = true;
+ 	if (of_property_read_bool(dev->of_node, "rockchip,pcie-dma-enabled"))
+@@ -1494,13 +1662,18 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			    &obj->dma_no_queue_after_start);
+ 	debugfs_create_bool("dma_preflight_validate", 0600, obj->pcie_root,
+ 			    &obj->dma_preflight_validate);
++	debugfs_create_u32("dma_irq_sample_enable", 0600, obj->pcie_root,
++			   &obj->dma_irq_sample_enable);
++	debugfs_create_u32("dma_irq_sample_period_ms", 0600, obj->pcie_root,
++			   &obj->dma_irq_sample_period_ms);
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d start_limit=%u preflight=%d)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d start_limit=%u preflight=%d irq_sample_period=%u)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+-		 obj->dma_start_once_limit, obj->dma_preflight_validate);
++		 obj->dma_start_once_limit, obj->dma_preflight_validate,
++		 obj->dma_irq_sample_period_ms);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 911ad6a..805f94b 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -38,6 +38,9 @@
+ #define PCIE_DMA_IRQ_TRACE_POLL_DONE		4
+ #define PCIE_DMA_IRQ_TRACE_TIMEOUT		5
+ #define PCIE_DMA_IRQ_TRACE_POLL_ABORT		6
++#define PCIE_DMA_IRQ_TRACE_START_PRE		7
++#define PCIE_DMA_IRQ_TRACE_START_POST		8
++#define PCIE_DMA_IRQ_TRACE_SAMPLE		9
+ 
+ #define PCIE_DMA_START_STAGE_INIT		0
+ #define PCIE_DMA_START_STAGE_PREFLIGHT_FAIL	1
+@@ -244,6 +247,10 @@ struct dma_trx_obj {
+ 	bool				dma_poll_done_fallback;
+ 	unsigned long			dma_poll_done_fallback_count;
+ 	unsigned long			dma_poll_abort_fallback_count;
++	u32				dma_irq_sample_enable;
++	u32				dma_irq_sample_period_ms;
++	u32				dma_irq_sample_tick;
++	unsigned long			dma_irq_sample_count;
+ 	unsigned long			udma_irq_count;
+ 	unsigned long			subsys_irq_count;
+ 	unsigned long			client_irq_count;
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index ff6eec7..a2152b0 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -448,14 +448,15 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
+ 	struct rockchip_pcie *rockchip = arg;
+ 	struct device *dev = rockchip->dev;
+ 	u32 reg;
+-	u32 sub_reg = 0;
++	u32 sub_reg;
+ 
++	/* Match vendor 4.4 ordering: snapshot client and core status first. */
+ 	reg = rockchip_pcie_read(rockchip, PCIE_CLIENT_INT_STATUS);
+-	rk_pcie_dma_record_subsys_irq(rockchip, reg, 0);
++	sub_reg = rockchip_pcie_read(rockchip, PCIE_CORE_INT_STATUS);
++	rk_pcie_dma_record_subsys_irq(rockchip, reg, sub_reg);
+ 	if (reg & PCIE_CLIENT_INT_LOCAL) {
+-		dev_dbg(dev, "local interrupt received\n");
+-		sub_reg = rockchip_pcie_read(rockchip, PCIE_CORE_INT_STATUS);
+-		rk_pcie_dma_record_subsys_irq(rockchip, reg, sub_reg);
++		dev_dbg(dev, "local interrupt received, client=0x%x core=0x%x\n",
++			reg, sub_reg);
+ 		if (sub_reg & PCIE_CORE_INT_PRFPE)
+ 			dev_dbg(dev, "parity error detected while reading from the PNP receive FIFO RAM\n");
+ 
+@@ -507,6 +508,7 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
+ 
+ 	if (reg & PCIE_CLIENT_INT_UDMA) {
+ 		rk_pcie_handle_dma_interrupt(rockchip);
++		/* Preserve vendor 4.4 double-clear ordering after UDMA status ack. */
+ 		rockchip_pcie_write(rockchip, sub_reg, PCIE_CLIENT_INT_STATUS);
+ 		rockchip_pcie_write(rockchip, reg, PCIE_CLIENT_INT_STATUS);
+ 	}
+@@ -745,6 +747,15 @@ static void rockchip_pcie_enable_interrupts(struct rockchip_pcie *rockchip)
+ 	if (rockchip->dma_trx_enabled)
+ 		client_int |= PCIE_CLIENT_INT_UDMA;
+ 
++	if (rockchip->dma_trx_enabled) {
++		/* Clear stale UDMA/client pending bits before unmasking. */
++		rockchip_pcie_write(rockchip,
++				    BIT(0) | BIT(1) | BIT(16) | BIT(17),
++				    PCIE_APB_CORE_UDMA_BASE + PCIE_UDMA_INT_REG);
++		rockchip_pcie_write(rockchip, PCIE_CLIENT_INT_UDMA,
++				    PCIE_CLIENT_INT_STATUS);
++	}
++
+ 	rockchip_pcie_write(rockchip, (client_int << 16) & (~client_int),
+ 			    PCIE_CLIENT_INT_MASK);
+ 	rockchip_pcie_write(rockchip, (u32)(~PCIE_CORE_INT),
