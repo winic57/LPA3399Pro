@@ -1,0 +1,18 @@
+/dts-v1/;
+
+/include/ "rk3399pro-neardi-linux-lc110-pcie-deferred-display.dts"
+
+/ {
+	model = "Neardi LPA3399Pro LC110 PCIe deferred display USB0 peripheral A/B";
+};
+
+/*
+ * A/B-only variant: keep the tested pcie-deferred display baseline, align
+ * DWC3 USB0 GCTL.PRTCAP with vendor 4.4 golden device/peripheral state, and
+ * rely on the USB2PHY0 host-keepalive quirk for the NPU-facing HS path.
+ */
+&{/usb@fe800000/usb@fe800000} {
+	dr_mode = "peripheral";
+	/delete-property/ usb-role-switch;
+	/delete-property/ role-switch-default-mode;
+};

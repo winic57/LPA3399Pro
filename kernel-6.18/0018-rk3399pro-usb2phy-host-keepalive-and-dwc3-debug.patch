@@ -1,0 +1,242 @@
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+index be5d1893e..67f4f610e 100644
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -289,6 +289,77 @@ static inline bool property_enabled(struct regmap *base,
+ 	return tmp != reg->disable;
+ }
+ 
++static bool rockchip_usb2phy_is_rk3399_usb0(struct rockchip_usb2phy *rphy)
++{
++	return rphy->phy_cfg && rphy->phy_cfg->reg == 0xe450 &&
++	       of_device_is_compatible(rphy->dev->of_node,
++				       "rockchip,rk3399-usb2phy");
++}
++
++static bool rockchip_usb2phy_rk3399_usb0_keepalive(struct rockchip_usb2phy *rphy)
++{
++	return rockchip_usb2phy_is_rk3399_usb0(rphy) &&
++	       of_property_read_bool(rphy->dev->of_node,
++				     "rockchip,npu-usb0-host-keepalive");
++}
++
++static void rockchip_usb2phy_rk3399_dump(struct rockchip_usb2phy *rphy,
++					 const char *tag)
++{
++	unsigned int e454 = 0, e458 = 0, e2ac = 0;
++	int r1, r2, r3;
++
++	if (!rockchip_usb2phy_is_rk3399_usb0(rphy))
++		return;
++
++	r1 = regmap_read(rphy->grf, 0xe454, &e454);
++	r2 = regmap_read(rphy->grf, 0xe458, &e458);
++	r3 = regmap_read(rphy->grf, 0xe2ac, &e2ac);
++	if (r1 || r2 || r3)
++		return;
++
++	dev_info(rphy->dev,
++		 "rk3399-usb0 %s: e454(otg_sus)=0x%08x e458(host_sus)=0x%08x e2ac(stat)=0x%08x keepalive=%d\n",
++		 tag, e454, e458, e2ac,
++		 rockchip_usb2phy_rk3399_usb0_keepalive(rphy));
++}
++
++static void rockchip_usb2phy_rk3399_force_usb0_host(struct rockchip_usb2phy *rphy,
++						    const char *tag)
++{
++	const struct rockchip_usb2phy_port_cfg *otg_cfg;
++	const struct rockchip_usb2phy_port_cfg *host_cfg;
++	int i;
++
++	if (!rockchip_usb2phy_rk3399_usb0_keepalive(rphy))
++		return;
++
++	otg_cfg = &rphy->phy_cfg->port_cfgs[USB2PHY_PORT_OTG];
++	host_cfg = &rphy->phy_cfg->port_cfgs[USB2PHY_PORT_HOST];
++
++	/*
++	 * RK3399Pro NPU golden vendor 4.4 state after rs:
++	 *   USB0 OTG  phy_sus(e454)  = 0x15d1 (suspend/no-driving)
++	 *   USB0 HOST phy_sus(e458)  = 0x07d2 (active)
++	 *
++	 * Mainline dwc3-of-simple + generic PHY tends to leave the inverse
++	 * state (OTG active, HOST suspended).  Keep this board-specific quirk
++	 * opt-in via DT while validating the NPU USB loader->rs path.
++	 */
++	property_enable(rphy->grf, &otg_cfg->phy_sus, true);
++	property_enable(rphy->grf, &host_cfg->phy_sus, false);
++	for (i = 0; i < USB2PHY_NUM_PORTS; i++) {
++		if (!rphy->ports[i].port_cfg)
++			continue;
++		if (rphy->ports[i].port_id == USB2PHY_PORT_OTG)
++			rphy->ports[i].suspended = true;
++		else if (rphy->ports[i].port_id == USB2PHY_PORT_HOST)
++			rphy->ports[i].suspended = false;
++	}
++
++	rockchip_usb2phy_rk3399_dump(rphy, tag);
++}
++
+ static int rockchip_usb2phy_reset(struct rockchip_usb2phy *rphy)
+ {
+ 	int ret;
+@@ -622,6 +693,8 @@ static int rockchip_usb2phy_power_on(struct phy *phy)
+ 	usleep_range(1500, 2000);
+ 
+ 	rport->suspended = false;
++	rockchip_usb2phy_rk3399_dump(rphy, "power_on");
++	rockchip_usb2phy_rk3399_force_usb0_host(rphy, "force-after-power_on");
+ 	return 0;
+ }
+ 
+@@ -642,6 +715,8 @@ static int rockchip_usb2phy_power_off(struct phy *phy)
+ 
+ 	rport->suspended = true;
+ 	clk_disable_unprepare(rphy->clk480m);
++	rockchip_usb2phy_rk3399_dump(rphy, "power_off");
++	rockchip_usb2phy_rk3399_force_usb0_host(rphy, "force-after-power_off");
+ 
+ 	return 0;
+ }
+@@ -1496,6 +1571,9 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	rockchip_usb2phy_rk3399_dump(rphy, "probe");
++	rockchip_usb2phy_rk3399_force_usb0_host(rphy, "force-after-probe");
++
+ 	return PTR_ERR_OR_ZERO(provider);
+ 
+ put_child:
+diff --git a/drivers/usb/dwc3/dwc3-of-simple.c b/drivers/usb/dwc3/dwc3-of-simple.c
+index c11614333..eba7a9d09 100644
+--- a/drivers/usb/dwc3/dwc3-of-simple.c
++++ b/drivers/usb/dwc3/dwc3-of-simple.c
+@@ -18,9 +18,17 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/clk.h>
+ #include <linux/of.h>
++#include <linux/of_address.h>
+ #include <linux/of_platform.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/reset.h>
++#include <linux/io.h>
++
++#define DWC3_GCTL		0xc110
++#define DWC3_GSTS		0xc118
++#define DWC3_GUSB2PHYCFG0	0xc200
++#define DWC3_GUSB3PIPECTL0	0xc2c0
++#define DWC3_DCTL		0xc704
+ 
+ struct dwc3_of_simple {
+ 	struct device		*dev;
+@@ -28,8 +36,44 @@ struct dwc3_of_simple {
+ 	int			num_clocks;
+ 	struct reset_control	*resets;
+ 	bool			need_reset;
++	bool			rk3399_debug;
++	void __iomem		*dwc3_regs;
+ };
+ 
++static void dwc3_of_simple_rk3399_dump(struct dwc3_of_simple *simple,
++				       const char *tag)
++{
++	if (!simple->rk3399_debug || !simple->dwc3_regs)
++		return;
++
++	dev_info(simple->dev,
++		 "rk3399-dwc3 %s: GCTL=0x%08x DCTL=0x%08x GSTS=0x%08x GUSB2PHYCFG0=0x%08x GUSB3PIPECTL0=0x%08x\n",
++		 tag,
++		 readl(simple->dwc3_regs + DWC3_GCTL),
++		 readl(simple->dwc3_regs + DWC3_DCTL),
++		 readl(simple->dwc3_regs + DWC3_GSTS),
++		 readl(simple->dwc3_regs + DWC3_GUSB2PHYCFG0),
++		 readl(simple->dwc3_regs + DWC3_GUSB3PIPECTL0));
++}
++
++static void dwc3_of_simple_rk3399_iomap_child(struct dwc3_of_simple *simple,
++					      struct device_node *np)
++{
++	struct device_node *child;
++
++	if (!simple->rk3399_debug)
++		return;
++
++	for_each_available_child_of_node(np, child) {
++		if (!of_device_is_compatible(child, "snps,dwc3"))
++			continue;
++
++		simple->dwc3_regs = of_iomap(child, 0);
++		of_node_put(child);
++		return;
++	}
++}
++
+ static int dwc3_of_simple_probe(struct platform_device *pdev)
+ {
+ 	struct dwc3_of_simple	*simple;
+@@ -49,8 +93,11 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
+ 	 * Some controllers need to toggle the usb3-otg reset before trying to
+ 	 * initialize the PHY, otherwise the PHY times out.
+ 	 */
+-	if (of_device_is_compatible(np, "rockchip,rk3399-dwc3"))
++	if (of_device_is_compatible(np, "rockchip,rk3399-dwc3")) {
+ 		simple->need_reset = true;
++		simple->rk3399_debug = true;
++		dwc3_of_simple_rk3399_iomap_child(simple, np);
++	}
+ 
+ 	simple->resets = of_reset_control_array_get_optional_exclusive(np);
+ 	if (IS_ERR(simple->resets)) {
+@@ -71,14 +118,17 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
+ 	ret = clk_bulk_prepare_enable(simple->num_clocks, simple->clks);
+ 	if (ret)
+ 		goto err_clk_put_all;
++	dwc3_of_simple_rk3399_dump(simple, "after-clk-enable");
+ 
+ 	ret = of_platform_populate(np, NULL, NULL, dev);
+ 	if (ret)
+ 		goto err_clk_disable;
++	dwc3_of_simple_rk3399_dump(simple, "after-populate");
+ 
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_sync(dev);
++	dwc3_of_simple_rk3399_dump(simple, "after-runtime-get");
+ 
+ 	return 0;
+ 
+@@ -106,6 +156,10 @@ static void __dwc3_of_simple_teardown(struct dwc3_of_simple *simple)
+ 	reset_control_assert(simple->resets);
+ 
+ 	reset_control_put(simple->resets);
++	if (simple->dwc3_regs) {
++		iounmap(simple->dwc3_regs);
++		simple->dwc3_regs = NULL;
++	}
+ 
+ 	pm_runtime_disable(simple->dev);
+ 	pm_runtime_put_noidle(simple->dev);
+@@ -138,8 +192,13 @@ static int __maybe_unused dwc3_of_simple_runtime_suspend(struct device *dev)
+ static int __maybe_unused dwc3_of_simple_runtime_resume(struct device *dev)
+ {
+ 	struct dwc3_of_simple	*simple = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_bulk_enable(simple->num_clocks, simple->clks);
++	if (!ret)
++		dwc3_of_simple_rk3399_dump(simple, "runtime-resume");
+ 
+-	return clk_bulk_enable(simple->num_clocks, simple->clks);
++	return ret;
+ }
+ 
+ static int __maybe_unused dwc3_of_simple_suspend(struct device *dev)
+@@ -158,6 +217,7 @@ static int __maybe_unused dwc3_of_simple_resume(struct device *dev)
+ 
+ 	if (simple->need_reset)
+ 		reset_control_deassert(simple->resets);
++	dwc3_of_simple_rk3399_dump(simple, "system-resume");
+ 
+ 	return 0;
+ }

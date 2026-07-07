@@ -1978,6 +1978,7 @@
 			#clock-cells = <0x00>;
 			clock-output-names = "clk_usbphy0_480m";
 			status = "okay";
+			rockchip,npu-usb0-host-keepalive;
 			phandle = <0x2e>;
 
 			host-port {
