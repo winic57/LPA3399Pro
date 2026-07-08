@@ -66,3 +66,15 @@ This has been pushed to both repositories, triggering the GitHub Actions build p
 ### 3. Conclusion on NPU block
 The NPU is currently sitting in its `upgrade` / Bootloader mode (`2207:180a` USB Storage mode) rather than running the active NPU PCIe firmware runtime. 
 Until the NPU-side firmware executes and configures its PCIe Endpoint registers, the NPU PCIe interface cannot complete the PCIe UDMA transaction handshake, causing the Host-side DMA controller to hang indefinitely waiting for completion.
+
+---
+
+## 2026-07-08 14:35:00 CST DWC3 Rebind and USB Enumeration Verification
+
+### 1. `POST_RS_USB_REBIND=1` / `POST_RS_DWC3_REBIND=1` Test
+* **Objective:** Address DWC3 USB controller re-enumeration descriptor error `-71` and guide NPU from Loader mode into `2207:1005` system mode.
+* **Findings:**
+  * **USB Rebinding Execution:** Successfully unbound and rebound the `fe800000.usb` and `fe900000.usb` DWC3 controllers. 
+  * **Result:** After reset, the USB device `1-1` is recognized, but immediately shows a reset sequence, leading to the descriptor error `-71` (`device descriptor read/64, error -71`).
+  * **USB Bus State:** Rebinding the DWC3 controller recreates the USB bus, but the endpoint device continues to fail control endpoint transactions during descriptor fetching.
+  * **Conclusion:** This indicates that the NPU-side boot process is crashing or failing to correctly initialize its USB OTG controller at the firmware level on the 6.18 kernel DTB timing, or it has failed clock/power transition during the loader-to-kernel pivot. The Host-side driver reset is working, but NPU is not responding to standard USB control requests.
