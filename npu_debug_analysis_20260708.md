@@ -36,3 +36,33 @@ Created and committed `0029-pcie-rockchip-dma-fix-preflight-address-validation.p
 
 This has been pushed to both repositories, triggering the GitHub Actions build pipeline.
 
+
+---
+
+## 2026-07-08 14:15:00 CST Poll Fallback and PCIe IRQ Verification
+
+### 1. `dma_poll_done_fallback=1` Verification
+* **Objective:** Enable Host-side polling on the PCIe controller registers to recover the transaction done status in case physical MSI/INTx interrupts are lost.
+* **Command Executed:**
+  ```sh
+  DBG=/sys/kernel/debug/pcie
+  echo 1 > $DBG/dma_poll_done_fallback
+  # Rerun resnet18 initialization
+  ```
+* **Result:** Still timed out (`RET=124`).
+* **Analysis:** 
+  The transaction trace `pcie_trx` shows that the UDMA interrupt status register (`PCIE_UDMA_INT_REG`) read back **always remains `0x0`** (even after 1000ms).
+  * `udma_status = 0x0`
+  * `udma_en = 0xffff` (fully unmasked)
+  Since the status bit in the UDMA controller register itself is never flagged to `1`, the hardware transfer never finished, meaning the poll logic has nothing to capture.
+
+### 2. PCIe Interrupt Verification
+* **Objective:** Trace why `PCIE_CLIENT_INT_UDMA` is not being handled.
+* **Findings:**
+  * **Interrupt Counters:** `irq_counts: udma = 0, subsys = 0, client = 0`. Not a single PCIe subsystem interrupt was raised during the transaction.
+  * `/proc/interrupts` does not register a dedicated PCIe controller interrupt handler listed, and no counts exist for the platform's PCIe host lines.
+  * **Link Level Status:** The endpoint is present and link-up, but USB enumeration for the NPU (`2207:180a`) shows it is currently matched to `USB-MSC` (Mass Storage device / Upgrade boot mode) instead of `USB_DEVICE` (running NPU firmware).
+
+### 3. Conclusion on NPU block
+The NPU is currently sitting in its `upgrade` / Bootloader mode (`2207:180a` USB Storage mode) rather than running the active NPU PCIe firmware runtime. 
+Until the NPU-side firmware executes and configures its PCIe Endpoint registers, the NPU PCIe interface cannot complete the PCIe UDMA transaction handshake, causing the Host-side DMA controller to hang indefinitely waiting for completion.
