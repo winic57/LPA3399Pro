@@ -119,3 +119,16 @@ Through analysis of the golden reference log `/logs/golden129_usb_proxy_mode_com
 
 ### 3. Conclusion
 The USB 1005 ACM interface behaves as a control plane while the actual transfer happens over `/dev/pcie-dev` (PCIE). The reason the NPU fails to register a stable USB connection after `rs` reset is due to the NPU's internal firmware crashing during device-to-host state transitions, or the PCIe Link training failing to complete.
+
+---
+
+## 2026-07-08 22:05:00 CST DWC3 Reset and PHY Initialization Alignment (Patch 0030)
+
+### 1. Vendor `dwc3-rockchip` vs Mainline `dwc3-of-simple` Alignment
+We created a new patch: [0030-usb-dwc3-of-simple-align-rk3399-dwc3-reset-and-phy.patch](file:///mnt/sdb3/LPA3399Pro/kernel-6.18/0030-usb-dwc3-of-simple-align-rk3399-dwc3-reset-and-phy.patch) to bring mainline closer to the SDK's initialization flow:
+* **Reset Pulse Execution**: Toggles `usb3-otg` resets during the parent driver's probe to ensure the SNPS controller is placed into a clean reset state (`P2` power state) before the child device initializes the PHYs.
+* **Generic PHY Control**: Explicitly probes, power-ons, and power-offs the generic `usb2-phy` and `usb3-phy` linked on the child node matching DWC3's runtime and system PM transitions.
+
+### 2. Status verification
+* NPU resetting works reliably on the board when using the precise `golden129` timing profile.
+* Manually triggering the PCIe root port rescan (`echo 1 > /sys/devices/platform/f8000000.pcie/.../pci_bus/0000:01/rescan`) works without crashes, confirming the link controller registers properly even when link training times out.
