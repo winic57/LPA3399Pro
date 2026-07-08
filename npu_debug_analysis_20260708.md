@@ -95,3 +95,27 @@ Until the NPU-side firmware executes and configures its PCIe Endpoint registers,
   * **Status:** After partition flashing and manual reset command, the NPU disconnected cleanly.
   * **Result:** Re-enumeration on USB bus 1-1 (`new high-speed USB device`) still failed with `error -71`.
   * **Conclusion:** The USB descriptor handshake error is independent of the power-up settle delays. The problem resides either in NPU-side firmware compatibility on 6.18.33 Mainline device tree state, or NPU's internal eMMC booting logic is missing a dependency.
+
+---
+
+## 2026-07-08 15:15:00 CST NPU Boot Parameters and 50.129 DWC3 PHY Register Compare
+
+### 1. 50.129 Reference Log Comparison
+Through analysis of the golden reference log `/logs/golden129_usb_proxy_mode_compare_20260707_160409/golden129_collect.txt`, the NPU boot state is clarified:
+* **USB Mode:** On 50.129, the NPU device `2207:1005` **also reports `Mode=Maskrom`** in `upgrade_tool ld`. This confirms that Maskrom mode is not a symptom of NPU boot failure; the firmware runs successfully in this mode.
+* **Proxy Transport Path:** The 50.129 `npu_transfer_proxy devices` reports:
+  ```text
+  0123456789ABCDEF    cfbc0c55    PCIE
+  ```
+  It utilizes the **PCIE** data channel rather than `USB_DEVICE`.
+* **USB PHY Register Status:**
+  * **50.129 (Golden):** `e454 = 0x15d1` (OTG Port suspended), `e458 = 0x07d2` (HOST Port active).
+  * **Mainline (Before 0019):** `e454 = 0x1452` (OTG active), `e458 = 0x07d1` (HOST suspended).
+  The 0019 patch on mainline forces the correct PHY values (`e454=0x15d1`, `e458=0x07d2`) mimicking the 50.129 references.
+
+### 2. DWC3 Control Register Verification
+* `usb3_0+0xc110` (GCTL) shows `0x30c12004` (PRTCAP=device), aligned with 50.129.
+* `usb3_0+0xc704` (DCTL) remains `0x00f00000` (Mainline) vs `0x80000000` (Golden). The RUN_STOP bit is not set on Mainline, indicating the gadget state machine on the NPU has not completed link initialization.
+
+### 3. Conclusion
+The USB 1005 ACM interface behaves as a control plane while the actual transfer happens over `/dev/pcie-dev` (PCIE). The reason the NPU fails to register a stable USB connection after `rs` reset is due to the NPU's internal firmware crashing during device-to-host state transitions, or the PCIe Link training failing to complete.
