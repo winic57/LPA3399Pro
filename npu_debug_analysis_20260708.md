@@ -78,3 +78,20 @@ Until the NPU-side firmware executes and configures its PCIe Endpoint registers,
   * **Result:** After reset, the USB device `1-1` is recognized, but immediately shows a reset sequence, leading to the descriptor error `-71` (`device descriptor read/64, error -71`).
   * **USB Bus State:** Rebinding the DWC3 controller recreates the USB bus, but the endpoint device continues to fail control endpoint transactions during descriptor fetching.
   * **Conclusion:** This indicates that the NPU-side boot process is crashing or failing to correctly initialize its USB OTG controller at the firmware level on the 6.18 kernel DTB timing, or it has failed clock/power transition during the loader-to-kernel pivot. The Host-side driver reset is working, but NPU is not responding to standard USB control requests.
+
+---
+
+## 2026-07-08 14:57:00 CST Timing-Adjusted Power Cycle Verification
+
+### 1. Verification of Timing Parameters
+* **Objective:** Give NPU internal PLL sufficient settle time using parameters:
+  ```sh
+  POWER_OFF_SETTLE_SEC=4
+  POWER_ON_SETTLE_SEC=8
+  GPIO_HOLD_SETTLE_MS=50
+  GPIO_HOLD_RELEASE_SETTLE_MS=50
+  ```
+* **Findings:**
+  * **Status:** After partition flashing and manual reset command, the NPU disconnected cleanly.
+  * **Result:** Re-enumeration on USB bus 1-1 (`new high-speed USB device`) still failed with `error -71`.
+  * **Conclusion:** The USB descriptor handshake error is independent of the power-up settle delays. The problem resides either in NPU-side firmware compatibility on 6.18.33 Mainline device tree state, or NPU's internal eMMC booting logic is missing a dependency.
