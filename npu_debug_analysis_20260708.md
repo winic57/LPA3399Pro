@@ -8,9 +8,13 @@ Based on the 0028 patch verification execution:
 3. **Polling Fallback**: Enabling `dma_poll_done_fallback=1` did not cause crashes, but the RKNN initialization still timed out.
 
 ### Root Cause Assessment
-Since single-transaction DMA is safe, the NPU/PCIe host does not crash on the first transaction. The timeout indicates that either:
-* The NPU requires multiple sequential DMA transfers to finish handshake initialization.
-* The physical IRQ is not triggering, and the poll done logic needs more attempts or does not catch the specific status.
+During the tests, `blocked` counts matched the number of attempted transactions while `real = 0`. This indicated the driver's `preflight_validate` logic was rejecting all transfer requests with `-ERANGE` (out of range).
+
+The root cause was that `rk_pcie_dma_addr_range_ok` checked both `src` and `dst` addresses against Host-side reserved memory (`mem_start` to `mem_start + mem_size`). For NPU transactions:
+* For `DMA_TO_BUS` (Host-to-NPU), only the `src` address lies in Host-side memory. The `dst` address is the NPU bus physical address, which is naturally outside Host reserved space.
+* For `DMA_FROM_BUS` (NPU-to-Host), only the `dst` address lies in Host-side memory.
+
+As a result, preflight validation incorrectly blocked all transfers, preventing them from reaching the hardware.
 
 ---
 
@@ -21,3 +25,14 @@ We will increase the limit of allowed real DMA starts step-by-step (`2`, `4`, `8
 
 ### Phase 2: Analyze PCIe Transaction Log
 We will inspect the transaction log `pcie_trx` to count how many DMA transfers actually get initiated when we raise the limit.
+
+---
+
+## Patch 0029 Applied - 2026-07-08
+
+Created and committed `0029-pcie-rockchip-dma-fix-preflight-address-validation.patch` to fix the remote address range check:
+* For `DMA_TO_BUS` direction, only validate the `src` address (local).
+* For `DMA_FROM_BUS` direction, only validate the `dst` address (local).
+
+This has been pushed to both repositories, triggering the GitHub Actions build pipeline.
+
