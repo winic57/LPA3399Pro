@@ -132,3 +132,33 @@ We created a new patch: [0030-usb-dwc3-of-simple-align-rk3399-dwc3-reset-and-phy
 ### 2. Status verification
 * NPU resetting works reliably on the board when using the precise `golden129` timing profile.
 * Manually triggering the PCIe root port rescan (`echo 1 > /sys/devices/platform/f8000000.pcie/.../pci_bus/0000:01/rescan`) works without crashes, confirming the link controller registers properly even when link training times out.
+
+---
+
+## 2026-07-09 14:00:00 CST DWC30030 Role-Switch and USB OTG Real-Board Verification
+
+### 1. Test Results on `dwc30030_pdotg` and `dwc30030_pdotgrole`
+* **`upgrade_tool rs` Command Output**: Successfully completed with **`RS_RC=0`** under both device tree modes.
+* **USB Enumeration Results**:
+  * Still failed to enter `2207:1005` (unrecognized as USB device).
+  * Continues to trigger EHCI descriptor read error `-71` and device firmware changed loop:
+    ```text
+    usb 3-1: reset high-speed USB device number 3 using ehci-platform
+    usb 3-1: device descriptor read/64, error -71
+    usb 3-1: device firmware changed
+    usb 3-1: USB disconnect
+    ```
+* **Active USB Toplogy**: `/sys/kernel/debug/usb/devices` shows EHCI Root Hub (`fe380000.usb`) completely empty after timeout.
+
+### 2. Analysis & Conclusion
+The failure is not merely a Host-side USB configuration or role-switching issue. Since `0019` successfully forced USB2PHY to the golden state (`e454=0x15d1`, `e458=0x07d2`), and `0030` forced parent DWC3 reset toggle, the persistent `-71` disconnect points to a NPU firmware hang.
+Specifically, after `rs` command execution, NPU firmware expects the PCIe Link to train and bring up the PCIe Root Port bridge. Because the PCIe link fails to train (`PCIe link training gen1 timeout!`), the NPU's internal boot system halts in an error loop, preventing the DWC3 gadget from asserting `RUN_STOP` (`DCTL=0x00f00000` instead of `0x80000000`), ultimately causing the USB control interface to drop.
+
+### 3. Next Steps & Recommendations
+1. **Focus on PCIe Link Training Failure**:
+   * Address the `PCIe link training gen1 timeout!` root cause.
+   * Review PCIe PHY properties (`pcie-phy` configuration) and link training parameters in the mainline DTB vs vendor DTB.
+2. **Examine PCIe Gen1/Gen2 Training Quirks**:
+   * Some RK3399Pro implementations require forcing Gen1 mode (`num-lanes = <4>` or forcing speed limits) during boot or deferred probe to stabilize link training.
+3. **Debug NPU Side via Serial**:
+   * If possible, monitor NPU UART console during the `rs` transition to confirm where the firmware hangs.
