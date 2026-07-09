@@ -18,14 +18,13 @@ local buffer mapping appropriate for the direction of the DMA transfer.
 
 Signed-off-by: Henry AI <henry.ai@example.com>
 ---
- drivers/pci/controller/pcie-rockchip-dma.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
-
+ drivers/pci/controller/pcie-rockchip-dma.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
-index aa7f2ae7f..bb7f2ae8f 100644
+index 5d69ce6..9a8ee32 100644
 --- a/drivers/pci/controller/pcie-rockchip-dma.c
 +++ b/drivers/pci/controller/pcie-rockchip-dma.c
-@@ -88,10 +88,14 @@ static int rk_pcie_dma_validate_table(struct dma_trx_obj *obj,
+@@ -262,9 +262,13 @@ static int rk_pcie_dma_validate_table(struct dma_trx_obj *obj,
  	src = ((u64)desc[1] << 32) | desc[0];
  	dst = ((u64)desc[3] << 32) | desc[2];
  

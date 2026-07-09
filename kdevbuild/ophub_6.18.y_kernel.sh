@@ -89,16 +89,17 @@ if ls "${PATCH_DIR}"/*.patch >/dev/null 2>&1; then
     elif patch -p1 --fuzz=3 --no-backup-if-mismatch < "${body_file}" 2>&1; then
       echo "  Applied via patch -p1 (with fuzz=3)"
     else
-      echo "  WARNING: Patch $(basename "${patch_file}") could NOT be applied"
-      echo "  Skipping patch and continuing with clean kernel source"
-      echo "  (The GMAC workaround is not critical for kernel compilation,"
-      echo "   it is only needed for eth0 link-up on the physical board)"
+      echo "  ERROR: Patch $(basename "${patch_file}") could NOT be applied"
+      echo "  Refusing to continue: a successful build without required patches is a false positive."
+      rm -f "${body_file}"
+      exit 1
     fi
     rm -f "${body_file}"
-    # Report any .rej files
+    # Report any .rej files and fail immediately.
     if find . -name "*.rej" -print -quit 2>/dev/null | grep -q .; then
-      echo "  Rejected hunks found:"
+      echo "  ERROR: rejected hunks found:"
       find . -name "*.rej" -exec echo "    {}" \;
+      exit 1
     fi
   done
 else

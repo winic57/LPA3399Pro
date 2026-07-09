@@ -1,243 +1,31 @@
 From f70e318d1a1b1d8e12f0eaef73c3a1b873af2c5e Mon Sep 17 00:00:00 2001
 From: Henry AI <henry.ai@example.com>
 Date: Wed, 8 Jul 2026 22:10:00 +0800
-Subject: [PATCH] usb: dwc3: of-simple: align rk3399-dwc3 reset and phy_power sequences
+Subject: [PATCH] usb: dwc3: of-simple: keep rk3399 DWC3 experiment disabled
 
-Align mainline rk3399-dwc3 initialization sequence with vendor dwc3-rockchip
-to improve NPU USB connection stability.
+The first 0030 DWC3 reset/PHY experiment was kept for analysis but did not
+resolve USB -71 on the board. Keep the patch queue stable with an explicit
+non-functional marker and leave the DWC3 flow unchanged while the PCIe/LTSSM
+DMA-deadlock path is handled in 0031.
 
-During role changes or device reset (e.g. after upgrade_tool rs), the vendor
-driver asserts and deasserts the 'usb3-otg' reset line, then gets runtime PM
-synchronously, and explicitly powers on the generic phys before setting the
-DWC3 controller mode.
-
-We adapt dwc3-of-simple.c for "rockchip,rk3399-dwc3" to:
-- Probe and acquire the generic phys associated with the SNPS DWC3 child node;
-- Perform a manual reset pulse on the 'usb3-otg' resets during probe;
-- Enable explicit phy_power_on() and phy_power_off() sequences matching the
-  dwc3 parent controller runtime PM status.
+If DWC3 work is revisited, redo it as a new clean patch from source instead of
+relying on the previous malformed experiment.
 
 Signed-off-by: Henry AI <henry.ai@example.com>
 ---
- drivers/usb/dwc3/dwc3-of-simple.c | 148 +++++++++++++++++++++++++++++-
- 1 file changed, 145 insertions(+), 3 deletions(-)
-
+ drivers/usb/dwc3/dwc3-of-simple.c | 1 +
+ 1 file changed, 1 insertion(+)
 diff --git a/drivers/usb/dwc3/dwc3-of-simple.c b/drivers/usb/dwc3/dwc3-of-simple.c
-index eba7a9d09..b8ac725e2 100644
+index eba7a9d..643aac6 100644
 --- a/drivers/usb/dwc3/dwc3-of-simple.c
 +++ b/drivers/usb/dwc3/dwc3-of-simple.c
-@@ -21,6 +21,7 @@
- #include <linux/of_address.h>
- #include <linux/of_platform.h>
- #include <linux/pm_runtime.h>
-+#include <linux/phy/phy.h>
- #include <linux/reset.h>
- #include <linux/io.h>
- 
-@@ -38,6 +39,10 @@ struct dwc3_of_simple {
- 	bool			need_reset;
- 	bool			rk3399_debug;
- 	void __iomem		*dwc3_regs;
-+	struct phy		*usb2_phy;
-+	struct phy		*usb3_phy;
-+	bool			phys_probed;
-+	bool			phys_on;
- };
- 
- static void dwc3_of_simple_rk3399_dump(struct dwc3_of_simple *simple,
-@@ -174,6 +179,93 @@ static void dwc3_of_simple_rk3399_iomap_child(struct dwc3_of_simple *simple,
- 	}
- }
- 
-+static void dwc3_of_simple_rk3399_get_phys(struct dwc3_of_simple *simple,
-+					   struct device_node *np)
-+{
-+	struct device_node *child;
-+	struct phy *phy;
-+
-+	for_each_available_child_of_node(np, child) {
-+		if (!of_device_is_compatible(child, "snps,dwc3"))
-+			continue;
-+
-+		/*
-+		 * Retrieve generic PHYs mapped on the snps,dwc3 child node.
-+		 * In RK3399 DT, index 0 is typically the USB2 PHY, index 1 is the USB3 PHY.
-+		 */
-+		phy = devm_of_phy_get_by_index(simple->dev, child, 0);
-+		if (!IS_ERR(phy)) {
-+			simple->usb2_phy = phy;
-+			dev_info(simple->dev, "found usb2 phy %pOF\n", child);
-+		}
-+
-+		phy = devm_of_phy_get_by_index(simple->dev, child, 1);
-+		if (!IS_ERR(phy)) {
-+			simple->usb3_phy = phy;
-+			dev_info(simple->dev, "found usb3 phy %pOF\n", child);
-+		}
-+
-+		simple->phys_probed = true;
-+		of_node_put(child);
-+		return;
-+	}
-+}
-+
-+static void dwc3_of_simple_rk3399_phy_power(struct dwc3_of_simple *simple,
-+					    bool on)
-+{
-+	int ret;
-+
-+	if (!simple->rk3399_debug || !simple->phys_probed)
-+		return;
-+
-+	if (on) {
-+		if (simple->phys_on)
-+			return;
-+
-+		dev_info(simple->dev, "powering on phys (otg_reset sequence)\n");
-+
-+		/* Pulse the controller reset line prior to powering on PHYs */
-+		if (simple->resets) {
-+			reset_control_assert(simple->resets);
-+			udelay(2);
-+			reset_control_deassert(simple->resets);
-+		}
-+
-+		if (simple->usb2_phy) {
-+			ret = phy_power_on(simple->usb2_phy);
-+			if (ret < 0)
-+				dev_err(simple->dev, "failed to power on usb2 phy: %d\n", ret);
-+		}
-+
-+		if (simple->usb3_phy) {
-+			ret = phy_power_on(simple->usb3_phy);
-+			if (ret < 0) {
-+				dev_err(simple->dev, "failed to power on usb3 phy: %d\n", ret);
-+				if (simple->usb2_phy)
-+					phy_power_off(simple->usb2_phy);
-+			} else {
-+				simple->phys_on = true;
-+			}
-+		} else {
-+			simple->phys_on = true;
-+		}
-+	} else {
-+		if (!simple->phys_on)
-+			return;
-+
-+		dev_info(simple->dev, "powering off phys\n");
-+
-+		if (simple->usb3_phy)
-+			phy_power_off(simple->usb3_phy);
-+
-+		if (simple->usb2_phy)
-+			phy_power_off(simple->usb2_phy);
-+
-+		simple->phys_on = false;
-+	}
-+}
-+
- static int dwc3_of_simple_probe(struct platform_device *pdev)
- {
- 	struct dwc3_of_simple	*simple;
-@@ -193,8 +285,14 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
- 	 * Some controllers need to toggle the usb3-otg reset before trying to
+@@ -94,6 +94,7 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
  	 * initialize the PHY, otherwise the PHY times out.
  	 */
  	if (of_device_is_compatible(np, "rockchip,rk3399-dwc3")) {
++		/* 0030: keep DWC3 observable, but do not alter PHY/reset flow here. */
  		simple->need_reset = true;
  		simple->rk3399_debug = true;
  		dwc3_of_simple_rk3399_iomap_child(simple, np);
-+		dwc3_of_simple_rk3399_get_phys(simple, np);
- 	}
- 
- 	simple->resets = of_reset_control_array_get_optional_exclusive(np);
-@@ -218,16 +316,33 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
- 	ret = clk_bulk_prepare_enable(simple->num_clocks, simple->clks);
- 	if (ret)
- 		goto err_clk_put_all;
- 	dwc3_of_simple_rk3399_dump(simple, "after-clk-enable");
- 
-+	/* Assert-Deassert reset line prior to phy/child initialization */
-+	if (simple->need_reset && simple->resets) {
-+		reset_control_assert(simple->resets);
-+		udelay(5);
-+		reset_control_deassert(simple->resets);
-+	}
-+
-+	/* Power on generic PHYs before populating child platform devices */
-+	dwc3_of_simple_rk3399_phy_power(simple, true);
-+
- 	ret = of_platform_populate(np, NULL, NULL, dev);
--	if (ret)
--		goto err_clk_disable;
-+	if (ret) {
-+		dwc3_of_simple_rk3399_phy_power(simple, false);
-+		goto err_clk_disable;
-+	}
- 	dwc3_of_simple_rk3399_dump(simple, "after-populate");
- 
- 	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
--	pm_runtime_get_sync(dev);
-+	ret = pm_runtime_get_sync(dev);
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(dev);
-+		pm_runtime_disable(dev);
-+		goto err_clk_disable;
-+	}
- 	dwc3_of_simple_rk3399_dump(simple, "after-runtime-get");
- 
- 	return 0;
-@@ -250,6 +365,8 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
- 
- static void __dwc3_of_simple_teardown(struct dwc3_of_simple *simple)
- {
-+	dwc3_of_simple_rk3399_phy_power(simple, false);
-+
- 	if (simple->need_reset)
- 		reset_control_assert(simple->resets);
- 
-@@ -282,13 +399,25 @@ static int __maybe_unused dwc3_of_simple_runtime_suspend(struct device *dev)
- 	struct dwc3_of_simple	*simple = dev_get_drvdata(dev);
- 
- 	clk_bulk_disable(simple->num_clocks, simple->clks);
-+
-+	/* Power off PHYs in suspend */
-+	dwc3_of_simple_rk3399_phy_power(simple, false);
-+
- 	return 0;
- }
- 
- static int __maybe_unused dwc3_of_simple_runtime_resume(struct device *dev)
- {
- 	struct dwc3_of_simple	*simple = dev_get_drvdata(dev);
- 	int ret;
- 
-+	/* Power on PHYs during runtime resume */
-+	dwc3_of_simple_rk3399_phy_power(simple, true);
-+
- 	ret = clk_bulk_enable(simple->num_clocks, simple->clks);
- 	if (!ret)
- 		dwc3_of_simple_rk3399_dump(simple, "runtime-resume");
-@@ -298,11 +427,15 @@ static int __maybe_unused dwc3_of_simple_runtime_resume(struct device *dev)
- 
- static int __maybe_unused dwc3_of_simple_suspend(struct device *dev)
- {
--	return 0;
-+	struct dwc3_of_simple	*simple = dev_get_drvdata(dev);
-+
-+	dwc3_of_simple_rk3399_phy_power(simple, false);
-+	return 0;
- }
- 
- static int __maybe_unused dwc3_of_simple_resume(struct device *dev)
- {
- 	struct dwc3_of_simple	*simple = dev_get_drvdata(dev);
- 
-+	dwc3_of_simple_rk3399_phy_power(simple, true);
-+
- 	if (simple->need_reset)
- 		reset_control_deassert(simple->resets);
- 	dwc3_of_simple_rk3399_dump(simple, "system-resume");
 -- 
 2.34.1

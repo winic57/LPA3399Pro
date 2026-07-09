@@ -1,0 +1,323 @@
+From 0031aaaa11112222333344445555666677778888 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 15:35:00 +0800
+Subject: [PATCH] pcie: rockchip: add link retrain state and DMA link-down failfast
+
+The RK3399Pro NPU can boot its internal 4.4 kernel but then loops forever
+in "rk-pcie fc000000.pcie: PCIe Linking..." when the host side does not
+complete the PCIe LTSSM/link-training handshake. In this state the host
+misc device and user-space proxy may still exist, but real UDMA is unsafe
+and can hard-deadlock the bus.
+
+Add three safety/debug controls:
+
+  * host pcie_link_state sysfs attribute to expose live link status,
+    BASIC_STATUS1, DEBUG_OUT_0/LTSSM, CLIENT_CONFIG, CORE_CTRL,
+    hw_started/probed and lane information;
+  * pcie_reset_ep=3 hard retrain path that disables training/interrupts,
+    holds PERST low for 200 ms, reinitializes host port/ATU/interrupts and
+    rescans the root bus;
+  * default-on DMA link-down failfast gate. When dma_disabled=0 but PCIe
+    link is still down, queued DMA is dropped in software instead of
+    programming UDMA registers.
+
+This prevents the known DMA deadlock while allowing controlled link/retrain
+A/B. The DMA failfast path also avoids live APB reads when the host port is
+already marked stopped.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c  | 36 +++++++++---
+ drivers/pci/controller/pcie-rockchip-dma.h  |  2 +
+ drivers/pci/controller/pcie-rockchip-host.c | 90 ++++++++++++++++++++++++++++-
+ drivers/pci/controller/pcie-rockchip.h      |  3 +
+ 4 files changed, 122 insertions(+), 9 deletions(-)
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 5d69ce6..8a412a2 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -689,6 +689,21 @@ static void rk_pcie_dma_trx_work(struct work_struct *work)
+ 	struct dma_table *table;
+ 
+ 	while (!list_empty(&obj->tbl_list)) {
++		struct rockchip_pcie *rockchip = dev_get_drvdata(obj->dev);
++
++		if (READ_ONCE(obj->dma_link_failfast) && rockchip &&
++		    (!rockchip->pcie_hw_started || !rockchip_pcie_link_up(rockchip))) {
++			obj->dma_abort_count++;
++			obj->dma_soft_abort_count++;
++			obj->dma_linkdown_block_count++;
++			rk_pcie_dma_failfast_reset(obj);
++			dev_warn_ratelimited(obj->dev,
++					     "pcie dma blocked: hw_started=%d link_up=%d status=0x%08x\n",
++					     rockchip->pcie_hw_started, rockchip->pcie_link_up,
++					     rockchip->last_link_status);
++			break;
++		}
++
+ 		if (READ_ONCE(obj->dma_disabled)) {
+ 			obj->dma_abort_count++;
+ 			obj->dma_soft_abort_count++;
+@@ -1496,16 +1511,17 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_poll_done_fallback_count,
+ 		   dma_obj->dma_poll_abort_fallback_count);
+ 	seq_printf(s,
+-		   "start_guard: program_only = %d, dry_run_no_mmio = %d, start_limit = %u, no_queue_after = %d, preflight = %d, real = %lu, program_only_count = %lu, dry_run_count = %lu, blocked = %lu, preflight_fail = %lu\n",
++		   "start_guard: program_only = %d, dry_run_no_mmio = %d, start_limit = %u, no_queue_after = %d, preflight = %d, link_failfast = %d, real = %lu, program_only_count = %lu, dry_run_count = %lu, blocked = %lu, preflight_fail = %lu, linkdown_block = %lu\n",
+ 		   dma_obj->dma_program_only, dma_obj->dma_dry_run_no_mmio,
+ 		   dma_obj->dma_start_once_limit,
+ 		   dma_obj->dma_no_queue_after_start,
+-		   dma_obj->dma_preflight_validate,
++		   dma_obj->dma_preflight_validate, dma_obj->dma_link_failfast,
+ 		   dma_obj->dma_real_start_count,
+ 		   dma_obj->dma_program_only_count,
+ 		   dma_obj->dma_dry_run_no_mmio_count,
+ 		   dma_obj->dma_start_blocked_count,
+-		   dma_obj->dma_preflight_fail_count);
++		   dma_obj->dma_preflight_fail_count,
++		   dma_obj->dma_linkdown_block_count);
+ 	seq_printf(s,
+ 		   "mmio_probe: mask = 0x%x, limit = %u, reset_seq = %u/%u, count = %lu, skip = %lu, bits = status:0x1 enable:0x2 ctrl:0x4 desc_lo:0x8 desc_hi:0x10 after_status:0x20 after_enable:0x40 after_ctrl:0x80\n",
+ 		   dma_obj->dma_mmio_probe_mask, dma_obj->dma_mmio_probe_limit,
+@@ -1800,6 +1816,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_mmio_probe_limit = 1;
+ 	obj->dma_preflight_validate = true;
+ 	obj->dma_disabled = true;
++	obj->dma_link_failfast = true;
+ 	if (of_property_read_bool(dev->of_node, "rockchip,pcie-dma-enabled"))
+ 		obj->dma_disabled = false;
+ 	if (of_property_read_bool(dev->of_node, "rockchip,pcie-dma-disabled"))
+@@ -1835,6 +1852,8 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			    &rk_pcie_debugfs_fops);
+ 	debugfs_create_bool("dma_disabled", 0600, obj->pcie_root,
+ 			    &obj->dma_disabled);
++	debugfs_create_bool("dma_link_failfast", 0600, obj->pcie_root,
++			    &obj->dma_link_failfast);
+ 	debugfs_create_u32("dma_timeout_ms", 0600, obj->pcie_root,
+ 			   &obj->dma_timeout_ms);
+ 	debugfs_create_u32("dma_failfast_mode", 0600, obj->pcie_root,
+@@ -1876,13 +1895,14 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d link_failfast=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+-		 obj->dma_dry_run_no_mmio, obj->dma_mmio_probe_mask,
+-		 obj->dma_mmio_probe_limit, obj->dma_start_once_limit,
+-		 obj->dma_preflight_validate, obj->dma_irq_sample_period_ms,
+-		 obj->dma_reg_trace_enable, obj->dma_reg_trace_live_mmio);
++		 obj->dma_dry_run_no_mmio, obj->dma_link_failfast,
++		 obj->dma_mmio_probe_mask, obj->dma_mmio_probe_limit,
++		 obj->dma_start_once_limit, obj->dma_preflight_validate,
++		 obj->dma_irq_sample_period_ms, obj->dma_reg_trace_enable,
++		 obj->dma_reg_trace_live_mmio);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index a63f0db..cef006c 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -259,6 +259,8 @@ struct dma_trx_obj {
+ 	u32				last_subsys_core_status;
+ 	u32				last_client_irq_status;
+ 	bool				dma_disabled;
++	bool				dma_link_failfast;
++	unsigned long			dma_linkdown_block_count;
+ 	u32				dma_failfast_mode;
+ 	u32				dma_timeout_ms;
+ 	unsigned long			dma_timeout_count;
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index a2152b0..fe51914 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -32,6 +32,24 @@
+ 
+ #define PCIE_USER_RELINK	0x1
+ #define PCIE_USER_UNLINK	0x2
++#define PCIE_USER_HARD_RETRAIN	0x3
++#define PCIE_USER_EP_RESET_MS	200
++
++
++bool rockchip_pcie_link_up(struct rockchip_pcie *rockchip)
++{
++	u32 status;
++
++	if (!rockchip || !rockchip->apb_base)
++		return false;
++
++	status = rockchip_pcie_read(rockchip, PCIE_CLIENT_BASIC_STATUS1);
++	rockchip->last_link_status = status;
++	rockchip->pcie_link_up = PCIE_LINK_UP(status);
++
++	return rockchip->pcie_link_up;
++}
++EXPORT_SYMBOL_GPL(rockchip_pcie_link_up);
+ 
+ static void rockchip_pcie_enable_bw_int(struct rockchip_pcie *rockchip)
+ {
+@@ -348,7 +366,9 @@ err_retry_init:
+ 				 status, PCIE_LINK_UP(status), 20,
+ 				 500 * USEC_PER_MSEC);
+ 	if (err) {
+-		dev_err(dev, "PCIe link training gen1 timeout!\n");
++		rockchip->last_link_status = status;
++		rockchip->pcie_link_up = false;
++		dev_err(dev, "PCIe link training gen1 timeout! status=0x%08x\n", status);
+ 		if (attempt_counter++ < 5) {
+ 			dev_warn(dev, "Retrying PCIe link training (%d/5)...\n", attempt_counter);
+ 			i = MAX_LANE_NUM;
+@@ -390,6 +410,7 @@ err_retry_init:
+ 	status = 0x1 << ((status & PCIE_CORE_PL_CONF_LANE_MASK) >>
+ 			  PCIE_CORE_PL_CONF_LANE_SHIFT);
+ 	dev_dbg(dev, "current link width is x%d\n", status);
++	rockchip_pcie_link_up(rockchip);
+ 
+ 	/* Power off unused lane(s) */
+ 	if (link_is_up) {
+@@ -1116,6 +1137,7 @@ static int rockchip_pcie_suspend_for_user(struct rockchip_pcie *rockchip)
+ 
+ 	rockchip_pcie_deinit_phys(rockchip);
+ 	rockchip->pcie_hw_started = false;
++	rockchip->pcie_link_up = false;
+ 
+ 	return 0;
+ }
+@@ -1137,6 +1159,7 @@ static int rockchip_pcie_resume_for_user(struct rockchip_pcie *rockchip)
+ 	rockchip_pcie_update_txcredit_mui(rockchip);
+ 	rockchip_pcie_enable_interrupts(rockchip);
+ 	rockchip->pcie_hw_started = true;
++	rockchip_pcie_link_up(rockchip);
+ 
+ 	if (rockchip->root_bus)
+ 		pci_rescan_bus(rockchip->root_bus);
+@@ -1144,6 +1167,42 @@ static int rockchip_pcie_resume_for_user(struct rockchip_pcie *rockchip)
+ 	return 0;
+ }
+ 
++
++static int rockchip_pcie_hard_retrain_for_user(struct rockchip_pcie *rockchip)
++{
++	int err;
++
++	rockchip_pcie_write(rockchip, PCIE_CLIENT_LINK_TRAIN_DISABLE,
++			    PCIE_CLIENT_CONFIG);
++	rockchip_pcie_write(rockchip, (PCIE_CLIENT_INT_CLI << 16) |
++			    PCIE_CLIENT_INT_CLI, PCIE_CLIENT_INT_MASK);
++	if (rockchip->dma_trx_enabled)
++		rockchip_pcie_write(rockchip, 0,
++				    PCIE_APB_CORE_UDMA_BASE +
++				    PCIE_UDMA_INT_ENABLE_REG);
++	rockchip_pcie_write(rockchip, (u32)PCIE_CORE_INT,
++			    PCIE_CORE_INT_MASK);
++
++	if (rockchip->pcie_hw_started) {
++		rockchip_pcie_deinit_phys(rockchip);
++		rockchip->pcie_hw_started = false;
++	}
++
++	rockchip->pcie_link_up = false;
++	gpiod_set_value_cansleep(rockchip->perst_gpio, 0);
++	msleep(PCIE_USER_EP_RESET_MS);
++
++	err = rockchip_pcie_resume_for_user(rockchip);
++	if (err)
++		return err;
++
++	dev_info(rockchip->dev,
++		 "user hard retrain done: link_up=%d status=0x%08x\n",
++		 rockchip->pcie_link_up, rockchip->last_link_status);
++
++	return 0;
++}
++
+ static ssize_t pcie_deferred_store(struct device *dev,
+ 				   struct device_attribute *attr,
+ 				   const char *buf, size_t size)
+@@ -1194,6 +1253,9 @@ static ssize_t pcie_reset_ep_store(struct device *dev,
+ 	case PCIE_USER_RELINK:
+ 		err = rockchip_pcie_resume_for_user(rockchip);
+ 		break;
++	case PCIE_USER_HARD_RETRAIN:
++		err = rockchip_pcie_hard_retrain_for_user(rockchip);
++		break;
+ 	default:
+ 		dev_err(dev, "unknown pcie_reset_ep cmd %u\n", val);
+ 		return -EINVAL;
+@@ -1205,12 +1267,36 @@ static ssize_t pcie_reset_ep_store(struct device *dev,
+ 	return size;
+ }
+ 
++
++static ssize_t pcie_link_state_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	struct rockchip_pcie *rockchip = dev_get_drvdata(dev);
++	u32 debug0 = 0, client_cfg = 0, core_ctrl = 0;
++	bool up = false;
++
++	if (rockchip->pcie_hw_started) {
++		up = rockchip_pcie_link_up(rockchip);
++		debug0 = rockchip_pcie_read(rockchip, PCIE_CLIENT_DEBUG_OUT_0);
++		client_cfg = rockchip_pcie_read(rockchip, PCIE_CLIENT_CONFIG);
++		core_ctrl = rockchip_pcie_read(rockchip, PCIE_CORE_CTRL);
++	}
++
++	return sysfs_emit(buf,
++			  "link_up=%u status1=0x%08x debug0=0x%08x client_cfg=0x%08x core_ctrl=0x%08x hw_started=%u probed=%u lanes=%u lanes_map=0x%x\n",
++			  up, rockchip->last_link_status, debug0, client_cfg, core_ctrl,
++			  rockchip->pcie_hw_started, rockchip->pcie_really_probed,
++			  rockchip->lanes, rockchip->lanes_map);
++}
++
+ static DEVICE_ATTR_WO(pcie_deferred);
+ static DEVICE_ATTR_WO(pcie_reset_ep);
++static DEVICE_ATTR_RO(pcie_link_state);
+ 
+ static struct attribute *rockchip_pcie_attrs[] = {
+ 	&dev_attr_pcie_deferred.attr,
+ 	&dev_attr_pcie_reset_ep.attr,
++	&dev_attr_pcie_link_state.attr,
+ 	NULL,
+ };
+ 
+@@ -1242,6 +1328,7 @@ static int rockchip_pcie_suspend_noirq(struct device *dev)
+ 
+ 	rockchip_pcie_deinit_phys(rockchip);
+ 	rockchip->pcie_hw_started = false;
++	rockchip->pcie_link_up = false;
+ 
+ disable_clocks:
+ 	rockchip_pcie_disable_clocks(rockchip);
+@@ -1283,6 +1370,7 @@ static int rockchip_pcie_resume_noirq(struct device *dev)
+ 	rockchip_pcie_update_txcredit_mui(rockchip);
+ 	rockchip_pcie_enable_interrupts(rockchip);
+ 	rockchip->pcie_hw_started = true;
++	rockchip_pcie_link_up(rockchip);
+ 	rockchip_pcie_try_probe_dma_obj(rockchip);
+ 
+ 	return 0;
+diff --git a/drivers/pci/controller/pcie-rockchip.h b/drivers/pci/controller/pcie-rockchip.h
+index acff78b..e0c08a5 100644
+--- a/drivers/pci/controller/pcie-rockchip.h
++++ b/drivers/pci/controller/pcie-rockchip.h
+@@ -346,6 +346,8 @@ struct rockchip_pcie {
+ 	int deferred;
+ 	bool pcie_hw_started;
+ 	bool pcie_really_probed;
++	bool pcie_link_up;
++	u32 last_link_status;
+ 	struct pci_host_bridge *bridge;
+ 	struct pci_bus *root_bus;
+ 	struct dma_trx_obj *dma_obj;
+@@ -370,5 +372,6 @@ int rockchip_pcie_enable_clocks(struct rockchip_pcie *rockchip);
+ void rockchip_pcie_disable_clocks(struct rockchip_pcie *rockchip);
+ void rockchip_pcie_cfg_configuration_accesses(
+ 		struct rockchip_pcie *rockchip, u32 type);
++bool rockchip_pcie_link_up(struct rockchip_pcie *rockchip);
+ 
+ #endif /* _PCIE_ROCKCHIP_H */
+-- 
+2.34.1
