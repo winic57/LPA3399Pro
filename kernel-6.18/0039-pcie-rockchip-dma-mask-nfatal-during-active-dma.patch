@@ -1,0 +1,163 @@
+From 0000000000000000000000000000000000000039 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 22:35:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: mask NFATAL client IRQ during active DMA
+
+0038 proved that eight consecutive 1MiB DATA_SND real DMA starts complete
+without timeout, abort, link loss or AXI hang, but the client IRQ handler
+still sees hundreds of NFATAL_ERR interrupts per MiB.  The remaining issue
+is interrupt storm control, not DMA completion.
+
+Temporarily mask PCIE_CLIENT_INT_NFATAL_ERR immediately before writing the
+UDMA start control register, then clear stale NFATAL/MMVC status and unmask
+it when the UDMA done/abort/timeout path releases the channel.  Keep this
+limited to the real DMA active window and add pcie_trx counters so the next
+run can verify whether client IRQ count drops from hundreds per MiB to a
+small number.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index aa9992997..c66f4659b 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -209,12 +209,15 @@ static void rk_pcie_dma_record_scan(struct dma_trx_obj *obj, u32 event, u32 idx,
+ 	tr->dma_free = obj->dma_free;
+ }
+ 
++static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj);
++
+ static void rk_pcie_dma_finish_no_start(struct dma_trx_obj *obj)
+ {
+ 	if (!obj)
+ 		return;
+ 
+ 	obj->dma_free = true;
++	rk_pcie_dma_restore_nfatal_irq(obj);
+ 	wake_up(&obj->event_queue);
+ 	complete_all(&obj->done);
+ }
+@@ -273,6 +276,55 @@ static int rk_pcie_dma_validate_table(struct dma_trx_obj *obj,
+ 	return 0;
+ }
+ 
++static void rk_pcie_dma_mask_nfatal_irq(struct rockchip_pcie *rockchip,
++					       struct dma_trx_obj *obj)
++{
++	if (!rockchip || !obj || obj->dma_nfatal_irq_masked)
++		return;
++
++	/* PCIE_CLIENT_INT_MASK uses hiword update; bit value 1 masks IRQ. */
++	rockchip_pcie_write(rockchip,
++			    (PCIE_CLIENT_INT_NFATAL_ERR << 16) |
++			    PCIE_CLIENT_INT_NFATAL_ERR,
++			    PCIE_CLIENT_INT_MASK);
++	obj->dma_nfatal_irq_masked = true;
++	obj->dma_nfatal_mask_count++;
++}
++
++static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj)
++{
++	struct rockchip_pcie *rockchip;
++	u32 status;
++	u32 core_status;
++
++	if (!obj || !obj->dma_nfatal_irq_masked)
++		return;
++
++	rockchip = dev_get_drvdata(obj->dev);
++	if (!rockchip)
++		return;
++
++	status = rockchip_pcie_read(rockchip, PCIE_CLIENT_INT_STATUS);
++	core_status = rockchip_pcie_read(rockchip, PCIE_CORE_INT_STATUS);
++
++	/* Drop pending NFATAL/MMVC before unmasking to avoid replaying stale IRQs. */
++	if (core_status & PCIE_CORE_INT_MMVC)
++		rockchip_pcie_write(rockchip, core_status & PCIE_CORE_INT_MMVC,
++				    PCIE_CORE_INT_STATUS);
++	if (status & PCIE_CLIENT_INT_NFATAL_ERR)
++		rockchip_pcie_write(rockchip, status & PCIE_CLIENT_INT_NFATAL_ERR,
++				    PCIE_CLIENT_INT_STATUS);
++
++	/* PCIE_CLIENT_INT_MASK uses hiword update; bit value 0 unmasks IRQ. */
++	rockchip_pcie_write(rockchip, PCIE_CLIENT_INT_NFATAL_ERR << 16,
++			    PCIE_CLIENT_INT_MASK);
++
++	obj->dma_nfatal_irq_masked = false;
++	obj->dma_nfatal_restore_count++;
++	obj->last_nfatal_restore_status = status;
++	obj->last_nfatal_restore_core_status = core_status;
++}
++
+ static int rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ {
+ 	struct rockchip_pcie *rockchip = dev_get_drvdata(obj->dev);
+@@ -517,6 +569,8 @@ static int rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ 		return -EAGAIN;
+ 	}
+ 
++	rk_pcie_dma_mask_nfatal_irq(rockchip, obj);
++
+ 	tr->stage = PCIE_DMA_START_STAGE_CTRL_PRE;
+ 	rk_pcie_dma_record_irq_trace(rockchip, obj,
+ 				     PCIE_DMA_IRQ_TRACE_START_PRE, ctrl_value);
+@@ -1435,6 +1489,7 @@ void rk_pcie_dma_irq_done(struct dma_trx_obj *obj)
+ 
+ 	obj->irq_num++;
+ 	obj->dma_free = true;
++	rk_pcie_dma_restore_nfatal_irq(obj);
+ 
+ 	if (!list_empty(&obj->tbl_list))
+ 		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
+@@ -1452,6 +1507,7 @@ void rk_pcie_dma_irq_abort(struct dma_trx_obj *obj)
+ 
+ 	obj->dma_abort_count++;
+ 	obj->dma_free = true;
++	rk_pcie_dma_restore_nfatal_irq(obj);
+ 	wake_up(&obj->event_queue);
+ 	complete_all(&obj->done);
+ 
+@@ -1550,6 +1606,13 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_client_active_ack_count,
+ 		   dma_obj->last_client_active_ack_status,
+ 		   dma_obj->last_client_active_ack_core_status);
++	seq_printf(s,
++		   "nfatal_mask: active = %d, mask_count = %lu, restore_count = %lu, status = 0x%x, core = 0x%x\n",
++		   dma_obj->dma_nfatal_irq_masked,
++		   dma_obj->dma_nfatal_mask_count,
++		   dma_obj->dma_nfatal_restore_count,
++		   dma_obj->last_nfatal_restore_status,
++		   dma_obj->last_nfatal_restore_core_status);
+ 	seq_printf(s,
+ 		   "irq_sample: enable = %u, period_ms = %u, count = %lu, tick = %u\n",
+ 		   dma_obj->dma_irq_sample_enable,
+@@ -1568,6 +1631,12 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	rk_pcie_dma_seq_bits(s, "last_client_active_ack_core_bits = ",
+ 			      dma_obj->last_client_active_ack_core_status, rk_pcie_core_bits,
+ 			      ARRAY_SIZE(rk_pcie_core_bits));
++	rk_pcie_dma_seq_bits(s, "last_nfatal_restore_bits = ",
++			      dma_obj->last_nfatal_restore_status, rk_pcie_client_bits,
++			      ARRAY_SIZE(rk_pcie_client_bits));
++	rk_pcie_dma_seq_bits(s, "last_nfatal_restore_core_bits = ",
++			      dma_obj->last_nfatal_restore_core_status, rk_pcie_core_bits,
++			      ARRAY_SIZE(rk_pcie_core_bits));
+ 	rk_pcie_dma_seq_bits(s, "client_status_bits = ",
+ 			      dma_obj->last_client_status, rk_pcie_client_bits,
+ 			      ARRAY_SIZE(rk_pcie_client_bits));
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 22f7ea366..4b9dee9a2 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -261,6 +261,11 @@ struct dma_trx_obj {
+ 	unsigned long			dma_client_active_ack_count;
+ 	u32				last_client_active_ack_status;
+ 	u32				last_client_active_ack_core_status;
++	bool				dma_nfatal_irq_masked;
++	unsigned long			dma_nfatal_mask_count;
++	unsigned long			dma_nfatal_restore_count;
++	u32				last_nfatal_restore_status;
++	u32				last_nfatal_restore_core_status;
+ 	bool				dma_disabled;
+ 	bool				dma_link_failfast;
+ 	unsigned long			dma_linkdown_block_count;
