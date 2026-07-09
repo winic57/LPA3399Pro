@@ -162,3 +162,31 @@ Specifically, after `rs` command execution, NPU firmware expects the PCIe Link t
    * Some RK3399Pro implementations require forcing Gen1 mode (`num-lanes = <4>` or forcing speed limits) during boot or deferred probe to stabilize link training.
 3. **Debug NPU Side via Serial**:
    * If possible, monitor NPU UART console during the `rs` transition to confirm where the firmware hangs.
+
+---
+
+## 2026-07-09 14:40:00 CST NPU Serial Debugging & DMA Crash Analysis
+
+### 1. NPU-Side Verification via TTL Console
+* **Baud Rate**: Connected successfully at `1,500,000` baud rate via `/dev/ttyUSB0` loop on local setup.
+* **NPU Kernel**: Running a customized buildroot system on kernel **`4.4.185`**.
+* **DWC3 Device Presence**: `/sys/devices/platform/usb/fd000000.dwc3` is present.
+* **Initial Observation**: On boot, the NPU did not have `/usr/bin/rknn_server` running.
+* **Manual Service Startup**: Manually executing `/usr/bin/rknn_server` initialized the transfer loop:
+  ```text
+  I NPUTransfer: Starting NPU Transfer Server, Transfer version 2.1.0
+  ```
+
+### 2. Host-Side Detection and DMA Deadlock
+* **NTB PCIE Detection**: `npu_transfer_proxy devices` on host correctly reports:
+  ```text
+  0123456789ABCDEF    cfbc0c55    PCIE
+  ```
+* **Real DMA Execution (dma_disabled=0)**:
+  * Running `/opt/rknn_py39/bin/python /root/npu_deep_test/resnet18_zeros_test.py /root/npu_deep_test/resnet_18.rknn` with `dma_disabled=0` immediately fails.
+  * **Result**: The host-side `/usr/bin/npu_transfer_proxy` drops, and the **NPU completely locks up** (the NPU serial console becomes entirely unresponsive to any inputs or line breaks).
+  * This confirms that the deadlock resides strictly in the PCIe bus transaction layer when Host attempts to issue a real DMA transaction to the NPU endpoints.
+
+### 3. Recommendations
+* Investigate `pcie-rockchip-dma` inbound / outbound ATU configurations in mainline kernel vs vendor kernel (ATU regions mapping local memory to the NPU).
+* Analyze why link training gen1 timeout is ignored but leads to transaction crashes when actual DMA is triggered.
