@@ -1,0 +1,222 @@
+From 0033aaaa11112222333344445555666677778888 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 17:05:00 +0800
+Subject: [PATCH] pcie: rockchip: track PHY init/power state during link retry
+
+The RK3399Pro NPU host validation showed that the link-training retry path can
+blindly call phy_power_off()/phy_exit() after a failed or partially completed
+training attempt.  The per-lane PHY runtime PM counters then underflow before
+we can evaluate whether LTSSM makes progress.
+
+Add small per-lane state tracking wrappers for PHY init/exit and power on/off,
+and use them from the common port init/deinit path plus the host retry/cleanup
+sites.  A retry now performs a tracked full PHY exit instead of unconditional
+power_off + exit.  Unused lanes still get powered down after a successful link,
+but the bookkeeping prevents a later deinit from powering them off twice.
+
+This patch is intentionally conservative: it does not reintroduce the unsafe
+user-triggered hard retrain path, does not touch PERST beyond the existing host
+init flow, and keeps DMA default-safe.  The first validation target is removing
+"Runtime PM usage count underflow" so LTSSM status can be compared cleanly.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index b1b4619..878c525 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -370,13 +370,11 @@ err_retry_init:
+ 		rockchip->pcie_link_up = false;
+ 		dev_err(dev, "PCIe link training gen1 timeout! status=0x%08x\n", status);
+ 		if (attempt_counter++ < 5) {
+-			dev_warn(dev, "Retrying PCIe link training (%d/5)...\n", attempt_counter);
++			dev_warn(dev, "Retrying PCIe link training (%d/5) with tracked PHY cleanup...\n",
++				 attempt_counter);
+ 			i = MAX_LANE_NUM;
+ 			while (i--)
+-				phy_power_off(rockchip->phys[i]);
+-			i = MAX_LANE_NUM;
+-			while (i--)
+-				phy_exit(rockchip->phys[i]);
++				rockchip_pcie_phy_exit_lane(rockchip, i);
+ 			msleep(200);
+ 			goto err_retry_init;
+ 		}
+@@ -418,7 +416,7 @@ err_retry_init:
+ 		for (i = 0; i < MAX_LANE_NUM; i++) {
+ 			if (!(rockchip->lanes_map & BIT(i))) {
+ 				dev_dbg(dev, "idling lane %d\n", i);
+-				phy_power_off(rockchip->phys[i]);
++				rockchip_pcie_phy_power_off_lane(rockchip, i);
+ 			}
+ 		}
+ 	} else {
+@@ -457,10 +455,10 @@ err_retry_init:
+ 
+ err_power_off_phy:
+ 	while (i--)
+-		phy_power_off(rockchip->phys[i]);
++		rockchip_pcie_phy_power_off_lane(rockchip, i);
+ 	i = MAX_LANE_NUM;
+ 	while (i--)
+-		phy_exit(rockchip->phys[i]);
++		rockchip_pcie_phy_exit_lane(rockchip, i);
+ 	return err;
+ }
+ 
+diff --git a/drivers/pci/controller/pcie-rockchip.c b/drivers/pci/controller/pcie-rockchip.c
+index 0f88da3..e5d4c33 100644
+--- a/drivers/pci/controller/pcie-rockchip.c
++++ b/drivers/pci/controller/pcie-rockchip.c
+@@ -107,6 +107,80 @@ int rockchip_pcie_parse_dt(struct rockchip_pcie *rockchip)
+ EXPORT_SYMBOL_GPL(rockchip_pcie_parse_dt);
+ 
+ #define rockchip_pcie_read_addr(addr) rockchip_pcie_read(rockchip, addr)
++
++int rockchip_pcie_phy_init_lane(struct rockchip_pcie *rockchip, int lane)
++{
++	int err;
++
++	if (lane < 0 || lane >= MAX_LANE_NUM)
++		return -EINVAL;
++
++	if (rockchip->phy_inited[lane])
++		return 0;
++
++	err = phy_init(rockchip->phys[lane]);
++	if (err)
++		return err;
++
++	rockchip->phy_inited[lane] = true;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(rockchip_pcie_phy_init_lane);
++
++void rockchip_pcie_phy_exit_lane(struct rockchip_pcie *rockchip, int lane)
++{
++	if (lane < 0 || lane >= MAX_LANE_NUM)
++		return;
++
++	if (!rockchip->phy_inited[lane])
++		return;
++
++	if (rockchip->phy_powered[lane]) {
++		phy_power_off(rockchip->phys[lane]);
++		rockchip->phy_powered[lane] = false;
++	}
++
++	phy_exit(rockchip->phys[lane]);
++	rockchip->phy_inited[lane] = false;
++}
++EXPORT_SYMBOL_GPL(rockchip_pcie_phy_exit_lane);
++
++int rockchip_pcie_phy_power_on_lane(struct rockchip_pcie *rockchip, int lane)
++{
++	int err;
++
++	if (lane < 0 || lane >= MAX_LANE_NUM)
++		return -EINVAL;
++
++	if (rockchip->phy_powered[lane])
++		return 0;
++
++	err = rockchip_pcie_phy_init_lane(rockchip, lane);
++	if (err)
++		return err;
++
++	err = phy_power_on(rockchip->phys[lane]);
++	if (err)
++		return err;
++
++	rockchip->phy_powered[lane] = true;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(rockchip_pcie_phy_power_on_lane);
++
++void rockchip_pcie_phy_power_off_lane(struct rockchip_pcie *rockchip, int lane)
++{
++	if (lane < 0 || lane >= MAX_LANE_NUM)
++		return;
++
++	if (!rockchip->phy_powered[lane])
++		return;
++
++	phy_power_off(rockchip->phys[lane]);
++	rockchip->phy_powered[lane] = false;
++}
++EXPORT_SYMBOL_GPL(rockchip_pcie_phy_power_off_lane);
++
+ /* 100 ms max wait time for PHY PLLs to lock */
+ #define RK_PHY_PLL_LOCK_TIMEOUT_US 100000
+ /* Sleep should be less than 20ms */
+@@ -124,7 +198,7 @@ int rockchip_pcie_init_port(struct rockchip_pcie *rockchip)
+ 		return dev_err_probe(dev, err, "Couldn't assert PM resets\n");
+ 
+ 	for (i = 0; i < MAX_LANE_NUM; i++) {
+-		err = phy_init(rockchip->phys[i]);
++		err = rockchip_pcie_phy_init_lane(rockchip, i);
+ 		if (err) {
+ 			dev_err(dev, "init phy%d err %d\n", i, err);
+ 			goto err_exit_phy;
+@@ -166,7 +240,7 @@ int rockchip_pcie_init_port(struct rockchip_pcie *rockchip)
+ 	rockchip_pcie_write(rockchip, regs, PCIE_CLIENT_CONFIG);
+ 
+ 	for (i = 0; i < MAX_LANE_NUM; i++) {
+-		err = phy_power_on(rockchip->phys[i]);
++		err = rockchip_pcie_phy_power_on_lane(rockchip, i);
+ 		if (err) {
+ 			dev_err(dev, "power on phy%d err %d\n", i, err);
+ 			goto err_power_off_phy;
+@@ -193,11 +267,11 @@ int rockchip_pcie_init_port(struct rockchip_pcie *rockchip)
+ 	return 0;
+ err_power_off_phy:
+ 	while (i--)
+-		phy_power_off(rockchip->phys[i]);
++		rockchip_pcie_phy_power_off_lane(rockchip, i);
+ 	i = MAX_LANE_NUM;
+ err_exit_phy:
+ 	while (i--)
+-		phy_exit(rockchip->phys[i]);
++		rockchip_pcie_phy_exit_lane(rockchip, i);
+ 	return err;
+ }
+ EXPORT_SYMBOL_GPL(rockchip_pcie_init_port);
+@@ -248,12 +322,8 @@ void rockchip_pcie_deinit_phys(struct rockchip_pcie *rockchip)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < MAX_LANE_NUM; i++) {
+-		/* inactive lanes are already powered off */
+-		if (rockchip->lanes_map & BIT(i))
+-			phy_power_off(rockchip->phys[i]);
+-		phy_exit(rockchip->phys[i]);
+-	}
++	for (i = 0; i < MAX_LANE_NUM; i++)
++		rockchip_pcie_phy_exit_lane(rockchip, i);
+ }
+ EXPORT_SYMBOL_GPL(rockchip_pcie_deinit_phys);
+ 
+diff --git a/drivers/pci/controller/pcie-rockchip.h b/drivers/pci/controller/pcie-rockchip.h
+index e0c08a5..4a5c4de 100644
+--- a/drivers/pci/controller/pcie-rockchip.h
++++ b/drivers/pci/controller/pcie-rockchip.h
+@@ -321,6 +321,8 @@ struct rockchip_pcie {
+ 	void	__iomem *apb_base;		/* DT apb-base */
+ 	bool    legacy_phy;
+ 	struct  phy *phys[MAX_LANE_NUM];
++	bool	phy_inited[MAX_LANE_NUM];
++	bool	phy_powered[MAX_LANE_NUM];
+ 	struct  reset_control_bulk_data pm_rsts[ROCKCHIP_NUM_PM_RSTS];
+ 	struct  reset_control_bulk_data core_rsts[ROCKCHIP_NUM_CORE_RSTS];
+ 	struct  clk_bulk_data *clks;
+@@ -367,6 +369,10 @@ static void rockchip_pcie_write(struct rockchip_pcie *rockchip, u32 val,
+ int rockchip_pcie_parse_dt(struct rockchip_pcie *rockchip);
+ int rockchip_pcie_init_port(struct rockchip_pcie *rockchip);
+ int rockchip_pcie_get_phys(struct rockchip_pcie *rockchip);
++int rockchip_pcie_phy_init_lane(struct rockchip_pcie *rockchip, int lane);
++void rockchip_pcie_phy_exit_lane(struct rockchip_pcie *rockchip, int lane);
++int rockchip_pcie_phy_power_on_lane(struct rockchip_pcie *rockchip, int lane);
++void rockchip_pcie_phy_power_off_lane(struct rockchip_pcie *rockchip, int lane);
+ void rockchip_pcie_deinit_phys(struct rockchip_pcie *rockchip);
+ int rockchip_pcie_enable_clocks(struct rockchip_pcie *rockchip);
+ void rockchip_pcie_disable_clocks(struct rockchip_pcie *rockchip);
