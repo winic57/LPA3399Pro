@@ -1,0 +1,63 @@
+From 0034aaaa11112222333344445555666677778888 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 17:25:00 +0800
+Subject: [PATCH] pcie: rockchip: avoid PHY runtime-PM underflow on retry
+
+0033 added host-side per-lane PHY state tracking, but live RK3399Pro testing
+still showed per-lane pcie-phy runtime-PM underflow as soon as deferred host
+bring-up entered the retry loop.  The RK3399 PCIe PHY is a legacy shared reset
+and refclk block represented as four logical generic PHY children; the provider
+has no runtime-PM callbacks and already serializes real hardware state with its
+own init_cnt/pwr_cnt.
+
+For this shared legacy PHY, disable generic per-child PHY runtime-PM accounting
+after each child PHY is created.  Also keep the PHY initialized/powered across
+host link-training retries instead of doing a full PHY exit on every Gen1
+training timeout.  This keeps REFCLK/PLL state stable and removes the noisy
+runtime-PM accounting underflow so the next validation can focus on LTSSM
+progress.
+
+The user-triggered pcie_reset_ep=3 path remains the 0032 safe snapshot only;
+this patch does not reintroduce hard retrain or DMA risk.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index 878c525..004e5b8 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -370,11 +370,9 @@ err_retry_init:
+ 		rockchip->pcie_link_up = false;
+ 		dev_err(dev, "PCIe link training gen1 timeout! status=0x%08x\n", status);
+ 		if (attempt_counter++ < 5) {
+-			dev_warn(dev, "Retrying PCIe link training (%d/5) with tracked PHY cleanup...\n",
++			dev_warn(dev,
++				 "Retrying PCIe link training (%d/5) without PHY deinit to keep refcount stable...\n",
+ 				 attempt_counter);
+-			i = MAX_LANE_NUM;
+-			while (i--)
+-				rockchip_pcie_phy_exit_lane(rockchip, i);
+ 			msleep(200);
+ 			goto err_retry_init;
+ 		}
+diff --git a/drivers/phy/rockchip/phy-rockchip-pcie.c b/drivers/phy/rockchip/phy-rockchip-pcie.c
+index 126306c..8cd03f1 100644
+--- a/drivers/phy/rockchip/phy-rockchip-pcie.c
++++ b/drivers/phy/rockchip/phy-rockchip-pcie.c
+@@ -313,6 +313,16 @@ static int rockchip_pcie_phy_probe(struct platform_device *pdev)
+ 			return PTR_ERR(rk_phy->phys[i].phy);
+ 		}
+ 		rk_phy->phys[i].index = i;
++		/*
++		 * RK3399 exposes four logical PHY lanes backed by one shared legacy
++		 * PCIe PHY/reset block.  The provider has no runtime-PM callbacks and
++		 * handles refclk/reset explicitly in its init/power ops.  Keeping the
++		 * generic per-child PHY runtime-PM accounting enabled can underflow
++		 * during host link-training retry/exit sequences, which hides the real
++		 * LTSSM state we need to debug.  Disable the child accounting and rely
++		 * on the driver's existing init_cnt/pwr_cnt serialization.
++		 */
++		pm_runtime_disable(&rk_phy->phys[i].phy->dev);
+ 		phy_set_drvdata(rk_phy->phys[i].phy, &rk_phy->phys[i]);
+ 	}
+ 
