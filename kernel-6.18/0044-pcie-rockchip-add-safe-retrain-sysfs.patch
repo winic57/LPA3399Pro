@@ -1,0 +1,168 @@
+From 0044aaaa11112222333344445555666677778888 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Fri, 10 Jul 2026 13:45:00 +0800
+Subject: [PATCH] pcie: rockchip: add guarded safe retrain sysfs
+
+The RK3399Pro NPU PCIe endpoint can remain stuck in the vendor 4.4
+"rk-pcie fc000000.pcie: PCIe Linking..." loop while the mainline host is
+already probed and the root bus exists.  In that state the existing
+pcie_deferred=1 path only rescans the existing root bus; it does not re-run
+LTSSM/PERST training.  Conversely, the older hard-retrain/unlink path is too
+risky because PCI config-space access while hw_started=0 was observed to hang
+the host.
+
+Add a separate write-only pcie_safe_retrain sysfs knob for controlled field
+experiments.  The path:
+
+  * refuses to run unless the controller is already probed, hw_started=1 and
+    root_bus exists;
+  * never deinitializes the PHY and never leaves hw_started=0 as part of the
+    normal flow;
+  * quiesces client/core/UDMA interrupts, reruns the existing host
+    LTSSM/PERST training sequence, restores ATU/interrupts, and samples the
+    guarded electrical trace;
+  * only calls pci_rescan_bus() when link_up becomes true.  If the link is
+    still down, it records the result and skips config-space scanning.
+
+Keep pcie_reset_ep=3 as the non-invasive snapshot path from 0032.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+--- a/drivers/pci/controller/pcie-rockchip-host.c	2026-07-10 13:38:48.202524668 +0800
++++ b/drivers/pci/controller/pcie-rockchip-host.c	2026-07-10 13:39:12.399066511 +0800
+@@ -1258,6 +1258,90 @@
+ }
+ 
+ 
++static int rockchip_pcie_safe_retrain_for_user(struct rockchip_pcie *rockchip)
++{
++	bool up;
++	int err;
++
++	if (!rockchip->pcie_really_probed || !rockchip->root_bus)
++		return -EAGAIN;
++
++	/*
++	 * 0044 safety rule: never touch PCI config space or tear down the PHY
++	 * from this path.  It is intended for the observed state where the RC is
++	 * already started, the root bus exists, but LTSSM/link_up is stuck low
++	 * after the NPU endpoint has entered its vendor 4.4 "PCIe Linking" loop.
++	 */
++	if (!rockchip->pcie_hw_started) {
++		rockchip_pcie_elec_trace(rockchip, "safe_retrain_stopped", 0, false);
++		dev_warn(rockchip->dev,
++			 "safe retrain refused while PCIe HW is stopped; avoid PCI config access in this state\n");
++		return -EAGAIN;
++	}
++
++	up = rockchip_pcie_link_up(rockchip);
++	rockchip_pcie_elec_trace(rockchip, "safe_retrain_entry", up, true);
++	if (up) {
++		dev_info(rockchip->dev, "safe retrain skipped: link already up\n");
++		rockchip_pcie_elec_trace(rockchip, "safe_retrain_skip_up", up, true);
++		return 0;
++	}
++
++	/* Quiesce local/client/core interrupts and UDMA before PERST/LTSSM retry. */
++	rockchip_pcie_write(rockchip, PCIE_CLIENT_LINK_TRAIN_DISABLE,
++			    PCIE_CLIENT_CONFIG);
++	rockchip_pcie_write(rockchip, (PCIE_CLIENT_INT_CLI << 16) |
++			    PCIE_CLIENT_INT_CLI, PCIE_CLIENT_INT_MASK);
++	if (rockchip->dma_trx_enabled)
++		rockchip_pcie_write(rockchip, 0,
++				    PCIE_APB_CORE_UDMA_BASE +
++				    PCIE_UDMA_INT_ENABLE_REG);
++	rockchip_pcie_write(rockchip, (u32)PCIE_CORE_INT,
++			    PCIE_CORE_INT_MASK);
++	rockchip_pcie_elec_trace(rockchip, "safe_retrain_quiesce", 0, true);
++
++	/*
++	 * Re-run the normal host LTSSM/PERST sequence while keeping the logical
++	 * PHY state balanced.  The lane helpers added in 0033/0035 make repeated
++	 * init/power-on calls idempotent, avoiding the earlier runtime-PM underflow.
++	 */
++	err = rockchip_pcie_host_init_port(rockchip);
++	if (err) {
++		/* rockchip_pcie_init_port() error paths may have powered down PHYs. */
++		rockchip->pcie_hw_started = false;
++		rockchip->pcie_link_up = false;
++		rockchip_pcie_elec_trace(rockchip, "safe_retrain_init_err",
++					 (u32)err, false);
++		return err;
++	}
++
++	err = rockchip_pcie_cfg_atu(rockchip);
++	if (err) {
++		rockchip_pcie_elec_trace(rockchip, "safe_retrain_atu_err",
++					 (u32)err, true);
++		rockchip_pcie_enable_interrupts(rockchip);
++		return err;
++	}
++
++	rockchip_pcie_update_txcredit_mui(rockchip);
++	rockchip_pcie_enable_interrupts(rockchip);
++	rockchip->pcie_hw_started = true;
++	up = rockchip_pcie_link_up(rockchip);
++	rockchip_pcie_elec_trace(rockchip, up ? "safe_retrain_link_up" :
++					 "safe_retrain_link_down", up, true);
++
++	if (up) {
++		dev_info(rockchip->dev,
++			 "safe retrain link up; rescanning existing root bus\n");
++		pci_rescan_bus(rockchip->root_bus);
++	} else {
++		dev_warn(rockchip->dev,
++			 "safe retrain link still down; skip PCI rescan to avoid config-space hangs\n");
++	}
++
++	return 0;
++}
++
+ static int rockchip_pcie_hard_retrain_for_user(struct rockchip_pcie *rockchip)
+ {
+ 	u32 debug0 = 0, client_cfg = 0, core_ctrl = 0;
+@@ -1324,6 +1408,28 @@
+ 	return size;
+ }
+ 
++static ssize_t pcie_safe_retrain_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t size)
++{
++	struct rockchip_pcie *rockchip = dev_get_drvdata(dev);
++	u32 val = 0;
++	int err;
++
++	err = kstrtou32(buf, 10, &val);
++	if (err)
++		return err;
++
++	if (!val)
++		return size;
++
++	err = rockchip_pcie_safe_retrain_for_user(rockchip);
++	if (err)
++		return err;
++
++	return size;
++}
++
+ static ssize_t pcie_reset_ep_store(struct device *dev,
+ 				   struct device_attribute *attr,
+ 				   const char *buf, size_t size)
+@@ -1416,12 +1522,14 @@
+ }
+ 
+ static DEVICE_ATTR_WO(pcie_deferred);
++static DEVICE_ATTR_WO(pcie_safe_retrain);
+ static DEVICE_ATTR_WO(pcie_reset_ep);
+ static DEVICE_ATTR_RO(pcie_link_state);
+ static DEVICE_ATTR_RO(pcie_elec_trace);
+ 
+ static struct attribute *rockchip_pcie_attrs[] = {
+ 	&dev_attr_pcie_deferred.attr,
++	&dev_attr_pcie_safe_retrain.attr,
+ 	&dev_attr_pcie_reset_ep.attr,
+ 	&dev_attr_pcie_link_state.attr,
+ 	&dev_attr_pcie_elec_trace.attr,
