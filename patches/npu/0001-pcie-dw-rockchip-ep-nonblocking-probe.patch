@@ -1,8 +1,6 @@
-diff --git a/kernel/drivers/pci/host/pcie-dw-rockchip.c b/kernel/drivers/pci/host/pcie-dw-rockchip.c
-index c76eb012b..4951f39e7 100644
 --- a/kernel/drivers/pci/host/pcie-dw-rockchip.c
 +++ b/kernel/drivers/pci/host/pcie-dw-rockchip.c
-@@ -137,6 +137,8 @@ struct rk_pcie {
+@@ -136,6 +136,8 @@
  	struct regmap			*pmu_grf;
  	struct dma_trx_obj		*dma_obj;
  	bool in_suspend;
@@ -11,7 +9,7 @@ index c76eb012b..4951f39e7 100644
  };
  
  struct rk_pcie_of_data {
-@@ -631,6 +633,7 @@ static void rk_pcie_ep_setup(struct rk_pcie *rk_pcie)
+@@ -630,6 +632,7 @@
  static int rk_pcie_establish_link(struct rk_pcie *rk_pcie)
  {
  	int retries;
@@ -19,31 +17,33 @@ index c76eb012b..4951f39e7 100644
  
  	/* Rest the device */
  	gpiod_set_value_cansleep(rk_pcie->rst_gpio, 0);
-@@ -642,7 +645,7 @@ static int rk_pcie_establish_link(struct rk_pcie *rk_pcie)
+@@ -641,14 +644,22 @@
  	/* Enable LTSSM */
  	rk_pcie_enable_ltssm(rk_pcie);
  
--	for (retries = 0; retries < 1000000; retries++) {
+-	for (retries = 0; retries < 1000; retries++) {
 +	for (retries = 0; retries < wait_ms; retries++) {
  		if (rk_pcie_link_up(rk_pcie)) {
  			dev_info(rk_pcie->dev, "PCIe Link up\n");
  			return 0;
-@@ -652,6 +655,14 @@ static int rk_pcie_establish_link(struct rk_pcie *rk_pcie)
- 		mdelay(1);
- 	}
+ 		}
  
+-		dev_info(rk_pcie->dev, "PCIe Linking...\n");
+-		mdelay(1000);
++		dev_info_ratelimited(rk_pcie->dev, "PCIe Linking...\n");
++		mdelay(1);
++	}
++
 +	if (rk_pcie->mode == RK_PCIE_EP_TYPE && rk_pcie->ep_nonblocking_probe) {
 +		dev_warn(rk_pcie->dev,
 +			 "PCIe link not up after %u ms; continue EP probe nonblocking\n",
 +			 wait_ms);
 +		/* positive value means link is still training, but probe should continue */
 +		return 1;
-+	}
-+
- 	dev_err(rk_pcie->dev, "PCIe Link Fail\n");
+ 	}
  
- 	return -EINVAL;
-@@ -1119,6 +1130,7 @@ static int rk_pcie_probe(struct platform_device *pdev)
+ 	dev_err(rk_pcie->dev, "PCIe Link Fail\n");
+@@ -1108,6 +1119,7 @@
  	const struct of_device_id *match;
  	const struct rk_pcie_of_data *data;
  	enum rk_pcie_device_mode mode;
@@ -51,7 +51,7 @@ index c76eb012b..4951f39e7 100644
  
  	match = of_match_device(rk_pcie_of_match, dev);
  	if (!match)
-@@ -1133,6 +1145,20 @@ static int rk_pcie_probe(struct platform_device *pdev)
+@@ -1122,6 +1134,20 @@
  	rk_pcie->mode = mode;
  	rk_pcie->dev = dev;
  
@@ -72,7 +72,7 @@ index c76eb012b..4951f39e7 100644
  	ret = rk_pcie_resource_get(pdev, rk_pcie);
  	if (ret) {
  		dev_err(dev, "resource init failed\n");
-@@ -1201,9 +1227,13 @@ static int rk_pcie_probe(struct platform_device *pdev)
+@@ -1190,9 +1216,13 @@
  	rk_pcie_set_gens(rk_pcie);
  
  	ret = rk_pcie_establish_link(rk_pcie);
@@ -87,7 +87,7 @@ index c76eb012b..4951f39e7 100644
  	}
  
  	switch (rk_pcie->mode) {
-@@ -1218,6 +1248,11 @@ static int rk_pcie_probe(struct platform_device *pdev)
+@@ -1207,6 +1237,11 @@
  	if (ret)
  		goto deinit_clk;
  
