@@ -1,6 +1,14 @@
 name: NPU kernel / ramboot build
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/npu_kernel.yml'
+      - 'kdevbuild/npu_kernel.sh'
+      - 'patches/npu/**'
+      - 'tools/npu_make_noep_ntb_boot.py'
   workflow_dispatch:
     inputs:
       build_targets:
@@ -11,6 +19,10 @@ on:
         description: 'Optional URL to SDK tarball containing LPA3399Pro-SDK-Linux-V3.0/npu'
         required: false
         default: ''
+      board_config:
+        description: 'NPU SDK board config path or basename'
+        required: false
+        default: 'device/rockchip/rk3399pro/BoardConfig-rk3399pro_npu-pcie.mk'
   repository_dispatch:
 
 env:
@@ -32,14 +44,16 @@ jobs:
       - name: Build in Ubuntu 18.04 container
         working-directory: /builder
         env:
-          BUILD_TARGETS: ${{ github.event.inputs.build_targets || 'kernel' }}
-          NPU_SDK_URL: ${{ github.event.inputs.npu_sdk_url || '' }}
+          BUILD_TARGETS: ${{ github.event.inputs.build_targets || github.event.client_payload.build_targets || 'kernel' }}
+          NPU_SDK_URL: ${{ github.event.inputs.npu_sdk_url || github.event.client_payload.npu_sdk_url || '' }}
+          NPU_BOARD_CONFIG: ${{ github.event.inputs.board_config || github.event.client_payload.board_config || 'device/rockchip/rk3399pro/BoardConfig-rk3399pro_npu-pcie.mk' }}
         run: |
           sudo docker run --rm --privileged \
             -v /builder:/workspace \
             -w /workspace \
             -e BUILD_TARGETS="${BUILD_TARGETS}" \
             -e NPU_SDK_URL="${NPU_SDK_URL}" \
+            -e NPU_BOARD_CONFIG="${NPU_BOARD_CONFIG}" \
             ubuntu:18.04 \
             bash -lc 'chmod +x /workspace/kdevbuild/npu_kernel.sh && /workspace/kdevbuild/npu_kernel.sh'
 
