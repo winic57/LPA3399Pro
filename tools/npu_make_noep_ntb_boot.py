@@ -3,7 +3,10 @@
 
 Input: vendor NPU Android boot.img (RK1808/RK3399Pro-NPU side).
 Output: boot.img with:
-  - DT pcie@fc400000 status = "disabled" to avoid endpoint link-loop blocking init.
+  - DT pcie@fc400000 configurable mode:
+      * noep: status = "disabled" to avoid endpoint link-loop blocking init.
+      * deferred: keep status = "okay" and add opt-in properties for the
+        companion vendor EP-driver patch to bound the link wait at init.
   - ramdisk /etc/init.d/.usb_config = usb_ntb_en to enumerate 2207:0019.
   - ttyFIQ0 getty enabled and start_rknn.sh logging to console.
 
@@ -80,7 +83,7 @@ def extract_second_dtb(second: bytes, out_dtb: Path):
     return off, size
 
 
-def patch_dtb(dtb: Path, out_dtb: Path, work: Path):
+def patch_dtb(dtb: Path, out_dtb: Path, work: Path, pcie_mode: str):
     dts = work/"npu.dts"
     run(["dtc", "-I", "dtb", "-O", "dts", "-o", str(dts), str(dtb)])
     text = dts.read_text()
@@ -89,15 +92,29 @@ def patch_dtb(dtb: Path, out_dtb: Path, work: Path):
     if i < 0:
         raise SystemExit("pcie@fc400000 not found in NPU DT")
     end = text.find("\n\t};", i)
-    j = text.find('status = "okay";', i, end)
-    if j < 0:
-        raise SystemExit("pcie status=okay not found in pcie@fc400000")
-    text = text[:j] + 'status = "disabled"; /* noep USB-NTB test */' + text[j+len('status = "okay";'):]
+    if pcie_mode == "noep":
+        j = text.find('status = "okay";', i, end)
+        if j < 0:
+            raise SystemExit("pcie status=okay not found in pcie@fc400000")
+        text = text[:j] + 'status = "disabled"; /* noep USB-NTB test */' + text[j+len('status = "okay";'):]
+    elif pcie_mode == "deferred":
+        j = text.find('status = "okay";', i, end)
+        if j < 0:
+            raise SystemExit("pcie status=okay not found in pcie@fc400000")
+        props = []
+        if 'rockchip,ep-nonblocking-probe;' not in text[i:end]:
+            props.append('\t\trockchip,ep-nonblocking-probe; /* requires vendor EP-driver patch */')
+        if 'rockchip,ep-link-wait-ms' not in text[i:end]:
+            props.append('\t\trockchip,ep-link-wait-ms = <0x32>; /* 50 ms bounded init wait */')
+        if props:
+            text = text[:j] + '\n'.join(props) + '\n' + text[j:]
+    else:
+        raise SystemExit(f"unknown pcie mode: {pcie_mode}")
     dts.write_text(text)
     run(["dtc", "-I", "dts", "-O", "dtb", "-o", str(out_dtb), str(dts)])
 
 
-def patch_ramdisk(ramdisk_gz: bytes, out_gz: Path, work: Path):
+def patch_ramdisk(ramdisk_gz: bytes, out_gz: Path, work: Path, pcie_mode: str):
     rd = work/"ramdisk"
     rd.mkdir()
     raw_cpio = gzip.decompress(ramdisk_gz)
@@ -118,6 +135,23 @@ def patch_ramdisk(ramdisk_gz: bytes, out_gz: Path, work: Path):
         text = text.replace("  rknn_server #>/dev/null 2>&1",
                             '  echo "NPU_DEBUG start rknn_server $(date)" >/dev/console\n  RKNN_SERVER_LOGLEVEL=5 TRANSFER_LOG_LEVEL=5 rknn_server')
         sr.write_text(text)
+    if pcie_mode == "deferred":
+        helper = rd/"usr/bin/npu_pcie_deferred_trigger.sh"
+        helper.write_text("""#!/bin/sh
+set -eu
+PCIE_SYSFS=${PCIE_SYSFS:-/sys/devices/platform/fc000000.pcie/pcie_deferred}
+DELAY=${NPU_PCIE_DEFERRED_DELAY_SEC:-0}
+echo "NPU_PCIE_DEFERRED_TRIGGER delay=${DELAY} path=${PCIE_SYSFS}" >/dev/console
+sleep "${DELAY}"
+if [ -e "${PCIE_SYSFS}" ]; then
+  echo 1 > "${PCIE_SYSFS}"
+  echo "NPU_PCIE_DEFERRED_TRIGGER done" >/dev/console
+else
+  echo "NPU_PCIE_DEFERRED_TRIGGER missing ${PCIE_SYSFS}" >/dev/console
+  exit 1
+fi
+""")
+        helper.chmod(0o755)
     # Stable order; cpio wants relative paths on stdin and emits archive on stdout.
     names = ["."] + [str(p.relative_to(rd)) for p in sorted(rd.rglob("*"))]
     payload = ("\n".join(names) + "\n").encode()
@@ -149,13 +183,15 @@ def main():
     ap.add_argument("--input", required=True, type=Path)
     ap.add_argument("--output", required=True, type=Path)
     ap.add_argument("--workdir", type=Path)
+    ap.add_argument("--pcie-mode", choices=["noep", "deferred"], default="noep",
+                    help="NPU PCIe DT handling: noep disables EP; deferred adds EP nonblocking DT properties")
     args = ap.parse_args()
     with tempfile.TemporaryDirectory(prefix="npu_noep_ntb_", dir=str(args.workdir) if args.workdir else None) as td:
         work = Path(td)
         header, page, kernel, ramdisk, second = unpack_boot(args.input, work)
         dtb = work/"orig.dtb"; extract_second_dtb(second, dtb)
-        new_dtb = work/"noep.dtb"; patch_dtb(dtb, new_dtb, work)
-        new_ramdisk = work/"ramdisk_noep_ntb.cpio.gz"; patch_ramdisk(ramdisk, new_ramdisk, work)
+        new_dtb = work/(args.pcie_mode + ".dtb"); patch_dtb(dtb, new_dtb, work, args.pcie_mode)
+        new_ramdisk = work/("ramdisk_" + args.pcie_mode + "_ntb.cpio.gz"); patch_ramdisk(ramdisk, new_ramdisk, work, args.pcie_mode)
         repack(header, page, kernel, new_ramdisk.read_bytes(), second, new_dtb.read_bytes(), args.output)
     print(f"WROTE {args.output}")
     print(hashlib.sha256(args.output.read_bytes()).hexdigest(), args.output)
