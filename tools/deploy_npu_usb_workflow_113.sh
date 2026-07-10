@@ -41,6 +41,9 @@ echo "== upload scripts =="
   "${ROOT_DIR}/tools/npu_mainline_usb_ntb_boot_golden129_usb.sh" \
   "${ROOT_DIR}/tools/npu_mainline_usb_ntb_check.sh" \
   "${ROOT_DIR}/tools/npu_usb_loader_rs_rknn_pipeline.sh" \
+  "${ROOT_DIR}/tools/npu_usb_ntb_noep_rknn.sh" \
+  "${ROOT_DIR}/tools/install_npu_usb_ntb_noep_profile.sh" \
+  "${ROOT_DIR}/tools/npu_make_noep_ntb_boot.py" \
   "${ROOT_DIR}/configs/npu/npu_startup.sh" \
   "${TARGET}:/tmp/"
 
@@ -58,6 +61,9 @@ install -m 0755 /tmp/npu_mainline_usb_ntb_boot.sh /usr/local/bin/npu_mainline_us
 install -m 0755 /tmp/npu_mainline_usb_ntb_boot_golden129_usb.sh /usr/local/bin/npu_mainline_usb_ntb_boot_golden129_usb.sh
 install -m 0755 /tmp/npu_mainline_usb_ntb_check.sh /usr/local/bin/npu_mainline_usb_ntb_check.sh
 install -m 0755 /tmp/npu_usb_loader_rs_rknn_pipeline.sh /usr/local/bin/npu_usb_loader_rs_rknn_pipeline.sh
+install -m 0755 /tmp/npu_usb_ntb_noep_rknn.sh /usr/local/bin/npu_usb_ntb_noep_rknn.sh
+install -m 0755 /tmp/install_npu_usb_ntb_noep_profile.sh /usr/local/bin/install_npu_usb_ntb_noep_profile.sh
+install -m 0755 /tmp/npu_make_noep_ntb_boot.py /usr/local/bin/npu_make_noep_ntb_boot.py
 install -m 0755 /tmp/npu_startup.sh /usr/local/bin/npu_startup.sh
 install -m 0644 /tmp/npu_transfer_proxy.service /etc/systemd/system/npu_transfer_proxy.service
 install -m 0644 /tmp/npu-usb-workflow.env /etc/default/npu-usb-workflow
