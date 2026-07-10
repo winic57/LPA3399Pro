@@ -1,0 +1,221 @@
+From cf79b5f87d362bb9481b756ddd1877ce56c20d7c Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Fri, 10 Jul 2026 08:10:03 +0800
+Subject: [PATCH] pcie-dma: make RC ack block mapping runtime configurable
+
+Add debugfs controls for the RC-side ACK/FREE_ACK shared-memory block mapping. Defaults preserve current 0042 behavior: scan ACK block 0, scan FREE_ACK block 2, write DATA_ACK block 1, write FREE_ACK block 3. This enables controlled A/B tests against vendor 4.4 without changing UDMA or IRQ behavior.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 113 ++++++++++++++++-----
+ drivers/pci/controller/pcie-rockchip-dma.h |   4 +
+ 2 files changed, 91 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index f3ed14843..6b27cd5a8 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -272,6 +272,50 @@ static void rk_pcie_dma_apply_proto_fake_ack(struct dma_trx_obj *obj)
+ 	wake_up(&obj->event_queue);
+ }
+ 
++static u32 rk_pcie_dma_ack_block_clamp(u32 block, u32 fallback)
++{
++	return block < 4 ? block : fallback;
++}
++
++static void *rk_pcie_dma_ack_virt(struct dma_trx_obj *obj, u32 block, u32 idx)
++{
++	block = rk_pcie_dma_ack_block_clamp(block, 0);
++	return obj->mem_base + PCIE_DMA_ACK_BASE +
++		block * PCIE_DMA_ACK_BLOCK_SIZE + idx * NODE_SIZE;
++}
++
++static phys_addr_t rk_pcie_dma_ack_phys(struct dma_trx_obj *obj, u32 block,
++						 u32 idx)
++{
++	block = rk_pcie_dma_ack_block_clamp(block, 0);
++	return obj->mem_start + PCIE_DMA_ACK_BASE +
++		block * PCIE_DMA_ACK_BLOCK_SIZE + idx * NODE_SIZE;
++}
++
++static u32 rk_pcie_dma_rc_write_ack_block(struct dma_trx_obj *obj)
++{
++	return rk_pcie_dma_ack_block_clamp(READ_ONCE(obj->dma_rc_write_ack_block),
++						 1);
++}
++
++static u32 rk_pcie_dma_rc_write_free_block(struct dma_trx_obj *obj)
++{
++	return rk_pcie_dma_ack_block_clamp(READ_ONCE(obj->dma_rc_write_free_block),
++						 3);
++}
++
++static u32 rk_pcie_dma_rc_scan_ack_block(struct dma_trx_obj *obj)
++{
++	return rk_pcie_dma_ack_block_clamp(READ_ONCE(obj->dma_rc_scan_ack_block),
++						 0);
++}
++
++static u32 rk_pcie_dma_rc_scan_free_block(struct dma_trx_obj *obj)
++{
++	return rk_pcie_dma_ack_block_clamp(READ_ONCE(obj->dma_rc_scan_free_block),
++						 2);
++}
++
+ static void rk_pcie_dma_record_scan(struct dma_trx_obj *obj, u32 event, u32 idx,
+ 				    u32 sdv, u32 data_idx, u32 sav, u32 suv,
+ 				    bool need_ack)
+@@ -886,41 +930,36 @@ static int rk_pcie_prepare_dma(struct dma_trx_obj *obj,
+ 
+ 		buf_size = SZ_1M;
+ 		break;
+-	case PCIE_DMA_DATA_RCV_ACK:
++	case PCIE_DMA_DATA_RCV_ACK: {
++		u32 block;
++
+ 		if (idx >= PCIE_DMA_BUF_CNT)
+ 			return -EINVAL;
+ 		table = obj->table[PCIE_DMA_DATA_RCV_ACK_TABLE_OFFSET + idx];
+ 		table->type = PCIE_DMA_DATA_RCV_ACK;
+-		local = obj->mem_start + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+-		virt = obj->mem_base + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+-
+-		if (is_rc(obj)) {
+-			local += PCIE_DMA_ACK_BLOCK_SIZE;
+-			virt += PCIE_DMA_ACK_BLOCK_SIZE;
+-		}
++		block = is_rc(obj) ? rk_pcie_dma_rc_write_ack_block(obj) : 0;
++		local = rk_pcie_dma_ack_phys(obj, block, idx);
++		virt = rk_pcie_dma_ack_virt(obj, block, idx);
+ 		bus = local;
+ 		writel(PCIE_DMA_DATA_ACK_CHECK, virt);
+ 		buf_size = NODE_SIZE;
+ 		break;
+-	case PCIE_DMA_DATA_FREE_ACK:
++	}
++	case PCIE_DMA_DATA_FREE_ACK: {
++		u32 block;
++
+ 		if (idx >= PCIE_DMA_BUF_CNT)
+ 			return -EINVAL;
+ 		table = obj->table[PCIE_DMA_DATA_FREE_ACK_TABLE_OFFSET + idx];
+ 		table->type = PCIE_DMA_DATA_FREE_ACK;
+-		local = obj->mem_start + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+-		virt = obj->mem_base + PCIE_DMA_ACK_BASE + idx * NODE_SIZE;
+-
+-		if (is_rc(obj)) {
+-			local += 3 * PCIE_DMA_ACK_BLOCK_SIZE;
+-			virt += 3 * PCIE_DMA_ACK_BLOCK_SIZE;
+-		} else {
+-			local += 2 * PCIE_DMA_ACK_BLOCK_SIZE;
+-			virt += 2 * PCIE_DMA_ACK_BLOCK_SIZE;
+-		}
++		block = is_rc(obj) ? rk_pcie_dma_rc_write_free_block(obj) : 2;
++		local = rk_pcie_dma_ack_phys(obj, block, idx);
++		virt = rk_pcie_dma_ack_virt(obj, block, idx);
+ 		bus = local;
+ 		writel(PCIE_DMA_DATA_FREE_ACK_CHECK, virt);
+ 		buf_size = NODE_SIZE;
+ 		break;
++	}
+ 	default:
+ 		dev_err(dev, "unsupported dma transfer type %d\n", type);
+ 		return -EINVAL;
+@@ -1349,14 +1388,16 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 	rk_pcie_dma_poll_done_fallback(obj);
+ 	rk_pcie_dma_recover_timeout(obj);
+ 
+-	scan_ack_addr = obj->mem_base + PCIE_DMA_ACK_BASE;
+-	scan_user_addr = obj->mem_base + PCIE_DMA_ACK_BASE;
+-
+ 	if (is_rc(obj)) {
+-		scan_user_addr += PCIE_DMA_ACK_BLOCK_SIZE * 2;
++		scan_ack_addr = rk_pcie_dma_ack_virt(obj,
++				rk_pcie_dma_rc_scan_ack_block(obj), 0);
++		scan_user_addr = rk_pcie_dma_ack_virt(obj,
++				rk_pcie_dma_rc_scan_free_block(obj), 0);
+ 	} else {
+-		scan_ack_addr += PCIE_DMA_ACK_BLOCK_SIZE;
+-		scan_user_addr += PCIE_DMA_ACK_BLOCK_SIZE * 3;
++		scan_ack_addr = obj->mem_base + PCIE_DMA_ACK_BASE +
++				PCIE_DMA_ACK_BLOCK_SIZE;
++		scan_user_addr = obj->mem_base + PCIE_DMA_ACK_BASE +
++				PCIE_DMA_ACK_BLOCK_SIZE * 3;
+ 	}
+ 
+ 	for (i = 0; i < PCIE_DMA_BUF_CNT; i++) {
+@@ -1778,6 +1819,12 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_proto_trace_enable,
+ 		   dma_obj->dma_proto_fake_ack_mask,
+ 		   dma_obj->dma_proto_fake_ack_count);
++	seq_printf(s,
++		   "proto_ack_map: rc_scan_ack = %u, rc_scan_free = %u, rc_write_ack = %u, rc_write_free = %u\n",
++		   dma_obj->dma_rc_scan_ack_block,
++		   dma_obj->dma_rc_scan_free_block,
++		   dma_obj->dma_rc_write_ack_block,
++		   dma_obj->dma_rc_write_free_block);
+ 	{
+ 		u32 snd, rcv, a0, a1, f2, f3;
+ 
+@@ -2150,6 +2197,10 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_failfast_mode = PCIE_DMA_FAILFAST_ERROR;
+ 	obj->dma_irq_sample_period_ms = PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS;
+ 	obj->dma_proto_trace_enable = true;
++	obj->dma_rc_scan_ack_block = 0;
++	obj->dma_rc_scan_free_block = 2;
++	obj->dma_rc_write_ack_block = 1;
++	obj->dma_rc_write_free_block = 3;
+ 	obj->dma_reg_trace_enable = true;
+ 	obj->dma_reg_trace_live_mmio = false;
+ 	obj->dma_nfatal_mask_mode = PCIE_DMA_NFATAL_MASK_ACTIVE_WINDOW;
+@@ -2232,6 +2283,14 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			    &obj->dma_proto_trace_enable);
+ 	debugfs_create_u32("dma_proto_fake_ack_mask", 0600, obj->pcie_root,
+ 			   &obj->dma_proto_fake_ack_mask);
++	debugfs_create_u32("dma_rc_scan_ack_block", 0600, obj->pcie_root,
++			   &obj->dma_rc_scan_ack_block);
++	debugfs_create_u32("dma_rc_scan_free_block", 0600, obj->pcie_root,
++			   &obj->dma_rc_scan_free_block);
++	debugfs_create_u32("dma_rc_write_ack_block", 0600, obj->pcie_root,
++			   &obj->dma_rc_write_ack_block);
++	debugfs_create_u32("dma_rc_write_free_block", 0600, obj->pcie_root,
++			   &obj->dma_rc_write_free_block);
+ 	debugfs_create_bool("dma_reg_trace_enable", 0600, obj->pcie_root,
+ 			    &obj->dma_reg_trace_enable);
+ 	debugfs_create_bool("dma_reg_trace_live_mmio", 0600, obj->pcie_root,
+@@ -2241,13 +2300,15 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d link_failfast=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u proto_trace=%d reg_trace=%d live_mmio=%d nfatal_mask_mode=%u)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d link_failfast=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u proto_trace=%d ack_map=%u/%u/%u/%u reg_trace=%d live_mmio=%d nfatal_mask_mode=%u)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+ 		 obj->dma_dry_run_no_mmio, obj->dma_link_failfast,
+ 		 obj->dma_mmio_probe_mask, obj->dma_mmio_probe_limit,
+ 		 obj->dma_start_once_limit, obj->dma_preflight_validate,
+ 		 obj->dma_irq_sample_period_ms, obj->dma_proto_trace_enable,
++		 obj->dma_rc_scan_ack_block, obj->dma_rc_scan_free_block,
++		 obj->dma_rc_write_ack_block, obj->dma_rc_write_free_block,
+ 		 obj->dma_reg_trace_enable, obj->dma_reg_trace_live_mmio,
+ 		 obj->dma_nfatal_mask_mode);
+ 	return obj;
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 23d102351..7d47b25e4 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -328,6 +328,10 @@ struct dma_trx_obj {
+ 	bool				dma_proto_trace_enable;
+ 	u32				dma_proto_fake_ack_mask;
+ 	unsigned long			dma_proto_fake_ack_count;
++	u32				dma_rc_scan_ack_block;
++	u32				dma_rc_scan_free_block;
++	u32				dma_rc_write_ack_block;
++	u32				dma_rc_write_free_block;
+ 	u32				poll_trace_head;
+ 	struct dma_poll_trace	poll_trace[PCIE_DMA_POLL_TRACE_LEN];
+ 	unsigned long			scan_trace_count;
+-- 
+2.43.0
+
