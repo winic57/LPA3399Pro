@@ -45,7 +45,7 @@ jobs:
         working-directory: /builder
         env:
           BUILD_TARGETS: ${{ github.event.inputs.build_targets || github.event.client_payload.build_targets || 'kernel' }}
-          NPU_SDK_URL: ${{ github.event.inputs.npu_sdk_url || github.event.client_payload.npu_sdk_url || '' }}
+          NPU_SDK_URL: ${{ github.event.inputs.npu_sdk_url || github.event.client_payload.npu_sdk_url || 'https://github.com/winic57/LPA3399Pro/releases/download/npu-sdk-min-20260710-1/LPA3399Pro-NPU-kernel-min-20260710_160652.tar.gz' }}
           NPU_BOARD_CONFIG: ${{ github.event.inputs.board_config || github.event.client_payload.board_config || 'device/rockchip/rk3399pro/BoardConfig-rk3399pro_npu-pcie.mk' }}
         run: |
           sudo docker run --rm --privileged \
