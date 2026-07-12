@@ -1,0 +1,59 @@
+From 0035aaaa11112222333344445555666677778888 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 18:00:00 +0800
+Subject: [PATCH] phy: rockchip: balance RK3399 PCIe logical PHY runtime PM
+
+Live 0034 validation removed repeated PCIe PHY underflow from the host retry
+loop, but each deferred bring-up still emitted one runtime-PM underflow per
+logical RK3399 PCIe PHY child before link training started.
+
+The generic PHY core returns -ENOTSUPP from phy_pm_runtime_get_sync() when a
+child PHY device has runtime PM disabled, but phy_init()/phy_exit() still call
+the async runtime-PM put path afterwards.  For the RK3399 PCIe PHY provider the
+four child PHYs are logical lanes backed by one shared reset/refclk/PLL block,
+and the provider already protects that hardware with init_cnt/pwr_cnt and has
+no runtime-PM callbacks.
+
+Enable no-callback runtime PM on each logical child after devm_phy_create().
+This keeps the generic PHY core get/put accounting balanced while preserving
+the provider's explicit refclk/reset handling.  Keep the 0034 host retry policy
+that avoids PHY deinit between Gen1 training attempts.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/phy/rockchip/phy-rockchip-pcie.c b/drivers/phy/rockchip/phy-rockchip-pcie.c
+index 8cd03f1..e75e9c4 100644
+--- a/drivers/phy/rockchip/phy-rockchip-pcie.c
++++ b/drivers/phy/rockchip/phy-rockchip-pcie.c
+@@ -15,6 +15,7 @@
+ #include <linux/of.h>
+ #include <linux/phy/phy.h>
+ #include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
+ #include <linux/property.h>
+ #include <linux/regmap.h>
+ #include <linux/reset.h>
+@@ -315,14 +316,16 @@ static int rockchip_pcie_phy_probe(struct platform_device *pdev)
+ 		rk_phy->phys[i].index = i;
+ 		/*
+ 		 * RK3399 exposes four logical PHY lanes backed by one shared legacy
+-		 * PCIe PHY/reset block.  The provider has no runtime-PM callbacks and
+-		 * handles refclk/reset explicitly in its init/power ops.  Keeping the
+-		 * generic per-child PHY runtime-PM accounting enabled can underflow
+-		 * during host link-training retry/exit sequences, which hides the real
+-		 * LTSSM state we need to debug.  Disable the child accounting and rely
+-		 * on the driver's existing init_cnt/pwr_cnt serialization.
++		 * PCIe PHY/reset block.  The provider handles refclk/reset explicitly
++		 * in its init/power ops and has no runtime-PM callbacks.  However the
++		 * generic PHY core unconditionally does a runtime-PM put after init/exit,
++		 * even when get_sync() returned -ENOTSUPP for a disabled child device.
++		 * Enable no-callback runtime PM on each logical child so generic PHY
++		 * get/put accounting stays balanced while the provider's init_cnt/pwr_cnt
++		 * remain the real shared-hardware guards.
+ 		 */
+-		pm_runtime_disable(&rk_phy->phys[i].phy->dev);
++		pm_runtime_enable(&rk_phy->phys[i].phy->dev);
++		pm_runtime_no_callbacks(&rk_phy->phys[i].phy->dev);
+ 		phy_set_drvdata(rk_phy->phys[i].phy, &rk_phy->phys[i]);
+ 	}
+ 

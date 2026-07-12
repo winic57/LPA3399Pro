@@ -1,0 +1,328 @@
+From 3fbaaf90b7a876a8d6b4c7c8d90a2f0b3cf407b8 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Fri, 10 Jul 2026 00:03:11 +0800
+Subject: [PATCH] pcie-dma: add protocol layer poll ack tracing
+
+After 0041, real DATA_SND DMA and UDMA done IRQ are stable, while RKNN/proxy blocks after the ring is filled. Add non-invasive protocol-layer visibility: poll/scan traces now record queue depth, current DMA type, DATA tail markers, ACK blocks and FREE_ACK blocks. Expose a proto_snapshot in pcie_trx and add debugfs controls for enabling summary traces and for a one-shot software fake ACK mask, defaulting to no fake ACK. dma_disabled remains true by default.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 156 ++++++++++++++++++++-
+ drivers/pci/controller/pcie-rockchip-dma.h |  21 +++
+ 2 files changed, 170 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index c9acd4ec6..f3ed14843 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -179,6 +179,99 @@ static void rk_pcie_dma_snapshot_regs(struct dma_trx_obj *obj)
+ 	rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
+ }
+ 
++static u32 rk_pcie_dma_list_depth(struct dma_trx_obj *obj)
++{
++	struct dma_table *table;
++	unsigned long flags;
++	u32 depth = 0;
++
++	if (!obj)
++		return 0;
++
++	spin_lock_irqsave(&obj->tbl_list_lock, flags);
++	list_for_each_entry(table, &obj->tbl_list, tbl_node)
++		depth++;
++	spin_unlock_irqrestore(&obj->tbl_list_lock, flags);
++
++	return depth;
++}
++
++static void rk_pcie_dma_proto_masks(struct dma_trx_obj *obj, u32 *data_snd_mask,
++				    u32 *data_rcv_mask, u32 *ack0_mask,
++				    u32 *ack1_mask, u32 *free2_mask,
++				    u32 *free3_mask)
++{
++	void *ack_base;
++	u32 snd = 0, rcv = 0, a0 = 0, a1 = 0, f2 = 0, f3 = 0;
++	u32 i;
++
++	if (!obj || !obj->mem_base)
++		goto out;
++
++	for (i = 0; i < PCIE_DMA_BUF_CNT; i++) {
++		void *snd_base = obj->mem_base + PCIE_DMA_BUF_SIZE * i;
++		void *rcv_base = snd_base + PCIE_DMA_WR_BUF_SIZE;
++
++		if (readl(snd_base + PCIE_DMA_SET_DATA_CHECK_POS) ==
++		    PCIE_DMA_DATA_CHECK)
++			snd |= BIT(i);
++		if (readl(rcv_base + PCIE_DMA_SET_DATA_CHECK_POS) ==
++		    PCIE_DMA_DATA_CHECK)
++			rcv |= BIT(i);
++	}
++
++	ack_base = obj->mem_base + PCIE_DMA_ACK_BASE;
++	for (i = 0; i < PCIE_DMA_BUF_CNT; i++) {
++		if (readl(ack_base + i * NODE_SIZE) == PCIE_DMA_DATA_ACK_CHECK)
++			a0 |= BIT(i);
++		if (readl(ack_base + PCIE_DMA_ACK_BLOCK_SIZE + i * NODE_SIZE) ==
++		    PCIE_DMA_DATA_ACK_CHECK)
++			a1 |= BIT(i);
++		if (readl(ack_base + 2 * PCIE_DMA_ACK_BLOCK_SIZE + i * NODE_SIZE) ==
++		    PCIE_DMA_DATA_FREE_ACK_CHECK)
++			f2 |= BIT(i);
++		if (readl(ack_base + 3 * PCIE_DMA_ACK_BLOCK_SIZE + i * NODE_SIZE) ==
++		    PCIE_DMA_DATA_FREE_ACK_CHECK)
++			f3 |= BIT(i);
++	}
++
++out:
++	if (data_snd_mask)
++		*data_snd_mask = snd;
++	if (data_rcv_mask)
++		*data_rcv_mask = rcv;
++	if (ack0_mask)
++		*ack0_mask = a0;
++	if (ack1_mask)
++		*ack1_mask = a1;
++	if (free2_mask)
++		*free2_mask = f2;
++	if (free3_mask)
++		*free3_mask = f3;
++}
++
++static void rk_pcie_dma_apply_proto_fake_ack(struct dma_trx_obj *obj)
++{
++	u32 mask, lwa, rwa, lra;
++
++	if (!obj)
++		return;
++
++	mask = xchg(&obj->dma_proto_fake_ack_mask, 0);
++	if (!mask)
++		return;
++
++	lwa = mask & PCIE_DMA_FAKE_BUF_MASK;
++	rwa = (mask >> 8) & PCIE_DMA_FAKE_BUF_MASK;
++	lra = (mask >> 16) & PCIE_DMA_FAKE_BUF_MASK;
++
++	obj->local_write_available |= lwa;
++	obj->remote_write_available |= rwa;
++	obj->local_read_available |= lra;
++	obj->dma_proto_fake_ack_count++;
++	wake_up(&obj->event_queue);
++}
++
+ static void rk_pcie_dma_record_scan(struct dma_trx_obj *obj, u32 event, u32 idx,
+ 				    u32 sdv, u32 data_idx, u32 sav, u32 suv,
+ 				    bool need_ack)
+@@ -193,6 +286,7 @@ static void rk_pcie_dma_record_scan(struct dma_trx_obj *obj, u32 event, u32 idx,
+ 	head = obj->scan_trace_head++ & (PCIE_DMA_SCAN_TRACE_LEN - 1);
+ 	tr = &obj->scan_trace[head];
+ 
++	memset(tr, 0, sizeof(*tr));
+ 	tr->seq = obj->scan_trace_count;
+ 	tr->ts_ns = ktime_get_ns();
+ 	tr->event = event;
+@@ -207,6 +301,11 @@ static void rk_pcie_dma_record_scan(struct dma_trx_obj *obj, u32 event, u32 idx,
+ 	tr->need_ack = need_ack;
+ 	tr->queued = !list_empty(&obj->tbl_list);
+ 	tr->dma_free = obj->dma_free;
++	tr->queue_depth = rk_pcie_dma_list_depth(obj);
++	tr->cur_type = obj->cur ? obj->cur->type : 0xffffffff;
++	rk_pcie_dma_proto_masks(obj, &tr->data_snd_mask, &tr->data_rcv_mask,
++				    &tr->ack0_mask, &tr->ack1_mask,
++				    &tr->free2_mask, &tr->free3_mask);
+ }
+ 
+ static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj);
+@@ -1281,6 +1380,14 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 		}
+ 	}
+ 
++	rk_pcie_dma_apply_proto_fake_ack(obj);
++	if (READ_ONCE(obj->dma_proto_trace_enable) &&
++	    (need_ack || !list_empty(&obj->tbl_list) ||
++	     !obj->dma_free || !obj->local_write_available ||
++	     !obj->remote_write_available || obj->local_read_available))
++		rk_pcie_dma_record_scan(obj, PCIE_DMA_SCAN_TRACE_SUMMARY,
++					0, 0, 0, 0, 0, need_ack);
++
+ 	if ((obj->local_write_available && obj->remote_write_available) ||
+ 	    obj->local_read_available)
+ 		wake_up(&obj->event_queue);
+@@ -1477,7 +1584,13 @@ static void rk_pcie_dma_record_poll(struct dma_trx_obj *obj, __poll_t ret)
+ 	tr->lwa = (u32)obj->local_write_available;
+ 	tr->rwa = (u32)obj->remote_write_available;
+ 	tr->lra = (u32)obj->local_read_available;
++	tr->queue_depth = rk_pcie_dma_list_depth(obj);
++	tr->dma_free = obj->dma_free;
++	tr->cur_type = obj->cur ? obj->cur->type : 0xffffffff;
+ 	tr->loop_count = obj->loop_count;
++	rk_pcie_dma_proto_masks(obj, &tr->data_snd_mask, &tr->data_rcv_mask,
++				    &tr->ack0_mask, &tr->ack1_mask,
++				    &tr->free2_mask, &tr->free3_mask);
+ }
+ 
+ static __poll_t rk_pcie_misc_poll(struct file *filp, poll_table *wait)
+@@ -1660,6 +1773,19 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	seq_printf(s, "fake_ctrl: poll_mask = 0x%x, rx_mask = 0x%x, rx_inject = %lu\n",
+ 		   dma_obj->dma_fake_poll_mask, dma_obj->dma_fake_rx_mask,
+ 		   dma_obj->dma_fake_rx_inject_count);
++	seq_printf(s,
++		   "proto_trace: enable = %d, fake_ack_mask = 0x%x, fake_ack_count = %lu\n",
++		   dma_obj->dma_proto_trace_enable,
++		   dma_obj->dma_proto_fake_ack_mask,
++		   dma_obj->dma_proto_fake_ack_count);
++	{
++		u32 snd, rcv, a0, a1, f2, f3;
++
++		rk_pcie_dma_proto_masks(dma_obj, &snd, &rcv, &a0, &a1, &f2, &f3);
++		seq_printf(s,
++			   "proto_snapshot: snd_tail = 0x%x, rcv_tail = 0x%x, ack0 = 0x%x, ack1 = 0x%x, free2 = 0x%x, free3 = 0x%x\n",
++			   snd, rcv, a0, a1, f2, f3);
++	}
+ 	seq_printf(s,
+ 		   "read_dump: enable = %u, count = %lu, idx = %u, lra = 0x%x, valid = %u, len = %u\n",
+ 		   dma_obj->dma_read_dump_enable, dma_obj->dma_read_dump_count,
+@@ -1812,7 +1938,8 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		}
+ 	}
+ 
+-	seq_puts(s, "poll_trace recent-first: seq ret lwa/rwa/lra loop ts_ns\n");
++	seq_puts(s,
++		 "poll_trace recent-first: seq ret lwa/rwa/lra qdepth free cur_type snd/rcv ack0/ack1 free2/free3 loop ts_ns\n");
+ 	{
+ 		u32 head = dma_obj->poll_trace_head;
+ 		u32 n = min_t(u32, dma_obj->poll_count, PCIE_DMA_POLL_TRACE_LEN);
+@@ -1823,14 +1950,19 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 
+ 			tr = &dma_obj->poll_trace[(head - 1 - i) &
+ 						      (PCIE_DMA_POLL_TRACE_LEN - 1)];
+-			seq_printf(s, "  %lu 0x%x 0x%x/0x%x/0x%x %d %llu\n",
++			seq_printf(s,
++				   "  %lu 0x%x 0x%x/0x%x/0x%x %u %u %u 0x%x/0x%x 0x%x/0x%x 0x%x/0x%x %d %llu\n",
+ 				   tr->seq, tr->ret, tr->lwa, tr->rwa, tr->lra,
++				   tr->queue_depth, tr->dma_free, tr->cur_type,
++				   tr->data_snd_mask, tr->data_rcv_mask,
++				   tr->ack0_mask, tr->ack1_mask,
++				   tr->free2_mask, tr->free3_mask,
+ 				   tr->loop_count, tr->ts_ns);
+ 		}
+ 	}
+ 
+ 	seq_puts(s,
+-		 "scan_timer_trace recent-first: seq event idx sdv data_idx sav suv lwa/rwa/lra need_ack queued dma_free ts_ns\n");
++		 "scan_timer_trace recent-first: seq event idx sdv data_idx sav suv lwa/rwa/lra qdepth cur_type snd/rcv ack0/ack1 free2/free3 need_ack queued dma_free ts_ns\n");
+ 	{
+ 		u32 head = dma_obj->scan_trace_head;
+ 		u32 n = min_t(u32, dma_obj->scan_trace_count,
+@@ -1843,10 +1975,14 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 			tr = &dma_obj->scan_trace[(head - 1 - i) &
+ 						      (PCIE_DMA_SCAN_TRACE_LEN - 1)];
+ 			seq_printf(s,
+-				   "  %lu %u %u 0x%x %u 0x%x 0x%x 0x%x/0x%x/0x%x %d %d %d %llu\n",
++				   "  %lu %u %u 0x%x %u 0x%x 0x%x 0x%x/0x%x/0x%x %u %u 0x%x/0x%x 0x%x/0x%x 0x%x/0x%x %d %d %d %llu\n",
+ 				   tr->seq, tr->event, tr->idx, tr->sdv,
+ 				   tr->data_idx, tr->sav, tr->suv,
+ 				   tr->lwa, tr->rwa, tr->lra,
++				   tr->queue_depth, tr->cur_type,
++				   tr->data_snd_mask, tr->data_rcv_mask,
++				   tr->ack0_mask, tr->ack1_mask,
++				   tr->free2_mask, tr->free3_mask,
+ 				   tr->need_ack, tr->queued,
+ 				   tr->dma_free, tr->ts_ns);
+ 		}
+@@ -2013,6 +2149,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_read_dump_len = PCIE_DMA_READ_DUMP_MAX;
+ 	obj->dma_failfast_mode = PCIE_DMA_FAILFAST_ERROR;
+ 	obj->dma_irq_sample_period_ms = PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS;
++	obj->dma_proto_trace_enable = true;
+ 	obj->dma_reg_trace_enable = true;
+ 	obj->dma_reg_trace_live_mmio = false;
+ 	obj->dma_nfatal_mask_mode = PCIE_DMA_NFATAL_MASK_ACTIVE_WINDOW;
+@@ -2091,6 +2228,10 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			   &obj->dma_irq_sample_enable);
+ 	debugfs_create_u32("dma_irq_sample_period_ms", 0600, obj->pcie_root,
+ 			   &obj->dma_irq_sample_period_ms);
++	debugfs_create_bool("dma_proto_trace_enable", 0600, obj->pcie_root,
++			    &obj->dma_proto_trace_enable);
++	debugfs_create_u32("dma_proto_fake_ack_mask", 0600, obj->pcie_root,
++			   &obj->dma_proto_fake_ack_mask);
+ 	debugfs_create_bool("dma_reg_trace_enable", 0600, obj->pcie_root,
+ 			    &obj->dma_reg_trace_enable);
+ 	debugfs_create_bool("dma_reg_trace_live_mmio", 0600, obj->pcie_root,
+@@ -2100,14 +2241,15 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d link_failfast=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d nfatal_mask_mode=%u)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d link_failfast=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u proto_trace=%d reg_trace=%d live_mmio=%d nfatal_mask_mode=%u)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+ 		 obj->dma_dry_run_no_mmio, obj->dma_link_failfast,
+ 		 obj->dma_mmio_probe_mask, obj->dma_mmio_probe_limit,
+ 		 obj->dma_start_once_limit, obj->dma_preflight_validate,
+-		 obj->dma_irq_sample_period_ms, obj->dma_reg_trace_enable,
+-		 obj->dma_reg_trace_live_mmio, obj->dma_nfatal_mask_mode);
++		 obj->dma_irq_sample_period_ms, obj->dma_proto_trace_enable,
++		 obj->dma_reg_trace_enable, obj->dma_reg_trace_live_mmio,
++		 obj->dma_nfatal_mask_mode);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 338894ddc..23d102351 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -39,6 +39,7 @@
+ #define PCIE_DMA_SCAN_TRACE_ACK		2
+ #define PCIE_DMA_SCAN_TRACE_FREE_ACK		3
+ #define PCIE_DMA_SCAN_TRACE_QUEUE		4
++#define PCIE_DMA_SCAN_TRACE_SUMMARY		5
+ 
+ #define PCIE_DMA_IRQ_TRACE_SUBSYS		1
+ #define PCIE_DMA_IRQ_TRACE_CLIENT		2
+@@ -131,6 +132,15 @@ struct dma_poll_trace {
+ 	u32		lwa;
+ 	u32		rwa;
+ 	u32		lra;
++	u32		queue_depth;
++	u32		dma_free;
++	u32		cur_type;
++	u32		data_snd_mask;
++	u32		data_rcv_mask;
++	u32		ack0_mask;
++	u32		ack1_mask;
++	u32		free2_mask;
++	u32		free3_mask;
+ 	int		loop_count;
+ };
+ 
+@@ -146,6 +156,14 @@ struct dma_scan_trace {
+ 	u32		lwa;
+ 	u32		rwa;
+ 	u32		lra;
++	u32		queue_depth;
++	u32		cur_type;
++	u32		data_snd_mask;
++	u32		data_rcv_mask;
++	u32		ack0_mask;
++	u32		ack1_mask;
++	u32		free2_mask;
++	u32		free3_mask;
+ 	int		need_ack;
+ 	int		queued;
+ 	int		dma_free;
+@@ -307,6 +325,9 @@ struct dma_trx_obj {
+ 	struct dma_ioctl_trace	ioctl_trace[PCIE_DMA_IOCTL_TRACE_LEN];
+ 	unsigned long			poll_count;
+ 	u32				last_poll_ret;
++	bool				dma_proto_trace_enable;
++	u32				dma_proto_fake_ack_mask;
++	unsigned long			dma_proto_fake_ack_count;
+ 	u32				poll_trace_head;
+ 	struct dma_poll_trace	poll_trace[PCIE_DMA_POLL_TRACE_LEN];
+ 	unsigned long			scan_trace_count;
+-- 
+2.43.0
+

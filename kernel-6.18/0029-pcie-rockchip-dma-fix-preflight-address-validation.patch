@@ -1,0 +1,45 @@
+From 7c089a80e12d4a2b3c4d5e6f7a8b9c0d1e2f3a4b Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Wed, 8 Jul 2026 14:00:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: fix preflight address validation for remote bus addresses
+
+In 0022-pcie-rockchip-dma-add-guarded-start-controls.patch, the address
+validation logic rk_pcie_dma_addr_range_ok was applied to both the source
+and destination addresses of the DMA transaction.
+
+However, for DMA_TO_BUS (host to NPU) transfers, only the local source address
+lies within the reserved host memory region (mem_start/mem_size). The remote
+destination address represents NPU bus physical address, which lies outside
+this host memory allocation. Similarly, for DMA_FROM_BUS transfers, only the local
+destination address lies within the local reservation.
+
+This patch updates rk_pcie_dma_validate_table to only check the range of the
+local buffer mapping appropriate for the direction of the DMA transfer.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 5d69ce6..9a8ee32 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -262,9 +262,13 @@ static int rk_pcie_dma_validate_table(struct dma_trx_obj *obj,
+ 	src = ((u64)desc[1] << 32) | desc[0];
+ 	dst = ((u64)desc[3] << 32) | desc[2];
+ 
+-	if (!rk_pcie_dma_addr_range_ok(obj, src, len) ||
+-	    !rk_pcie_dma_addr_range_ok(obj, dst, len))
+-		return -ERANGE;
++	if (tbl->dir == DMA_TO_BUS) {
++		if (!rk_pcie_dma_addr_range_ok(obj, src, len))
++			return -ERANGE;
++	} else {
++		if (!rk_pcie_dma_addr_range_ok(obj, dst, len))
++			return -ERANGE;
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.34.1

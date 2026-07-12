@@ -1,0 +1,337 @@
+From 0036aaaa11112222333344445555666677778888 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 19:00:00 +0800
+Subject: [PATCH] pcie: rockchip: add guarded electrical link trace
+
+After 0035 removed RK3399 PCIe logical-PHY runtime-PM underflow, the next
+blocker is real link training/LTSSM progress.  A user-space /dev/mem sampler
+that read PCIe APB/core registers while the deferred controller was still
+stopped caused the host to become unreachable, so the electrical timing data
+must be collected from guarded kernel paths instead of raw pre-init MMIO.
+
+Add a small ring trace to the Rockchip PCIe host driver and expose it through
+pcie_elec_trace.  The trace records deferred entry, host init attempts, PERST
+assert/deassert points, Gen1 training retries and final link checks.  APB/core
+registers are sampled only from the host init path or when the controller is
+already marked started; deferred-entry events intentionally avoid APB reads.
+
+Also expose a PCIe PHY provider pcie_phy_state attribute with GRF laneoff,
+configuration and status plus decoded PLL/RX-detect bits.  These are GRF
+registers owned by the PHY provider and are safe to read without user-space
+probing the PCIe APB window.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index 004e5b8..d908cab 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -19,6 +19,7 @@
+ #include <linux/irq.h>
+ #include <linux/irqchip/chained_irq.h>
+ #include <linux/irqdomain.h>
++#include <linux/ktime.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+@@ -36,6 +37,48 @@
+ #define PCIE_USER_EP_RESET_MS	200
+ 
+ 
++
++static void rockchip_pcie_elec_trace(struct rockchip_pcie *rockchip,
++				     const char *event, u32 aux, bool read_apb)
++{
++	struct rockchip_pcie_elec_trace *ent;
++	unsigned long flags;
++	u32 status1 = 0, debug0 = 0, client_cfg = 0, core_ctrl = 0, sideband = 0;
++	int perst = -1;
++
++	if (rockchip->perst_gpio)
++		perst = gpiod_get_value_cansleep(rockchip->perst_gpio);
++
++	/*
++	 * Never sample PCIe APB/core registers before the controller is being
++	 * initialized or has been explicitly marked started. User-space /dev/mem
++	 * reads in this state were observed to hang the RK3399 host bus.
++	 */
++	if (read_apb && rockchip->apb_base) {
++		status1 = rockchip_pcie_read(rockchip, PCIE_CLIENT_BASIC_STATUS1);
++		debug0 = rockchip_pcie_read(rockchip, PCIE_CLIENT_DEBUG_OUT_0);
++		client_cfg = rockchip_pcie_read(rockchip, PCIE_CLIENT_CONFIG);
++		core_ctrl = rockchip_pcie_read(rockchip, PCIE_CORE_CTRL);
++		sideband = rockchip_pcie_read(rockchip, PCIE_CLIENT_SIDE_BAND_STATUS);
++	}
++
++	spin_lock_irqsave(&rockchip->elec_trace_lock, flags);
++	ent = &rockchip->elec_trace[rockchip->elec_trace_head %
++				      ROCKCHIP_PCIE_ELEC_TRACE_DEPTH];
++	ent->ns = ktime_get_ns();
++	strscpy(ent->event, event, sizeof(ent->event));
++	ent->status1 = status1;
++	ent->debug0 = debug0;
++	ent->client_cfg = client_cfg;
++	ent->core_ctrl = core_ctrl;
++	ent->sideband = sideband;
++	ent->aux = aux;
++	ent->perst = perst;
++	ent->read_apb = read_apb;
++	rockchip->elec_trace_head++;
++	spin_unlock_irqrestore(&rockchip->elec_trace_lock, flags);
++}
++
+ bool rockchip_pcie_link_up(struct rockchip_pcie *rockchip)
+ {
+ 	u32 status;
+@@ -322,9 +365,13 @@ static int rockchip_pcie_host_init_port(struct rockchip_pcie *rockchip)
+ 	bool link_is_up = true;
+ 
+ err_retry_init:
++	rockchip_pcie_elec_trace(rockchip, "host_init_attempt", attempt_counter, false);
+ 	gpiod_set_value_cansleep(rockchip->perst_gpio, 0);
++	rockchip_pcie_elec_trace(rockchip, "perst_assert", attempt_counter, false);
+ 
+ 	err = rockchip_pcie_init_port(rockchip);
++	rockchip_pcie_elec_trace(rockchip, err ? "init_port_error" : "init_port_done",
++				 err ? (u32)err : attempt_counter, !err);
+ 	if (err) {
+ 		if (attempt_counter++ < 5) {
+ 			dev_warn(dev, "PCIe init port failed, retrying (%d/5)...\n", attempt_counter);
+@@ -355,11 +402,15 @@ err_retry_init:
+ 	/* Enable Gen1 training */
+ 	rockchip_pcie_write(rockchip, PCIE_CLIENT_LINK_TRAIN_ENABLE,
+ 			    PCIE_CLIENT_CONFIG);
++	rockchip_pcie_elec_trace(rockchip, "ltssm_enable", attempt_counter, true);
+ 
+ 	msleep(PCIE_T_PVPERL_MS);
++	rockchip_pcie_elec_trace(rockchip, "pre_perst_deassert", attempt_counter, true);
+ 	gpiod_set_value_cansleep(rockchip->perst_gpio, 1);
++	rockchip_pcie_elec_trace(rockchip, "perst_deassert", attempt_counter, true);
+ 
+ 	msleep(PCIE_RESET_CONFIG_WAIT_MS);
++	rockchip_pcie_elec_trace(rockchip, "post_perst_wait", attempt_counter, true);
+ 
+ 	/* 500ms timeout value should be enough for Gen1/2 training */
+ 	err = readl_poll_timeout(rockchip->apb_base + PCIE_CLIENT_BASIC_STATUS1,
+@@ -368,15 +419,18 @@ err_retry_init:
+ 	if (err) {
+ 		rockchip->last_link_status = status;
+ 		rockchip->pcie_link_up = false;
++		rockchip_pcie_elec_trace(rockchip, "gen1_timeout", attempt_counter, true);
+ 		dev_err(dev, "PCIe link training gen1 timeout! status=0x%08x\n", status);
+ 		if (attempt_counter++ < 5) {
+ 			dev_warn(dev,
+ 				 "Retrying PCIe link training (%d/5) without PHY deinit to keep refcount stable...\n",
+ 				 attempt_counter);
++			rockchip_pcie_elec_trace(rockchip, "retry_wait", attempt_counter, true);
+ 			msleep(200);
+ 			goto err_retry_init;
+ 		}
+ 		dev_warn(dev, "Ignoring link training timeout to keep REFCLK running\n");
++		rockchip_pcie_elec_trace(rockchip, "final_link_down", attempt_counter, true);
+ 		link_is_up = false;
+ 		err = 0;
+ 	}
+@@ -407,6 +461,7 @@ err_retry_init:
+ 			  PCIE_CORE_PL_CONF_LANE_SHIFT);
+ 	dev_dbg(dev, "current link width is x%d\n", status);
+ 	rockchip_pcie_link_up(rockchip);
++	rockchip_pcie_elec_trace(rockchip, "final_link_check", status, true);
+ 
+ 	/* Power off unused lane(s) */
+ 	if (link_is_up) {
+@@ -1185,6 +1240,9 @@ static int rockchip_pcie_hard_retrain_for_user(struct rockchip_pcie *rockchip)
+ 		core_ctrl = rockchip_pcie_read(rockchip, PCIE_CORE_CTRL);
+ 	}
+ 
++	rockchip_pcie_elec_trace(rockchip, "safe_snapshot", up,
++				 rockchip->pcie_hw_started);
++
+ 	dev_warn(rockchip->dev,
+ 		 "user hard retrain disabled for safety: link_up=%d status1=0x%08x debug0=0x%08x client_cfg=0x%08x core_ctrl=0x%08x hw_started=%d probed=%d\n",
+ 		 up, rockchip->last_link_status, debug0, client_cfg, core_ctrl,
+@@ -1208,6 +1266,9 @@ static ssize_t pcie_deferred_store(struct device *dev,
+ 	if (!val)
+ 		return size;
+ 
++	rockchip_pcie_elec_trace(rockchip, "deferred_entry", val,
++				 rockchip->pcie_hw_started);
++
+ 	if (!rockchip->pcie_really_probed)
+ 		err = rockchip_pcie_really_probe(rockchip);
+ 	else if (rockchip->root_bus)
+@@ -1215,6 +1276,9 @@ static ssize_t pcie_deferred_store(struct device *dev,
+ 	else
+ 		err = -ENODEV;
+ 
++	rockchip_pcie_elec_trace(rockchip, err ? "deferred_error" : "deferred_done",
++				 err ? (u32)err : val, rockchip->pcie_hw_started);
++
+ 	if (err)
+ 		return err;
+ 
+@@ -1279,14 +1343,49 @@ static ssize_t pcie_link_state_show(struct device *dev,
+ 			  rockchip->lanes, rockchip->lanes_map);
+ }
+ 
++
++static ssize_t pcie_elec_trace_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	struct rockchip_pcie *rockchip = dev_get_drvdata(dev);
++	struct rockchip_pcie_elec_trace tmp[ROCKCHIP_PCIE_ELEC_TRACE_DEPTH];
++	unsigned long flags;
++	u32 head, start, count;
++	ssize_t len = 0;
++	int i;
++
++	spin_lock_irqsave(&rockchip->elec_trace_lock, flags);
++	head = rockchip->elec_trace_head;
++	count = min_t(u32, head, ROCKCHIP_PCIE_ELEC_TRACE_DEPTH);
++	start = head - count;
++	for (i = 0; i < count; i++)
++		tmp[i] = rockchip->elec_trace[(start + i) %
++					 ROCKCHIP_PCIE_ELEC_TRACE_DEPTH];
++	spin_unlock_irqrestore(&rockchip->elec_trace_lock, flags);
++
++	len += sysfs_emit_at(buf, len,
++		"# idx ns event aux perst apb status1 debug0 ltssm client_cfg sideband core_ctrl\n");
++	for (i = 0; i < count && len < PAGE_SIZE - 96; i++)
++		len += sysfs_emit_at(buf, len,
++			"%u %llu %s 0x%x %d %u 0x%08x 0x%08x 0x%02x 0x%08x 0x%08x 0x%08x\n",
++			start + i, tmp[i].ns, tmp[i].event, tmp[i].aux,
++			tmp[i].perst, tmp[i].read_apb, tmp[i].status1,
++			tmp[i].debug0, (u32)(tmp[i].debug0 & PCIE_CLIENT_DEBUG_LTSSM_MASK),
++			tmp[i].client_cfg, tmp[i].sideband, tmp[i].core_ctrl);
++
++	return len;
++}
++
+ static DEVICE_ATTR_WO(pcie_deferred);
+ static DEVICE_ATTR_WO(pcie_reset_ep);
+ static DEVICE_ATTR_RO(pcie_link_state);
++static DEVICE_ATTR_RO(pcie_elec_trace);
+ 
+ static struct attribute *rockchip_pcie_attrs[] = {
+ 	&dev_attr_pcie_deferred.attr,
+ 	&dev_attr_pcie_reset_ep.attr,
+ 	&dev_attr_pcie_link_state.attr,
++	&dev_attr_pcie_elec_trace.attr,
+ 	NULL,
+ };
+ 
+@@ -1392,6 +1491,8 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, rockchip);
+ 	rockchip->dev = dev;
++	spin_lock_init(&rockchip->elec_trace_lock);
++	rockchip_pcie_elec_trace(rockchip, "probe_alloc", 0, false);
+ 	rockchip->is_rc = true;
+ 	rockchip->bridge = bridge;
+ 
+diff --git a/drivers/pci/controller/pcie-rockchip.h b/drivers/pci/controller/pcie-rockchip.h
+index 4a5c4de..1ea3a1b 100644
+--- a/drivers/pci/controller/pcie-rockchip.h
++++ b/drivers/pci/controller/pcie-rockchip.h
+@@ -17,6 +17,7 @@
+ #include <linux/pci.h>
+ #include <linux/pci-ecam.h>
+ #include <linux/reset.h>
++#include <linux/spinlock.h>
+ 
+ /*
+  * The upper 16 bits of PCIE_CLIENT_CONFIG are a write mask for the lower 16
+@@ -316,6 +317,22 @@ static const char * const rockchip_pci_core_rsts[] = {
+ 
+ struct dma_trx_obj;
+ 
++#define ROCKCHIP_PCIE_ELEC_TRACE_DEPTH	24
++#define ROCKCHIP_PCIE_ELEC_TRACE_NAME	24
++
++struct rockchip_pcie_elec_trace {
++	u64	ns;
++	char	event[ROCKCHIP_PCIE_ELEC_TRACE_NAME];
++	u32	status1;
++	u32	debug0;
++	u32	client_cfg;
++	u32	core_ctrl;
++	u32	sideband;
++	u32	aux;
++	int	perst;
++	bool	read_apb;
++};
++
+ struct rockchip_pcie {
+ 	void	__iomem *reg_base;		/* DT axi-base */
+ 	void	__iomem *apb_base;		/* DT apb-base */
+@@ -353,6 +370,9 @@ struct rockchip_pcie {
+ 	struct pci_host_bridge *bridge;
+ 	struct pci_bus *root_bus;
+ 	struct dma_trx_obj *dma_obj;
++	spinlock_t elec_trace_lock;
++	u32 elec_trace_head;
++	struct rockchip_pcie_elec_trace elec_trace[ROCKCHIP_PCIE_ELEC_TRACE_DEPTH];
+ };
+ 
+ static u32 rockchip_pcie_read(struct rockchip_pcie *rockchip, u32 reg)
+diff --git a/drivers/phy/rockchip/phy-rockchip-pcie.c b/drivers/phy/rockchip/phy-rockchip-pcie.c
+index e75e9c4..11c84a0 100644
+--- a/drivers/phy/rockchip/phy-rockchip-pcie.c
++++ b/drivers/phy/rockchip/phy-rockchip-pcie.c
+@@ -247,6 +247,35 @@ static const struct phy_ops ops = {
+ 	.owner		= THIS_MODULE,
+ };
+ 
++
++static ssize_t pcie_phy_state_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	struct rockchip_pcie_phy *rk_phy = dev_get_drvdata(dev);
++	u32 laneoff = 0, conf = 0, status = 0;
++	int ret;
++
++	ret = regmap_read(rk_phy->reg_base, rk_phy->phy_data->pcie_laneoff,
++			  &laneoff);
++	if (ret)
++		return ret;
++	ret = regmap_read(rk_phy->reg_base, rk_phy->phy_data->pcie_conf, &conf);
++	if (ret)
++		return ret;
++	ret = regmap_read(rk_phy->reg_base, rk_phy->phy_data->pcie_status,
++			  &status);
++	if (ret)
++		return ret;
++
++	return sysfs_emit(buf,
++			  "laneoff=0x%08x conf=0x%08x status=0x%08x pll_lock=%u pll_output=%u rxdet=0x%x init_cnt=%d pwr_cnt=%d\n",
++			  laneoff, conf, status, !!(status & PHY_PLL_LOCKED),
++			  !!(status & PHY_PLL_OUTPUT),
++			  (status >> PHY_LANE_RX_DET_SHIFT) & 0xf,
++			  rk_phy->init_cnt, rk_phy->pwr_cnt);
++}
++static DEVICE_ATTR_RO(pcie_phy_state);
++
+ static const struct rockchip_pcie_data rk3399_pcie_data = {
+ 	.pcie_conf = 0xe220,
+ 	.pcie_status = 0xe2a4,
+@@ -269,7 +298,7 @@ static int rockchip_pcie_phy_probe(struct platform_device *pdev)
+ 	struct rockchip_pcie_phy *rk_phy;
+ 	struct phy_provider *phy_provider;
+ 	struct regmap *grf;
+-	int i;
++	int i, ret;
+ 	u32 phy_num;
+ 
+ 	grf = syscon_node_to_regmap(dev->parent->of_node);
+@@ -330,6 +359,11 @@ static int rockchip_pcie_phy_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	platform_set_drvdata(pdev, rk_phy);
++
++	ret = device_create_file(dev, &dev_attr_pcie_phy_state);
++	if (ret)
++		return ret;
++
+ 	phy_provider = devm_of_phy_provider_register(dev,
+ 					rockchip_pcie_phy_of_xlate);
+ 

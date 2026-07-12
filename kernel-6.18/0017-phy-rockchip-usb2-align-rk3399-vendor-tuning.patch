@@ -1,0 +1,101 @@
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+index ef27fd75c..be5d1893e 100644
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -1511,6 +1511,54 @@ static int rk3128_usb2phy_tuning(struct rockchip_usb2phy *rphy)
+ 				BIT(2) << BIT_WRITEABLE_SHIFT | 0);
+ }
+ 
++static int rk3399_usb2phy_tuning(struct rockchip_usb2phy *rphy)
++{
++	struct device_node *node = rphy->dev->of_node;
++	int ret = 0;
++
++	if (rphy->phy_cfg->reg == 0xe450) {
++		/*
++		 * Match the vendor 4.4 RK3399 PHY0 tuning: disable
++		 * pre-emphasis in EOP/chirp states.  Rockchip's vendor comment
++		 * says this avoids false disconnect detection and HS handshake
++		 * failures; it also matches the golden RK3399Pro NPU USB path.
++		 */
++		ret |= regmap_write(rphy->grf, 0x4480,
++				    GENMASK(17, 16) | 0x0);
++		ret |= regmap_write(rphy->grf, 0x44b4,
++				    GENMASK(17, 16) | 0x0);
++	} else {
++		/* Same vendor tuning for PHY1. */
++		ret |= regmap_write(rphy->grf, 0x4500,
++				    GENMASK(17, 16) | 0x0);
++		ret |= regmap_write(rphy->grf, 0x4534,
++				    GENMASK(17, 16) | 0x0);
++	}
++
++	if (!of_property_read_bool(node, "rockchip,u2phy-tuning"))
++		return ret;
++
++	if (rphy->phy_cfg->reg == 0xe450) {
++		/* Optional vendor 4.4 PHY0 eye/ODT/squelch tuning. */
++		ret |= regmap_write(rphy->grf, 0x448c,
++				    GENMASK(23, 16) | 0xe3);
++		ret |= regmap_write(rphy->grf, 0x44b0,
++				    GENMASK(18, 16) | 0x07);
++		ret |= regmap_write(rphy->grf, 0x4480,
++				    GENMASK(30, 30) | 0x4000);
++	} else {
++		/* Optional vendor 4.4 PHY1 eye/ODT/squelch tuning. */
++		ret |= regmap_write(rphy->grf, 0x450c,
++				    GENMASK(23, 16) | 0xe3);
++		ret |= regmap_write(rphy->grf, 0x4530,
++				    GENMASK(18, 16) | 0x07);
++		ret |= regmap_write(rphy->grf, 0x4500,
++				    GENMASK(30, 30) | 0x4000);
++	}
++
++	return ret;
++}
++
+ static int rk3528_usb2phy_tuning(struct rockchip_usb2phy *rphy)
+ {
+ 	int ret = 0;
+@@ -1874,10 +1922,11 @@ static const struct rockchip_usb2phy_cfg rk3399_phy_cfgs[] = {
+ 	{
+ 		.reg		= 0xe450,
+ 		.num_ports	= 2,
++		.phy_tuning	= rk3399_usb2phy_tuning,
+ 		.clkout_ctl	= { 0xe450, 4, 4, 1, 0 },
+ 		.port_cfgs	= {
+ 			[USB2PHY_PORT_OTG] = {
+-				.phy_sus	= { 0xe454, 1, 0, 2, 1 },
++				.phy_sus	= { 0xe454, 8, 0, 0x052, 0x1d1 },
+ 				.bvalid_det_en	= { 0xe3c0, 3, 3, 0, 1 },
+ 				.bvalid_det_st	= { 0xe3e0, 3, 3, 0, 1 },
+ 				.bvalid_det_clr	= { 0xe3d0, 3, 3, 0, 1 },
+@@ -1890,6 +1939,7 @@ static const struct rockchip_usb2phy_cfg rk3399_phy_cfgs[] = {
+ 				.utmi_avalid	= { 0xe2ac, 7, 7, 0, 1 },
+ 				.utmi_bvalid	= { 0xe2ac, 12, 12, 0, 1 },
+ 				.utmi_id	= { 0xe2ac, 8, 8, 0, 1 },
++				.utmi_ls	= { 0xe2ac, 14, 13, 0, 1 },
+ 			},
+ 			[USB2PHY_PORT_HOST] = {
+ 				.phy_sus	= { 0xe458, 1, 0, 0x2, 0x1 },
+@@ -1916,10 +1966,11 @@ static const struct rockchip_usb2phy_cfg rk3399_phy_cfgs[] = {
+ 	{
+ 		.reg		= 0xe460,
+ 		.num_ports	= 2,
++		.phy_tuning	= rk3399_usb2phy_tuning,
+ 		.clkout_ctl	= { 0xe460, 4, 4, 1, 0 },
+ 		.port_cfgs	= {
+ 			[USB2PHY_PORT_OTG] = {
+-				.phy_sus        = { 0xe464, 1, 0, 2, 1 },
++				.phy_sus        = { 0xe464, 8, 0, 0x052, 0x1d1 },
+ 				.bvalid_det_en  = { 0xe3c0, 8, 8, 0, 1 },
+ 				.bvalid_det_st  = { 0xe3e0, 8, 8, 0, 1 },
+ 				.bvalid_det_clr = { 0xe3d0, 8, 8, 0, 1 },
+@@ -1932,6 +1983,7 @@ static const struct rockchip_usb2phy_cfg rk3399_phy_cfgs[] = {
+ 				.utmi_avalid	= { 0xe2ac, 10, 10, 0, 1 },
+ 				.utmi_bvalid    = { 0xe2ac, 16, 16, 0, 1 },
+ 				.utmi_id	= { 0xe2ac, 11, 11, 0, 1 },
++				.utmi_ls	= { 0xe2ac, 18, 17, 0, 1 },
+ 			},
+ 			[USB2PHY_PORT_HOST] = {
+ 				.phy_sus	= { 0xe468, 1, 0, 0x2, 0x1 },

@@ -1,0 +1,65 @@
+From 0000000000000000000000000000000000000037 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 21:35:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: clear observed client error status after DMA IRQ
+
+The immediate golden129 PCIe tests show that both a 4-byte ACK DMA and a
+single 1MiB DATA_SND DMA can complete with UDMA CH0_DONE on mainline.
+However DATA_SND also raises a repeated client interrupt status 0x410
+(LOCAL | NFATAL_ERR). The vendor-derived handler only clears LOCAL in the
+final client-status write, so NFATAL_ERR can remain pending and storm the
+subsystem IRQ even though the UDMA done path has completed.
+
+For the RK3399Pro NPU DMA-enabled path, clear all client status bits that
+were observed at IRQ entry after handling the local/core and UDMA status.
+Keep the legacy LOCAL-only clear when the DMA bridge is not enabled. Also
+print decoded bit names for last_subsys_core and last_client_irq_status so
+future board logs directly show NFATAL_ERR/MMVC without manual decoding.
+
+Defaults remain safe: dma_disabled=1 and real DMA is still debugfs opt-in.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index d31471c..6e22999 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -1551,6 +1551,12 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_irq_sample_period_ms,
+ 		   dma_obj->dma_irq_sample_count,
+ 		   dma_obj->dma_irq_sample_tick);
++	rk_pcie_dma_seq_bits(s, "last_subsys_core_bits = ",
++			      dma_obj->last_subsys_core_status, rk_pcie_core_bits,
++			      ARRAY_SIZE(rk_pcie_core_bits));
++	rk_pcie_dma_seq_bits(s, "last_client_irq_status_bits = ",
++			      dma_obj->last_client_irq_status, rk_pcie_client_bits,
++			      ARRAY_SIZE(rk_pcie_client_bits));
+ 	rk_pcie_dma_seq_bits(s, "client_status_bits = ",
+ 			      dma_obj->last_client_status, rk_pcie_client_bits,
+ 			      ARRAY_SIZE(rk_pcie_client_bits));
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index d908cab..606eb8e 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -585,8 +585,19 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
+ 		rockchip_pcie_write(rockchip, reg, PCIE_CLIENT_INT_STATUS);
+ 	}
+ 
+-	rockchip_pcie_write(rockchip, reg & PCIE_CLIENT_INT_LOCAL,
+-			    PCIE_CLIENT_INT_STATUS);
++	/*
++	 * Vendor 4.4 clears only LOCAL here.  With the RK3399Pro NPU DMA
++	 * endpoint on mainline, a completed DATA_SND can report 0x410
++	 * (LOCAL | NFATAL_ERR).  Clearing only LOCAL leaves NFATAL_ERR pending
++	 * and causes a client IRQ storm while UDMA CH0_DONE has already arrived.
++	 * In DMA mode clear every status bit observed at IRQ entry; keep the
++	 * legacy LOCAL-only behavior for non-DMA host use.
++	 */
++	if (rockchip->dma_trx_enabled)
++		rockchip_pcie_write(rockchip, reg, PCIE_CLIENT_INT_STATUS);
++	else
++		rockchip_pcie_write(rockchip, reg & PCIE_CLIENT_INT_LOCAL,
++				    PCIE_CLIENT_INT_STATUS);
+ 
+ 	return IRQ_HANDLED;
+ }

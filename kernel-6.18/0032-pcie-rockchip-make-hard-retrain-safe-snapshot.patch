@@ -1,0 +1,93 @@
+From 0032bbbb11112222333344445555666677778888 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 16:15:00 +0800
+Subject: [PATCH] pcie: rockchip: make user hard retrain safe snapshot only
+
+The 0031 pcie_reset_ep=3 hard-retrain path was validated on the RK3399Pro NPU
+host and reproduced a system-level hang while the link was down and no endpoint
+was enumerated. The unsafe sequence disabled LTSSM/interrupts, deinitialized
+PHYs, toggled PERST, reinitialized the host and rescanned PCI.
+
+Keep pcie_reset_ep=3 available as a field diagnostic command, but make it a
+non-invasive LTSSM/link snapshot by default. It now reads BASIC_STATUS1,
+DEBUG_OUT_0, CLIENT_CONFIG and CORE_CTRL when the host is started, logs the
+state, and returns without touching PERST, PHYs, ATU or the PCI bus.
+
+This preserves the useful observability added in 0031 while preventing another
+hard deadlock during link-down bring-up. A real reset/retrain path must be
+reintroduced only after a two-sided Host/NPU reset sequence is proven safe.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-host.c | 46 +++++++++++++----------------
+ 1 file changed, 20 insertions(+), 26 deletions(-)
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index fe51914..b1b4619 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -32,7 +32,7 @@
+ 
+ #define PCIE_USER_RELINK	0x1
+ #define PCIE_USER_UNLINK	0x2
+-#define PCIE_USER_HARD_RETRAIN	0x3
++#define PCIE_USER_HARD_RETRAIN	0x3 /* 0032: safe snapshot, no PERST/rescan */
+ #define PCIE_USER_EP_RESET_MS	200
+ 
+ 
+@@ -1170,35 +1170,29 @@ static int rockchip_pcie_resume_for_user(struct rockchip_pcie *rockchip)
+ 
+ static int rockchip_pcie_hard_retrain_for_user(struct rockchip_pcie *rockchip)
+ {
+-	int err;
+-
+-	rockchip_pcie_write(rockchip, PCIE_CLIENT_LINK_TRAIN_DISABLE,
+-			    PCIE_CLIENT_CONFIG);
+-	rockchip_pcie_write(rockchip, (PCIE_CLIENT_INT_CLI << 16) |
+-			    PCIE_CLIENT_INT_CLI, PCIE_CLIENT_INT_MASK);
+-	if (rockchip->dma_trx_enabled)
+-		rockchip_pcie_write(rockchip, 0,
+-				    PCIE_APB_CORE_UDMA_BASE +
+-				    PCIE_UDMA_INT_ENABLE_REG);
+-	rockchip_pcie_write(rockchip, (u32)PCIE_CORE_INT,
+-			    PCIE_CORE_INT_MASK);
++	u32 debug0 = 0, client_cfg = 0, core_ctrl = 0;
++	bool up = false;
+ 
++	/*
++	 * 0032 safety change:
++	 * The original 0031 hard-retrain path disabled LTSSM/IRQs, deinitialized
++	 * PHYs, toggled PERST and then resumed/rescanned the root bus. On the
++	 * RK3399Pro NPU board this can hard-hang the host when no endpoint is
++	 * linked yet. Keep pcie_reset_ep=3 useful for field diagnostics, but make
++	 * it a non-invasive LTSSM snapshot until a safer two-sided reset sequence
++	 * is proven.
++	 */
+ 	if (rockchip->pcie_hw_started) {
+-		rockchip_pcie_deinit_phys(rockchip);
+-		rockchip->pcie_hw_started = false;
++		up = rockchip_pcie_link_up(rockchip);
++		debug0 = rockchip_pcie_read(rockchip, PCIE_CLIENT_DEBUG_OUT_0);
++		client_cfg = rockchip_pcie_read(rockchip, PCIE_CLIENT_CONFIG);
++		core_ctrl = rockchip_pcie_read(rockchip, PCIE_CORE_CTRL);
+ 	}
+ 
+-	rockchip->pcie_link_up = false;
+-	gpiod_set_value_cansleep(rockchip->perst_gpio, 0);
+-	msleep(PCIE_USER_EP_RESET_MS);
+-
+-	err = rockchip_pcie_resume_for_user(rockchip);
+-	if (err)
+-		return err;
+-
+-	dev_info(rockchip->dev,
+-		 "user hard retrain done: link_up=%d status=0x%08x\n",
+-		 rockchip->pcie_link_up, rockchip->last_link_status);
++	dev_warn(rockchip->dev,
++		 "user hard retrain disabled for safety: link_up=%d status1=0x%08x debug0=0x%08x client_cfg=0x%08x core_ctrl=0x%08x hw_started=%d probed=%d\n",
++		 up, rockchip->last_link_status, debug0, client_cfg, core_ctrl,
++		 rockchip->pcie_hw_started, rockchip->pcie_really_probed);
+ 
+ 	return 0;
+ }
+-- 
+2.34.1

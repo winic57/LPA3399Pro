@@ -1,0 +1,26 @@
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -298,8 +298,20 @@
+ 
+ static bool rockchip_usb2phy_rk3399_usb0_keepalive(struct rockchip_usb2phy *rphy)
+ {
+-	return rockchip_usb2phy_is_rk3399_usb0(rphy) &&
+-	       of_property_read_bool(rphy->dev->of_node,
++	if (!rockchip_usb2phy_is_rk3399_usb0(rphy))
++		return false;
++
++	/*
++	 * RK3399Pro LPA3399Pro/N10 NPU path is board-specific but the active
++	 * boot FDT may be sanitized by U-Boot and lose our validation-only
++	 * boolean property.  Keep the DT property as documentation/override,
++	 * but force this quirk for rk3399pro-compatible boards so USB0 host
++	 * companion stays aligned with vendor 4.4 during NPU loader->rs.
++	 */
++	if (of_machine_is_compatible("rockchip,rk3399pro"))
++		return true;
++
++	return of_property_read_bool(rphy->dev->of_node,
+ 				     "rockchip,npu-usb0-host-keepalive");
+ }
+ 

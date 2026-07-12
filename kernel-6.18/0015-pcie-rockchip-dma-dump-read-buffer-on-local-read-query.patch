@@ -1,0 +1,139 @@
+From baa16a9e734d66fa15c531e7d4d4700674509a2b Mon Sep 17 00:00:00 2001
+From: henry <henry@example.com>
+Date: Mon, 6 Jul 2026 21:01:53 +0800
+Subject: [PATCH] pcie-dma: dump read buffer on local read query
+
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 54 ++++++++++++++++++++++
+ drivers/pci/controller/pcie-rockchip-dma.h |  8 ++++
+ 2 files changed, 62 insertions(+)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index d160219..77e15e3 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -19,6 +19,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/string.h>
++#include <linux/bitops.h>
+ 
+ #include <uapi/linux/rk-pcie-dma.h>
+ 
+@@ -50,6 +51,7 @@
+ #define PCIE_DMA_FAILFAST_SOFT_ABORT	1
+ #define PCIE_DMA_FAILFAST_SOFT_COMPLETE	2
+ #define PCIE_DMA_FAILFAST_FAKE_DONE	3
++#define PCIE_DMA_READ_DUMP_MAX		512
+ 
+ static inline bool is_rc(struct dma_trx_obj *obj)
+ {
+@@ -86,6 +88,43 @@ static void rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ 
+ static void rk_pcie_dma_failfast_reset(struct dma_trx_obj *obj);
+ 
++static unsigned int rk_pcie_dma_first_buf(unsigned long mask)
++{
++	mask &= PCIE_DMA_FAKE_BUF_MASK;
++	if (!mask)
++		return 0;
++
++	return __ffs(mask);
++}
++
++static void rk_pcie_dma_record_read_dump(struct dma_trx_obj *obj, u32 lra)
++{
++	u32 len, idx;
++	void *src;
++
++	if (!obj || !READ_ONCE(obj->dma_read_dump_enable))
++		return;
++
++	len = READ_ONCE(obj->dma_read_dump_len);
++	if (!len || len > PCIE_DMA_READ_DUMP_MAX)
++		len = PCIE_DMA_READ_DUMP_MAX;
++
++	idx = rk_pcie_dma_first_buf(lra);
++	if (idx >= PCIE_DMA_BUF_CNT)
++		idx = 0;
++
++	src = obj->mem_base + idx * PCIE_DMA_BUF_SIZE;
++	if (is_rc(obj))
++		src += PCIE_DMA_WR_BUF_SIZE;
++
++	memcpy(obj->dma_read_dump, src, len);
++	obj->dma_read_dump_count++;
++	obj->dma_read_dump_idx = idx;
++	obj->dma_read_dump_lra = lra;
++	obj->dma_read_dump_len_last = len;
++	obj->dma_read_dump_valid = !!lra;
++}
++
+ static void rk_pcie_prepare_dma(struct dma_trx_obj *obj,
+ 			unsigned int idx, unsigned int bus_idx,
+ 			unsigned int local_idx, size_t buf_size,
+@@ -566,6 +605,7 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		if (is_rc(obj))
+ 			addr += PCIE_DMA_WR_BUF_SIZE;
+ 		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_RD_BUF_SIZE, DMA_FROM_DEVICE);
++		rk_pcie_dma_record_read_dump(obj, out.lra);
+ 		if (copy_to_user(uarg, &out, sizeof(out)))
+ 			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -EFAULT);
+ 		break;
+@@ -826,6 +866,15 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	seq_printf(s, "fake_ctrl: poll_mask = 0x%x, rx_mask = 0x%x, rx_inject = %lu\n",
+ 		   dma_obj->dma_fake_poll_mask, dma_obj->dma_fake_rx_mask,
+ 		   dma_obj->dma_fake_rx_inject_count);
++	seq_printf(s, "read_dump: enable = %u, count = %lu, idx = %u, lra = 0x%x, valid = %u, len = %u\n",
++		   dma_obj->dma_read_dump_enable, dma_obj->dma_read_dump_count,
++		   dma_obj->dma_read_dump_idx, dma_obj->dma_read_dump_lra,
++		   dma_obj->dma_read_dump_valid, dma_obj->dma_read_dump_len_last);
++	if (dma_obj->dma_read_dump_count && dma_obj->dma_read_dump_len_last)
++		seq_hex_dump(s, "read_dump_data: ", DUMP_PREFIX_OFFSET, 16, 1,
++			     dma_obj->dma_read_dump,
++			     min_t(u32, dma_obj->dma_read_dump_len_last,
++				   PCIE_DMA_READ_DUMP_MAX), false);
+ 	seq_printf(s, "irq_counts: udma = %lu, subsys = %lu, client = %lu\n",
+ 		   dma_obj->udma_irq_count, dma_obj->subsys_irq_count,
+ 		   dma_obj->client_irq_count);
+@@ -944,6 +993,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	mutex_init(&obj->count_mutex);
+ 	obj->dma_free = true;
+ 	obj->dma_timeout_ms = PCIE_DMA_DEFAULT_TIMEOUT_MS;
++	obj->dma_read_dump_len = PCIE_DMA_READ_DUMP_MAX;
+ 	obj->dma_failfast_mode = PCIE_DMA_FAILFAST_ERROR;
+ 	obj->dma_disabled = of_property_read_bool(dev->of_node,
+ 						  "rockchip,pcie-dma-disabled");
+@@ -986,6 +1036,10 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			   &obj->dma_fake_poll_mask);
+ 	debugfs_create_u32("dma_fake_rx_mask", 0600, obj->pcie_root,
+ 			   &obj->dma_fake_rx_mask);
++	debugfs_create_u32("dma_read_dump_enable", 0600, obj->pcie_root,
++			   &obj->dma_read_dump_enable);
++	debugfs_create_u32("dma_read_dump_len", 0600, obj->pcie_root,
++			   &obj->dma_read_dump_len);
+ #endif
+ 
+ 	dev_info(dev, "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u)\n",
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 19b175b..05eac61 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -116,6 +116,14 @@ struct dma_trx_obj {
+ 	u32				dma_fake_poll_mask;
+ 	u32				dma_fake_rx_mask;
+ 	unsigned long			dma_fake_rx_inject_count;
++	u32				dma_read_dump_enable;
++	u32				dma_read_dump_len;
++	u32				dma_read_dump_len_last;
++	u32				dma_read_dump_idx;
++	u32				dma_read_dump_lra;
++	u32				dma_read_dump_valid;
++	unsigned long			dma_read_dump_count;
++	u8				dma_read_dump[512];
+ 	unsigned long			ioctl_count;
+ 	u32				last_ioctl_cmd;
+ 	int				last_ioctl_ret;
+-- 
+2.43.0
+

@@ -1,0 +1,206 @@
+From 04ace4e476f585a722538fcc3506f60cf510a289 Mon Sep 17 00:00:00 2001
+From: LPA3399Pro Maintainers <noreply@example.com>
+Date: Mon, 6 Jul 2026 11:55:09 +0800
+Subject: [PATCH] pcie-rockchip-dma: add timeout recovery and irq kick
+
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 75 +++++++++++++++++++++-
+ drivers/pci/controller/pcie-rockchip-dma.h | 12 ++++
+ 2 files changed, 85 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index f004ea25a..d23a95611 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -16,6 +16,7 @@
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ #include <linux/vmalloc.h>
++#include <linux/jiffies.h>
+ 
+ #include <uapi/linux/rk-pcie-dma.h>
+ 
+@@ -42,6 +43,7 @@
+ 
+ #define PCIE_DMA_PARAM_SIZE		64
+ #define PCIE_DMA_CHN0			0x0
++#define PCIE_DMA_DEFAULT_TIMEOUT_MS	5000
+ 
+ static inline bool is_rc(struct dma_trx_obj *obj)
+ {
+@@ -160,6 +162,7 @@ static void rk_pcie_dma_trx_work(struct work_struct *work)
+ 			break;
+ 
+ 		obj->dma_free = false;
++		obj->dma_start_time = ktime_get();
+ 		spin_lock_irqsave(&obj->tbl_list_lock, flags);
+ 		list_del_init(&table->tbl_node);
+ 		spin_unlock_irqrestore(&obj->tbl_list_lock, flags);
+@@ -173,6 +176,37 @@ static void rk_pcie_clear_ack(void *addr)
+ 	writel(0x0, addr);
+ }
+ 
++static void rk_pcie_dma_recover_timeout(struct dma_trx_obj *obj)
++{
++	if (obj->dma_free || !obj->dma_timeout_ms)
++		return;
++
++	if (ktime_ms_delta(ktime_get(), obj->dma_start_time) < obj->dma_timeout_ms)
++		return;
++
++	obj->dma_timeout_count++;
++	dev_warn_ratelimited(obj->dev,
++			     "pcie dma timeout: cur_type=%u loop=%d threshold=%d status=0x%x list_empty=%d\n",
++			     obj->cur ? obj->cur->type : 0xffffffff,
++			     obj->loop_count, obj->loop_count_threshold,
++			     obj->last_dma_status, list_empty(&obj->tbl_list));
++
++	/*
++	 * Vendor 4.4 relies on UDMA done IRQ to release the single DMA
++	 * channel and wake the next queued transfer.  On mainline .113 we have
++	 * observed irq_num staying at 0 while npu_transfer_proxy/RKNN leaves
++	 * pcie_trx as list:not-empty,dma:busy forever.  Do not leave user
++	 * space permanently stuck: mark the channel free, wake waiters and kick
++	 * the next queued table.
++	 */
++	obj->dma_free = true;
++	wake_up(&obj->event_queue);
++	complete_all(&obj->done);
++
++	if (!list_empty(&obj->tbl_list))
++		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
++}
++
+ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ {
+ 	struct dma_trx_obj *obj = container_of(timer, struct dma_trx_obj, scan_timer);
+@@ -208,6 +242,8 @@ static enum hrtimer_restart rk_pcie_scan_timer(struct hrtimer *timer)
+ 	if (need_ack || !list_empty(&obj->tbl_list))
+ 		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
+ 
++	rk_pcie_dma_recover_timeout(obj);
++
+ 	scan_ack_addr = obj->mem_base + PCIE_DMA_ACK_BASE;
+ 	scan_user_addr = obj->mem_base + PCIE_DMA_ACK_BASE;
+ 
+@@ -338,9 +374,20 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		break;
+ 	case PCIE_DMA_WAIT_TRANSFER_COMPLETE:
+ 		reinit_completion(&obj->done);
+-		ret = wait_for_completion_interruptible(&obj->done);
+-		if (ret)
++		ret = wait_for_completion_interruptible_timeout(&obj->done,
++				msecs_to_jiffies(max_t(u32, obj->dma_timeout_ms,
++							  PCIE_DMA_DEFAULT_TIMEOUT_MS)));
++		if (ret < 0)
+ 			return ret;
++		if (!ret) {
++			obj->dma_timeout_count++;
++			dev_warn_ratelimited(dev,
++					     "wait transfer complete timeout: loop=%d threshold=%d status=0x%x list_empty=%d dma_free=%d\n",
++					     obj->loop_count, obj->loop_count_threshold,
++					     obj->last_dma_status, list_empty(&obj->tbl_list),
++					     obj->dma_free);
++			return -ETIMEDOUT;
++		}
+ 		obj->loop_count = 0;
+ 		break;
+ 	case PCIE_DMA_SET_LOOP_COUNT:
+@@ -473,12 +520,29 @@ void rk_pcie_dma_irq_done(struct dma_trx_obj *obj)
+ 	obj->irq_num++;
+ 	obj->dma_free = true;
+ 
++	if (!list_empty(&obj->tbl_list))
++		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
++
+ 	if (list_empty(&obj->tbl_list) &&
+ 	    obj->dma_free &&
+ 	    obj->loop_count >= obj->loop_count_threshold)
+ 		complete(&obj->done);
+ }
+ 
++void rk_pcie_dma_irq_abort(struct dma_trx_obj *obj)
++{
++	if (!obj)
++		return;
++
++	obj->dma_abort_count++;
++	obj->dma_free = true;
++	wake_up(&obj->event_queue);
++	complete_all(&obj->done);
++
++	if (!list_empty(&obj->tbl_list))
++		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
++}
++
+ #ifdef CONFIG_DEBUG_FS
+ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ {
+@@ -496,6 +560,9 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	seq_printf(s, "list : (%s), dma chn : (%s)\n",
+ 		   list_empty_now ? "empty" : "not empty",
+ 		   dma_obj->dma_free ? "free" : "busy");
++	seq_printf(s, "last_status = 0x%x, timeout_ms = %u, timeouts = %lu, aborts = %lu\n",
++		   dma_obj->last_dma_status, dma_obj->dma_timeout_ms,
++		   dma_obj->dma_timeout_count, dma_obj->dma_abort_count);
+ 
+ 	return 0;
+ }
+@@ -566,6 +633,10 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	init_completion(&obj->done);
+ 	mutex_init(&obj->count_mutex);
+ 	obj->dma_free = true;
++	obj->dma_timeout_ms = PCIE_DMA_DEFAULT_TIMEOUT_MS;
++
++	of_property_read_u32(dev->of_node, "rockchip,dma-timeout-ms",
++			     &obj->dma_timeout_ms);
+ 
+ 	hrtimer_setup(&obj->scan_timer, rk_pcie_scan_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	hrtimer_start(&obj->scan_timer, ms_to_ktime(500), HRTIMER_MODE_REL);
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 5c51b62b2..465daecd8 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -17,6 +17,7 @@
+ #include <linux/types.h>
+ #include <linux/wait.h>
+ #include <linux/workqueue.h>
++#include <linux/ktime.h>
+ 
+ #define PCIE_DMA_TABLE_NUM			24
+ #define PCIE_DMA_DATA_SND_TABLE_OFFSET		0x0
+@@ -56,6 +57,11 @@ struct dma_trx_obj {
+ 	struct dma_table		*table[PCIE_DMA_TABLE_NUM];
+ 	struct dma_table		*cur;
+ 	struct hrtimer			scan_timer;
++	ktime_t			dma_start_time;
++	u32				last_dma_status;
++	u32				dma_timeout_ms;
++	unsigned long			dma_timeout_count;
++	unsigned long			dma_abort_count;
+ 	int				busno;
+ 	struct completion		done;
+ 	int				ref_count;
+@@ -70,6 +76,7 @@ struct dma_trx_obj {
+ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev);
+ void rk_pcie_dma_obj_remove(struct dma_trx_obj *obj);
+ void rk_pcie_dma_irq_done(struct dma_trx_obj *obj);
++void rk_pcie_dma_irq_abort(struct dma_trx_obj *obj);
+ 
+ static inline void rk_pcie_handle_dma_interrupt(struct rockchip_pcie *rockchip)
+ {
+@@ -87,6 +94,11 @@ static inline void rk_pcie_handle_dma_interrupt(struct rockchip_pcie *rockchip)
+ 
+ 	WARN_ONCE(!(dma_status & 0x3), "dma_status 0x%x\n", dma_status);
+ 
++	obj->last_dma_status = dma_status;
++
++	if (dma_status & BIT(16))
++		rk_pcie_dma_irq_abort(obj);
++
+ 	if (dma_status & BIT(0))
+ 		rk_pcie_dma_irq_done(obj);
+ }
+-- 
+2.43.0
+

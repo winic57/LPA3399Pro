@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000041 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 23:40:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: use hiword set and RMW clear for NFATAL mask
+
+0040 A/B confirmed that full-register read/modify/write does not set
+PCIE_CLIENT_INT_NFATAL_ERR in PCIE_CLIENT_INT_MASK on RK3399Pro: mode=1
+still produced the same client IRQ storm as mode=0 and mask_after stayed
+0x13.  0039 already proved the hiword-update set path masks NFATAL_ERR,
+but the hiword-update clear path left the bit visible after DMA.
+
+Use hiword-update only for setting NFATAL_ERR, and keep explicit RMW full
+write for clearing it.  This preserves 0039's storm suppression while still
+allowing 0040's active-window mode to verify that restore clears the mask.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index d80219d..c9acd4e 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -286,15 +286,23 @@ static void rk_pcie_dma_set_nfatal_mask(struct rockchip_pcie *rockchip,
+ 		return;
+ 
+ 	/*
+-	 * Empirical 0039 result showed that PCIE_CLIENT_INT_MASK does not
+-	 * reliably clear NFATAL_ERR via the hiword-update style write
+-	 * (BIT << 16).  Use explicit read/modify/write for both directions and
+-	 * record before/after so the board can confirm the real mask semantics.
++	 * 0040 A/B proved that a plain full-register write does not set
++	 * NFATAL_ERR in PCIE_CLIENT_INT_MASK: mode=1 still produced the same
++	 * client IRQ storm as mode=0 and mask_after stayed 0x13.  0039 proved
++	 * that hiword-update set does mask NFATAL_ERR, while hiword-update clear
++	 * did not reliably unmask it.  Therefore use the vendor-style hiword
++	 * update for set, but keep explicit RMW full write for clear.
+ 	 */
+ 	before = rockchip_pcie_read(rockchip, PCIE_CLIENT_INT_MASK);
+-	after = mask ? (before | PCIE_CLIENT_INT_NFATAL_ERR) :
+-		       (before & ~PCIE_CLIENT_INT_NFATAL_ERR);
+-	rockchip_pcie_write(rockchip, after, PCIE_CLIENT_INT_MASK);
++	if (mask) {
++		rockchip_pcie_write(rockchip,
++				    (PCIE_CLIENT_INT_NFATAL_ERR << 16) |
++				    PCIE_CLIENT_INT_NFATAL_ERR,
++				    PCIE_CLIENT_INT_MASK);
++	} else {
++		after = before & ~PCIE_CLIENT_INT_NFATAL_ERR;
++		rockchip_pcie_write(rockchip, after, PCIE_CLIENT_INT_MASK);
++	}
+ 
+ 	obj->last_nfatal_mask_before = before;
+ 	obj->last_nfatal_mask_after = rockchip_pcie_read(rockchip,

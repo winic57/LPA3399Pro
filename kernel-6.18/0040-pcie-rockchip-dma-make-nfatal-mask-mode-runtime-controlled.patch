@@ -1,0 +1,274 @@
+From 0000000000000000000000000000000000000040 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 23:05:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: make NFATAL mask policy runtime controlled
+
+0039 proved that masking PCIE_CLIENT_INT_NFATAL_ERR during the active DMA
+window removes the client IRQ storm without breaking UDMA done, but the
+post-DMA register snapshot still showed NFATAL_ERR in PCIE_CLIENT_INT_MASK.
+That suggests the mask register should not be restored with hiword-update
+style writes.
+
+Add a debugfs controlled policy:
+  0 = off
+  1 = active-window (default; mask before UDMA start, unmask after done)
+  2 = permanent (keep NFATAL masked, useful if this matches vendor 4.4)
+
+Switch mask/unmask to explicit read/modify/write and record before/after
+mask values so the board can confirm PCIE_CLIENT_INT_MASK semantics.  The
+mode write path immediately applies off/permanent changes, allowing safe
+A/B without rebuilding.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index c66f465..d80219d 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -276,19 +276,55 @@ static int rk_pcie_dma_validate_table(struct dma_trx_obj *obj,
+ 	return 0;
+ }
+ 
++static void rk_pcie_dma_set_nfatal_mask(struct rockchip_pcie *rockchip,
++					       struct dma_trx_obj *obj, bool mask)
++{
++	u32 before;
++	u32 after;
++
++	if (!rockchip || !obj)
++		return;
++
++	/*
++	 * Empirical 0039 result showed that PCIE_CLIENT_INT_MASK does not
++	 * reliably clear NFATAL_ERR via the hiword-update style write
++	 * (BIT << 16).  Use explicit read/modify/write for both directions and
++	 * record before/after so the board can confirm the real mask semantics.
++	 */
++	before = rockchip_pcie_read(rockchip, PCIE_CLIENT_INT_MASK);
++	after = mask ? (before | PCIE_CLIENT_INT_NFATAL_ERR) :
++		       (before & ~PCIE_CLIENT_INT_NFATAL_ERR);
++	rockchip_pcie_write(rockchip, after, PCIE_CLIENT_INT_MASK);
++
++	obj->last_nfatal_mask_before = before;
++	obj->last_nfatal_mask_after = rockchip_pcie_read(rockchip,
++							  PCIE_CLIENT_INT_MASK);
++	obj->dma_nfatal_hw_masked = !!(obj->last_nfatal_mask_after &
++					 PCIE_CLIENT_INT_NFATAL_ERR);
++}
++
+ static void rk_pcie_dma_mask_nfatal_irq(struct rockchip_pcie *rockchip,
+ 					       struct dma_trx_obj *obj)
+ {
+-	if (!rockchip || !obj || obj->dma_nfatal_irq_masked)
++	u32 mode;
++
++	if (!rockchip || !obj)
+ 		return;
+ 
+-	/* PCIE_CLIENT_INT_MASK uses hiword update; bit value 1 masks IRQ. */
+-	rockchip_pcie_write(rockchip,
+-			    (PCIE_CLIENT_INT_NFATAL_ERR << 16) |
+-			    PCIE_CLIENT_INT_NFATAL_ERR,
+-			    PCIE_CLIENT_INT_MASK);
+-	obj->dma_nfatal_irq_masked = true;
++	mode = READ_ONCE(obj->dma_nfatal_mask_mode);
++	if (mode == PCIE_DMA_NFATAL_MASK_OFF)
++		return;
++
++	if (mode == PCIE_DMA_NFATAL_MASK_ACTIVE_WINDOW &&
++	    obj->dma_nfatal_irq_masked)
++		return;
++
++	if (!obj->dma_nfatal_hw_masked)
++		rk_pcie_dma_set_nfatal_mask(rockchip, obj, true);
++
+ 	obj->dma_nfatal_mask_count++;
++	obj->dma_nfatal_irq_masked =
++		(mode == PCIE_DMA_NFATAL_MASK_ACTIVE_WINDOW);
+ }
+ 
+ static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj)
+@@ -296,8 +332,14 @@ static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj)
+ 	struct rockchip_pcie *rockchip;
+ 	u32 status;
+ 	u32 core_status;
++	u32 mode;
++
++	if (!obj)
++		return;
+ 
+-	if (!obj || !obj->dma_nfatal_irq_masked)
++	mode = READ_ONCE(obj->dma_nfatal_mask_mode);
++	if (!obj->dma_nfatal_irq_masked &&
++	    mode != PCIE_DMA_NFATAL_MASK_PERMANENT)
+ 		return;
+ 
+ 	rockchip = dev_get_drvdata(obj->dev);
+@@ -307,7 +349,7 @@ static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj)
+ 	status = rockchip_pcie_read(rockchip, PCIE_CLIENT_INT_STATUS);
+ 	core_status = rockchip_pcie_read(rockchip, PCIE_CORE_INT_STATUS);
+ 
+-	/* Drop pending NFATAL/MMVC before unmasking to avoid replaying stale IRQs. */
++	/* Drop pending NFATAL/MMVC before any unmask to avoid stale replay. */
+ 	if (core_status & PCIE_CORE_INT_MMVC)
+ 		rockchip_pcie_write(rockchip, core_status & PCIE_CORE_INT_MMVC,
+ 				    PCIE_CORE_INT_STATUS);
+@@ -315,9 +357,9 @@ static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj)
+ 		rockchip_pcie_write(rockchip, status & PCIE_CLIENT_INT_NFATAL_ERR,
+ 				    PCIE_CLIENT_INT_STATUS);
+ 
+-	/* PCIE_CLIENT_INT_MASK uses hiword update; bit value 0 unmasks IRQ. */
+-	rockchip_pcie_write(rockchip, PCIE_CLIENT_INT_NFATAL_ERR << 16,
+-			    PCIE_CLIENT_INT_MASK);
++	if (mode == PCIE_DMA_NFATAL_MASK_ACTIVE_WINDOW ||
++	    mode == PCIE_DMA_NFATAL_MASK_OFF)
++		rk_pcie_dma_set_nfatal_mask(rockchip, obj, false);
+ 
+ 	obj->dma_nfatal_irq_masked = false;
+ 	obj->dma_nfatal_restore_count++;
+@@ -325,6 +367,63 @@ static void rk_pcie_dma_restore_nfatal_irq(struct dma_trx_obj *obj)
+ 	obj->last_nfatal_restore_core_status = core_status;
+ }
+ 
++static int rk_pcie_dma_nfatal_mask_mode_show(struct seq_file *s, void *unused)
++{
++	struct dma_trx_obj *obj = s->private;
++
++	seq_printf(s, "%u\n", READ_ONCE(obj->dma_nfatal_mask_mode));
++	seq_puts(s, "# 0=off 1=active-window 2=permanent\n");
++	return 0;
++}
++
++static int rk_pcie_dma_nfatal_mask_mode_open(struct inode *inode,
++					     struct file *file)
++{
++	return single_open(file, rk_pcie_dma_nfatal_mask_mode_show,
++			   inode->i_private);
++}
++
++static ssize_t rk_pcie_dma_nfatal_mask_mode_write(struct file *file,
++						 const char __user *buf,
++						 size_t count, loff_t *ppos)
++{
++	struct seq_file *seq = file->private_data;
++	struct dma_trx_obj *obj = seq->private;
++	struct rockchip_pcie *rockchip;
++	unsigned int mode;
++	int ret;
++
++	ret = kstrtouint_from_user(buf, count, 0, &mode);
++	if (ret)
++		return ret;
++	if (mode > PCIE_DMA_NFATAL_MASK_PERMANENT)
++		return -EINVAL;
++
++	WRITE_ONCE(obj->dma_nfatal_mask_mode, mode);
++	obj->dma_nfatal_mode_set_count++;
++	rockchip = dev_get_drvdata(obj->dev);
++	if (rockchip) {
++		if (mode == PCIE_DMA_NFATAL_MASK_PERMANENT) {
++			rk_pcie_dma_set_nfatal_mask(rockchip, obj, true);
++			obj->dma_nfatal_irq_masked = false;
++		} else {
++			rk_pcie_dma_set_nfatal_mask(rockchip, obj, false);
++			obj->dma_nfatal_irq_masked = false;
++		}
++	}
++
++	return count;
++}
++
++static const struct file_operations rk_pcie_dma_nfatal_mask_mode_fops = {
++	.owner = THIS_MODULE,
++	.open = rk_pcie_dma_nfatal_mask_mode_open,
++	.read = seq_read,
++	.write = rk_pcie_dma_nfatal_mask_mode_write,
++	.llseek = seq_lseek,
++	.release = single_release,
++};
++
+ static int rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ {
+ 	struct rockchip_pcie *rockchip = dev_get_drvdata(obj->dev);
+@@ -1607,12 +1706,17 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->last_client_active_ack_status,
+ 		   dma_obj->last_client_active_ack_core_status);
+ 	seq_printf(s,
+-		   "nfatal_mask: active = %d, mask_count = %lu, restore_count = %lu, status = 0x%x, core = 0x%x\n",
++		   "nfatal_mask: mode = %u, active = %d, hw = %d, mask_count = %lu, restore_count = %lu, mode_set_count = %lu, status = 0x%x, core = 0x%x, mask_before = 0x%x, mask_after = 0x%x\n",
++		   dma_obj->dma_nfatal_mask_mode,
+ 		   dma_obj->dma_nfatal_irq_masked,
++		   dma_obj->dma_nfatal_hw_masked,
+ 		   dma_obj->dma_nfatal_mask_count,
+ 		   dma_obj->dma_nfatal_restore_count,
++		   dma_obj->dma_nfatal_mode_set_count,
+ 		   dma_obj->last_nfatal_restore_status,
+-		   dma_obj->last_nfatal_restore_core_status);
++		   dma_obj->last_nfatal_restore_core_status,
++		   dma_obj->last_nfatal_mask_before,
++		   dma_obj->last_nfatal_mask_after);
+ 	seq_printf(s,
+ 		   "irq_sample: enable = %u, period_ms = %u, count = %lu, tick = %u\n",
+ 		   dma_obj->dma_irq_sample_enable,
+@@ -1903,6 +2007,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 	obj->dma_irq_sample_period_ms = PCIE_DMA_DEFAULT_IRQ_SAMPLE_PERIOD_MS;
+ 	obj->dma_reg_trace_enable = true;
+ 	obj->dma_reg_trace_live_mmio = false;
++	obj->dma_nfatal_mask_mode = PCIE_DMA_NFATAL_MASK_ACTIVE_WINDOW;
+ 	obj->dma_mmio_probe_limit = 1;
+ 	obj->dma_preflight_validate = true;
+ 	obj->dma_disabled = true;
+@@ -1982,17 +2087,19 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			    &obj->dma_reg_trace_enable);
+ 	debugfs_create_bool("dma_reg_trace_live_mmio", 0600, obj->pcie_root,
+ 			    &obj->dma_reg_trace_live_mmio);
++	debugfs_create_file("dma_nfatal_mask_mode", 0600, obj->pcie_root, obj,
++			    &rk_pcie_dma_nfatal_mask_mode_fops);
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d link_failfast=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d link_failfast=%d mmio_probe_mask=0x%x mmio_probe_limit=%u start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d nfatal_mask_mode=%u)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+ 		 obj->dma_dry_run_no_mmio, obj->dma_link_failfast,
+ 		 obj->dma_mmio_probe_mask, obj->dma_mmio_probe_limit,
+ 		 obj->dma_start_once_limit, obj->dma_preflight_validate,
+ 		 obj->dma_irq_sample_period_ms, obj->dma_reg_trace_enable,
+-		 obj->dma_reg_trace_live_mmio);
++		 obj->dma_reg_trace_live_mmio, obj->dma_nfatal_mask_mode);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 4b9dee9..338894d 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -31,6 +31,10 @@
+ #define PCIE_DMA_REG_TRACE_DESC_WORDS	9
+ #define PCIE_DMA_FAKE_BUF_MASK		0xff
+ 
++#define PCIE_DMA_NFATAL_MASK_OFF		0
++#define PCIE_DMA_NFATAL_MASK_ACTIVE_WINDOW	1
++#define PCIE_DMA_NFATAL_MASK_PERMANENT		2
++
+ #define PCIE_DMA_SCAN_TRACE_DATA		1
+ #define PCIE_DMA_SCAN_TRACE_ACK		2
+ #define PCIE_DMA_SCAN_TRACE_FREE_ACK		3
+@@ -261,11 +265,16 @@ struct dma_trx_obj {
+ 	unsigned long			dma_client_active_ack_count;
+ 	u32				last_client_active_ack_status;
+ 	u32				last_client_active_ack_core_status;
++	u32				dma_nfatal_mask_mode;
+ 	bool				dma_nfatal_irq_masked;
++	bool				dma_nfatal_hw_masked;
+ 	unsigned long			dma_nfatal_mask_count;
+ 	unsigned long			dma_nfatal_restore_count;
++	unsigned long			dma_nfatal_mode_set_count;
+ 	u32				last_nfatal_restore_status;
+ 	u32				last_nfatal_restore_core_status;
++	u32				last_nfatal_mask_before;
++	u32				last_nfatal_mask_after;
+ 	bool				dma_disabled;
+ 	bool				dma_link_failfast;
+ 	unsigned long			dma_linkdown_block_count;

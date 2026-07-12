@@ -1,0 +1,31 @@
+From f70e318d1a1b1d8e12f0eaef73c3a1b873af2c5e Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Wed, 8 Jul 2026 22:10:00 +0800
+Subject: [PATCH] usb: dwc3: of-simple: keep rk3399 DWC3 experiment disabled
+
+The first 0030 DWC3 reset/PHY experiment was kept for analysis but did not
+resolve USB -71 on the board. Keep the patch queue stable with an explicit
+non-functional marker and leave the DWC3 flow unchanged while the PCIe/LTSSM
+DMA-deadlock path is handled in 0031.
+
+If DWC3 work is revisited, redo it as a new clean patch from source instead of
+relying on the previous malformed experiment.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/usb/dwc3/dwc3-of-simple.c | 1 +
+ 1 file changed, 1 insertion(+)
+diff --git a/drivers/usb/dwc3/dwc3-of-simple.c b/drivers/usb/dwc3/dwc3-of-simple.c
+index eba7a9d..643aac6 100644
+--- a/drivers/usb/dwc3/dwc3-of-simple.c
++++ b/drivers/usb/dwc3/dwc3-of-simple.c
+@@ -94,6 +94,7 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
+ 	 * initialize the PHY, otherwise the PHY times out.
+ 	 */
+ 	if (of_device_is_compatible(np, "rockchip,rk3399-dwc3")) {
++		/* 0030: keep DWC3 observable, but do not alter PHY/reset flow here. */
+ 		simple->need_reset = true;
+ 		simple->rk3399_debug = true;
+ 		dwc3_of_simple_rk3399_iomap_child(simple, np);
+-- 
+2.34.1

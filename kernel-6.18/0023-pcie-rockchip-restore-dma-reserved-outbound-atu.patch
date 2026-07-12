@@ -1,0 +1,111 @@
+From 0000000000000000000000000000000000000023 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Tue, 7 Jul 2026 19:00:00 +0800
+Subject: [PATCH] pcie-rockchip: restore DMA reserved outbound ATU
+
+Restore the RK3399Pro PCIe DMA reserved-memory outbound ATU programming
+that vendor 4.4 attempted when rockchip,dma_trx_enabled is set.
+
+The regular outbound ATU helper rejects the vendor 32-bit pass-through
+mapping on non-zero regions because of its generic region-size guard.  Add
+a raw helper that shares the same register programming sequence and use it
+only for the DMA reserved-memory workaround after the normal MEM windows
+have been installed.  This keeps existing host/resource ATU validation
+unchanged while making the reserved DMA window visible in dmesg and in the
+OB region registers during the next controlled NPU PCIe DMA test.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index 111111111..222222222 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -790,15 +790,36 @@
+ 	return 0;
+ }
+ 
+-static int rockchip_pcie_prog_ob_atu(struct rockchip_pcie *rockchip,
+-				     int region_no, int type, u8 num_pass_bits,
+-				     u32 lower_addr, u32 upper_addr)
++static void rockchip_pcie_prog_ob_atu_raw(struct rockchip_pcie *rockchip,
++					 int region_no, int type, u8 num_pass_bits,
++					 u32 lower_addr, u32 upper_addr)
+ {
+ 	u32 ob_addr_0;
+ 	u32 ob_addr_1;
+ 	u32 ob_desc_0;
+ 	u32 aw_offset;
+ 
++	aw_offset = (region_no << OB_REG_SIZE_SHIFT);
++
++	ob_addr_0 = num_pass_bits & PCIE_CORE_OB_REGION_ADDR0_NUM_BITS;
++	ob_addr_0 |= lower_addr & PCIE_CORE_OB_REGION_ADDR0_LO_ADDR;
++	ob_addr_1 = upper_addr;
++	ob_desc_0 = (1 << 23 | type);
++
++	rockchip_pcie_write(rockchip, ob_addr_0,
++			    PCIE_CORE_OB_REGION_ADDR0 + aw_offset);
++	rockchip_pcie_write(rockchip, ob_addr_1,
++			    PCIE_CORE_OB_REGION_ADDR1 + aw_offset);
++	rockchip_pcie_write(rockchip, ob_desc_0,
++			    PCIE_CORE_OB_REGION_DESC0 + aw_offset);
++	rockchip_pcie_write(rockchip, 0,
++			    PCIE_CORE_OB_REGION_DESC1 + aw_offset);
++}
++
++static int rockchip_pcie_prog_ob_atu(struct rockchip_pcie *rockchip,
++				     int region_no, int type, u8 num_pass_bits,
++				     u32 lower_addr, u32 upper_addr)
++{
+ 	if (region_no >= MAX_AXI_WRAPPER_REGION_NUM)
+ 		return -EINVAL;
+ 	if (num_pass_bits + 1 < 8)
+@@ -814,21 +835,8 @@
+ 			return -EINVAL;
+ 	}
+ 
+-	aw_offset = (region_no << OB_REG_SIZE_SHIFT);
+-
+-	ob_addr_0 = num_pass_bits & PCIE_CORE_OB_REGION_ADDR0_NUM_BITS;
+-	ob_addr_0 |= lower_addr & PCIE_CORE_OB_REGION_ADDR0_LO_ADDR;
+-	ob_addr_1 = upper_addr;
+-	ob_desc_0 = (1 << 23 | type);
+-
+-	rockchip_pcie_write(rockchip, ob_addr_0,
+-			    PCIE_CORE_OB_REGION_ADDR0 + aw_offset);
+-	rockchip_pcie_write(rockchip, ob_addr_1,
+-			    PCIE_CORE_OB_REGION_ADDR1 + aw_offset);
+-	rockchip_pcie_write(rockchip, ob_desc_0,
+-			    PCIE_CORE_OB_REGION_DESC0 + aw_offset);
+-	rockchip_pcie_write(rockchip, 0,
+-			    PCIE_CORE_OB_REGION_DESC1 + aw_offset);
++	rockchip_pcie_prog_ob_atu_raw(rockchip, region_no, type, num_pass_bits,
++					 lower_addr, upper_addr);
+ 
+ 	return 0;
+ }
+@@ -890,6 +898,24 @@
+ 			dev_err(dev, "program RC mem outbound ATU failed\n");
+ 			return err;
+ 		}
++	}
++
++	/*
++	 * Vendor 4.4 programs OB region 1 to the reserved PCIe DMA window
++	 * when rockchip,dma_trx_enabled is set.  The legacy helper rejects
++	 * this 32-bit pass-through mapping for non-zero regions, so use the
++	 * same raw register programming sequence as the helper after the
++	 * normal MEM windows have been configured.
++	 */
++	if (rockchip->dma_trx_enabled && rockchip->mem_reserve_size) {
++		rockchip_pcie_prog_ob_atu_raw(rockchip, 1,
++						 AXI_WRAPPER_MEM_WRITE, 32 - 1,
++						 (u32)rockchip->mem_reserve_start,
++						 (u32)(rockchip->mem_reserve_start >> 32));
++		dev_info(dev,
++			 "programmed RC dma reserved outbound ATU: region=1 base=%pa size=0x%zx pass_bits=31\n",
++			 &rockchip->mem_reserve_start,
++			 rockchip->mem_reserve_size);
+ 	}
+ 
+ 	err = rockchip_pcie_prog_ib_atu(rockchip, 2, 32 - 1, 0x0, 0);

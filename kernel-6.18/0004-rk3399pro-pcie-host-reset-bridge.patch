@@ -1,5 +1,5 @@
 diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
-index 955f0b7..7b312dc 100644
+index e6dc20a..6817496 100644
 --- a/drivers/pci/controller/pcie-rockchip-host.c
 +++ b/drivers/pci/controller/pcie-rockchip-host.c
 @@ -30,6 +30,9 @@
@@ -12,7 +12,7 @@ index 955f0b7..7b312dc 100644
  static void rockchip_pcie_enable_bw_int(struct rockchip_pcie *rockchip)
  {
  	u32 status;
-@@ -620,23 +623,28 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
+@@ -660,23 +663,28 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
  		return PTR_ERR(rockchip->vpcie0v9);
  
  	mem = of_parse_phandle(node, "memory-region", 0);
@@ -52,14 +52,7 @@ index 955f0b7..7b312dc 100644
  	return 0;
  }
  
-@@ -841,6 +849,6 @@ static int rockchip_pcie_cfg_atu(struct rockchip_pcie *rockchip)
- 		}
- 	}
- 
- 	err = rockchip_pcie_prog_ib_atu(rockchip, 2, 32 - 1, 0x0, 0);
- 	if (err) {
- 		dev_err(dev, "program RC mem inbound ATU failed\n");
-@@ -902,6 +922,173 @@ static int rockchip_pcie_wait_l2(struct rockchip_pcie *rockchip)
+@@ -942,10 +950,243 @@ static int rockchip_pcie_wait_l2(struct rockchip_pcie *rockchip)
  	return 0;
  }
  
@@ -86,6 +79,61 @@ index 955f0b7..7b312dc 100644
 +	}
 +}
 +
++static int rockchip_pcie_prepare_host_bridge(struct rockchip_pcie *rockchip)
++{
++	struct device *dev = rockchip->dev;
++	struct pci_host_bridge *bridge = rockchip->bridge;
++	int err;
++
++	if (rockchip->pcie_hw_started)
++		return 0;
++
++	if (!bridge)
++		return -ENODEV;
++
++	err = rockchip_pcie_host_init_port(rockchip);
++	if (err)
++		return err;
++
++	err = rockchip_pcie_init_irq_domain(rockchip);
++	if (err < 0)
++		goto err_deinit_port;
++
++	err = rockchip_pcie_cfg_atu(rockchip);
++	if (err)
++		goto err_remove_irq_domain;
++
++	if (!rockchip->msg_region) {
++		rockchip->msg_region = devm_ioremap(dev, rockchip->msg_bus_addr, SZ_1M);
++		if (!rockchip->msg_region) {
++			err = -ENOMEM;
++			goto err_remove_irq_domain;
++		}
++	}
++
++	bridge->sysdata = rockchip;
++	bridge->ops = &rockchip_pcie_ops;
++
++	err = rockchip_pcie_setup_irq(rockchip);
++	if (err)
++		goto err_remove_irq_domain;
++
++	rockchip_pcie_enable_interrupts(rockchip);
++	rockchip->pcie_hw_started = true;
++	rockchip_pcie_try_probe_dma_obj(rockchip);
++
++	return 0;
++
++err_remove_irq_domain:
++	if (rockchip->irq_domain) {
++		irq_domain_remove(rockchip->irq_domain);
++		rockchip->irq_domain = NULL;
++	}
++err_deinit_port:
++	rockchip_pcie_deinit_phys(rockchip);
++	return err;
++}
++
 +static int rockchip_pcie_really_probe(struct rockchip_pcie *rockchip)
 +{
 +	int err;
@@ -95,6 +143,10 @@ index 955f0b7..7b312dc 100644
 +
 +	if (!rockchip->bridge)
 +		return -ENODEV;
++
++	err = rockchip_pcie_prepare_host_bridge(rockchip);
++	if (err)
++		return err;
 +
 +	err = pci_host_probe(rockchip->bridge);
 +	if (err < 0)
@@ -129,6 +181,7 @@ index 955f0b7..7b312dc 100644
 +	}
 +
 +	rockchip_pcie_deinit_phys(rockchip);
++	rockchip->pcie_hw_started = false;
 +
 +	return 0;
 +}
@@ -149,6 +202,7 @@ index 955f0b7..7b312dc 100644
 +
 +	rockchip_pcie_update_txcredit_mui(rockchip);
 +	rockchip_pcie_enable_interrupts(rockchip);
++	rockchip->pcie_hw_started = true;
 +
 +	if (rockchip->root_bus)
 +		pci_rescan_bus(rockchip->root_bus);
@@ -233,25 +287,56 @@ index 955f0b7..7b312dc 100644
  static int rockchip_pcie_suspend_noirq(struct device *dev)
  {
  	struct rockchip_pcie *rockchip = dev_get_drvdata(dev);
-@@ -920,8 +1107,7 @@ static int rockchip_pcie_suspend_noirq(struct device *dev)
+-	int ret;
++	int ret = 0;
++
++	rockchip_pcie_remove_dma_obj(rockchip);
++
++	if (!rockchip->pcie_hw_started)
++		goto disable_clocks;
+ 
+ 	/* disable core and cli int since we don't need to ack PME_ACK */
+ 	rockchip_pcie_write(rockchip, (PCIE_CLIENT_INT_CLI << 16) |
+@@ -955,14 +1196,14 @@ static int rockchip_pcie_suspend_noirq(struct device *dev)
+ 	ret = rockchip_pcie_wait_l2(rockchip);
+ 	if (ret) {
+ 		rockchip_pcie_enable_interrupts(rockchip);
++		rockchip_pcie_try_probe_dma_obj(rockchip);
+ 		return ret;
+ 	}
  
  	rockchip_pcie_deinit_phys(rockchip);
++	rockchip->pcie_hw_started = false;
  
 -	if (rockchip->dma_obj)
 -		rk_pcie_dma_obj_remove(rockchip->dma_obj);
-+	rockchip_pcie_remove_dma_obj(rockchip);
- 
+-
++disable_clocks:
  	rockchip_pcie_disable_clocks(rockchip);
  
-@@ -956,6 +1142,7 @@ static int rockchip_pcie_resume_noirq(struct device *dev)
+ 	regulator_disable(rockchip->vpcie0v9);
+@@ -985,6 +1226,11 @@ static int rockchip_pcie_resume_noirq(struct device *dev)
+ 	if (err)
+ 		goto err_disable_0v9;
+ 
++	if (rockchip->deferred && !rockchip->pcie_really_probed) {
++		rockchip_pcie_try_probe_dma_obj(rockchip);
++		return 0;
++	}
++
+ 	err = rockchip_pcie_host_init_port(rockchip);
+ 	if (err)
+ 		goto err_pcie_resume;
+@@ -996,6 +1242,8 @@ static int rockchip_pcie_resume_noirq(struct device *dev)
  	/* Need this to enter L1 again */
  	rockchip_pcie_update_txcredit_mui(rockchip);
  	rockchip_pcie_enable_interrupts(rockchip);
++	rockchip->pcie_hw_started = true;
 +	rockchip_pcie_try_probe_dma_obj(rockchip);
  
  	return 0;
  
-@@ -987,6 +1174,7 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
+@@ -1027,6 +1275,7 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
  	platform_set_drvdata(pdev, rockchip);
  	rockchip->dev = dev;
  	rockchip->is_rc = true;
@@ -259,10 +344,37 @@ index 955f0b7..7b312dc 100644
  
  	err = rockchip_pcie_parse_host_dt(rockchip);
  	if (err)
-@@ -1029,19 +1217,19 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
+@@ -1042,53 +1291,29 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
+ 		goto err_set_vpcie;
+ 	}
  
- 	rockchip_pcie_enable_interrupts(rockchip);
- 
+-	err = rockchip_pcie_host_init_port(rockchip);
+-	if (err)
+-		goto err_vpcie;
+-
+-	err = rockchip_pcie_init_irq_domain(rockchip);
+-	if (err < 0)
+-		goto err_deinit_port;
+-
+-	err = rockchip_pcie_cfg_atu(rockchip);
+-	if (err)
+-		goto err_remove_irq_domain;
+-
+-	rockchip->msg_region = devm_ioremap(dev, rockchip->msg_bus_addr, SZ_1M);
+-	if (!rockchip->msg_region) {
+-		err = -ENOMEM;
+-		goto err_remove_irq_domain;
+-	}
+-
+-	bridge->sysdata = rockchip;
+-	bridge->ops = &rockchip_pcie_ops;
+-
+-	err = rockchip_pcie_setup_irq(rockchip);
+-	if (err)
+-		goto err_remove_irq_domain;
+-
+-	rockchip_pcie_enable_interrupts(rockchip);
+-
 -	err = pci_host_probe(bridge);
 -	if (err < 0)
 -		goto err_remove_irq_domain;
@@ -278,24 +390,39 @@ index 955f0b7..7b312dc 100644
 +		err = sysfs_create_group(&pdev->dev.kobj,
 +					 &rockchip_pcie_attr_group);
 +		if (err)
-+			goto err_remove_irq_domain;
++			goto err_vpcie;
++		rockchip_pcie_try_probe_dma_obj(rockchip);
 +	} else {
 +		err = rockchip_pcie_really_probe(rockchip);
 +		if (err < 0)
-+			goto err_remove_irq_domain;
++			goto err_vpcie;
  	}
  
-+	rockchip_pcie_try_probe_dma_obj(rockchip);
-+
  	return 0;
  
- err_remove_irq_domain:
-@@ -1066,8 +1254,13 @@ static void rockchip_pcie_remove(struct platform_device *pdev)
+-err_remove_irq_domain:
+-	irq_domain_remove(rockchip->irq_domain);
+-err_deinit_port:
+-	rockchip_pcie_deinit_phys(rockchip);
+ err_vpcie:
++	if (rockchip->irq_domain) {
++		irq_domain_remove(rockchip->irq_domain);
++		rockchip->irq_domain = NULL;
++	}
++	if (rockchip->pcie_hw_started) {
++		rockchip_pcie_deinit_phys(rockchip);
++		rockchip->pcie_hw_started = false;
++	}
+ 	if (!IS_ERR(rockchip->vpcie12v))
+ 		regulator_disable(rockchip->vpcie12v);
+ 	if (!IS_ERR(rockchip->vpcie3v3))
+@@ -1106,11 +1331,18 @@ static void rockchip_pcie_remove(struct platform_device *pdev)
  	struct rockchip_pcie *rockchip = dev_get_drvdata(dev);
  	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(rockchip);
  
 -	pci_stop_root_bus(bridge->bus);
 -	pci_remove_root_bus(bridge->bus);
+-	irq_domain_remove(rockchip->irq_domain);
 +	rockchip_pcie_remove_dma_obj(rockchip);
 +	if (rockchip->deferred)
 +		sysfs_remove_group(&pdev->dev.kobj, &rockchip_pcie_attr_group);
@@ -303,18 +430,25 @@ index 955f0b7..7b312dc 100644
 +		pci_stop_root_bus(bridge->bus);
 +		pci_remove_root_bus(bridge->bus);
 +	}
- 	irq_domain_remove(rockchip->irq_domain);
++	if (rockchip->irq_domain)
++		irq_domain_remove(rockchip->irq_domain);
  
- 	rockchip_pcie_deinit_phys(rockchip);
+-	rockchip_pcie_deinit_phys(rockchip);
++	if (rockchip->pcie_hw_started)
++		rockchip_pcie_deinit_phys(rockchip);
+ 
+ 	rockchip_pcie_disable_clocks(rockchip);
+ 
 diff --git a/drivers/pci/controller/pcie-rockchip.h b/drivers/pci/controller/pcie-rockchip.h
-index da14246..4665404 100644
+index da14246..acff78b 100644
 --- a/drivers/pci/controller/pcie-rockchip.h
 +++ b/drivers/pci/controller/pcie-rockchip.h
-@@ -343,6 +343,10 @@ struct rockchip_pcie {
+@@ -343,6 +343,11 @@ struct rockchip_pcie {
  	phys_addr_t mem_reserve_start;
  	size_t mem_reserve_size;
  	int dma_trx_enabled;
 +	int deferred;
++	bool pcie_hw_started;
 +	bool pcie_really_probed;
 +	struct pci_host_bridge *bridge;
 +	struct pci_bus *root_bus;

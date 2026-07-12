@@ -1,0 +1,50 @@
+From 1111111111111111111111111111111111111111 Mon Sep 17 00:00:00 2001
+From: henry <henry@example.com>
+Date: Mon, 6 Jul 2026 17:12:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: avoid non-IRQ live mmio snapshots
+
+0007 added UDMA/client/core register snapshots in DMA start, timeout,
+IRQ, and debugfs paths. 0008 removed the debugfs live-MMIO read after
+it was proven to hang the board in the current NPU/PCIe state.
+
+The next real RKNN run on 0008 still made the board unreachable right
+after the NPUTransfer client started. Avoid taking live MMIO snapshots
+from the DMA work/timeout paths too; those paths run in the exact user
+traffic path we are trying to keep alive. Keep cached register snapshots
+only from IRQ handlers, where the controller has already signalled an
+interrupt and previous evidence suggests the access is less risky.
+
+This sacrifices some start/timeout register detail in exchange for not
+turning diagnostic reads into another system hang trigger.
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -70,14 +70,12 @@
+ 	struct dma_table *tbl = obj->cur;
+ 	int chn = tbl->chn;
+ 
+-	rk_pcie_dma_snapshot_regs(obj);
+ 	rockchip_pcie_write(rockchip, lower_32_bits(tbl->desc_dma),
+ 			    PCIE_APB_CORE_UDMA_BASE + 0x14 * chn + 0x04);
+ 	rockchip_pcie_write(rockchip, upper_32_bits(tbl->desc_dma),
+ 			    PCIE_APB_CORE_UDMA_BASE + 0x14 * chn + 0x08);
+ 	rockchip_pcie_write(rockchip, BIT(0) | (tbl->dir << 1),
+ 			    PCIE_APB_CORE_UDMA_BASE + 0x14 * chn + 0x00);
+-	rk_pcie_dma_snapshot_regs(obj);
+ }
+ 
+ static void rk_pcie_prepare_dma(struct dma_trx_obj *obj,
+@@ -201,7 +199,6 @@
+ 		return;
+ 
+ 	obj->dma_timeout_count++;
+-	rk_pcie_dma_snapshot_regs(obj);
+ 	dev_warn_ratelimited(obj->dev,
+ 			     "pcie dma timeout: cur_type=%u loop=%d threshold=%d udma_status=0x%x udma_en=0x%x client=0x%x mask=0x%x core=0x%x core_mask=0x%x ctrl=0x%x desc=%08x:%08x list_empty=%d\n",
+ 			     obj->cur ? obj->cur->type : 0xffffffff,
+-- 
+2.43.0

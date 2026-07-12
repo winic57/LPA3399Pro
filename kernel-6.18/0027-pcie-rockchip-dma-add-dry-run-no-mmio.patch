@@ -1,0 +1,182 @@
+From 0000000000000000000000000000000000000027 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Tue, 7 Jul 2026 22:28:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: add dry-run no-MMIO trace mode
+
+0026 proved that disabling reg_trace live-MMIO is not sufficient: a
+controlled RKNN init with dma_program_only=1 and live_mmio=0 still made
+the board unreachable.  In that path the driver still writes UDMA desc
+registers and also performs implicit live snapshots through the IRQ trace
+helper.
+
+Add a more conservative diagnostic mode:
+
+  /sys/kernel/debug/pcie/dma_dry_run_no_mmio
+
+When enabled, rk_pcie_start_dma_3399() records the prepared descriptor and
+queue state but returns before any UDMA/client/core MMIO read or write. It
+therefore does not program desc_lo/desc_hi and does not touch ctrl/status.
+This separates pure proxy/RKNN/ioctl state-machine effects from UDMA MMIO
+side effects.
+
+Also make rk_pcie_dma_record_irq_trace() honor live_mmio=0 for non-IRQ
+trace paths.  Real IRQ handlers still take a live snapshot because the
+controller has already signalled an interrupt; start/sample/timeout/poll
+paths use cached state unless live_mmio is explicitly enabled.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 39 +++++++++++++++++++++++++-----
+ drivers/pci/controller/pcie-rockchip-dma.h | 25 +++++++++++++++----
+ 2 files changed, 53 insertions(+), 11 deletions(-)
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 713d151..d1337d4 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -77,6 +77,8 @@ static const char *rk_pcie_dma_irq_kind_name(u32 kind)
+ 		return "sample";
+ 	case PCIE_DMA_IRQ_TRACE_PROGRAM_ONLY:
+ 		return "program_only";
++	case PCIE_DMA_IRQ_TRACE_DRY_RUN:
++		return "dry_run";
+ 	default:
+ 		return "unknown";
+ 	}
+@@ -322,6 +324,27 @@ static int rk_pcie_start_dma_3399(struct dma_trx_obj *obj)
+ 		return validate_ret;
+ 	}
+ 
++	if (READ_ONCE(obj->dma_dry_run_no_mmio)) {
++		tr->stage = PCIE_DMA_START_STAGE_DRY_RUN;
++		tr->flags |= PCIE_DMA_START_F_DRY_RUN_NO_MMIO;
++		obj->dma_dry_run_no_mmio_count++;
++		obj->dma_start_blocked_count++;
++		obj->dma_abort_count++;
++		/* No UDMA/client/core MMIO reads or writes in this mode. */
++		if (!READ_ONCE(obj->dma_reg_trace_live_mmio))
++			rk_pcie_dma_record_reg_trace(rockchip, obj,
++						     PCIE_DMA_IRQ_TRACE_DRY_RUN,
++						     obj->last_dma_status);
++		dev_warn_ratelimited(obj->dev,
++				     "pcie dma dry-run-no-mmio: no desc/ctrl MMIO type=%u chn=%u dir=%u desc=%08x:%08x src=%08x:%08x dst=%08x:%08x len_flags=0x%x\n",
++				     tr->type, tr->chn, tr->dir, tr->desc_hi,
++				     tr->desc_lo, tr->desc_src_hi, tr->desc_src_lo,
++				     tr->desc_dst_hi, tr->desc_dst_lo,
++				     tr->desc_len_flags);
++		rk_pcie_dma_finish_no_start(obj);
++		return -EINPROGRESS;
++	}
++
+ 	before_status = rockchip_pcie_read(rockchip,
+ 					   PCIE_APB_CORE_UDMA_BASE +
+ 					   PCIE_UDMA_INT_REG);
+@@ -1369,12 +1392,14 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->dma_poll_done_fallback_count,
+ 		   dma_obj->dma_poll_abort_fallback_count);
+ 	seq_printf(s,
+-		   "start_guard: program_only = %d, start_limit = %u, no_queue_after = %d, preflight = %d, real = %lu, program_only_count = %lu, blocked = %lu, preflight_fail = %lu\n",
+-		   dma_obj->dma_program_only, dma_obj->dma_start_once_limit,
++		   "start_guard: program_only = %d, dry_run_no_mmio = %d, start_limit = %u, no_queue_after = %d, preflight = %d, real = %lu, program_only_count = %lu, dry_run_count = %lu, blocked = %lu, preflight_fail = %lu\n",
++		   dma_obj->dma_program_only, dma_obj->dma_dry_run_no_mmio,
++		   dma_obj->dma_start_once_limit,
+ 		   dma_obj->dma_no_queue_after_start,
+ 		   dma_obj->dma_preflight_validate,
+ 		   dma_obj->dma_real_start_count,
+ 		   dma_obj->dma_program_only_count,
++		   dma_obj->dma_dry_run_no_mmio_count,
+ 		   dma_obj->dma_start_blocked_count,
+ 		   dma_obj->dma_preflight_fail_count);
+ 	seq_printf(s,
+@@ -1714,6 +1739,8 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			    &obj->dma_poll_done_fallback);
+ 	debugfs_create_bool("dma_program_only", 0600, obj->pcie_root,
+ 			    &obj->dma_program_only);
++	debugfs_create_bool("dma_dry_run_no_mmio", 0600, obj->pcie_root,
++			    &obj->dma_dry_run_no_mmio);
+ 	debugfs_create_u32("dma_start_once_limit", 0600, obj->pcie_root,
+ 			   &obj->dma_start_once_limit);
+ 	debugfs_create_bool("dma_no_queue_after_start", 0600, obj->pcie_root,
+@@ -1731,12 +1758,12 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ #endif
+ 
+ 	dev_info(dev,
+-		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
++		 "registered misc device pcie-dev (dma_disabled=%d failfast_mode=%u timeout_ms=%u poll_done_fallback=%d program_only=%d dry_run_no_mmio=%d start_limit=%u preflight=%d irq_sample_period=%u reg_trace=%d live_mmio=%d)\n",
+ 		 obj->dma_disabled, obj->dma_failfast_mode, obj->dma_timeout_ms,
+ 		 obj->dma_poll_done_fallback, obj->dma_program_only,
+-		 obj->dma_start_once_limit, obj->dma_preflight_validate,
+-		 obj->dma_irq_sample_period_ms, obj->dma_reg_trace_enable,
+-		 obj->dma_reg_trace_live_mmio);
++		 obj->dma_dry_run_no_mmio, obj->dma_start_once_limit,
++		 obj->dma_preflight_validate, obj->dma_irq_sample_period_ms,
++		 obj->dma_reg_trace_enable, obj->dma_reg_trace_live_mmio);
+ 	return obj;
+ 
+ err_misc:
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 55bfb57..6384d90 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -46,22 +46,25 @@
+ #define PCIE_DMA_IRQ_TRACE_START_POST		8
+ #define PCIE_DMA_IRQ_TRACE_SAMPLE		9
+ #define PCIE_DMA_IRQ_TRACE_PROGRAM_ONLY	10
++#define PCIE_DMA_IRQ_TRACE_DRY_RUN		11
+ 
+ #define PCIE_DMA_START_STAGE_INIT		0
+ #define PCIE_DMA_START_STAGE_PREFLIGHT_FAIL	1
+ #define PCIE_DMA_START_STAGE_DESC_LO		2
+ #define PCIE_DMA_START_STAGE_DESC_HI		3
+ #define PCIE_DMA_START_STAGE_PROGRAM_ONLY	4
+-#define PCIE_DMA_START_STAGE_LIMIT_BLOCKED	5
+-#define PCIE_DMA_START_STAGE_CTRL_PRE		6
+-#define PCIE_DMA_START_STAGE_CTRL_POST		7
+-#define PCIE_DMA_START_STAGE_DONE		8
++#define PCIE_DMA_START_STAGE_DRY_RUN		5
++#define PCIE_DMA_START_STAGE_LIMIT_BLOCKED	6
++#define PCIE_DMA_START_STAGE_CTRL_PRE		7
++#define PCIE_DMA_START_STAGE_CTRL_POST		8
++#define PCIE_DMA_START_STAGE_DONE		9
+ 
+ #define PCIE_DMA_START_F_PROGRAM_ONLY		BIT(0)
+ #define PCIE_DMA_START_F_LIMIT_BLOCKED		BIT(1)
+ #define PCIE_DMA_START_F_PREFLIGHT		BIT(2)
+ #define PCIE_DMA_START_F_PREFLIGHT_FAIL		BIT(3)
+ #define PCIE_DMA_START_F_NO_QUEUE_AFTER		BIT(4)
++#define PCIE_DMA_START_F_DRY_RUN_NO_MMIO	BIT(5)
+ 
+ struct dma_ioctl_trace {
+ 	unsigned long	seq;
+@@ -286,11 +289,13 @@ struct dma_trx_obj {
+ 	u32				reg_trace_head;
+ 	struct dma_reg_trace	reg_trace[PCIE_DMA_REG_TRACE_LEN];
+ 	bool				dma_program_only;
++	bool				dma_dry_run_no_mmio;
+ 	u32				dma_start_once_limit;
+ 	bool				dma_no_queue_after_start;
+ 	bool				dma_preflight_validate;
+ 	unsigned long			dma_real_start_count;
+ 	unsigned long			dma_program_only_count;
++	unsigned long			dma_dry_run_no_mmio_count;
+ 	unsigned long			dma_start_blocked_count;
+ 	unsigned long			dma_preflight_fail_count;
+ 	bool				dma_poll_done_fallback;
+@@ -444,7 +449,17 @@ static inline void rk_pcie_dma_record_irq_trace(struct rockchip_pcie *rockchip,
+ 	if (!rockchip || !obj)
+ 		return;
+ 
+-	rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
++	/*
++	 * Keep non-IRQ trace paths non-invasive unless explicitly enabled.
++	 * Real IRQ handlers already reached us because the controller signalled
++	 * an interrupt, so keep their live snapshot.  Start/sample/timeout/poll
++	 * paths use cached values when dma_reg_trace_live_mmio is false.
++	 */
++	if (READ_ONCE(obj->dma_reg_trace_live_mmio) ||
++	    kind == PCIE_DMA_IRQ_TRACE_SUBSYS ||
++	    kind == PCIE_DMA_IRQ_TRACE_CLIENT ||
++	    kind == PCIE_DMA_IRQ_TRACE_UDMA)
++		rk_pcie_dma_snapshot_irq_regs(rockchip, obj);
+ 
+ 	obj->irq_trace_count++;
+ 	head = obj->irq_trace_head++ & (PCIE_DMA_IRQ_TRACE_LEN - 1);

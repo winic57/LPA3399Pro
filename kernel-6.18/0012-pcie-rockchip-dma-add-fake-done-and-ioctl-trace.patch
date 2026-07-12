@@ -1,0 +1,322 @@
+From b0c47dbe1a0febd435e88d7850931f9613773efd Mon Sep 17 00:00:00 2001
+From: henry <henry@example.com>
+Date: Mon, 6 Jul 2026 19:08:00 +0800
+Subject: [PATCH] pcie-dma: add fake done and ioctl trace ring
+
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 146 ++++++++++++++++-----
+ drivers/pci/controller/pcie-rockchip-dma.h |  23 ++++
+ 2 files changed, 139 insertions(+), 30 deletions(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 366f530b8..24ceed04e 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -17,6 +17,8 @@
+ #include <linux/uaccess.h>
+ #include <linux/vmalloc.h>
+ #include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/string.h>
+ 
+ #include <uapi/linux/rk-pcie-dma.h>
+ 
+@@ -47,6 +49,7 @@
+ #define PCIE_DMA_FAILFAST_ERROR		0
+ #define PCIE_DMA_FAILFAST_SOFT_ABORT	1
+ #define PCIE_DMA_FAILFAST_SOFT_COMPLETE	2
++#define PCIE_DMA_FAILFAST_FAKE_DONE	3
+ 
+ static inline bool is_rc(struct dma_trx_obj *obj)
+ {
+@@ -235,16 +238,51 @@ static bool rk_pcie_dma_cmd_needs_hw(unsigned int cmd)
+ 	       cmd == PCIE_DMA_WAIT_TRANSFER_COMPLETE;
+ }
+ 
+-static int rk_pcie_dma_disabled_ret(struct dma_trx_obj *obj, unsigned int cmd)
++static void rk_pcie_dma_fake_done(struct dma_trx_obj *obj, unsigned int cmd,
++				   const union pcie_dma_ioctl_param *msg)
++{
++	if (!obj)
++		return;
++
++	/*
++	 * Safe software-only completion path used only with dma_disabled=1.
++	 * Do not program UDMA registers here.  Just emulate the vendor-style
++	 * done/wake flow so RKNN/proxy ioctl ordering can be observed without
++	 * entering the real DMA path that previously hard-hung the board.
++	 */
++	obj->dma_fake_done_count++;
++	obj->dma_free = true;
++	obj->cur = NULL;
++
++	if (cmd == PCIE_DMA_START && msg) {
++		obj->loop_count++;
++		if (msg->in.l_widx < BITS_PER_LONG)
++			set_bit(msg->in.l_widx, &obj->local_write_available);
++		if (msg->in.r_widx < BITS_PER_LONG)
++			set_bit(msg->in.r_widx, &obj->remote_write_available);
++	} else if (cmd == PCIE_DMA_WAIT_TRANSFER_COMPLETE) {
++		obj->loop_count = 0;
++	}
++
++	obj->dma_fake_wake_count++;
++	wake_up(&obj->event_queue);
++	complete_all(&obj->done);
++}
++
++static int rk_pcie_dma_disabled_ret(struct dma_trx_obj *obj, unsigned int cmd,
++				    const union pcie_dma_ioctl_param *msg)
+ {
+ 	u32 mode = READ_ONCE(obj->dma_failfast_mode);
+ 
+-	if (mode > PCIE_DMA_FAILFAST_SOFT_COMPLETE)
++	if (mode > PCIE_DMA_FAILFAST_FAKE_DONE)
+ 		mode = PCIE_DMA_FAILFAST_ERROR;
+ 
+ 	rk_pcie_dma_failfast_reset(obj);
+ 
+ 	switch (mode) {
++	case PCIE_DMA_FAILFAST_FAKE_DONE:
++		rk_pcie_dma_fake_done(obj, cmd, msg);
++		return 0;
+ 	case PCIE_DMA_FAILFAST_SOFT_COMPLETE:
+ 		if (cmd == PCIE_DMA_WAIT_TRANSFER_COMPLETE)
+ 			obj->loop_count = 0;
+@@ -259,6 +297,46 @@ static int rk_pcie_dma_disabled_ret(struct dma_trx_obj *obj, unsigned int cmd)
+ 	}
+ }
+ 
++static void rk_pcie_dma_record_ioctl(struct dma_trx_obj *obj, unsigned int cmd,
++				     const union pcie_dma_ioctl_param *msg, int ret)
++{
++	struct dma_ioctl_trace *tr;
++	u32 head;
++
++	if (!obj)
++		return;
++
++	obj->last_ioctl_cmd = cmd;
++	obj->last_ioctl_ret = ret;
++	head = obj->ioctl_trace_head++ & (PCIE_DMA_IOCTL_TRACE_LEN - 1);
++	tr = &obj->ioctl_trace[head];
++
++	memset(tr, 0, sizeof(*tr));
++	tr->seq = obj->ioctl_count;
++	tr->ts_ns = ktime_get_ns();
++	tr->cmd = cmd;
++	tr->ret = ret;
++	if (msg) {
++		tr->idx = msg->in.idx;
++		tr->l_widx = msg->in.l_widx;
++		tr->r_widx = msg->in.r_widx;
++		tr->size = msg->in.size;
++		tr->type = msg->in.type;
++		tr->count = msg->count;
++	}
++	tr->lwa = (u32)obj->local_write_available;
++	tr->rwa = (u32)obj->remote_write_available;
++	tr->lra = (u32)obj->local_read_available;
++	tr->loop_count = obj->loop_count;
++}
++
++static long rk_pcie_dma_ioctl_done(struct dma_trx_obj *obj, unsigned int cmd,
++				   const union pcie_dma_ioctl_param *msg, int ret)
++{
++	rk_pcie_dma_record_ioctl(obj, cmd, msg, ret);
++	return ret;
++}
++
+ static void rk_pcie_dma_recover_timeout(struct dma_trx_obj *obj)
+ {
+ 	if (obj->dma_free || !obj->dma_timeout_ms)
+@@ -426,20 +504,17 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 	obj->last_ioctl_cmd = cmd;
+ 	obj->last_ioctl_ret = 0;
+ 
+-	if (copy_from_user(&msg, uarg, sizeof(msg)) != 0) {
+-		obj->last_ioctl_ret = -EFAULT;
+-		return -EFAULT;
+-	}
++	if (copy_from_user(&msg, uarg, sizeof(msg)) != 0)
++		return rk_pcie_dma_ioctl_done(obj, cmd, NULL, -EFAULT);
+ 
+ 	if (READ_ONCE(obj->dma_disabled) && rk_pcie_dma_cmd_needs_hw(cmd)) {
+-		ret = rk_pcie_dma_disabled_ret(obj, cmd);
++		ret = rk_pcie_dma_disabled_ret(obj, cmd, &msg);
+ 		if (ret)
+ 			obj->dma_abort_count++;
+-		obj->last_ioctl_ret = ret;
+ 		dev_warn_ratelimited(dev,
+ 				     "pcie dma disabled: mode=%u ioctl=0x%x ret=%d\n",
+ 				     READ_ONCE(obj->dma_failfast_mode), cmd, ret);
+-		return ret;
++		return rk_pcie_dma_ioctl_done(obj, cmd, &msg, ret);
+ 	}
+ 
+ 	switch (cmd) {
+@@ -454,10 +529,8 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		if (is_rc(obj))
+ 			addr += PCIE_DMA_WR_BUF_SIZE;
+ 		dma_sync_single_for_cpu(dev, addr, PCIE_DMA_RD_BUF_SIZE, DMA_FROM_DEVICE);
+-		if (copy_to_user(uarg, &out, sizeof(out))) {
+-			obj->last_ioctl_ret = -EFAULT;
+-			return -EFAULT;
+-		}
++		if (copy_to_user(uarg, &out, sizeof(out)))
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -EFAULT);
+ 		break;
+ 	case PCIE_DMA_SET_LOCAL_READ_BUFFER_INDEX:
+ 		test_and_clear_bit(msg.in.idx, &obj->local_read_available);
+@@ -465,10 +538,8 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 	case PCIE_DMA_GET_LOCAL_REMOTE_WRITE_BUFFER_INDEX:
+ 		out.out.lwa = obj->local_write_available;
+ 		out.out.rwa = obj->remote_write_available;
+-		if (copy_to_user(uarg, &out, sizeof(out))) {
+-			obj->last_ioctl_ret = -EFAULT;
+-			return -EFAULT;
+-		}
++		if (copy_to_user(uarg, &out, sizeof(out)))
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -EFAULT);
+ 		break;
+ 	case PCIE_DMA_SYNC_BUFFER_FOR_CPU:
+ 		addr = obj->mem_start + msg.in.idx * PCIE_DMA_BUF_SIZE;
+@@ -488,10 +559,8 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		reinit_completion(&obj->done);
+ 		ret = wait_for_completion_interruptible_timeout(&obj->done,
+ 				msecs_to_jiffies(timeout_ms));
+-		if (ret < 0) {
+-			obj->last_ioctl_ret = ret;
+-			return ret;
+-		}
++		if (ret < 0)
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, ret);
+ 		if (!ret) {
+ 			obj->dma_timeout_count++;
+ 			dev_warn_ratelimited(dev,
+@@ -499,8 +568,7 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 					     obj->loop_count, obj->loop_count_threshold,
+ 					     obj->last_dma_status, list_empty(&obj->tbl_list),
+ 					     obj->dma_free);
+-			obj->last_ioctl_ret = -ETIMEDOUT;
+-			return -ETIMEDOUT;
++			return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -ETIMEDOUT);
+ 		}
+ 		obj->loop_count = 0;
+ 		break;
+@@ -510,8 +578,7 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		break;
+ 	default:
+ 		dev_dbg(dev, "unsupported ioctl 0x%x\n", cmd);
+-		obj->last_ioctl_ret = -EINVAL;
+-		return -EINVAL;
++		return rk_pcie_dma_ioctl_done(obj, cmd, &msg, -EINVAL);
+ 	}
+ 
+ 	if (cmd == PCIE_DMA_START ||
+@@ -521,8 +588,7 @@ static long rk_pcie_misc_ioctl(struct file *filp, unsigned int cmd, unsigned lon
+ 		queue_work(obj->dma_trx_wq, &obj->dma_trx_work);
+ 	}
+ 
+-	obj->last_ioctl_ret = 0;
+-	return 0;
++	return rk_pcie_dma_ioctl_done(obj, cmd, &msg, 0);
+ }
+ 
+ static __poll_t rk_pcie_misc_poll(struct file *filp, poll_table *wait)
+@@ -681,10 +747,12 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->last_dma_status, dma_obj->dma_disabled,
+ 		   dma_obj->dma_failfast_mode, dma_obj->dma_timeout_ms,
+ 		   dma_obj->dma_timeout_count, dma_obj->dma_abort_count);
+-	seq_printf(s, "ioctl_count = %lu, last_cmd = 0x%x, last_ret = %d, soft_abort = %lu, soft_complete = %lu\n",
++	seq_printf(s, "ioctl_count = %lu, last_cmd = 0x%x, last_ret = %d, soft_abort = %lu, soft_complete = %lu, fake_done = %lu, fake_wake = %lu\n",
+ 		   dma_obj->ioctl_count, dma_obj->last_ioctl_cmd,
+ 		   dma_obj->last_ioctl_ret, dma_obj->dma_soft_abort_count,
+-		   dma_obj->dma_soft_complete_count);
++		   dma_obj->dma_soft_complete_count,
++		   dma_obj->dma_fake_done_count,
++		   dma_obj->dma_fake_wake_count);
+ 	seq_printf(s, "irq_counts: udma = %lu, subsys = %lu, client = %lu\n",
+ 		   dma_obj->udma_irq_count, dma_obj->subsys_irq_count,
+ 		   dma_obj->client_irq_count);
+@@ -698,6 +766,24 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->last_subsys_status,
+ 		   dma_obj->last_subsys_core_status,
+ 		   dma_obj->last_client_irq_status);
++	seq_puts(s, "ioctl_trace recent-first: seq cmd ret idx l_widx r_widx size type count lwa/rwa/lra loop ts_ns\n");
++	{
++		u32 head = dma_obj->ioctl_trace_head;
++		u32 n = min_t(u32, dma_obj->ioctl_count, PCIE_DMA_IOCTL_TRACE_LEN);
++		u32 i;
++
++		for (i = 0; i < n; i++) {
++			const struct dma_ioctl_trace *tr;
++
++			tr = &dma_obj->ioctl_trace[(head - 1 - i) &
++						   (PCIE_DMA_IOCTL_TRACE_LEN - 1)];
++			seq_printf(s, "  %lu 0x%x %d %u %u %u %u %u %u 0x%x/0x%x/0x%x %d %llu\n",
++				   tr->seq, tr->cmd, tr->ret, tr->idx, tr->l_widx,
++				   tr->r_widx, tr->size, tr->type, tr->count,
++				   tr->lwa, tr->rwa, tr->lra, tr->loop_count,
++				   tr->ts_ns);
++		}
++	}
+ 
+ 	return 0;
+ }
+@@ -777,7 +863,7 @@ struct dma_trx_obj *rk_pcie_dma_obj_probe(struct device *dev)
+ 			     &obj->dma_timeout_ms);
+ 	of_property_read_u32(dev->of_node, "rockchip,dma-failfast-mode",
+ 			     &obj->dma_failfast_mode);
+-	if (obj->dma_failfast_mode > PCIE_DMA_FAILFAST_SOFT_COMPLETE)
++	if (obj->dma_failfast_mode > PCIE_DMA_FAILFAST_FAKE_DONE)
+ 		obj->dma_failfast_mode = PCIE_DMA_FAILFAST_ERROR;
+ 
+ 	hrtimer_setup(&obj->scan_timer, rk_pcie_scan_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index 819e6fad2..06320fbe8 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -19,6 +19,25 @@
+ #include <linux/workqueue.h>
+ #include <linux/ktime.h>
+ 
++#define PCIE_DMA_IOCTL_TRACE_LEN		32
++
++struct dma_ioctl_trace {
++	unsigned long	seq;
++	u64		ts_ns;
++	u32		cmd;
++	int		ret;
++	u32		idx;
++	u32		l_widx;
++	u32		r_widx;
++	u32		size;
++	u32		type;
++	u32		count;
++	u32		lwa;
++	u32		rwa;
++	u32		lra;
++	int		loop_count;
++};
++
+ #define PCIE_DMA_TABLE_NUM			24
+ #define PCIE_DMA_DATA_SND_TABLE_OFFSET		0x0
+ #define PCIE_DMA_DATA_RCV_ACK_TABLE_OFFSET	0x8
+@@ -77,9 +96,13 @@ struct dma_trx_obj {
+ 	unsigned long			dma_abort_count;
+ 	unsigned long			dma_soft_abort_count;
+ 	unsigned long			dma_soft_complete_count;
++	unsigned long			dma_fake_done_count;
++	unsigned long			dma_fake_wake_count;
+ 	unsigned long			ioctl_count;
+ 	u32				last_ioctl_cmd;
+ 	int				last_ioctl_ret;
++	u32				ioctl_trace_head;
++	struct dma_ioctl_trace	ioctl_trace[PCIE_DMA_IOCTL_TRACE_LEN];
+ 	unsigned long			udma_irq_count;
+ 	unsigned long			subsys_irq_count;
+ 	unsigned long			client_irq_count;
+-- 
+2.43.0
+

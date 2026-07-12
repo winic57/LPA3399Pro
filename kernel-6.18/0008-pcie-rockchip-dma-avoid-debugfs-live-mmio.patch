@@ -1,0 +1,24 @@
+From 0bd0b606e6fe75e71520ecfda9da6f91273b4d82 Mon Sep 17 00:00:00 2001
+From: henry <henry@example.com>
+Date: Mon, 6 Jul 2026 16:06:37 +0800
+Subject: [PATCH] pcie-rockchip-dma: avoid live mmio reads in debugfs
+
+---
+ drivers/pci/controller/pcie-rockchip-dma.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 65c54d771..e57f3c097 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -581,7 +581,6 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	seq_printf(s, "list : (%s), dma chn : (%s)\n",
+ 		   list_empty_now ? "empty" : "not empty",
+ 		   dma_obj->dma_free ? "free" : "busy");
+-	rk_pcie_dma_snapshot_regs(dma_obj);
+ 	seq_printf(s, "last_status = 0x%x, timeout_ms = %u, timeouts = %lu, aborts = %lu\n",
+ 		   dma_obj->last_dma_status, dma_obj->dma_timeout_ms,
+ 		   dma_obj->dma_timeout_count, dma_obj->dma_abort_count);
+-- 
+2.43.0
+

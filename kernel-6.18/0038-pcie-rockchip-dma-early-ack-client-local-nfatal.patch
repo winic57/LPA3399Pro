@@ -1,0 +1,106 @@
+From 0000000000000000000000000000000000000038 Mon Sep 17 00:00:00 2001
+From: Henry AI <henry.ai@example.com>
+Date: Thu, 9 Jul 2026 22:10:00 +0800
+Subject: [PATCH] pcie-rockchip-dma: early ack client LOCAL/NFATAL during active DMA
+
+A controlled 1MiB DATA_SND real DMA now completes with UDMA CH0_DONE, but
+still produces a finite client IRQ burst with status 0x410
+(LOCAL | NFATAL_ERR) and core MMVC.  The normal client IRQ handler clears
+NFATAL_ERR but not LOCAL, so the client IRQ can keep firing until the DMA
+done/sys IRQ path catches up.
+
+When the RK3399Pro NPU DMA bridge is enabled and a DMA transfer is active,
+ack LOCAL/NFATAL and core MMVC immediately in the client IRQ handler.  This
+is limited to the active DMA window and leaves normal PCIe client error
+handling unchanged outside NPU DMA.  Add counters and decoded status fields
+to pcie_trx so the next test can compare the client IRQ burst directly.
+
+Signed-off-by: Henry AI <henry.ai@example.com>
+---
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.c b/drivers/pci/controller/pcie-rockchip-dma.c
+index 6e229993c..aa9992997 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.c
++++ b/drivers/pci/controller/pcie-rockchip-dma.c
+@@ -1545,6 +1545,11 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 		   dma_obj->last_subsys_status,
+ 		   dma_obj->last_subsys_core_status,
+ 		   dma_obj->last_client_irq_status);
++	seq_printf(s,
++		   "client_active_ack: count = %lu, status = 0x%x, core = 0x%x\n",
++		   dma_obj->dma_client_active_ack_count,
++		   dma_obj->last_client_active_ack_status,
++		   dma_obj->last_client_active_ack_core_status);
+ 	seq_printf(s,
+ 		   "irq_sample: enable = %u, period_ms = %u, count = %lu, tick = %u\n",
+ 		   dma_obj->dma_irq_sample_enable,
+@@ -1557,6 +1562,12 @@ static int rk_pcie_debugfs_trx_show(struct seq_file *s, void *v)
+ 	rk_pcie_dma_seq_bits(s, "last_client_irq_status_bits = ",
+ 			      dma_obj->last_client_irq_status, rk_pcie_client_bits,
+ 			      ARRAY_SIZE(rk_pcie_client_bits));
++	rk_pcie_dma_seq_bits(s, "last_client_active_ack_bits = ",
++			      dma_obj->last_client_active_ack_status, rk_pcie_client_bits,
++			      ARRAY_SIZE(rk_pcie_client_bits));
++	rk_pcie_dma_seq_bits(s, "last_client_active_ack_core_bits = ",
++			      dma_obj->last_client_active_ack_core_status, rk_pcie_core_bits,
++			      ARRAY_SIZE(rk_pcie_core_bits));
+ 	rk_pcie_dma_seq_bits(s, "client_status_bits = ",
+ 			      dma_obj->last_client_status, rk_pcie_client_bits,
+ 			      ARRAY_SIZE(rk_pcie_client_bits));
+diff --git a/drivers/pci/controller/pcie-rockchip-dma.h b/drivers/pci/controller/pcie-rockchip-dma.h
+index cef006ca2..22f7ea366 100644
+--- a/drivers/pci/controller/pcie-rockchip-dma.h
++++ b/drivers/pci/controller/pcie-rockchip-dma.h
+@@ -258,6 +258,9 @@ struct dma_trx_obj {
+ 	u32				last_subsys_status;
+ 	u32				last_subsys_core_status;
+ 	u32				last_client_irq_status;
++	unsigned long			dma_client_active_ack_count;
++	u32				last_client_active_ack_status;
++	u32				last_client_active_ack_core_status;
+ 	bool				dma_disabled;
+ 	bool				dma_link_failfast;
+ 	unsigned long			dma_linkdown_block_count;
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index 606eb8ebf..99b76b244 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -605,11 +605,39 @@ static irqreturn_t rockchip_pcie_subsys_irq_handler(int irq, void *arg)
+ static irqreturn_t rockchip_pcie_client_irq_handler(int irq, void *arg)
+ {
+ 	struct rockchip_pcie *rockchip = arg;
++	struct dma_trx_obj *dma_obj = rockchip->dma_obj;
+ 	struct device *dev = rockchip->dev;
+ 	u32 reg;
++	u32 sub_reg = 0;
+ 
+ 	reg = rockchip_pcie_read(rockchip, PCIE_CLIENT_INT_STATUS);
+ 	rk_pcie_dma_record_client_irq(rockchip, reg);
++
++	/*
++	 * During an active RK3399Pro NPU DMA transfer DATA_SND can assert
++	 * client status 0x410 (LOCAL | NFATAL_ERR) with core MMVC.  The generic
++	 * client handler used to clear NFATAL_ERR but not LOCAL, causing a finite
++	 * interrupt burst before UDMA done.  Ack LOCAL/NFATAL and MMVC as soon as
++	 * the client IRQ arrives while DMA is busy.  This is limited to the
++	 * dma_trx_enabled active window and leaves normal PCIe error reporting
++	 * untouched outside NPU DMA.
++	 */
++	if (rockchip->dma_trx_enabled && dma_obj &&
++	    !READ_ONCE(dma_obj->dma_free) &&
++	    (reg & (PCIE_CLIENT_INT_LOCAL | PCIE_CLIENT_INT_NFATAL_ERR))) {
++		sub_reg = rockchip_pcie_read(rockchip, PCIE_CORE_INT_STATUS);
++		if (sub_reg & PCIE_CORE_INT_MMVC)
++			rockchip_pcie_write(rockchip, sub_reg & PCIE_CORE_INT_MMVC,
++					    PCIE_CORE_INT_STATUS);
++		rockchip_pcie_write(rockchip,
++				    reg & (PCIE_CLIENT_INT_LOCAL |
++					   PCIE_CLIENT_INT_NFATAL_ERR),
++				    PCIE_CLIENT_INT_STATUS);
++		dma_obj->dma_client_active_ack_count++;
++		dma_obj->last_client_active_ack_status = reg;
++		dma_obj->last_client_active_ack_core_status = sub_reg;
++		return IRQ_HANDLED;
++	}
+ 	if (reg & PCIE_CLIENT_INT_LEGACY_DONE)
+ 		dev_dbg(dev, "legacy done interrupt received\n");
+ 
