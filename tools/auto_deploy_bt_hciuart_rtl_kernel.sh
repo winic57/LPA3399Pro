@@ -123,14 +123,40 @@ try_release() {
   local outdir="$1"
   mkdir -p "$outdir/norm"
   local base="https://github.com/winic57/LPA3399Pro/releases/download/Neardi-LPA3399Pro-kernel-6.18"
-  local proxy="https://gitproxy.mrhjx.cn/https://github.com/winic57/LPA3399Pro/releases/download/Neardi-LPA3399Pro-kernel-6.18"
-  for u in "$base" "$proxy"; do
-    if curl -fL --connect-timeout 15 --max-time 30 -I "$u/Image" >/dev/null 2>&1; then
-      echo "using release $u"
-      curl -fL --retry 5 --retry-delay 3 -o "$outdir/norm/Image" "$u/Image"
-      curl -fL --retry 5 --retry-delay 3 -o "$outdir/norm/kos.tar.gz" "$u/kos.tar.gz"
-      curl -fL --retry 5 --retry-delay 3 -o "$outdir/norm/dtbs.tar.gz" "$u/dtbs.tar.gz" || true
-      return 0
+  local mirror="https://gitproxy.mrhjx.cn/https://github.com/winic57/LPA3399Pro/releases/download/Neardi-LPA3399Pro-kernel-6.18"
+  local http_proxy_url="${DOWNLOAD_PROXY:-http://192.168.50.62:7890}"
+  # Prefer aria2 multi-conn + proxy (skill/tools wrapper if present)
+  if command -v aria2c >/dev/null 2>&1; then
+    echo "using aria2 + proxy ${http_proxy_url} for release assets"
+    local dl_helper=""
+    if [[ -x /home/henry/.claude/skills/aria2-proxy-download/scripts/aria2_proxy_dl.sh ]]; then
+      dl_helper=/home/henry/.claude/skills/aria2-proxy-download/scripts/aria2_proxy_dl.sh
+    elif [[ -x /mnt/sdb3/LPA3399Pro/tools/aria2_proxy_dl.sh ]]; then
+      dl_helper=/mnt/sdb3/LPA3399Pro/tools/aria2_proxy_dl.sh
+    fi
+    for u in "$base" "$mirror"; do
+      local ok=1
+      for f in Image kos.tar.gz dtbs.tar.gz; do
+        if [[ -n "$dl_helper" ]]; then
+          PROXY="$http_proxy_url" "$dl_helper" -o "$outdir/norm" -n "$f" "$u/$f" || ok=0
+        else
+          aria2c -c -x 16 -s 16 -k 1M --all-proxy="$http_proxy_url"             --connect-timeout=30 --timeout=120 --max-tries=5 --retry-wait=2             --auto-file-renaming=false --allow-overwrite=true             -d "$outdir/norm" -o "$f" "$u/$f" || ok=0
+        fi
+      done
+      if [[ $ok -eq 1 && -s "$outdir/norm/Image" && -s "$outdir/norm/kos.tar.gz" ]]; then
+        echo "ARIA2_RELEASE_OK from $u"
+        return 0
+      fi
+    done
+  fi
+  # Fallback curl
+  for u in "$base" "$mirror"; do
+    if curl -fL --proxy "$http_proxy_url" --connect-timeout 15 --max-time 30 -I "$u/Image" >/dev/null 2>&1        || curl -fL --connect-timeout 15 --max-time 30 -I "$u/Image" >/dev/null 2>&1; then
+      echo "using curl release $u"
+      curl -fL --proxy "$http_proxy_url" --retry 5 --retry-delay 3 -o "$outdir/norm/Image" "$u/Image"         || curl -fL --retry 5 --retry-delay 3 -o "$outdir/norm/Image" "$u/Image"
+      curl -fL --proxy "$http_proxy_url" --retry 5 --retry-delay 3 -o "$outdir/norm/kos.tar.gz" "$u/kos.tar.gz"         || curl -fL --retry 5 --retry-delay 3 -o "$outdir/norm/kos.tar.gz" "$u/kos.tar.gz"
+      curl -fL --proxy "$http_proxy_url" --retry 5 --retry-delay 3 -o "$outdir/norm/dtbs.tar.gz" "$u/dtbs.tar.gz"         || curl -fL --retry 5 --retry-delay 3 -o "$outdir/norm/dtbs.tar.gz" "$u/dtbs.tar.gz" || true
+      [[ -s "$outdir/norm/Image" && -s "$outdir/norm/kos.tar.gz" ]] && return 0
     fi
   done
   return 1

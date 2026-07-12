@@ -163,3 +163,9 @@ ssh root@192.168.50.17   # password 1234
 - 根因：内核 **`# CONFIG_BT_HCIUART_RTL is not set`**，且 base DTB bluetooth 原为 disabled
 - 板上 DTB 已改 bluetooth `status=okay`（需重启；仍缺 HCIUART_RTL）
 - 下一步内核：打开 `CONFIG_BT_HCIUART_RTL=y` 后重编 6.18.33 包
+
+
+## 2026-07-12 晚更新：NPU 环境已补齐并冒烟全绿
+
+见 `docs/NPU_ENV_AND_SMOKE_20260712.md`。
+`SUMMARY boot_rc=0 usb_rc=0 proxy_rc=0 rknn_rc=0`。
