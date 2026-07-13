@@ -55,5 +55,8 @@ systemctl restart docker
 docker run --rm -p 8080:80 nginx:alpine   # or hello-world
 ```
 
-## Live .17 note (until new kos)
-Current running kernel still lacks these modules; dockerd uses `"iptables": false` workaround. TF data-root works; bridge NAT incomplete until new modules installed.
+## Live .17 status (2026-07-13)
+New kos deployed (GHA run 29226416546, 1449 modules). Docker NAT confirmed:
+- `iptables -t nat -S` shows DOCKER chain + DNAT/MASQUERADE rules
+- `docker run -p 18080:80 nginx:alpine` → `curl http://127.0.0.1:18080/ HTTP 200`
+- `ip6tables: false` is now the permanent config (Docker 26 requires `--experimental` for ip6tables; disable avoids startup error with no functional loss on IPv4-only board)
