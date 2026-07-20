@@ -2407,6 +2407,18 @@
 		ddc-i2c-bus = <0xa9>;
 		pinctrl-names = "default";
 		pinctrl-0 = <0xaa>;
+		/*
+		 * RK3399 vendor boards carry this table in the DT.  The
+		 * mainline dw-hdmi-rockchip driver currently has the same
+		 * values built in, but keeping the property here preserves the
+		 * board tuning for older/vendor drivers and DTB inspection.
+		 */
+		rockchip,phy-table =
+			<74250000 0x8009 0x0004 0x0272>,
+			<165000000 0x802b 0x0004 0x0209>,
+			<297000000 0x8039 0x0005 0x028d>,
+			<594000000 0x8039 0x0000 0x019d>,
+			<000000000 0x0000 0x0000 0x0000>;
 		phandle = <0xa8>;
 
 		ports {

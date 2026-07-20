@@ -1,0 +1,12 @@
+[Unit]
+Description=LPA3399Pro HDMI 1024x768 clock correction
+After=lpa-hdmi-unblank.service
+Wants=lpa-hdmi-unblank.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lpa-hdmi-clock-fix.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
